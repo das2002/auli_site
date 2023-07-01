@@ -1,11 +1,14 @@
 import './App.css';
-import { AuthUser } from './components/GoogleAuth/Authenticate';
-import { TabGroup } from './components/Tabs/Tabs';
+import AuthDetails from './components/AuthDetails';
+import SignIn from './components/GoogleAuth/SignIn';
+import SignUp from './components/GoogleAuth/SignUp';
 
 function App() {
   return (
     <div className="App">
-      <AuthUser/>
+      <SignIn />
+      <SignUp />
+      <AuthDetails />
     </div>
   );
 }
