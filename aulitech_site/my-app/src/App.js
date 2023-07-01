@@ -10,9 +10,10 @@ function App() {
   const [doAuth, setDoAuth] = useState(false);
   return (
     <div className="App">
-      <h1>Homepage</h1>
-      <AuthPg/>
+      <div>
+      <h1>AULI.TECH</h1>
       <AuthDetails/>
+      </div>
     </div>
   );
 }
