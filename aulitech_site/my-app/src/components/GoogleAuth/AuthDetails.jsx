@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { auth } from "../firebase";
+import { auth } from "../../firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import AuthPg from "./GoogleAuth/AuthPg";
+import AuthPg from "./AuthPg";
 
 
 const AuthDetails = () => {
@@ -32,7 +32,7 @@ const AuthDetails = () => {
             setDisabled(false);
         })
         .catch((error) => {
-            console.log(error)
+            console.log("userSignOut error:", error)
         })
     }
 
