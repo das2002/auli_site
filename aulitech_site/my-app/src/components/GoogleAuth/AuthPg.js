@@ -4,7 +4,6 @@ import SignUp from "./SignUp";
 
 const AuthPg = () => {
     const [ register, setRegister ] = useState(false);
-    const [showAuth, setSHowAuth] = useState(false);
 
     const handleRegister = () => {
         setRegister(!register);
