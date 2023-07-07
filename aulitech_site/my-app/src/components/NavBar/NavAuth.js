@@ -10,7 +10,7 @@ const NavAuth = ({user, handlePage}) => {
         {user !== 'undefined' ?
           <SignedIn user={user}  handlePage={handlePage}/>
         :
-          <SignInBtn/>
+          <SignInBtn user={user}  handlePage={handlePage}/>
         }
       </div>
     </>

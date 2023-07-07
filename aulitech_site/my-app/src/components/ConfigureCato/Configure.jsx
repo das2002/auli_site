@@ -1,11 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { get, set, clear } from 'https://cdn.jsdelivr.net/npm/idb-keyval@6/+esm';
+
+import { Listbox, Transition } from '@headlessui/react'
+import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 
 const ConfigureCato = () => {
   const [catoConnected, setCatoConnected] = useState(false);
   const [configSuccess, setConfigSuccess]  = useState(false);
   const [gestureNum, setGestureNum] = useState(0);
   const [prevGesture, setPrevGesture]  = useState('');
+
+  const gestures = [
+    {id: 0, name: 'Select'},
+    {id: 1, name: 'Nod up'},
+    {id: 2, name: 'Nod down'},
+    {id: 3, name: 'Nod right'},
+    {id: 4, name: 'Nod left'},
+    {id: 5, name: 'Tilt right'},
+    {id: 6, name: 'Tilt left'},
+    {id: 7, name: 'Shake vertical'},
+    {id: 8, name: 'Shake horizontal'},
+    {id: 9, name: 'Circle clockwise'},
+    {id: 10, name: 'Circle counterclockwise'}
+  ];
   
   const reset = () => {
     clear();
@@ -93,64 +110,142 @@ const ConfigureCato = () => {
 
 
   const HandleConnectDirectoryUI = () => {
-    return (
-      <div>
-        <p>{catoConnected ? 'Connected to AULI_CATO on local computer.' : 'Allow access to Cato. Select AULI_CATO from your local computer.'}</p>
-        
-        {catoConnected  ? 
-        <>
-          <img src={require('../../images/check-icon.png')} alt='circle check icon' width={'3%'}/>
-          <br/>
-          <button onClick={reset}>Reset Connection</button>
-        </>
-        :
-        <>
-          <button onClick={getDirectory}>Connect</button>
-        </>}
+    return (        
+        <div className="bg-white shadow sm:rounded-lg">
+      <div className="px-4 py-5 sm:p-6">
+        <h3 className="text-base font-semibold leading-6 text-gray-900">Connect Cato</h3>
+        <div className="mt-2 sm:flex sm:items-start sm:justify-between">
+          <div className="max-w-xl text-sm text-gray-500">
+            <p>
+              {catoConnected ? 'Connected to AULI_CATO on local computer.' : 'Allow access to Cato. Select AULI_CATO from your local computer.'}
+            </p>
+          </div>
+          <div className="mt-5 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center">
+            <button
+              type="button"
+              className="rounded-full bg-white px-2.5 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+              onClick={catoConnected ? reset : getDirectory}
+            >
+              {catoConnected ? 'Reset Connection' : 'Connect'}
+            </button>
+          </div>
+        </div>
       </div>
+    </div>
+
     )
   }
 
   const HandleConfigUI = () => {
     return (
-      <div>
-        <p>Hit start to begin recording gesture.</p>
-        <button onClick={writeConfig} disabled={configSuccess}>Start</button>
-        <br/>
-        {configSuccess ? 
-        <>   
-          <img src={require('../../images/check-icon.png')} alt='circle check icon' width={'3%'}/>  
-        </>
-        : null}
+      <div className="bg-white shadow sm:rounded-lg">
+      <div className="px-4 py-5 sm:p-6">
+        <h3 className="text-base font-semibold leading-6 text-gray-900">Record Gesture</h3>
+        <div className="mt-2 sm:flex sm:items-start sm:justify-between">
+          <div className="max-w-xl text-sm text-gray-500">
+            <p>
+            Hit start to begin recording gesture.
+            </p>
+          </div>
+          <div className="mt-5 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center">
+            <button
+              type="button"
+              className="rounded-full bg-white px-2.5 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+            >
+              Start
+            </button>
+          </div>
+        </div>
       </div>
+    </div>
+    )
+  };
+
+  const HandleGesturePickerUI = () => {
+    const [selected, setSelected] = useState(gestures[0]);
+
+    function classNames(...classes) {
+      return classes.filter(Boolean).join(' ')
+    }
+
+    return (
+      <div className="bg-white shadow sm:rounded-lg">
+      <div className="px-4 py-5 sm:p-6">
+        <h3 className="text-base font-semibold leading-6 text-gray-900">Select Gesture</h3>
+        <div className="mt-2 max-w-xl text-sm text-gray-500">
+          <p>
+          Select gesture to record and map to your Cato.
+          </p>
+        </div>
+        <div className="mt-5">
+        <Listbox value={selected} onChange={setSelected}>
+      {({ open }) => (
+        <>
+          <Listbox.Label className="block text-sm font-medium leading-6 text-gray-900">Gestures</Listbox.Label>
+          <div className="relative mt-2">
+            <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 sm:text-sm sm:leading-6">
+              <span className="block truncate">{selected.name}</span>
+              <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+                <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+              </span>
+            </Listbox.Button>
+
+            <Transition
+              show={open}
+              as={Fragment}
+              leave="transition ease-in duration-100"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                {gestures.map((gesture) => (
+                  <Listbox.Option
+                    key={gesture.id}
+                    className={({ active }) =>
+                      classNames(
+                        active ? 'bg-blue-300 text-white' : 'text-gray-900',
+                        'relative cursor-default select-none py-2 pl-3 pr-9'
+                      )
+                    }
+                    value={gesture}
+                  >
+                    {({ selected, active }) => (
+                      <>
+                        <span className={classNames(selected ? 'font-semibold' : 'font-normal', 'block truncate')}>
+                          {gesture.name}
+                        </span>
+
+                        {selected ? (
+                          <span
+                            className={classNames(
+                              active ? 'text-white' : 'text-blue-300',
+                              'absolute inset-y-0 right-0 flex items-center pr-4'
+                            )}
+                          >
+                            <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                          </span>
+                        ) : null}
+                      </>
+                    )}
+                  </Listbox.Option>
+                ))}
+              </Listbox.Options>
+            </Transition>
+          </div>
+        </>
+      )}
+    </Listbox>
+        </div>
+      </div>
+    </div>
     )
   }
 
+
   return (
     <>
-      <h3>Configure your Cato</h3>
       <HandleConnectDirectoryUI/>
-      <br/>
-      <br/>
-      <div>
-        <p>Select gesture to record and map.</p>
-        <select
-          value={gestureNum}
-          onChange={(e) => {setGestureNum(e.target.value)}}
-        >
-          <option value={0}>Select</option>
-          <option value={1}>Nod up</option>
-          <option value={2}>Nod down</option>
-          <option value={3}>Nod right</option>
-          <option value={4}>Nod left</option>
-          <option value={5}>Tilt right</option>
-          <option value={6}>Tilt left</option>
-          <option value={7}>Shake vertical</option>
-          <option value={8}>Shake horizontal</option>
-          <option value={9}>Circle clockwise</option>
-          <option value={10}>Circle counterclockwise</option>
-        </select>
-      </div>
+      <HandleGesturePickerUI/>
       <HandleConfigUI/>
     </>
   )

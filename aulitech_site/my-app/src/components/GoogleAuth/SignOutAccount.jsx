@@ -3,7 +3,7 @@ import { auth } from "../../firebase";
 import { signOut } from "firebase/auth";
 
 
-const SignOut = () => {
+const SignOutAccount = () => {
   const userSignOut = () => {
     signOut(auth).then(() => {
       console.log('signed out successfully');
@@ -27,4 +27,4 @@ const SignOut = () => {
   )
 }
 
-export default SignOut;
+export default SignOutAccount;

@@ -1,20 +1,24 @@
 import React, { Fragment} from "react";
 import { Menu, Transition } from '@headlessui/react';
+import SignOutAccount from "../GoogleAuth/SignOutAccount";
+import ConfigureCato from "../ConfigureCato/Configure";
 
-export const USER = {
-  name: 'Tom Cook',
-  email: 'tom@example.com',
-  imageUrl:
-    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-};
 
 export const USER_NAV = [
   { name: 'Your Profile', thing: null},
-  { name: 'Settings', thing: null},
-  { name: 'Sign out', thing: 'SignOut'}
+  { name: 'Configure Cato', thing: <ConfigureCato/>},
+  { name: 'Sign out', thing: <SignOutAccount/>}
 ];
 
 const SignedIn = ({user, handlePage}) => {
+  const USER = {
+    name: 'Tom Cook',
+    email: 'user.email',
+    imageUrl:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+  };
+
+
   
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -46,7 +50,7 @@ const SignedIn = ({user, handlePage}) => {
                 <Menu.Item key={item.name}>
                   {({ active }) => (
                     <button
-                      onClick={() => handlePage(item.thing)}
+                      onClick={() => handlePage({name: item.name, thing: item.thing})}
                       className={classNames(
                         active ? 'bg-gray-100' : '',
                         'block px-4 py-2 text-sm text-gray-700'
