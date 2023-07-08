@@ -10,16 +10,16 @@ export const USER_NAV = [
   { name: 'Sign out', thing: <SignOutAccount/>}
 ];
 
-const SignedIn = ({user, handlePage}) => {
-  const USER = {
-    name: 'Tom Cook',
-    email: 'user.email',
-    imageUrl:
-      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-  };
+export const USER = {
+  name: 'Tom Cook',
+  email: 'user.email',
+  imageUrl:
+    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+};
 
 
-  
+const SignedIn = ({handlePage}) => {
+
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
   };
@@ -50,7 +50,7 @@ const SignedIn = ({user, handlePage}) => {
                 <Menu.Item key={item.name}>
                   {({ active }) => (
                     <button
-                      onClick={() => handlePage({name: item.name, thing: item.thing})}
+                      onClick={() => handlePage({thing: item.thing})}
                       className={classNames(
                         active ? 'bg-gray-100' : '',
                         'block px-4 py-2 text-sm text-gray-700'

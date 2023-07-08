@@ -3,11 +3,10 @@ import SignInBtn from "./SignInBtn";
 import SignedIn from "./SignedIn";
 
 const NavAuth = ({user, handlePage}) => {
-  
   return (
     <>
       <div className="flex items-center">
-        {user !== 'undefined' ?
+        {user !== null ?
           <SignedIn user={user}  handlePage={handlePage}/>
         :
           <SignInBtn user={user}  handlePage={handlePage}/>
@@ -18,7 +17,3 @@ const NavAuth = ({user, handlePage}) => {
 };
 
 export default NavAuth;
-
-/* 
-            
-*/

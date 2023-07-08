@@ -1,4 +1,5 @@
 import React from "react";
+import HomePg from "../../pages/HomePg";
 
 export default function LogoHome({handlePage}) {
   const logoAlt = 'AULI.TECH Logo';
@@ -9,18 +10,18 @@ export default function LogoHome({handlePage}) {
   return (
     <>
       <div className="flex flex-shrink-0 items-center">
-        <button onClick={() => handlePage('HomePg')} >
+        <button onClick={() => handlePage({ thing: <HomePg/>})} >
           <img
-            className={logoStyles.BLOCK}
+            className={'block max-h-10 w-auto lg:hidden'}
             src={require('../../images/icononly_transparent_nobuffer.png')}
             alt={logoAlt}
           />
         </button>
         <button
-          onClick={() => handlePage('HomePg')}
+          onClick={() => handlePage({ thing: <HomePg/>})}
         >
           <img
-            className={logoStyles.HIDDEN}
+            className={'hidden max-h-10 w-auto lg:block'}
             src={require('../../images/icononly_transparent_nobuffer.png')}
             alt={logoAlt}
           />

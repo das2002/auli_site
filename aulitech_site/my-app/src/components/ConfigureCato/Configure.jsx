@@ -1,14 +1,15 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, Fragment } from "react";
 import { get, set, clear } from 'https://cdn.jsdelivr.net/npm/idb-keyval@6/+esm';
 
 import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
+import ConfigureStepBar from "./CongifureStepBar";
 
 const ConfigureCato = () => {
   const [catoConnected, setCatoConnected] = useState(false);
   const [configSuccess, setConfigSuccess]  = useState(false);
   const [gestureNum, setGestureNum] = useState(0);
-  const [prevGesture, setPrevGesture]  = useState('');
+
 
   const gestures = [
     {id: 0, name: 'Select'},
@@ -23,6 +24,8 @@ const ConfigureCato = () => {
     {id: 9, name: 'Circle clockwise'},
     {id: 10, name: 'Circle counterclockwise'}
   ];
+  const [selected, setSelected] = useState(gestures[0]);
+
   
   const reset = () => {
     clear();
@@ -57,7 +60,6 @@ const ConfigureCato = () => {
 
 
   const writeConfig = async() => {
-    //const directory = await get('directory');
     try {
       const directory = await get('directory');
       console.log(directory);
@@ -108,7 +110,7 @@ const ConfigureCato = () => {
   // console.log('Previous gesture:', prevGesture);
   // console.log('Gesture num:', gestureNum)
 
-
+  // Action Panel #1
   const HandleConnectDirectoryUI = () => {
     return (        
         <div className="bg-white shadow sm:rounded-lg">
@@ -116,9 +118,11 @@ const ConfigureCato = () => {
         <h3 className="text-base font-semibold leading-6 text-gray-900">Connect Cato</h3>
         <div className="mt-2 sm:flex sm:items-start sm:justify-between">
           <div className="max-w-xl text-sm text-gray-500">
-            <p>
-              {catoConnected ? 'Connected to AULI_CATO on local computer.' : 'Allow access to Cato. Select AULI_CATO from your local computer.'}
-            </p>
+            {catoConnected ? 
+            <p className="text-blue-500">Connected</p> 
+            : 
+            <p>Allow access to Cato. Select AULI_CATO from your local computer.</p>
+            }
           </div>
           <div className="mt-5 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center">
             <button
@@ -135,34 +139,13 @@ const ConfigureCato = () => {
 
     )
   }
-
-  const HandleConfigUI = () => {
-    return (
-      <div className="bg-white shadow sm:rounded-lg">
-      <div className="px-4 py-5 sm:p-6">
-        <h3 className="text-base font-semibold leading-6 text-gray-900">Record Gesture</h3>
-        <div className="mt-2 sm:flex sm:items-start sm:justify-between">
-          <div className="max-w-xl text-sm text-gray-500">
-            <p>
-            Hit start to begin recording gesture.
-            </p>
-          </div>
-          <div className="mt-5 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center">
-            <button
-              type="button"
-              className="rounded-full bg-white px-2.5 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-            >
-              Start
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-    )
-  };
-
+  // Action Panel #2
   const HandleGesturePickerUI = () => {
-    const [selected, setSelected] = useState(gestures[0]);
+
+    const shareGesture = (e) => {
+      setSelected(e);
+      setGestureNum(e.id);
+    }
 
     function classNames(...classes) {
       return classes.filter(Boolean).join(' ')
@@ -178,12 +161,12 @@ const ConfigureCato = () => {
           </p>
         </div>
         <div className="mt-5">
-        <Listbox value={selected} onChange={setSelected}>
+        <Listbox value={selected} onChange={shareGesture}>
       {({ open }) => (
         <>
           <Listbox.Label className="block text-sm font-medium leading-6 text-gray-900">Gestures</Listbox.Label>
           <div className="relative mt-2">
-            <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 sm:text-sm sm:leading-6">
+            <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 sm:text-sm sm:leading-6">
               <span className="block truncate">{selected.name}</span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                 <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -203,7 +186,7 @@ const ConfigureCato = () => {
                     key={gesture.id}
                     className={({ active }) =>
                       classNames(
-                        active ? 'bg-blue-300 text-white' : 'text-gray-900',
+                        active ? 'bg-gray-100 text-blue-500' : 'text-gray-900',
                         'relative cursor-default select-none py-2 pl-3 pr-9'
                       )
                     }
@@ -211,18 +194,16 @@ const ConfigureCato = () => {
                   >
                     {({ selected, active }) => (
                       <>
-                        <span className={classNames(selected ? 'font-semibold' : 'font-normal', 'block truncate')}>
-                          {gesture.name}
-                        </span>
+                        <span className={classNames(selected ? 'font-semibold' : 'font-normal', 'block truncate')}> {gesture.name} </span>
 
                         {selected ? (
                           <span
                             className={classNames(
-                              active ? 'text-white' : 'text-blue-300',
+                              active ? 'text-blue-500' : 'text-blue-300',
                               'absolute inset-y-0 right-0 flex items-center pr-4'
                             )}
                           >
-                            <CheckIcon className="h-5 w-5" aria-hidden="true" />
+                            <CheckIcon className="h-5 w-5 text-blue-500" aria-hidden="true" />
                           </span>
                         ) : null}
                       </>
@@ -240,12 +221,40 @@ const ConfigureCato = () => {
     </div>
     )
   }
+  // Action Panel #3
+  const HandleConfigUI = () => {
+    return (
+      <div className="bg-white shadow sm:rounded-lg">
+      <div className="px-4 py-5 sm:p-6">
+        <h3 className="text-base font-semibold leading-6 text-gray-900">Record Gesture</h3>
+        <div className="mt-2 sm:flex sm:items-start sm:justify-between">
+          <div className="max-w-xl text-sm text-gray-500">
+            <p>
+            Hit start to begin recording gesture.
+            </p>
+          </div>
+          <div className="mt-5 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center">
+            <button
+              type="button"
+              onClick={writeConfig}
+              className="rounded-full bg-white px-2.5 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+            >
+              Start
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    )
+  };
 
 
   return (
     <>
       <HandleConnectDirectoryUI/>
+      <br/>
       <HandleGesturePickerUI/>
+      <br/>
       <HandleConfigUI/>
     </>
   )
