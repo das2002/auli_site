@@ -1,9 +1,10 @@
 import React from "react";
 
-const HomePg = () => {
-  return (
+const HomePg = ({classNames}) => {
+
+  return(
     <>
-      <h1 className="text-white">AULI.TECH</h1>
+      <h1>home</h1>
     </>
   )
 };

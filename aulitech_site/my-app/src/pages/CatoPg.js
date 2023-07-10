@@ -3,7 +3,7 @@ import React from "react";
 const CatoPg = () => {
   return (
     <>
-      <h1 className="text-white">Page about Cato</h1>
+      <h1>Page about Cato</h1>
     </>
   )
 };

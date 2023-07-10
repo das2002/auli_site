@@ -1,12 +1,9 @@
 import React from "react";
-import HomePg from "../../pages/HomePg";
+import HomePg from "../pages/HomePg";
 
 export default function LogoHome({handlePage}) {
   const logoAlt = 'AULI.TECH Logo';
-  const logoStyles = {
-    'BLOCK': 'block h-8 w-auto lg:hidden',
-    'HIDDEN': 'hidden h-8 w-auto lg:block'
-  }
+
   return (
     <>
       <div className="flex flex-shrink-0 items-center">
