@@ -12,7 +12,6 @@ import PeriPg from './pages/PeriPg';
 import ProfilePg from './pages/ProfilePg';
 import Navigation from './components/NavBar/Navigation';
 import AuthPg from './components/GoogleAuth/AuthPg';
-import ConfigureCato from './junk/Configure';
 import SignOutAccount from './components/GoogleAuth/SignOutAccount';
 import SignIn from './components/GoogleAuth/SignIn';
 import SignUp from './components/GoogleAuth/SignUp';
@@ -51,6 +50,7 @@ function App() {
         <Route path="/profile" element={<ProfilePg user={user}/>}/>
         <Route path="/user-auth" element={<AuthPg/>}/>
         <Route path="/configure-cato" element={<ConfigureGesture classNames={classNames}/>}/>
+        
         <Route path="/sign-out" element={<SignOutAccount/>}/>
         <Route path="/sign-in" element={<SignIn/>}/>
         <Route path="/sign-up" element={<SignUp/>}/>
