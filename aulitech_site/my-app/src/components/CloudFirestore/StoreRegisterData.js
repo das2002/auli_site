@@ -1,4 +1,4 @@
-import { addDoc, collection, serverTimestamp, doc, setDoc } from "firebase/firestore"; 
+import { doc, setDoc } from "firebase/firestore"; 
 import { db } from "../../firebase";
 
 const StoreRegisterData = ({user}) => {

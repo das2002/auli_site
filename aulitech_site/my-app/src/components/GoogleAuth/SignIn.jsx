@@ -108,7 +108,7 @@ const SignIn = () => {
   // return(
   //   <>
   //     <form onSubmit={signIn}>
-  //       <div className="divide-y divide-gray-200 overflow-hidden rounded-lg bg-white shadow">
+  //       <div className="divide-y divide-gray-400 overflow-hidden rounded-lg bg-white shadow">
   //         <div className="px-4 py-5 sm:px-6 text-center">
   //           <h1 className="text-3xl font-bold tracking-tight text-gray-900">Login</h1>
   //         </div>

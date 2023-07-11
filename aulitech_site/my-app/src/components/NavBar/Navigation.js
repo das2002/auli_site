@@ -4,7 +4,6 @@ import { Link, NavLink } from "react-router-dom";
 import { Fragment } from 'react'
 import { Disclosure } from '@headlessui/react'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
-import NavAuth from "../../junk/NavAuth";
 import SignInBtn from "./SignInBtn";
 import ProfileDropdown from "./ProfileDropdown";
 
@@ -12,7 +11,7 @@ const Navigation = ({user, classNames}) => {
 
   
     return (
-      <Disclosure as="nav" className="bg-gray-800">
+      <Disclosure as="nav" className="bg-transparent">
         {({ open }) => (
           <>
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -51,7 +50,7 @@ const Navigation = ({user, classNames}) => {
                     <NavLink 
                       to="/about"
                       className={({isActive}) => 
-                        isActive ? 'bg-gray-900 text-white' : classNames('text-gray-300 hover:bg-gray-700 hover:text-white',
+                        isActive ? 'bg-gray-900 text-white' : classNames('text-gray-900 hover:bg-gray-700 hover:text-white',
                         'rounded-md px-3 py-2 text-sm font-medium')
                       }
                     >
@@ -61,7 +60,7 @@ const Navigation = ({user, classNames}) => {
                     <NavLink 
                       to="/cato"
                       className={({isActive}) => 
-                        isActive ? 'bg-gray-900 text-white' : classNames('text-gray-300 hover:bg-gray-700 hover:text-white',
+                        isActive ? 'bg-gray-900 text-white' : classNames('text-gray-900 hover:bg-gray-700 hover:text-white',
                         'rounded-md px-3 py-2 text-sm font-medium')
                       }
                     >
@@ -71,7 +70,7 @@ const Navigation = ({user, classNames}) => {
                     <NavLink 
                       to="/peri"
                       className={({isActive}) => 
-                        isActive ? 'bg-gray-900 text-white' : classNames('text-gray-300 hover:bg-gray-700 hover:text-white',
+                        isActive ? 'bg-gray-900 text-white' : classNames('text-gray-900 hover:bg-gray-700 hover:text-white',
                         'rounded-md px-3 py-2 text-sm font-medium')
                       }
                     >
@@ -107,7 +106,7 @@ const Navigation = ({user, classNames}) => {
                     as="a"
                     href={item.href}
                     className={classNames(
-                      item.current ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                      item.current ? 'bg-gray-900 text-white' : 'text-gray-400 hover:bg-gray-700 hover:text-white',
                       'block rounded-md px-3 py-2 text-base font-medium'
                     )}
                     aria-current={item.current ? 'page' : undefined}
@@ -120,7 +119,7 @@ const Navigation = ({user, classNames}) => {
               <div className="border-t border-gray-700 pb-3 pt-4">
                 <div className="flex items-center px-5 sm:px-6">
                   <span className="inline-block h-10 w-10 overflow-hidden rounded-full bg-gray-100">
-                    <svg className="h-full w-full text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-full w-full text-gray-400" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M24 20.993V24H0v-2.996A14.977 14.977 0 0112.004 15c4.904 0 9.26 2.354 11.996 5.993zM16.002 8.999a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
                   </span>

@@ -9,13 +9,14 @@ import AboutPg from './pages/AboutPg';
 import CatoPg from './pages/CatoPg';
 import HomePg from './pages/HomePg';
 import PeriPg from './pages/PeriPg';
-import ProfilePg from './components/UserProfile/ProfilePg';
+import ProfilePg from './pages/ProfilePg';
 import Navigation from './components/NavBar/Navigation';
 import AuthPg from './components/GoogleAuth/AuthPg';
-import ConfigureCato from './components/ConfigureCato/Configure';
+import ConfigureCato from './junk/Configure';
 import SignOutAccount from './components/GoogleAuth/SignOutAccount';
 import SignIn from './components/GoogleAuth/SignIn';
 import SignUp from './components/GoogleAuth/SignUp';
+import ConfigureGesture from './components/ConfigureCato/ConfigureGesture';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -25,7 +26,7 @@ function App() {
       if(user) {
         setUser(user);
       } else {
-        setUser(user);
+        setUser(null);
       }
     });
     // return removes listener
@@ -49,7 +50,7 @@ function App() {
         <Route path="/peri" element={<PeriPg/>} />
         <Route path="/profile" element={<ProfilePg user={user}/>}/>
         <Route path="/user-auth" element={<AuthPg/>}/>
-        <Route path="/configure-cato" element={<ConfigureCato classNames={classNames}/>}/>
+        <Route path="/configure-cato" element={<ConfigureGesture classNames={classNames}/>}/>
         <Route path="/sign-out" element={<SignOutAccount/>}/>
         <Route path="/sign-in" element={<SignIn/>}/>
         <Route path="/sign-up" element={<SignUp/>}/>

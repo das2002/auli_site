@@ -1,11 +1,10 @@
-import React, { useState } from "react";
-import StoreGestData from "./StoreGestData";
+import { useState } from "react";
 
-const FormatGestData = ({logFile, gestures}) => {
+const FormatGestData = ({logFile, gestures, handleStoreGestName}) => {
   const [mappedData, setMappedData] = useState([]);
   const [gestName, setGestName] = useState('');
 
-  const handleFormat = () => {
+  const handleFormat = async() => {
     const lineSeperated = logFile.split('\n');
     const mapped = [];
 
@@ -40,21 +39,13 @@ const FormatGestData = ({logFile, gestures}) => {
       })
       mapped.push(dataObj);
     };
+    handleStoreGestName(gestName);
     setMappedData(mapped);
+    console.log(mappedData);
+    return mappedData;
   }
-  
-  
-  return(
-    <>
-    <p>called format gest data </p>
-    <button
-      onClick={handleFormat}
-    >
-      format data test
-    </button>
-    <StoreGestData gesture={gestName} logFile={mappedData}/>
-    </>
-  );
+
+  return handleFormat();
 };
 
 export default FormatGestData;

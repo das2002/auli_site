@@ -3,7 +3,9 @@ import { get, set, clear } from 'https://cdn.jsdelivr.net/npm/idb-keyval@6/+esm'
 
 import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
-import FormatGestData from "../CloudFirestore/FormatGestData";
+import FormatGestData from "../components/CloudFirestore/FormatGestData";
+
+export const styles = {ACTIVE_RING : "ring-1 ring-blue-500"}
 
 const ConfigureCato = ({classNames}) => {
   const [catoConnected, setCatoConnected] = useState(false);
@@ -12,6 +14,11 @@ const ConfigureCato = ({classNames}) => {
   const [gestData, setGestData] = useState(null);
   const [timer, setTimer] = useState('00');
   const [performGest, setPerformGest] = useState(false);
+
+  // const [gestID, setGestID] = useState(0);
+  // const handleGestID = (num) => {
+  //   setGestID(num);
+  // }
 
 
   const Ref = useRef(null);
@@ -35,7 +42,7 @@ const ConfigureCato = ({classNames}) => {
   }
 
   const clearTimer = (e) => { 
-      setTimer('10');
+      setTimer('15');
 
       if (Ref.current) clearInterval(Ref.current);
       const id = setInterval(() => {
@@ -166,7 +173,7 @@ const ConfigureCato = ({classNames}) => {
   // Action Panel #1
   const HandleConnectDirectoryUI = () => {
     return (        
-      <div className="bg-white shadow sm:rounded-lg sm:mx-auto sm:w-full md:max-w-md">
+      <div className={classNames(catoConnected ? "ring-1 ring-blue-500" : "", "bg-white shadow sm:rounded-lg sm:mx-auto sm:w-full md:max-w-md")}>
         <div className="px-4 py-5 sm:p-6">
           <h3 className="text-base font-semibold leading-6 text-gray-900">Connect Cato</h3>
           <div className="mt-2 sm:flex sm:items-start sm:justify-between">
@@ -204,10 +211,8 @@ const ConfigureCato = ({classNames}) => {
       return classes.filter(Boolean).join(' ')
     }
 
-    console.log(typeof(gestureNum));
-
     return (
-      <div className="bg-white shadow sm:rounded-lg sm:mx-auto sm:w-full md:max-w-md">
+      <div className={classNames(gestureNum !== 0 ? "ring-1 ring-blue-500" : "", "bg-white shadow sm:rounded-lg sm:mx-auto sm:w-full md:max-w-md")}>
         <div className="px-4 py-5 sm:p-6">
           <h3 className="text-base font-semibold leading-6 text-gray-900">Select Gesture</h3>
           <div className="mt-2 max-w-xl text-sm text-gray-500">
@@ -280,28 +285,29 @@ const ConfigureCato = ({classNames}) => {
   // Action Panel #3
   const HandleConfigUI = () => {
     return (
-      <div className="bg-white shadow sm:rounded-lg sm:mx-auto sm:w-full md:max-w-md">
+      <div className={classNames(configSuccess ? "ring-1 ring-blue-500" : "", "bg-white shadow sm:rounded-lg sm:mx-auto sm:w-full md:max-w-md")}>
         <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-base font-semibold leading-6 text-gray-900">Record Gesture</h3>
+          <h3 className="text-base font-semibold leading-6 text-gray-900">Share gesture with Cato</h3>
           <div className="mt-2 sm:flex sm:items-start sm:justify-between">
             <div className="max-w-xl text-sm text-gray-500">
               <p>
-                Click start to begin countdown.                 
+                {configSuccess ? 'Letting Cato know to get ready for gesture...' : 'Let Cato know what gesture you would like to record by clicking Share.'}                
               </p>
               <p className="mt-2">
-                When the countdown ends, perform your gesture.
+                
               </p>
             </div>
           </div>
+
           <div className="mt-5">
-              <button
-                type="button"
-                onClick={writeConfig}
-                className="rounded-full bg-white px-2.5 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-              >
-                Start
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={writeConfig}
+              className="rounded-full bg-white px-2.5 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+            >
+              Share
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -312,7 +318,7 @@ const ConfigureCato = ({classNames}) => {
       return (
         <div className="bg-white shadow sm:rounded-lg sm:mx-auto sm:w-full md:max-w-md">
           <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-lg font-semibold leading-6 text-blue-500">{timer}</h3>
+            <h3 className="text-base font-semibold leading-6 text-blue-500">{timer}</h3>
             <div className="mt-2 max-w-xl text-sm text-gray-500">
             </div>
             <h3 className={classNames(performGest ? "text-blue-500" : "text-blue-200", "text-base font-semibold leading-6")}>

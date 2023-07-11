@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 // import { UserCircleIcon } from '@heroicons/react/24/solid';
-import { db } from "../../firebase";
+import { db } from "../firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 
 const ProfilePg = ({user}) => {
