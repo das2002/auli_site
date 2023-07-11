@@ -7,6 +7,7 @@ import WriteCato from "./WriteCato";
 import GestureCountdown from "./GestureCountdown";
 import GestureData from "./GestureData";
 
+export const styles = {ACTIVE_RING : "ring-1 ring-blue-500"}
 
 const ConfigureGesture = ({classNames}) => {
   const [catoConnected, setCatoConnected] = useState(false);

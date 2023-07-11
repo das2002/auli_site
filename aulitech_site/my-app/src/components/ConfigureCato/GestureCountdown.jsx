@@ -46,19 +46,6 @@ const GestureCountdown = ({classNames, startCountdown}) => {
     setPerformGest(false);
   }
 
-  useEffect(() => {
-    const startListener = () => {
-      if(startCountdown) {
-        onClickReset()
-      } else {
-        return;
-      }
-    }
-    return () => {
-      startListener();
-    }
-  });
-
   return (
     <div className="bg-white shadow sm:rounded-lg sm:mx-auto sm:w-full md:max-w-md">
       <div className="px-4 py-5 sm:p-6">

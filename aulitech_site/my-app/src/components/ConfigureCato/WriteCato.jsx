@@ -5,6 +5,7 @@ import { styles } from "../../junk/Configure";
 
 const WriteCato = ({classNames, gestID, handleStartCountdown, handleConfigSuccess}) => {
   const [configSuccess, setConfigSuccess]  = useState(false);
+  console.log(gestID);
 
   const writeConfig = async() => {
     try {
@@ -17,7 +18,7 @@ const WriteCato = ({classNames, gestID, handleStartCountdown, handleConfigSucces
         if(perm === 'granted') {
           const configFile = await directory.getFileHandle('config.cato', { create: true });
           
-          console.log('Config.cato:', configFile);
+          console.log('Config.cato: ', configFile, 'gesture ID: ', gestID);
           
           const writable = await configFile.createWritable();
           await writable.write(gestID);

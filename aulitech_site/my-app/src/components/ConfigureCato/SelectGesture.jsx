@@ -26,7 +26,7 @@ const SelectGesture = ({classNames, handleGestID}) => {
     const shareGesture = (e) => {
       setSelected(e);
       setGestureNum(e.id);
-      handleGestID(selected.id)
+      handleGestID(e.id)
     }
 
     return (
