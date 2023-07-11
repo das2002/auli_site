@@ -1,5 +1,5 @@
 import React, { useState, Fragment, useRef } from "react";
-import { get, set, clear } from 'https://cdn.jsdelivr.net/npm/idb-keyval@6/+esm';
+import { get, set, clear } from 'idb-keyval';
 
 import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { get, set, clear } from 'https://cdn.jsdelivr.net/npm/idb-keyval@6/+esm';
+import { get, set, clear } from 'idb-keyval';
 import { styles } from "../../junk/Configure";
 
 const ConnectDirectory = ({classNames, reset, handleCatoConnected}) => {

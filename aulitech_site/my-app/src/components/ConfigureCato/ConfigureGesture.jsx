@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { clear } from 'https://cdn.jsdelivr.net/npm/idb-keyval@6/+esm';
+import { clear } from 'idb-keyval';
 import ConnectDirectory from "./ConnectDirectory";
 //import FormatGestData from "../CloudFirestore/FormatGestData";
 import SelectGesture from "./SelectGesture";

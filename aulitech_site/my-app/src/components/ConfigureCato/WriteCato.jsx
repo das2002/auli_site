@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { get } from 'https://cdn.jsdelivr.net/npm/idb-keyval@6/+esm';
+import { get } from 'idb-keyval';
 import { styles } from "../../junk/Configure";
 
 
