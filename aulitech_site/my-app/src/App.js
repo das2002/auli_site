@@ -2,9 +2,8 @@ import React, {useState, useEffect} from 'react';
 import './App.css';
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
-
-
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+
 import AboutPg from './pages/AboutPg';
 import CatoPg from './pages/CatoPg';
 import HomePg from './pages/HomePg';
@@ -50,7 +49,7 @@ function App() {
         <Route path="/profile" element={<ProfilePg user={user}/>}/>
         <Route path="/user-auth" element={<AuthPg/>}/>
         <Route path="/configure-cato" element={<ConfigureGesture classNames={classNames}/>}/>
-        
+
         <Route path="/sign-out" element={<SignOutAccount/>}/>
         <Route path="/sign-in" element={<SignIn/>}/>
         <Route path="/sign-up" element={<SignUp/>}/>
