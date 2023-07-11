@@ -9,7 +9,7 @@ import AboutPg from './pages/AboutPg';
 import CatoPg from './pages/CatoPg';
 import HomePg from './pages/HomePg';
 import PeriPg from './pages/PeriPg';
-import ProfilePg from './pages/ProfilePg';
+import ProfilePg from './components/UserProfile/ProfilePg';
 import Navigation from './components/NavBar/Navigation';
 import AuthPg from './components/GoogleAuth/AuthPg';
 import ConfigureCato from './components/ConfigureCato/Configure';
@@ -47,7 +47,7 @@ function App() {
         <Route path="/about" element={<AboutPg/>}/>
         <Route path="/cato" element={<CatoPg/>}/>
         <Route path="/peri" element={<PeriPg/>} />
-        <Route path="/profile" element={<ProfilePg/>}/>
+        <Route path="/profile" element={<ProfilePg user={user}/>}/>
         <Route path="/user-auth" element={<AuthPg/>}/>
         <Route path="/configure-cato" element={<ConfigureCato classNames={classNames}/>}/>
         <Route path="/sign-out" element={<SignOutAccount/>}/>

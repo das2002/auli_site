@@ -2,24 +2,36 @@ import React, { useState } from "react";
 import { auth } from '../../firebase'
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { Link } from "react-router-dom";
+import StoreRegisterData from "../CloudFirestore/StoreRegisterData";
+import { useNavigate } from "react-router-dom";
 
 const SignUp = () => {
     const [email, setEmail] = useState('');
     const [pass, setPass] = useState('');
     const [confirmPass, setConfirmPass] = useState('');
-    const [first, setFirst] = useState('');
-    const [last, setLast] = useState('');
+    const [err, setErr] = useState(false);
+    // const [first, setFirst] = useState('');
+    // const [last, setLast] = useState('');
+
+    const navigate = useNavigate();
 
 
     const signUp = (e) => {
         e.preventDefault();
-        createUserWithEmailAndPassword(auth, email, pass)
+        if(pass === confirmPass) {
+          createUserWithEmailAndPassword(auth, email, pass)
             .then((userCredential) => {
-                console.log(userCredential);
+                //console.log(userCredential);
+                StoreRegisterData(userCredential);
+                navigate('/')
             }) 
             .catch((error) => {
                 console.log(error);
             })
+        } else {
+          setErr(true);
+        }
+
     }
 
     return (
@@ -53,21 +65,23 @@ const SignUp = () => {
                     autoComplete="email"
                     required
                     onChange={(e) => {setEmail(e.target.value)}}
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    className="block w-full rounded-md border-0 px-1.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
                 </div>
               </div>
   
               <div>
+                <div className="text-sm">
+                    {err ? 
+                      <p className="font-semibold text-blue-500 hover:text-blue-400">
+                        Passwords are not the same
+                      </p> 
+                    : null}
+                </div>
                 <div className="flex items-center justify-between">
                   <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
                     Password
                   </label>
-                  {/*<div className="text-sm">
-                    <a href="#" className="font-semibold text-blue-500 hover:text-blue-400">
-                      Forgot password?
-                    </a>
-                  </div>*/}
                 </div>
                 <div className="mt-2">
                   <input
@@ -77,7 +91,23 @@ const SignUp = () => {
                     autoComplete="current-password"
                     required
                     onChange={(e) => {setPass(e.target.value)}}
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    className="block w-full rounded-md border-0 px-1.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+                    Confirm Password
+                  </label>
+                </div>
+                <div className="mt-2">
+                  <input
+                    id="confirmPassword"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    onChange={(e) => {setConfirmPass(e.target.value)}}
+                    className="block w-full rounded-md border-0 px-1.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                   />
                 </div>
               </div>
