@@ -3,7 +3,7 @@ import { get, set, clear } from 'https://cdn.jsdelivr.net/npm/idb-keyval@6/+esm'
 
 import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
-import FormatGestData from "../components/CloudFirestore/FormatGestData";
+import FormatGestData from "./FormatGestData";
 
 export const styles = {ACTIVE_RING : "ring-1 ring-blue-500"}
 

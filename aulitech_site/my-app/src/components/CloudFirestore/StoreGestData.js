@@ -3,7 +3,7 @@ import { db } from "../../firebase";
 import { styles } from "../../junk/Configure";
 import { useNavigate } from "react-router-dom";
 
-const StoreGestData = ({classNames, gesture, logFile}) => {
+const StoreGestData = ({classNames, gesture, logFile, activeStore}) => {
   const navigate = useNavigate();
   const sendDocRef = async() => {
     await addDoc(collection(db, 'gesture-data'), {
@@ -18,7 +18,7 @@ const StoreGestData = ({classNames, gesture, logFile}) => {
 
   return (
     <>
-      <div className={classNames(logFile !== null ? styles.ACTIVE_RING : "", "bg-white shadow sm:rounded-lg sm:mx-auto sm:w-full md:max-w-md")}>
+      <div className={classNames(activeStore ? styles.ACTIVE_RING : "", "bg-white shadow sm:rounded-lg sm:mx-auto sm:w-full md:max-w-md")}>
         <div className="px-4 py-5 sm:p-6">
         <div className="mt-5">
           <button
