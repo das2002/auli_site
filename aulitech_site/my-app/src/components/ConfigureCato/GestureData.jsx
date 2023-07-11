@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { get } from 'https://cdn.jsdelivr.net/npm/idb-keyval@6/+esm';
-import FormatGestData from "../CloudFirestore/FormatGestData";
+import FormatGestData from "../../junk/FormatGestData";
 import { styles } from "../../junk/Configure";
 import StoreGestData from "../CloudFirestore/StoreGestData";
 
@@ -11,6 +11,7 @@ const GestureData = ({classNames, gestures}) => {
   // const [gest, setGest] = useState('');
   // const [mappedData, setMappedData] = useState([]);
   const [gestName, setGestName] = useState('');
+  const [nowStore, setNowStore] = useState(false);
 
   const handleFormat = async(data) => {
     const lineSeperated = data.split('\n');
@@ -49,6 +50,7 @@ const GestureData = ({classNames, gestures}) => {
       console.log(mapped);
     };
     setFormattedData(mapped);
+    setNowStore(true);
   }
 
 
@@ -114,7 +116,7 @@ const GestureData = ({classNames, gestures}) => {
       </div>
     </div>
   </div>
-  <StoreGestData classNames={classNames} gesture={gestName} logFile={formattedData} />
+  <StoreGestData classNames={classNames} gesture={gestName} logFile={formattedData} activeStore={nowStore}/>
     </>
   )
 };
