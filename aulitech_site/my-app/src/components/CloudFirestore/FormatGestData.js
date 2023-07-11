@@ -1,52 +1,58 @@
-import React, { useEffect, useState } from "react";
-import { doc, setDoc } from "firebase/firestore"; 
+import React, { useState } from "react";
+import StoreGestData from "./StoreGestData";
 
-const FormatGestData = ({logFile}) => {
+const FormatGestData = ({logFile, gestures}) => {
   const [mappedData, setMappedData] = useState([]);
+  const [gestName, setGestName] = useState('');
 
-  const lineArr = logFile.split('\n');
-  const commaArr = [];
+  const handleFormat = () => {
+    const lineSeperated = logFile.split('\n');
+    const mapped = [];
 
-  lineArr.forEach((line) => {
-    commaArr.push(line.split(','));
-  });
-
-  commaArr.map((arr) => {
-    let test = [];
-    arr.map((value, index) => {
-      switch (index) {
-        case 0 :
-          return test.push({'ax': value});
-        case 1 :
-          return test.push({'ay': value});
-        case 2 :
-          return test.push({'az': value});
-        case 3 : 
-          return test.push({'gx': value});
-        case 4 :
-          return test.push({'gy': value});
-        case 5 :
-          return test.push({'gz': value});
-        case 6 : 
-          return test.push({'gestID': value});
-        default:
-          return null;
-      };
+    const commaSeperated = [];
+    lineSeperated.forEach((line) => {
+      commaSeperated.push(line.split(','));
     })
-    return mappedData.push(test);
-  });
 
-  console.log(mappedData);
+  for(let i=0; i < commaSeperated.length - 1; i++) {
+    let dataObj = {};
 
-  useEffect(() => {
-    if(mappedData.length > 75) {
-      return setMappedData([]);
-    }
-  })
+    commaSeperated[i].map((value, index) => {
+      switch (index) {
+          case 0 :
+            return dataObj.ax = value;
+          case 1 :
+            return dataObj.ay = value;
+          case 2 :
+            return dataObj.az = value;
+          case 3 : 
+            return dataObj.gx = value;
+          case 4 :
+            return dataObj.gy = value;
+          case 5 :
+            return dataObj.gz = value;
+          case 6 : 
+            return setGestName(gestures[parseInt(value)].name);
+          default:
+            return null;
+        };
 
+      })
+      mapped.push(dataObj);
+    };
+    setMappedData(mapped);
+  }
+  
+  
   return(
     <>
     <p>called format gest data </p>
+    <button
+      onClick={handleFormat}
+    >
+      format data test
+    </button>
+    <StoreGestData gesture={gestName} logFile={mappedData}/>
     </>
   );
 };

@@ -6,13 +6,14 @@ import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 import CountDown from "../elements/Countdown";
 import FormatGestData from "../CloudFirestore/FormatGestData";
 
-const ConfigureCato = () => {
+const ConfigureCato = ({classNames}) => {
   const [catoConnected, setCatoConnected] = useState(false);
   const [configSuccess, setConfigSuccess]  = useState(false);
   const [gestureNum, setGestureNum] = useState(0);
-  const [test, setTest] = useState(null);
-
+  const [gestData, setGestData] = useState(null);
   const [timer, setTimer] = useState('00');
+  const [performGest, setPerformGest] = useState(false);
+
 
   const Ref = useRef(null);
  
@@ -53,6 +54,7 @@ const ConfigureCato = () => {
 
   const onClickReset = () => {
       clearTimer(getDeadTime());
+      setPerformGest(false);
   }
 
 
@@ -75,6 +77,8 @@ const ConfigureCato = () => {
   const reset = () => {
     clear();
     setCatoConnected(false);
+    setConfigSuccess(false);
+    setPerformGest(false);
   }
 
 
@@ -118,7 +122,6 @@ const ConfigureCato = () => {
           console.log('Config.cato:', configFile);
           
           const writable = await configFile.createWritable();
-          console.log(gestureNum);
           await writable.write(gestureNum);
           await writable.close();
 
@@ -148,12 +151,10 @@ const ConfigureCato = () => {
           const logFile = await directory.getFileHandle('log.txt', { create: false });
           console.log(logFile);
 
-          const testFile = await logFile.getFile();
-          const testContents = await testFile.text();
-          //console.log(testFile, testContents);
-          setTest(testContents);
-          // const contents = logFile.text();
-          // console.log(contents);
+          const dataFile = await logFile.getFile();
+          const dataContents = await dataFile.text();
+          console.log(dataContents);
+          setGestData(dataContents);
         }
       }
     }
@@ -203,6 +204,8 @@ const ConfigureCato = () => {
     function classNames(...classes) {
       return classes.filter(Boolean).join(' ')
     }
+
+    console.log(typeof(gestureNum));
 
     return (
       <div className="bg-white shadow sm:rounded-lg sm:mx-auto sm:w-full md:max-w-md">
@@ -274,6 +277,7 @@ const ConfigureCato = () => {
     </div>
     )
   }
+
   // Action Panel #3
   const HandleConfigUI = () => {
     return (
@@ -304,19 +308,22 @@ const ConfigureCato = () => {
     )
   };
 
+  // Action Panel #4 
   const HandleCountDownUI = () => {
       return (
         <div className="bg-white shadow sm:rounded-lg sm:mx-auto sm:w-full md:max-w-md">
           <div className="px-4 py-5 sm:p-6">
-            <h3 className="text-base font-semibold leading-6 text-gray-900">{timer}</h3>
+            <h3 className="text-lg font-semibold leading-6 text-blue-500">{timer}</h3>
             <div className="mt-2 max-w-xl text-sm text-gray-500">
             </div>
+            <h3 className={classNames(performGest ? "text-blue-500" : "text-blue-200", "text-base font-semibold leading-6")}>
+              Perform Gesture
+            </h3>
           </div>
         </div>
     )
   };
 
-  console.log(test);
   return (
     <>
     <div className="flex flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -330,11 +337,11 @@ const ConfigureCato = () => {
       <button
         type="button"
         onClick={getGestureData}
-        className="rounded-full bg-white px-2.5 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+        className="mt-2 rounded-full bg-white px-2.5 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:rounded-lg sm:mx-auto sm:w-full sm:max-w-sm"
       >
         Save Data
       </button>
-      {test !== null ? <FormatGestData logFile={test}/> : null}
+      {gestData !== null ? <FormatGestData logFile={gestData} gestures={gestures}/> : null}
       
     </div>
     </>

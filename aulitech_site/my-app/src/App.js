@@ -49,7 +49,7 @@ function App() {
         <Route path="/peri" element={<PeriPg/>} />
         <Route path="/profile" element={<ProfilePg/>}/>
         <Route path="/user-auth" element={<AuthPg/>}/>
-        <Route path="/configure-cato" element={<ConfigureCato/>}/>
+        <Route path="/configure-cato" element={<ConfigureCato classNames={classNames}/>}/>
         <Route path="/sign-out" element={<SignOutAccount/>}/>
         <Route path="/sign-in" element={<SignIn/>}/>
         <Route path="/sign-up" element={<SignUp/>}/>
