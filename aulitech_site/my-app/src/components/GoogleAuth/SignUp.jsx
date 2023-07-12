@@ -18,6 +18,7 @@ const SignUp = () => {
 
     const signUp = (e) => {
         e.preventDefault();
+        setErr(false);
         if(pass === confirmPass) {
           createUserWithEmailAndPassword(auth, email, pass)
             .then((userCredential) => {

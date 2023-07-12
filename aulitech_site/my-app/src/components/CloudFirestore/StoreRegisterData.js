@@ -1,12 +1,15 @@
-import { doc, setDoc } from "firebase/firestore"; 
+import { addDoc, collection, doc, setDoc } from "firebase/firestore"; 
 import { db } from "../../firebase";
 
 const StoreRegisterData = ({user}) => {
   console.log(user);
   const sendDocRef = async() => {
-    await setDoc(doc(db, 'users', user.email), {
+    await addDoc(collection(db, 'users'), {
       email: user.email,
-      uid: user.uid
+      uid: user.uid,
+      username: 'Username',
+      firstname: 'First name',
+      lastname: 'Last Name'
     })
   }
   return sendDocRef();

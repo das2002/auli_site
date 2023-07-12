@@ -6,15 +6,19 @@ import { useNavigate } from "react-router-dom";
 const StoreGestData = ({classNames, gesture, user, logFile, activeStore}) => {
   const navigate = useNavigate();
   const sendDocRef = async() => {
-    await addDoc(collection(db, 'gesture-data'), {
-      samples: logFile,
-      timestamp: serverTimestamp(),
-      gesture: gesture,
-      useruid: user.uid
-    }).then(() => {
-      navigate('/')
-    })
-
+    try {
+      await addDoc(collection(db, 'gesture-data'), {
+        samples: logFile,
+        timestamp: serverTimestamp(),
+        gesture: gesture,
+        useruid: user.uid
+      }).then(() => {
+        navigate('/')
+      })
+    }
+    catch(error) {
+      console.log("Gesture cloud firebase error: ", error);
+    }
   }
 
   return (
