@@ -18,7 +18,7 @@ const gestures = [
   {id: 10, name: 'Circle counterclockwise'}
 ];
 
-const SelectGesture = ({classNames, handleGestID}) => {
+const SelectGesture = ({classNames, handleGestName}) => {
   const [gestureNum, setGestureNum] = useState(0);
   const [selected, setSelected] = useState(gestures[0]);
 
@@ -26,16 +26,16 @@ const SelectGesture = ({classNames, handleGestID}) => {
     const shareGesture = (e) => {
       setSelected(e);
       setGestureNum(e.id);
-      handleGestID(e.id)
+      handleGestName(e.name)
     }
 
     return (
       <div className={classNames(gestureNum !== 0 ? styles.ACTIVE_RING : "", "bg-white shadow sm:rounded-lg sm:mx-auto sm:w-full md:max-w-md")}>
         <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-base font-semibold leading-6 text-gray-900">Select Gesture</h3>
+          <h3 className="text-base font-semibold leading-6 text-gray-900">2. Select Gesture</h3>
           <div className="mt-2 max-w-xl text-sm text-gray-500">
             <p>
-              Select gesture to record and map to your Cato.
+              Select gesture that you would like to record from the dropdown below.
             </p>
           </div>
           <div className="mt-5">

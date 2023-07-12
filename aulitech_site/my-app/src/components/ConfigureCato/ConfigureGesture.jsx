@@ -9,9 +9,9 @@ import GestureData from "./GestureData";
 
 export const styles = {ACTIVE_RING : "ring-1 ring-blue-500"}
 
-const ConfigureGesture = ({classNames}) => {
+const ConfigureGesture = ({classNames, user}) => {
   const [catoConnected, setCatoConnected] = useState(false);
-  const [gestID, setGestID] = useState(0);
+  const [gestName, setGestName] = useState('');
   const [configSuccess, setConfigSuccess]  = useState(false);
   const [startCountdown, setStartCountdown] = useState(false);
 
@@ -34,13 +34,14 @@ const ConfigureGesture = ({classNames}) => {
     console.log(catoConnected);
   }
 
-  const handleGestID = (num) => {
-    setGestID(num);
+  const handleGestName = (name) => {
+    setGestName(name);
   }
 
-  const handleStartCountdown = (startState) => {
-    setStartCountdown(true);
-  }
+  // const handleStartCountdown = (startState) => {
+  //   setStartCountdown(startState);
+  //   console.log(startCountdown);
+  // }
 
   const handleConfigSuccess = (writeState) => {
     setConfigSuccess(writeState);
@@ -57,13 +58,11 @@ const ConfigureGesture = ({classNames}) => {
     <div  className="flex flex-1 flex-col justify-center px-6 py-12 lg:px-8">
       <ConnectDirectory classNames={classNames} reset={reset} handleCatoConnected={handleCatoConnected}/>
       <br/>
-      <SelectGesture classNames={classNames} handleGestID={handleGestID}/>
+      <SelectGesture classNames={classNames} handleGestName={handleGestName}/>
       <br/>
-      <WriteCato classNames={classNames} gestID={gestID} handleStartCountdown={handleStartCountdown} handleConfigSuccess={handleConfigSuccess}/>
+      <WriteCato classNames={classNames} handleConfigSuccess={handleConfigSuccess}/>
       <br/>
-      <GestureCountdown classNames={classNames} startCountdown={startCountdown}/>
-      <br/>
-      <GestureData classNames={classNames} gestures={gestures}/>
+      <GestureData classNames={classNames} gestName={gestName} user={user}/>
     </div>
   )
 };

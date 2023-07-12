@@ -48,7 +48,7 @@ function App() {
         <Route path="/peri" element={<PeriPg/>} />
         <Route path="/profile" element={<ProfilePg user={user}/>}/>
         <Route path="/user-auth" element={<AuthPg/>}/>
-        <Route path="/configure-cato" element={<ConfigureGesture classNames={classNames}/>}/>
+        <Route path="/configure-cato" element={<ConfigureGesture classNames={classNames} user={user}/>}/>
 
         <Route path="/sign-out" element={<SignOutAccount/>}/>
         <Route path="/sign-in" element={<SignIn/>}/>

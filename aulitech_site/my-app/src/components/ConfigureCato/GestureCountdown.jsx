@@ -1,10 +1,28 @@
 import React, { useState, useRef, useEffect } from "react";
+import { get, set } from 'idb-keyval';
 
 const GestureCountdown = ({classNames, startCountdown}) => {
   const [timer, setTimer] = useState('00');
   const [performGest, setPerformGest] = useState(false);
 
   const Ref = useRef(null);
+
+  useEffect(() => {
+  const findFile = async() => {
+    const checker = await get('checkConfig');
+      if(checker) {
+        //const checkerFile = await checker.getFile();
+        //console.log(checkerFile)
+        return;
+      } else {
+        console.log(checker)
+      }
+  }
+
+    return () => {
+      findFile();
+    }
+  })
 
   const getTimeRemaining = (e) => {
     const total = Date.parse(e) - Date.parse(new Date());
@@ -52,6 +70,7 @@ const GestureCountdown = ({classNames, startCountdown}) => {
         <h3 className="text-base font-semibold leading-6 text-blue-500">{timer}</h3>
         <div className="mt-2 max-w-xl text-sm text-gray-500">
         </div>
+        
         <h3 className={classNames(performGest ? "text-blue-500" : "text-blue-200", "text-base font-semibold leading-6")}>
           Perform Gesture
         </h3>

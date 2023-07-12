@@ -40,13 +40,17 @@ const ConnectDirectory = ({classNames, reset, handleCatoConnected}) => {
   return (
     <div className={classNames(catoConnected ? styles.ACTIVE_RING : "", "bg-white shadow sm:rounded-lg sm:mx-auto sm:w-full md:max-w-md")}>
         <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-base font-semibold leading-6 text-gray-900">Connect Cato</h3>
+          <h3 className="text-base font-semibold leading-6 text-gray-900">1. Connect Cato</h3>
           <div className="mt-2 sm:flex sm:items-start sm:justify-between">
             <div className="max-w-xl text-sm text-gray-500">
               {catoConnected ? 
               <p className="text-blue-500">Connected</p> 
               : 
-              <p>Allow access to Cato. Select AULI_CATO from your local computer.</p>
+              <>
+                <p>Allow access to your Cato device to continue.</p>
+                <p className="mt-2">If the connection isn't established when you click Connect you will be prompted by your broswer to select a directory.</p>
+                <p className="mt-2 text-blue-500">Select AULI_CATO, then 'Edit files'</p>
+              </>
               }
             </div>
             <div className="mt-5 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center">

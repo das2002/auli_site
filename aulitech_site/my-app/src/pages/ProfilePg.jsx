@@ -4,9 +4,10 @@ import { db } from "../firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 
 const ProfilePg = ({user}) => {
-  // const [email, setEmail] = useState('')
   const [userName, setUserName] = useState('');
-
+  const [first, setFirst] = useState('');
+  const [last, setLast] = useState('');
+  const [data, setData] = useState(null);
 
   const getUserData = async() => {
     try{
@@ -15,7 +16,7 @@ const ProfilePg = ({user}) => {
       const querySnapshot = await getDocs(userQuery);
         querySnapshot.forEach((doc) => {
         // doc.data() is never undefined for query doc snapshots
-        console.log(doc.id, " => ", doc.data());
+        setData(doc.data());
         });
     }
     catch(error) {
@@ -25,6 +26,10 @@ const ProfilePg = ({user}) => {
   }
 
   getUserData();
+
+  const handleSaveProfileInfo = () => {
+
+  }
 
   return (
     <form className="mt-5 sm:mx-auto sm:w-full md:max-w-md">
@@ -47,7 +52,7 @@ const ProfilePg = ({user}) => {
                     onChange={(e) => setUserName(e.target.value)}
                     value={userName}
                     className="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                    placeholder="username"
+                    placeholder={"username"}
                   />
                 </div>
               </div>
@@ -69,7 +74,7 @@ const ProfilePg = ({user}) => {
                   name="first-name"
                   id="first-name"
                   autoComplete="given-name"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 px-1.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
@@ -84,7 +89,7 @@ const ProfilePg = ({user}) => {
                   name="last-name"
                   id="last-name"
                   autoComplete="family-name"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 px-1.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
             </div>
@@ -99,7 +104,8 @@ const ProfilePg = ({user}) => {
                   name="email"
                   type="email"
                   autoComplete="email"
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                  placeholder={data === null ? null : data.email}
+                  className="block w-full rounded-md border-0 px-1.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
               </div>
             </div>

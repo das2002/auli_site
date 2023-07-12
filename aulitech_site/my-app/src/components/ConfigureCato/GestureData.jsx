@@ -4,13 +4,13 @@ import { styles } from "../../junk/Configure";
 import StoreGestData from "../CloudFirestore/StoreGestData";
 
 
-const GestureData = ({classNames, gestures}) => {
+const GestureData = ({classNames, gestName, user}) => {
   const [gestData, setGestData] = useState(null);
   const [formattedData, setFormattedData] = useState([]);
   // const [gest, setGest] = useState('');
   // const [mappedData, setMappedData] = useState([]);
-  const [gestName, setGestName] = useState('');
   const [nowStore, setNowStore] = useState(false);
+  
 
   const handleFormat = async(data) => {
     const lineSeperated = data.split('\n');
@@ -38,15 +38,12 @@ const GestureData = ({classNames, gestures}) => {
             return dataObj.gy = value;
           case 5 :
             return dataObj.gz = value;
-          case 6 : 
-            return setGestName(gestures[parseInt(value)].name);
           default:
             return null;
         };
 
       })
       mapped.push(dataObj);
-      console.log(mapped);
     };
     setFormattedData(mapped);
     setNowStore(true);
@@ -64,11 +61,9 @@ const GestureData = ({classNames, gestures}) => {
 
         if(perm === 'granted') {
           const logFile = await directory.getFileHandle('log.txt', { create: false });
-          console.log(logFile);
 
           const dataFile = await logFile.getFile();
           const dataContents = await dataFile.text();
-          console.log(dataContents);
           setGestData(dataContents);
           handleFormat(dataContents);
         }
@@ -79,20 +74,11 @@ const GestureData = ({classNames, gestures}) => {
     }
   }
 
-  // const handleStoreGestName = (gestName) => {
-  //   setGest(gestName);
-  // }
-
-  // const handleStoreGestData = () => {
-  //   console.log(gestName)
-  //   StoreGestData(gestName, formattedData)
-  // }
-
   return (
     <>
     <div className={classNames(gestData !== null ? styles.ACTIVE_RING : "", "bg-white shadow sm:rounded-lg sm:mx-auto sm:w-full md:max-w-md")}>
     <div className="px-4 py-5 sm:p-6">
-      <h3 className="text-base font-semibold leading-6 text-gray-900">Collect Gesture Recording</h3>
+      <h3 className="text-base font-semibold leading-6 text-gray-900">5. Collect Gesture Recording</h3>
       <div className="mt-2 sm:flex sm:items-start sm:justify-between">
         <div className="max-w-xl text-sm text-gray-500">
           <p>
@@ -115,7 +101,8 @@ const GestureData = ({classNames, gestures}) => {
       </div>
     </div>
   </div>
-  <StoreGestData classNames={classNames} gesture={gestName} logFile={formattedData} activeStore={nowStore}/>
+  <br/>
+  <StoreGestData classNames={classNames} gesture={gestName} user={user} logFile={formattedData} activeStore={nowStore}/>
     </>
   )
 };
