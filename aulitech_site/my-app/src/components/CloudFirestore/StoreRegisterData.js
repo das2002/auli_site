@@ -7,7 +7,6 @@ const StoreRegisterData = ({user}) => {
     await addDoc(collection(db, 'users'), {
       email: user.email,
       uid: user.uid,
-      username: 'Username',
       firstname: 'First name',
       lastname: 'Last Name'
     })

@@ -36,11 +36,11 @@ const ProfileDropdown = ({user, classNames}) => {
               >
                 <Link to="/profile">Profile</Link>
               </Menu.Item>
-              <Menu.Item 
+              {/* <Menu.Item 
                 className='bg-gray-100 block px-4 py-2 text-sm text-gray-700'                          
               >
                 <Link to="/configure-cato">Configure Cato</Link>
-              </Menu.Item>
+              </Menu.Item> */}
               <Menu.Item 
                 className='bg-gray-100 block px-4 py-2 text-sm text-gray-700'                          
               >
