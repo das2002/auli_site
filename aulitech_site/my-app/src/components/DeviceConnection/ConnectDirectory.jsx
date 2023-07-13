@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import { get, set, clear } from 'idb-keyval';
 import { styles } from "../../junk/Configure";
 
-const ConnectDirectory = ({classNames, reset, handleCatoConnected}) => {
-  const [catoConnected, setCatoConnected] = useState(false);
+const ConnectDirectory = ({classNames}) => {
+  // const [catoConnected, setCatoConnected] = useState(false);
 
-  const handleReset = () => {
-    clear();
-    setCatoConnected(false);
-    return reset;
-  }
+  // const handleReset = () => {
+  //   clear();
+  //   setCatoConnected(false);
+  //   return reset;
+  // }
 
   const getDirectory = async() => {
     try {
@@ -17,8 +17,7 @@ const ConnectDirectory = ({classNames, reset, handleCatoConnected}) => {
 
       if (dirHandleOrUndefined) {
         console.log("retrieved dir handle:", dirHandleOrUndefined.name);
-        setCatoConnected(true);
-        handleCatoConnected(true);
+        // setCatoConnected(true);
         return;
       }
 
@@ -29,8 +28,7 @@ const ConnectDirectory = ({classNames, reset, handleCatoConnected}) => {
 
       await set('directory', dirHandle);
       console.log('store dir handle:', dirHandle.name);
-      setCatoConnected(true);
-      handleCatoConnected(true);
+      // setCatoConnected(true);
     }
     catch(error) {
       console.log("get directory error:", error);
@@ -63,7 +61,7 @@ const ConnectDirectory = ({classNames, reset, handleCatoConnected}) => {
         <>
           <div className="px-4 py-5 sm:p-6">
             <div className="sm:flex sm:items-start sm:justify-between">
-              <h3 className="text-base font-semibold leading-6 text-blue-500">AULI_CATO Connection</h3>
+              <h3 className="text-base font-semibold leading-6 text-blue-500">AULI_CATO Access Granted</h3>
               <div className="mt-5 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center text-blue-500">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />

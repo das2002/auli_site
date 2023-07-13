@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { clear } from 'idb-keyval';
-import ConnectDirectory from "./ConnectDirectory";
+import ConnectDirectory from "../DeviceConnection/ConnectDirectory";
 //import FormatGestData from "../CloudFirestore/FormatGestData";
 import SelectGesture from "./SelectGesture";
 import WriteCato from "./WriteCato";
