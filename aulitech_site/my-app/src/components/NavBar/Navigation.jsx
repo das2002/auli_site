@@ -102,28 +102,54 @@ export default function Navigation({classNames}) {
                       <ul role="list" className="flex flex-1 flex-col gap-y-7">
                         <li>
                           <ul role="list" className="-mx-2 space-y-1">
-                            {navigation.map((item) => (
-                              <li key={item.name}>
-                                <a
-                                  href={item.href}
-                                  className={classNames(
-                                    item.current
-                                      ? 'bg-gray-800 text-white'
-                                      : 'text-gray-400 hover:text-white hover:bg-gray-800',
-                                    'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                                  )}
-                                >
-                                  <item.icon className="h-6 w-6 shrink-0" aria-hidden="true" />
-                                  {item.name}
-                                </a>
-                              </li>
-                            ))}
+                            <NavLink
+                      to="/"
+                      className={({isActive}) => classNames(
+                        isActive 
+                          ? 'bg-gray-800 text-white'
+                          : 'text-gray-400 hover:text-white hover:bg-gray-800',
+                        'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+                      )}
+                    >
+                      <li>
+                        <p>
+                        Dashboard
+                        </p>
+                      </li>
+                    </NavLink>
+                    <NavLink
+                      to="/configure-cato"
+                      className={({isActive}) => classNames(
+                        isActive 
+                          ? 'bg-gray-800 text-white'
+                          : 'text-gray-400 hover:text-white hover:bg-gray-800',
+                        'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+                      )}
+                    >
+                      <li>
+                        
+                        Record Gestures
+                      </li>
+                    </NavLink>
                           </ul>
                         </li>
-                        {/* <li>
-                          <div className="text-xs font-semibold leading-6 text-gray-400">Your teams</div>
+                        <li>
+                          <div className="text-xs font-semibold leading-6 text-gray-400">My Catos</div>
                           <ul role="list" className="-mx-2 mt-2 space-y-1">
-                            {teams.map((team) => (
+                            <NavLink
+                              to="/configure-cato"
+                              className={({isActive}) => classNames(
+                                isActive 
+                                  ? 'bg-gray-800 text-white'
+                                      : 'text-gray-400 hover:text-white hover:bg-gray-800',
+                                    'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+                              )}
+                            >
+                              <li>
+                                Record Gestures
+                              </li>
+                            </NavLink>
+                            {/*{teams.map((team) => (
                               <li key={team.name}>
                                 <a
                                   href={team.href}
@@ -140,9 +166,9 @@ export default function Navigation({classNames}) {
                                   <span className="truncate">{team.name}</span>
                                 </a>
                               </li>
-                            ))}
+                                  ))}*/}
                           </ul>
-                        </li> */}
+                        </li>
                       </ul>
                     </nav>
                   </div>
@@ -173,8 +199,9 @@ export default function Navigation({classNames}) {
                       )}
                     >
                       <li>
-
+                        <p>
                         Dashboard
+                        </p>
                       </li>
                     </NavLink>
                     <NavLink

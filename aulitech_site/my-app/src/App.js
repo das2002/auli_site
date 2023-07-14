@@ -11,7 +11,7 @@ import SignOutAccount from './components/GoogleAuth/SignOutAccount';
 import SignIn from './components/GoogleAuth/SignIn';
 import SignUp from './components/GoogleAuth/SignUp';
 import ConfigureGesture from './components/ConfigureCato/ConfigureGesture';
-import Dashboard from './pages/Dashboard';
+import Dashboard from './components/Dashboard/Dashboard';
 
 function App() {
   const [user, setUser] = useState(null);

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { get, set, clear } from 'idb-keyval';
-import { styles } from "../../junk/Configure";
+import { styles } from "../Dashboard";
 
 const ConnectDirectory = ({classNames}) => {
   // const [catoConnected, setCatoConnected] = useState(false);
@@ -39,7 +39,7 @@ const ConnectDirectory = ({classNames}) => {
     if(get('directory') === null) {
       return(
         <>
-          <div className="px-4 py-5 sm:p-6">
+          <div className="px-4 py-5 sm:p-4">
             <h3 className="text-base font-semibold leading-6 text-gray-900">Connect to AULI_CATO</h3>
             <div className="mt-2 max-w-xl text-sm text-gray-500">
               <p>Click Connect, you will be prompted by your browser to select a directory, select AULI_CATO.</p>
@@ -59,9 +59,9 @@ const ConnectDirectory = ({classNames}) => {
     } else {
       return (
         <>
-          <div className="px-4 py-5 sm:p-6">
+          <div className="px-4 py-4 sm:p-4">
             <div className="sm:flex sm:items-start sm:justify-between">
-              <h3 className="text-base font-semibold leading-6 text-blue-500">AULI_CATO Access Granted</h3>
+              <h3 className="text-sm font-semibold leading-6 text-blue-500">AULI_CATO Access Granted</h3>
               <div className="mt-5 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center text-blue-500">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />

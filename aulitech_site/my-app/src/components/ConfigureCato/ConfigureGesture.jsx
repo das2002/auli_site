@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { clear } from 'idb-keyval';
-import ConnectDirectory from "../DeviceConnection/ConnectDirectory";
+import ConnectDirectory from "../Dashboard/device-connection/ConnectDirectory";
 //import FormatGestData from "../CloudFirestore/FormatGestData";
 import SelectGesture from "./SelectGesture";
 import WriteCato from "./WriteCato";
 import GestureData from "./GestureData";
+import Example from "./RecordGstr";
+import RecordGstr from "./RecordGstr";
 
-export const styles = {ACTIVE_RING : "ring-1 ring-blue-500"}
 
 const ConfigureGesture = ({classNames, user}) => {
   const [catoConnected, setCatoConnected] = useState(false);
@@ -54,14 +55,8 @@ const ConfigureGesture = ({classNames, user}) => {
   }
 
   return (
-    <div  className="flex flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-      <ConnectDirectory classNames={classNames} reset={reset} handleCatoConnected={handleCatoConnected}/>
-      <br/>
-      <SelectGesture classNames={classNames} handleGestName={handleGestName}/>
-      <br/>
-      <WriteCato classNames={classNames} handleConfigSuccess={handleConfigSuccess}/>
-      <br/>
-      <GestureData classNames={classNames} gestName={gestName} user={user}/>
+    <div>
+      <RecordGstr classNames={classNames}/>
     </div>
   )
 };
