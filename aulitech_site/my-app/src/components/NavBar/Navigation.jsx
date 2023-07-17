@@ -25,7 +25,7 @@ const navigation = [
 //   { id: 3, name: 'Workcation', href: '#', initial: 'W', current: false },
 // ]
 
-export default function Navigation({classNames}) {
+export default function Navigation({user, classNames}) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   
   const Logo = () => {
@@ -273,7 +273,9 @@ export default function Navigation({classNames}) {
                   >
                       <UserIcon/>
                     <span className="sr-only">Your profile</span>
-                    <span aria-hidden="true">Tom Cook</span>
+                    <span aria-hidden="true">
+                      {user !== null ? user.email : null}
+                    </span>
                   </Link>
                 </li>
               </ul>
