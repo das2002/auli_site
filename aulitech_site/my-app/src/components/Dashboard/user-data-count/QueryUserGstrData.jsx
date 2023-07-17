@@ -5,7 +5,7 @@ import { EnvelopeIcon, PhoneIcon } from '@heroicons/react/20/solid'
 
 import { db } from "../../../firebase";
 import { Link } from "react-router-dom";
-import DropdownBtn from "../../elements/DropdownBtn";
+import DropdownBtn from "./DropdownBtn";
 
 const QueryUserGstrData = ({classNames, user}) => {
   const [gestureData, setGestureData] = useState(null);
@@ -170,19 +170,25 @@ const QueryUserGstrData = ({classNames, user}) => {
                 <td className="w-full max-w-0 py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:w-auto sm:max-w-none sm:pl-0">
                   {gesture.name}
                   <dl className="font-normal lg:hidden">
-                    <dt className="sr-only">Title</dt>
-                    <dd className="mt-1 truncate text-gray-700">{}</dd>
-                    <dt className="sr-only sm:hidden">Email</dt>
-                    <dd className="mt-1 truncate text-gray-500 sm:hidden">{}</dd>
+                    <dt className="sr-only"></dt>
+                    <dd className="mt-1 truncate text-gray-700">{gesture.count} / 5</dd>
+                    <dt className="sr-only sm:hidden"></dt>
+                    <dd className="mt-1 truncate text-gray-500 sm:hidden">Action</dd>
                   </dl>
                 </td>
-                <td className="hidden px-3 py-4 text-sm text-gray-500 lg:table-cell">{gesture.count}</td>
-                <td className="hidden px-3 py-4 text-sm text-gray-500 sm:table-cell">{}</td>
+                <td className="hidden px-3 py-4 text-sm text-gray-500 lg:table-cell">{gesture.count} / 5</td>
+                <td className="hidden px-3 py-4 text-sm text-gray-500 sm:table-cell">
+                  <DropdownBtn classNames={classNames}/>
+                </td>
                 <td className="py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
+                {gesture.count >= 5 ? 
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center text-blue-500">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                   <span className="sr-only">, {gesture.name}</span>
                 </svg>
+                :
+                <span className="sr-only">, {gesture.name}</span>
+                }
                 </td>
               </tr>
             ))}
@@ -262,12 +268,7 @@ const QueryUserGstrData = ({classNames, user}) => {
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-base font-semibold leading-6 text-gray-900">Gesture Recording Status</h1>
-        </div>
-        <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-          <Link to="/configure-cato">
-            Record Gestures
-          </Link>
+          <h1 className="text-base font-semibold leading-6 text-gray-900">Gesture Training Status</h1>
         </div>
       </div>
       <div className="-mx-4 mt-8 sm:-mx-0">
@@ -281,13 +282,13 @@ const QueryUserGstrData = ({classNames, user}) => {
                 scope="col"
                 className="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 lg:table-cell"
               >
-                Completed 
+                Status 
               </th>
               <th
                 scope="col"
                 className="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 sm:table-cell"
               >
-                Status
+                Action
               </th>
               <th scope="col" className="relative py-3.5 pl-3 pr-4 sm:pr-0">
                 <span className="sr-only">Edit</span>

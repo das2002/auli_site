@@ -1,14 +1,27 @@
 import React, {useState} from "react";
+import { Outlet } from "react-router-dom";
 
 import SelectGesture from "./SelectGesture";
 import DeviceAccess from "../Dashboard/device-connection/DeviceAccess";
+import ChooseGest from "./ChooseGest";
 
 export default function RecordGstr({classNames}) {
+  const [currStep, setCurrStep] = useState([
+    <DeviceAccess classNames={classNames}/>
+  ])
   const [gestName, setGestName] = useState('');
 
 
   const handleGestName = (name) => {
     setGestName(name);
+  }
+
+  const handleNextStep = (currStep, doNext) => {
+
+  }
+
+  const DisplaySteps = () => {
+
   }
 
 
@@ -28,7 +41,9 @@ export default function RecordGstr({classNames}) {
           <DeviceAccess classNames={classNames}/>
         </aside>
 
-        <main className="flex-1">{/* Main area */}</main>
+        <main className="flex-1">{/* Main area */}
+          <Outlet context={currStep}/>
+        </main>
 
         <aside className="sticky top-8 hidden w-96 shrink-0 xl:block">{/* Right column area */}</aside>
       </div>

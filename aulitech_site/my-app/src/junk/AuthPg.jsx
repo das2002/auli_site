@@ -1,39 +1,44 @@
 import React, { useState } from "react";
 
-import SignIn from "./SignIn";
-import SignUp from "./SignUp";
+import SignIn from "../components/GoogleAuth/SignIn";
+import SignUp from "../components/GoogleAuth/SignUp";
 
 const AuthPg = () => {
-  const [ register, setRegister ] = useState(false);
+  const [register, setRegister] = useState(false);
 
   const handleRegister = () => {
-      setRegister(!register);
-  }
+    setRegister(!register);
+  };
 
-  return(
+  return (
     <div className="object-center">
-      { register ?
-      <>
-                <SignUp/>
-        <p className="mt-10 text-center text-sm text-gray-500">
-              Already have an accoount?{' '}
-              <button onClick={handleRegister} className="font-semibold leading-6 text-blue-500 hover:text-blue-400">
-                Sign In
-              </button>
-            </p>
-      </>
-          :
-          <>
-                    <SignIn/>
-                    <p className="mt-10 text-center text-sm text-gray-500">
-              Don't have an accoount?{' '}
-              <button onClick={handleRegister} className="font-semibold leading-6 text-blue-500 hover:text-blue-400">
-                Sign Up
-              </button>
-            </p>
-
-          </>
-      }
+      {register ? (
+        <>
+          <SignUp />
+          <p className="mt-10 text-center text-sm text-gray-500">
+            Already have an accoount?{" "}
+            <button
+              onClick={handleRegister}
+              className="font-semibold leading-6 text-blue-500 hover:text-blue-400"
+            >
+              Sign In
+            </button>
+          </p>
+        </>
+      ) : (
+        <>
+          <SignIn />
+          <p className="mt-10 text-center text-sm text-gray-500">
+            Don't have an accoount?{" "}
+            <button
+              onClick={handleRegister}
+              className="font-semibold leading-6 text-blue-500 hover:text-blue-400"
+            >
+              Sign Up
+            </button>
+          </p>
+        </>
+      )}
 
       {/* <br/>
 

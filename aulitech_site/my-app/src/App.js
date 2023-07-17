@@ -6,13 +6,14 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 import ProfilePg from './pages/ProfilePg';
 import Navigation from './components/NavBar/Navigation';
-import AuthPg from './components/GoogleAuth/AuthPg';
 import SignOutAccount from './components/GoogleAuth/SignOutAccount';
 import SignIn from './components/GoogleAuth/SignIn';
 import SignUp from './components/GoogleAuth/SignUp';
 import ConfigureGesture from './components/ConfigureCato/ConfigureGesture';
 import Dashboard from './components/Dashboard/Dashboard';
-import EditCatoSettings from './components/EditCatoSettings/EditCatoSettings';
+import CatoSettings from './components/CatoSettings/CatoSettings';
+import DeviceAccess from './components/Dashboard/device-connection/DeviceAccess';
+import RegisterCatoDevice from './components/CatoSettings/RegisterCatoDevice';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -54,10 +55,11 @@ function App() {
           <div className="px-4 sm:px-6 lg:px-8">
             <Routes>
               <Route exact path="/" element={<Dashboard classNames={classNames} user={user}/>}/>
-              <Route path="/profile" element={<ProfilePg user={user}/>}/>
-              <Route path="/user-auth" element={<AuthPg/>}/>
-              <Route path="/configure-cato" element={<ConfigureGesture classNames={classNames} user={user}/>}/>
-              <Route path="/cato-settings" element={<EditCatoSettings classNames={classNames} user={user}/>}/>
+              <Route path="profile" element={<ProfilePg user={user}/>}/>
+              <Route path="configure-cato" element={<ConfigureGesture classNames={classNames} user={user}/>}/>
+              <Route path="cato-device-access" element={<DeviceAccess classNames={classNames}/>}/>
+              <Route path="cato-settings" element={<CatoSettings classNames={classNames} user={user}/>}/>
+              <Route path="register-cato-device" element={<RegisterCatoDevice user={user}/>}/>
               <Route path="/sign-out" element={<SignOutAccount/>}/>
               <Route path="/sign-in" element={<SignIn/>}/>
               <Route path="/sign-up" element={<SignUp/>}/>
