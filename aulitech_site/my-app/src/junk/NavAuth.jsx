@@ -1,5 +1,5 @@
 import React from "react";
-import SignInBtn from "../components/NavBar/SignInBtn";
+import SignInBtn from "../aulitech_site/my-app/src/components/NavBar/SignInBtn";
 import ProfileDropdown from "../components/NavBar/ProfileDropdown";
 
 const NavAuth = ({user}) => {

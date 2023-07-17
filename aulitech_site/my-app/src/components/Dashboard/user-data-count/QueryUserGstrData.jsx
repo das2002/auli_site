@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { collection, query, where, getDocs, limit, getCountFromServer } from "firebase/firestore";
+import { EnvelopeIcon, PhoneIcon } from '@heroicons/react/20/solid'
+
 
 import { db } from "../../../firebase";
 import { Link } from "react-router-dom";
+import DropdownBtn from "../../elements/DropdownBtn";
 
-const QueryUserGstrData = ({user}) => {
+const QueryUserGstrData = ({classNames, user}) => {
   const [gestureData, setGestureData] = useState(null);
   const [selectCount, setSelectCount] = useState(0);
   const [nodUpCount, setNodUpCount] = useState(0);
@@ -20,37 +23,6 @@ const QueryUserGstrData = ({user}) => {
 
   const [test, setTest] = useState(null);
   const [retrieveData, setRetrieveData] = useState(true);
-
-
-  // useEffect(() => {
-  //   const fetchData = async() => {
-  //     try{
-  //       const dataRef = collection(db, "gesture-data");
-  //       const userDataQuery = query(dataRef, where("useruid", "==", user.uid));
-  //       do {
-  //         const snapshot = await getDocs(userDataQuery);
-  //         if(snapshot !== null) {
-  //           let data = [];
-  //           snapshot.forEach((doc) => {
-  //             data.push(doc.data())
-  //           })
-  //           setTest();
-  //           break;
-  //         } else {
-  //           console.log("snapshot false")
-  //         }
-  //       } while (test ===  null);
-  //     }
-  //     catch(error) {
-  //       console.log("fetch gest data error: ", error);
-  //     }
-    
-  //   }
-  //   console.log(test);
-  //   return () => {
-  //     fetchData();
-  //   }
-  // });
 
   const getUserGestureData = async function() {
     let gestureCounts = [
@@ -68,56 +40,60 @@ const QueryUserGstrData = ({user}) => {
      ];
       try{
           const dataRef = collection(db, "gesture-data");
+
           const userDataQuery = query(dataRef, where("useruid", "==", user.uid));
           const  countSnapshot = await getCountFromServer(userDataQuery);
-          // console.log('count: ', countSnapshot.data().count);
-          const queryTest = query(dataRef, where("useruid", "==", user.uid), limit(countSnapshot.data().count))
-          const getTest = await getDocs(queryTest);
-          console.log(getTest);
-          if(getTest !== null) {
-            getTest.forEach((doc) => {
 
-                    switch (doc.data().gesture) {
-                      case 'Select':
-                        return null;
-                      case 'Nod up':
-                        gestureCounts[1].count += 1;
-                        break;
-                      case 'Nod down':
-                        gestureCounts[2].count += 1;
-                        break;
-                      case 'Nod right':
-                        gestureCounts[3].count += 1;
-                        break;
-                      case 'Nod left':
-                        gestureCounts[4].count += 1;
-                        break;
-                      case 'Tilt right':
-                        gestureCounts[5].count += 1;
-                        break;
-                      case 'Tilt left':
-                        gestureCounts[6].count += 1;
-                        break;
-                      case 'Shake vertical':
-                        gestureCounts[7].count += 1;
-                        break;
-                      case 'Shake horizontal':
-                        gestureCounts[8].count += 1;
-                        break;
-                      case 'Circle clockwise':
-                        gestureCounts[9].count += 1;
-                        break;
-                      case 'Circle counterclockwise':
-                        gestureCounts[10].count += 1;
-                        break;
-                      default:
-                        console.log("switch error")
-                    }
-                    setGestureCounts(gestureCounts)
-            })
-          } else {
-            console.log(getTest);
-          }
+          if (countSnapshot.data().count !== 0) {
+            console.log("Count > 0")
+            const queryTest = query(dataRef, where("useruid", "==", user.uid), limit(countSnapshot.data().count))
+            const getTest = await getDocs(queryTest);
+
+            if(getTest !== null) {
+              getTest.forEach((doc) => {
+
+                switch (doc.data().gesture) {
+                  case 'Select':
+                    return null;
+                  case 'Nod up':
+                    gestureCounts[1].count += 1;
+                    break;
+                  case 'Nod down':
+                    gestureCounts[2].count += 1;
+                    break;
+                  case 'Nod right':
+                    gestureCounts[3].count += 1;
+                    break;
+                  case 'Nod left':
+                    gestureCounts[4].count += 1;
+                    break;
+                  case 'Tilt right':
+                    gestureCounts[5].count += 1;
+                    break;
+                  case 'Tilt left':
+                    gestureCounts[6].count += 1;
+                    break;
+                  case 'Shake vertical':
+                    gestureCounts[7].count += 1;
+                    break;
+                  case 'Shake horizontal':
+                    gestureCounts[8].count += 1;
+                    break;
+                  case 'Circle clockwise':
+                    gestureCounts[9].count += 1;
+                    break;
+                  case 'Circle counterclockwise':
+                    gestureCounts[10].count += 1;
+                    break;
+                  default:
+                    console.log("switch error")
+                }
+                setGestureCounts(gestureCounts)
+              })
+            } else {
+              console.log(getTest);
+            }
+        }
       }
       catch(error) {
         console.log("guery gesture-data collection error:", error);
@@ -170,22 +146,22 @@ const QueryUserGstrData = ({user}) => {
   }
 
 
-  const DisplayGestureCounts = () => {
+  const DisplayGestureCounts = (count) => {
     try{
       getUserGestureData();
             
-    const gestures = [
-      {name: 'Nod up', count: nodUpCount},
-      {name: 'Nod down', count: nodDownCount},
-      {name: 'Nod right', count: nodRightCount},
-      {name: 'Nod left', count: nodLeftCount},
-      {name: 'Tilt right', count: tiltRightCount},
-      {name: 'Tilt left', count: tiltLeftCount},
-      {name: 'Shake vertical', count: shakeVerticalCount},
-      {name: 'Shake horizontal', count: shakeHorizontalCount},
-      {name: 'Circle clockwise', count: clockwiseCount},
-      {name: 'Circle counterclockwise', count: counterclockwiseCount},
-     ];
+    // const gestures = [
+    //   {name: 'Nod up', count: nodUpCount},
+    //   {name: 'Nod down', count: nodDownCount},
+    //   {name: 'Nod right', count: nodRightCount},
+    //   {name: 'Nod left', count: nodLeftCount},
+    //   {name: 'Tilt right', count: tiltRightCount},
+    //   {name: 'Tilt left', count: tiltLeftCount},
+    //   {name: 'Shake vertical', count: shakeVerticalCount},
+    //   {name: 'Shake horizontal', count: shakeHorizontalCount},
+    //   {name: 'Circle clockwise', count: clockwiseCount},
+    //   {name: 'Circle counterclockwise', count: counterclockwiseCount},
+    //  ];
   
      return(
       <tbody className="divide-y divide-gray-200 bg-white">
@@ -212,11 +188,73 @@ const QueryUserGstrData = ({user}) => {
             ))}
           </tbody>
      )
+    // console.log(count);
+
+    // return (
+    //   <>
+    //   {count.count >= 1?
+    //     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center text-blue-500">
+    //     <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+    //     </svg>
+    // : null}
+    //   </>
+    // )
     }
     catch(error) {
       console.log("display gesture counts error:", error);
     }
   }
+
+  const gestures = [
+    {name: 'Nod up', count: nodUpCount},
+    {name: 'Nod down', count: nodDownCount},
+    {name: 'Nod right', count: nodRightCount},
+    {name: 'Nod left', count: nodLeftCount},
+    {name: 'Tilt right', count: tiltRightCount},
+    {name: 'Tilt left', count: tiltLeftCount},
+    {name: 'Shake vertical', count: shakeVerticalCount},
+    {name: 'Shake horizontal', count: shakeHorizontalCount},
+    {name: 'Circle clockwise', count: clockwiseCount},
+    {name: 'Circle counterclockwise', count: counterclockwiseCount},
+   ];
+
+  // return (
+  //   <ul role="list" className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  //     {gestures.map((gest) => (
+  //       <li key={gest.name} className="col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
+  //         <div className="flex w-full items-center justify-between space-x-6 p-6">
+  //           <div className="flex-1 truncate">
+  //             <div className="flex items-center space-x-3">
+  //               <h3 className="truncate text-sm font-medium text-gray-900">{gest.name}</h3>
+  //               <DisplayGestureCounts count={gest.count}/>
+  //             </div>
+  //             <p className="mt-1 truncate text-sm text-gray-500">
+                
+  //             </p>
+  //           </div>
+  //         </div>
+  //         <div>
+  //           <div className="-mt-px flex divide-x divide-gray-200">
+  //             <div className="flex w-0 flex-1">
+  //               <p
+  //                 className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
+  //               >
+  //                 {gest.count} / 5
+  //               </p>
+  //             </div>
+  //             <div className="-ml-px flex w-0 flex-1">
+  //               {/* <p
+  //                 className="relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-gray-900"
+  //               >
+                  
+  //               </p> */}
+  //             </div>
+  //           </div>
+  //         </div>
+  //       </li>
+  //     ))}
+  //   </ul>
+  // )
 
   return (
     <div className="px-4 py-6 sm:px-6 lg:pl-8 xl:flex-1 xl:pl-6">

@@ -131,6 +131,21 @@ export default function Navigation({classNames}) {
                         Record Gestures
                       </li>
                     </NavLink>
+
+                    <NavLink
+                      to="/configure-cato"
+                      className={({isActive}) => classNames(
+                        isActive 
+                          ? 'bg-gray-800 text-white'
+                          : 'text-gray-400 hover:text-white hover:bg-gray-800',
+                        'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+                      )}
+                    >
+                      <li>
+                        
+                        Cato Settings
+                      </li>
+                    </NavLink>
                           </ul>
                         </li>
                         <li>
@@ -168,7 +183,7 @@ export default function Navigation({classNames}) {
                               </li>
                                   ))}*/}
                           </ul>
-                        </li>
+                        </li> x
                       </ul>
                     </nav>
                   </div>
@@ -189,6 +204,7 @@ export default function Navigation({classNames}) {
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
                 <li>
                   <ul role="list" className="-mx-2 space-y-1">
+
                     <NavLink
                       to="/"
                       className={({isActive}) => classNames(
@@ -216,6 +232,20 @@ export default function Navigation({classNames}) {
                       <li>
                         
                         Record Gestures
+                      </li>
+                    </NavLink>
+                    <NavLink
+                      to="/cato-settings"
+                      className={({isActive}) => classNames(
+                        isActive 
+                          ? 'bg-gray-800 text-white'
+                          : 'text-gray-400 hover:text-white hover:bg-gray-800',
+                        'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+                      )}
+                    >
+                      <li>
+                        
+                        Cato Settings
                       </li>
                     </NavLink>
                     {/* {navigation.map((item) => (

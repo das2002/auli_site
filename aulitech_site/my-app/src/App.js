@@ -12,6 +12,8 @@ import SignIn from './components/GoogleAuth/SignIn';
 import SignUp from './components/GoogleAuth/SignUp';
 import ConfigureGesture from './components/ConfigureCato/ConfigureGesture';
 import Dashboard from './components/Dashboard/Dashboard';
+import CatoSettings from './components/CatoSettings/CatoSettings';
+import EditCatoSettings from './components/EditCatoSettings/EditCatoSettings';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -38,7 +40,14 @@ function App() {
     <div className="h-screen">
     <BrowserRouter>
       {user === null ? 
+      <>
+        <Routes>
+          <Route path="/sign-in" element={<SignIn/>}/>
+          <Route path="/sign-up" element={<SignUp/>}/>
+        </Routes>
         <SignIn/>
+      </>
+        
       :
         <Navigation user={user} classNames={classNames}/>
       } 
@@ -49,6 +58,7 @@ function App() {
               <Route path="/profile" element={<ProfilePg user={user}/>}/>
               <Route path="/user-auth" element={<AuthPg/>}/>
               <Route path="/configure-cato" element={<ConfigureGesture classNames={classNames} user={user}/>}/>
+              <Route path="/cato-settings" element={<EditCatoSettings/>}/>
               <Route path="/sign-out" element={<SignOutAccount/>}/>
               <Route path="/sign-in" element={<SignIn/>}/>
               <Route path="/sign-up" element={<SignUp/>}/>

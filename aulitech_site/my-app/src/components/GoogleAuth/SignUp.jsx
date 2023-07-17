@@ -10,8 +10,6 @@ const SignUp = () => {
     const [pass, setPass] = useState('');
     const [confirmPass, setConfirmPass] = useState('');
     const [err, setErr] = useState(false);
-    // const [first, setFirst] = useState('');
-    // const [last, setLast] = useState('');
 
     const navigate = useNavigate();
 
@@ -55,12 +53,11 @@ const SignUp = () => {
           <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
             <form className="space-y-6" onSubmit={signUp}>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
+                <label className="block text-sm font-medium leading-6 text-gray-900">
                   Email address
                 </label>
                 <div className="mt-2">
                   <input
-                    id="email"
                     name="email"
                     type="email"
                     autoComplete="email"
@@ -80,13 +77,12 @@ const SignUp = () => {
                     : null}
                 </div>
                 <div className="flex items-center justify-between">
-                  <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+                  <label className="block text-sm font-medium leading-6 text-gray-900">
                     Password
                   </label>
                 </div>
                 <div className="mt-2">
                   <input
-                    id="password"
                     name="password"
                     type="password"
                     autoComplete="current-password"
@@ -96,13 +92,12 @@ const SignUp = () => {
                   />
                 </div>
                 <div className="flex items-center justify-between">
-                  <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
+                  <label className="block text-sm font-medium leading-6 text-gray-900">
                     Confirm Password
                   </label>
                 </div>
                 <div className="mt-2">
                   <input
-                    id="confirmPassword"
                     name="password"
                     type="password"
                     autoComplete="current-password"
