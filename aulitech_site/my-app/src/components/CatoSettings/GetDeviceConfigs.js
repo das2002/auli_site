@@ -6,7 +6,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 
-const GetDeviceConfigs = (user) => {
+const GetDeviceConfigs = (user, handleDevices) => {
   const [docData, setDocData] = useState([]);
 
   const getCatoData = () => {
@@ -22,19 +22,22 @@ const GetDeviceConfigs = (user) => {
           configData.push(
             {id: doc.id, name: doc.data().devicename, configfile: doc.data().configjson}
           );
+          console.log(doc.data(), doc.id);
+
         })
 
-        setDocData(configData)
-
+        setDocData(configData);
+      
       } catch (error) {
         console.log("get user cato configs error: ", error);
       }
     };
     getUserConfigs();
   };
-
-  getCatoData();
-  return (docData);
+  if (docData === []) {
+    getCatoData();
+  }
+  return handleDevices(docData);
 };
 
 export default GetDeviceConfigs;

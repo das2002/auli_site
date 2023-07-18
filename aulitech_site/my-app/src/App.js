@@ -14,6 +14,7 @@ import Dashboard from './components/Dashboard/Dashboard';
 import CatoSettings from './components/CatoSettings/CatoSettings';
 import DeviceAccess from './components/Dashboard/device-connection/DeviceAccess';
 import RegisterCatoDevice from './components/CatoSettings/RegisterCatoDevice';
+import AuthPg from './junk/AuthPg';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -47,25 +48,26 @@ function App() {
         </Routes>
         <SignIn/>
       </>
-        
       :
+      <>
         <Navigation user={user} classNames={classNames}/>
-      } 
         <main className="py-10 lg:pl-72">
           <div className="px-4 sm:px-6 lg:px-8">
             <Routes>
               <Route exact path="/" element={<Dashboard classNames={classNames} user={user}/>}/>
-              <Route path="profile" element={<ProfilePg user={user}/>}/>
-              <Route path="configure-cato" element={<ConfigureGesture classNames={classNames} user={user}/>}/>
-              <Route path="cato-device-access" element={<DeviceAccess classNames={classNames}/>}/>
-              <Route path="cato-settings" element={<CatoSettings classNames={classNames} user={user}/>}/>
-              <Route path="register-cato-device" element={<RegisterCatoDevice user={user}/>}/>
+              <Route path="/profile" element={<ProfilePg user={user}/>}/>
+              <Route path="/configure-cato" element={<ConfigureGesture classNames={classNames} user={user}/>}/>
+              <Route path="/cato-device-access" element={<DeviceAccess classNames={classNames}/>}/>
+              <Route path="/cato-settings" element={<CatoSettings classNames={classNames} user={user}/>}/>
+              <Route path="/register-cato-device" element={<RegisterCatoDevice user={user}/>}/>
               <Route path="/sign-out" element={<SignOutAccount/>}/>
               <Route path="/sign-in" element={<SignIn/>}/>
               <Route path="/sign-up" element={<SignUp/>}/>
             </Routes>
           </div>
         </main>
+        </>
+        }
       </BrowserRouter>
     </div>
   )

@@ -1,15 +1,14 @@
 import React, {Fragment} from "react";
-import GetDeviceConfigs from "./GetDeviceConfigs";
 import { Disclosure } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 import { PlusIcon } from '@heroicons/react/20/solid';
 import { useNavigate } from "react-router-dom";
 
 
-const SettingsNav = ({classNames, user, handleCurr}) => {
-  const devices = GetDeviceConfigs(user);
-
+const SettingsNav = ({classNames, devices, handleCurr}) => {
+  // const devices = GetDeviceConfigs(user);
   const navigate = useNavigate();
+  console.log(devices);
 
   const register = () => {
     navigate("/register-cato-device");
@@ -43,10 +42,10 @@ const SettingsNav = ({classNames, user, handleCurr}) => {
                 </div>
 
                 <div className="hidden md:ml-6 md:flex md:items-center md:space-x-4">
-                  {devices.map((item) => (
+                  {devices.map((item, index) => (
                     <button
                       key={item.id}
-                      onClick={() => {handleCurr(item.configfile)}}
+                      onClick={() => {handleCurr(index)}}
                       onKeyDown={() => {}}
                       className="text-gray-900 rounded-md px-3 py-2 text-sm font-medium"
                       // href={item.href}
@@ -56,7 +55,7 @@ const SettingsNav = ({classNames, user, handleCurr}) => {
                       // )}
                       // aria-current={item.current ? 'page' : undefined}
                     >
-                      {item.name}
+                      {item.data.devicename}
                     </button>
                   ))}
                 </div>

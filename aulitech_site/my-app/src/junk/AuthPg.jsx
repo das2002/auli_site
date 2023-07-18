@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 import SignIn from "../components/GoogleAuth/SignIn";
 import SignUp from "../components/GoogleAuth/SignUp";
@@ -15,28 +16,22 @@ const AuthPg = () => {
       {register ? (
         <>
           <SignUp />
-          <p className="mt-10 text-center text-sm text-gray-500">
-            Already have an accoount?{" "}
-            <button
-              onClick={handleRegister}
-              className="font-semibold leading-6 text-blue-500 hover:text-blue-400"
-            >
-              Sign In
-            </button>
-          </p>
+            <p>
+            Already have an accoount?{' '}
+              <Link to="/sign-in" className="font-semibold leading-6 text-blue-500 hover:text-blue-400">
+                Sign In
+              </Link>
+            </p>
         </>
       ) : (
         <>
           <SignIn />
           <p className="mt-10 text-center text-sm text-gray-500">
-            Don't have an accoount?{" "}
-            <button
-              onClick={handleRegister}
-              className="font-semibold leading-6 text-blue-500 hover:text-blue-400"
-            >
-              Sign Up
-            </button>
-          </p>
+              Don't have an accoount?{' '}
+              <Link to="/sign-up" className="font-semibold leading-6 text-blue-500 hover:text-blue-400">
+                Sign Up
+              </Link>
+            </p>
         </>
       )}
 
