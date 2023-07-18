@@ -12,6 +12,8 @@ const CatoSettings = ({ classNames, user }) => {
   const [devices, setDevices] = useState([]);
   // const [gotDevices, setGotDevices] = useState(false);
   const [curr, setCurr] = useState(0);
+  // const [curC, setCurC] = useState(null);
+  // const [keys, setKeys] = useState([])
 
   const handleCurr = (currConfig) => {
     setCurr(currConfig);
@@ -33,11 +35,9 @@ const CatoSettings = ({ classNames, user }) => {
     
         if (docSnapData === undefined) {
           setFirstDevice(true);
-          console.log('first device: ', firstDevice);
           return;
         } else {
           setFirstDevice(false);
-          console.log('first device: ', firstDevice);
           return;
         }
       } catch (error) {
@@ -63,9 +63,10 @@ const CatoSettings = ({ classNames, user }) => {
           colSnap.forEach((doc) => {
             configData.push({
               id: doc.id,
-              data: doc.data()
+              data: doc.data(),
+              keysinfo: Object.keys(JSON.parse(doc.data().configjson)),
+              valuesinfo: Object.values(JSON.parse(doc.data().configjson))
             });
-            console.log(doc.data());
           });
           // setDevices(configData);
           // setGotDevices(true);
@@ -79,7 +80,6 @@ const CatoSettings = ({ classNames, user }) => {
       getUserConfigs();
       setDevices(configData);
     }
-
   }, []);
 
 console.log('devices: ', devices);
@@ -87,7 +87,7 @@ console.log('devices: ', devices);
   return (
     <>
       <SettingsNav classnames={classNames} devices={devices} handleCurr={handleCurr}/>
-      <FormatJson firstDevice={firstDevice} devices={devices} curr={curr}/> 
+      <FormatJson classnames={classNames} firstDevice={firstDevice} devices={devices} curr={curr}/> 
     </>
   );
 };
