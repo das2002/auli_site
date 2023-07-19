@@ -1,7 +1,7 @@
 import React, { useState, Fragment } from 'react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { Listbox, Transition } from '@headlessui/react';
-import { styles } from '../../junk/Configure';
+import { styles } from './Configure';
 
 
 const gestures = [

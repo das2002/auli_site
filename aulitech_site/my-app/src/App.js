@@ -9,20 +9,45 @@ import Navigation from './components/NavBar/Navigation';
 import SignOutAccount from './components/GoogleAuth/SignOutAccount';
 import SignIn from './components/GoogleAuth/SignIn';
 import SignUp from './components/GoogleAuth/SignUp';
-import ConfigureGesture from './components/ConfigureCato/ConfigureGesture';
+import ConfigureGesture from './components/RecordGestures/ConfigureGesture';
 import Dashboard from './components/Dashboard/Dashboard';
 import CatoSettings from './components/CatoSettings/CatoSettings';
-import DeviceAccess from './components/Dashboard/device-connection/DeviceAccess';
+import DeviceAccess from './components/RecordGestures/DeviceAccess';
 import RegisterCatoDevice from './components/CatoSettings/RegisterCatoDevice';
 import AuthPg from './junk/AuthPg';
+import { db } from "./firebase";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { clear, get, set } from "idb-keyval";
+
 
 function App() {
   const [user, setUser] = useState(null);
+  const [devices, setDevices] = useState([]);
+  const [currIndex, setCurrIndex] = useState(0);
 
   useEffect(() => {
-    const listen = onAuthStateChanged(auth, (user) => {
+            let configData = [];
+
+    const listen = onAuthStateChanged(auth, async(user) => {
       if(user) {
         setUser(user);
+
+        const colRef = collection(db, "users");
+        const queryCol = query(collection(colRef, user.uid, "userCatos"));  
+        const colSnap = await getDocs(queryCol);
+
+        colSnap.forEach((doc) => {
+          configData.push({
+            id: doc.id,
+            data: doc.data(),
+            keysinfo: Object.keys(JSON.parse(doc.data().configjson)),
+            valuesinfo: Object.values(JSON.parse(doc.data().configjson)),
+            current: false,
+          });
+        });
+
+        setDevices(configData);
+
       } else {
         setUser(null);
       }
@@ -33,9 +58,31 @@ function App() {
     }
   }, []);
 
+  
+
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
   }
+
+  const handleDevices = (catoArr) => {
+    setDevices(catoArr);
+  }
+
+  const handleCurr = (device, index) => {
+
+    devices.forEach((dev, i) => {
+      if (index === i) {
+        devices[index].current = true;
+        setCurrIndex(index);
+        console.log('true', devices[index].current);
+      } else {
+        devices[i].current = false;
+        console.log('false', devices[i].current)
+      }
+    })
+  }
+
+  console.log(currIndex);
 
   return (
     <div className="h-screen">
@@ -50,7 +97,9 @@ function App() {
       </>
       :
       <>
-        <Navigation user={user} classNames={classNames}/>
+        <Navigation user={user} classNames={classNames} devices={devices} handleCurr={handleCurr} handleDevices={handleDevices}/>
+        </>
+      }
         <main className="py-10 lg:pl-72">
           <div className="px-4 sm:px-6 lg:px-8">
             <Routes>
@@ -66,8 +115,7 @@ function App() {
             </Routes>
           </div>
         </main>
-        </>
-        }
+
       </BrowserRouter>
     </div>
   )

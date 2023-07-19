@@ -1,18 +1,18 @@
 import React, { useState } from "react";
 import { clear } from 'idb-keyval';
-import ConnectDirectory from "../Dashboard/device-connection/ConnectDirectory";
+// import ConnectDirectory from "../Dashboard/device-connection/ConnectDirectory";
 //import FormatGestData from "../CloudFirestore/FormatGestData";
-import SelectGesture from "./SelectGesture";
-import WriteCato from "./WriteCato";
-import GestureData from "./GestureData";
-import Example from "./RecordGstr";
+// import SelectGesture from "./SelectGesture";
+// import WriteCato from "./WriteCato";
+// import GestureData from "./GestureData";
+// import Example from "./RecordGstr";
 import RecordGstr from "./RecordGstr";
 
 
 const ConfigureGesture = ({classNames, user}) => {
-  const [catoConnected, setCatoConnected] = useState(false);
-  const [gestName, setGestName] = useState('');
-  const [configSuccess, setConfigSuccess]  = useState(false);
+  // const [catoConnected, setCatoConnected] = useState(false);
+  // const [gestName, setGestName] = useState('');
+  // const [configSuccess, setConfigSuccess]  = useState(false);
   // const [startCountdown, setStartCountdown] = useState(false);
 
   // const gestures = [
@@ -29,30 +29,30 @@ const ConfigureGesture = ({classNames, user}) => {
   //   {id: 10, name: 'Circle counterclockwise'}
   // ];
 
-  const handleCatoConnected = (connectState) => {
-    setCatoConnected(connectState);
-    console.log(catoConnected);
-  }
+  // const handleCatoConnected = (connectState) => {
+  //   setCatoConnected(connectState);
+  //   console.log(catoConnected);
+  // }
 
-  const handleGestName = (name) => {
-    setGestName(name);
-  }
+  // const handleGestName = (name) => {
+  //   setGestName(name);
+  // }
 
   // const handleStartCountdown = (startState) => {
   //   setStartCountdown(startState);
   //   console.log(startCountdown);
   // }
 
-  const handleConfigSuccess = (writeState) => {
-    setConfigSuccess(writeState);
-    console.log(configSuccess);
-  }
+  // const handleConfigSuccess = (writeState) => {
+  //   setConfigSuccess(writeState);
+  //   console.log(configSuccess);
+  // }
 
-  const reset = () => {
-    clear();
-    setCatoConnected(false);
-    setConfigSuccess(false);
-  }
+  // const reset = () => {
+  //   clear();
+  //   setCatoConnected(false);
+  //   setConfigSuccess(false);
+  // }
 
   return (
     <div>

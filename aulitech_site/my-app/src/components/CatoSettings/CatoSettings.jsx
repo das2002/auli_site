@@ -68,8 +68,6 @@ const CatoSettings = ({ classNames, user }) => {
               valuesinfo: Object.values(JSON.parse(doc.data().configjson))
             });
           });
-          // setDevices(configData);
-          // setGotDevices(true);
       } catch (error) {
         console.log("get user cato configs error: ", error);
       }
