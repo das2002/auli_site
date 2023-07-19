@@ -21,18 +21,18 @@ const WriteCato = ({classNames, handleConfigSuccess}) => {
         const perm = await directory.requestPermission()
 
         if(perm === 'granted') {
-          const configFile = await directory.getFileHandle('config.cato', { create: true });
+          const configFile = await directory.getFileHandle('gesture.cato', { create: true });
           
-          console.log('Config.cato: ', configFile);
+          console.log('gesture.cato: ', configFile);
           
           const writable = await configFile.createWritable();
           await writable.write(1);
           await writable.close();
 
-          const checkConfig = await directory.getFileHandle('config.cato', { create: false })
+          const checkConfig = await directory.getFileHandle('gesture.cato', { create: false })
           if(checkConfig !== null) {
             await set('checkConfig', checkConfig);
-            console.log('stored config.cato handle: ', checkConfig.name);
+            console.log('stored gesture.cato handle: ', checkConfig.name);
             setConfigSuccess(true);
             handleConfigSuccess(true);
             onClickReset();

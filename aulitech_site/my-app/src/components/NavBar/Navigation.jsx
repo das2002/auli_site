@@ -12,7 +12,6 @@ export default function Navigation({
   handleDevices,
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  console.log('nav', devices);
 
   const Logo = () => {
     return (
@@ -247,6 +246,22 @@ export default function Navigation({
 
                       {index === currIndex ? (
                         <div className="space-y-1">
+                          <div className="border-t border-gray-800">
+                            <NavLink
+                              key={'record'}
+                              to="/dashboard"
+                              className={({ isActive }) =>
+                                classNames(
+                                  isActive
+                                    ? "text-white"
+                                    : "text-gray-400 hover:text-white hover:bg-gray-800",
+                                  "group flex p-2 text-sm leading-6 font-semibold border-none"
+                                )
+                              }
+                            >
+                              <p>Dashboard</p>
+                            </NavLink>
+                          </div>
                           <div className="border-t border-gray-800">
                             <NavLink
                               key={'record'}

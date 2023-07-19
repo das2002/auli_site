@@ -25,36 +25,38 @@ const FormatJson = ({ classNames, devices, curr }) => {
             </div>
           ))))} */}
           {devices[curr].valuesinfo.map((item) => (
-            <div key={item.label} className="p-5">
-              <h2 className="text-base font-semibold leading-7 text-gray-900">
-                {item.label}
-              </h2>
-              <p className="p-2.5 text-sm leading-6 text-gray-600">
-                {item.description}
-              </p>
-              <div className="p-2.5">
-                {item.access === "rw" ? (
-                  <>
-                    {item.options === undefined ? (
-                      <>
-                        {Object.keys(item.value) < 1 || typeof(item.value) === "string" ? (
-                          <>
-                            <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500 sm:max-w-md">
-                            <input
-                              type="text"
-                              name={`${item.name}`}
-                              id={`${item.name}`}
-                              className="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                              placeholder={item.name}
-                            />
-                          </div>
-                          </>
-                        ) : (
-                          <>
-                            <FormatValuesValueObj val={item.value} />
-                          </>
-                        )}
-                        {/* <div className="mt-2">
+            <div key={item.label}>
+              {item.access === "rw" ? (
+                <>
+                  <div key={item.label} className="p-5">
+                    <div className="p-2.5">
+                      <h2 className="text-base font-semibold leading-7 text-gray-900">
+                        {item.label}
+                      </h2>
+                      <p className="p-2.5 text-sm leading-6 text-gray-600">
+                        {item.description}
+                      </p>
+                      {item.options === undefined ? (
+                        <>
+                          {Object.keys(item.value) < 1 ||
+                          typeof item.value === "string" ? (
+                            <>
+                              <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500 sm:max-w-md">
+                                <input
+                                  type="text"
+                                  name={`${item.name}`}
+                                  id={`${item.name}`}
+                                  className="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
+                                  placeholder={item.value}
+                                />
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <FormatValuesValueObj val={item.value} />
+                            </>
+                          )}
+                          {/* <div className="mt-2">
                         <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-500 sm:max-w-md">
                           <input
                             type="text"
@@ -65,29 +67,26 @@ const FormatJson = ({ classNames, devices, curr }) => {
                           />
                         </div>
                       </div> */}
-                      </>
-                    ) : (
-                      <>
-                        <label
-                          className="block text-sm font-medium leading-6 text-gray-900"
-                        >
-                          Current option: {item.value}
-                        </label>
-                        {item.options.map((option, index) => (
-                          <button
-                            key={option}
-                            className="py-2 px-4 mr-2 rounded-md shadow-sm ring-1 ring-inset ring-gray-300"
-                          >
-                            {option}
-                          </button>
-                        ))}
-                      </>
-                    )}
-                  </>
-                ) : (
-                  <p>(Read only vaue).</p>
-                )}
-              </div>
+                        </>
+                      ) : (
+                        <>
+                          <label className="block text-sm font-medium leading-6 text-gray-900">
+                            Current option: {item.value}
+                          </label>
+                          {item.options.map((option, index) => (
+                            <button
+                              key={option}
+                              className="py-2 px-4 mr-2 rounded-md shadow-sm ring-1 ring-inset ring-gray-300"
+                            >
+                              {option}
+                            </button>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </>
+              ) : null}
             </div>
           ))}
         </>
@@ -108,14 +107,7 @@ const FormatJson = ({ classNames, devices, curr }) => {
 
 export default FormatJson;
 
-
-
-
-
-
-
-
-  /* <Menu as="div" className="relative inline-block text-left">
+/* <Menu as="div" className="relative inline-block text-left">
 // <div>
 //   <Menu.Button className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50">
 //     Options
@@ -192,4 +184,3 @@ export default FormatJson;
   </Menu.Items>
 </Transition>
 </Menu> */
-

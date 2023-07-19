@@ -67,7 +67,7 @@ const RegisterCatoDevice = ({ user }) => {
     } catch (error) {
       console.log("add device doc to usersCato error: ", error);
     }
-    navigate('/cato-settings')
+    navigate('/')
   };
 
   return (

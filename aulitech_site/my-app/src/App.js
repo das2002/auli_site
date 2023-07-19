@@ -79,9 +79,6 @@ function App() {
       }
     })
   }
-
-  console.log(currIndex);
-
   return (
     <div className="h-screen">
     <BrowserRouter>
