@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { get } from 'idb-keyval';
-import { styles } from "../../junk/Configure";
+import { styles } from "./ConfigureGestures";
 import StoreGestData from "../CloudFirestore/StoreGestData";
 
 
@@ -66,6 +66,7 @@ const GestureData = ({classNames, gestName, user}) => {
           const dataContents = await dataFile.text();
           setGestData(dataContents);
           handleFormat(dataContents);
+          StoreGestData(gestName, user, dataContents );
         }
       }
     }
@@ -102,7 +103,6 @@ const GestureData = ({classNames, gestName, user}) => {
     </div>
   </div>
   <br/>
-  <StoreGestData classNames={classNames} gesture={gestName} user={user} logFile={formattedData} activeStore={nowStore}/>
     </>
   )
 };

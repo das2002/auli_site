@@ -48,7 +48,6 @@ const Dashboard = ({classNames, user}) => {
       <div className="mx-auto w-full max-w-7xl grow lg:flex xl:px-2 h-full mt-5">
         {/* Left sidebar & main wrapper */}
         <div className="flex-1 xl:flex mr-5">
-          <QueryUserGstrData classNames={classNames} user={user} />
         </div>
       </div>
     </div>

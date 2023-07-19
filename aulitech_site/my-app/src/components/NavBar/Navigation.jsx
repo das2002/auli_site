@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from "react";
+import React, { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link, NavLink } from "react-router-dom";
@@ -111,7 +111,7 @@ export default function Navigation({
                         <div>
                           <div role="list" className="-mx-2 space-y-1">
                             {devices.map((device, index) => (
-                              <div key={device.id}>
+                              <div key={`${device.id}mobile`}>
                                 <button
                                   onClick={() => handleCurr(device, index)}
                                   onKeyDown={() => {}}
@@ -228,7 +228,7 @@ export default function Navigation({
                     </div>
                   </div>
                   {devices.map((device, index) => (
-                    <div className="-mx-2 space-y-1">
+                    <div className="-mx-2 mt-2 ">
                       <div>
                         <button
                           key={device.id}
@@ -246,11 +246,11 @@ export default function Navigation({
                       </div>
 
                       {index === currIndex ? (
-                        <div className="-mx-2 mt-2 ">
+                        <div className="space-y-1">
                           <div className="border-t border-gray-800">
                             <NavLink
                               key={'record'}
-                              to="/configure-cato"
+                              to="/record-gestures"
                               className={({ isActive }) =>
                                 classNames(
                                   isActive

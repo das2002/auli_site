@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { get, set } from 'idb-keyval';
-import { styles } from "./Configure";
+import { styles } from "./ConfigureGestures";
 
 
 const WriteCato = ({classNames, handleConfigSuccess}) => {

@@ -9,13 +9,13 @@ import Navigation from './components/NavBar/Navigation';
 import SignOutAccount from './components/GoogleAuth/SignOutAccount';
 import SignIn from './components/GoogleAuth/SignIn';
 import SignUp from './components/GoogleAuth/SignUp';
-import ConfigureGesture from './components/RecordGestures/ConfigureGesture';
+import ConfigureGesture from './components/RecordGests/ConfigureGestures';
 import Dashboard from './components/Dashboard/Dashboard';
 import CatoSettings from './components/CatoSettings/CatoSettings';
-import DeviceAccess from './components/RecordGestures/DeviceAccess';
 import RegisterCatoDevice from './components/CatoSettings/RegisterCatoDevice';
 import { db } from "./firebase";
 import { collection, query, getDocs } from "firebase/firestore";
+
 
 
 function App() {
@@ -103,10 +103,11 @@ function App() {
             <Routes>
               <Route exact path="/" element={<Dashboard classNames={classNames} user={user}/>}/>
               <Route path="/profile" element={<ProfilePg user={user}/>}/>
-              <Route path="/configure-cato" element={<ConfigureGesture classNames={classNames} user={user}/>}/>
-              <Route path="/cato-device-access" element={<DeviceAccess classNames={classNames}/>}/>
+              {/* <Route path="/configure-cato" element={<RecordGstr classNames={classNames} user={user} devices={devices} currIndex={currIndex}/>}/> */}
+              {/* <Route path="/cato-device-access" element={<DeviceAccess classNames={classNames}/>}/> */}
               <Route path="/cato-settings" element={<CatoSettings classNames={classNames} user={user} devices={devices} currIndex={currIndex}/>}/>
               <Route path="/register-cato-device" element={<RegisterCatoDevice user={user}/>}/>
+              <Route path="/record-gestures" element={<ConfigureGesture classNames={classNames} user={user}/>}/>
               <Route path="/sign-out" element={<SignOutAccount/>}/>
               <Route path="/sign-in" element={<SignIn/>}/>
               <Route path="/sign-up" element={<SignUp/>}/>

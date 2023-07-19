@@ -242,6 +242,10 @@ const DeviceAccess = ({ classNames }) => {
     );
   };
 
+  const HandleUI = () => {
+    
+  }
+
   return (
     <>
     <div className="border-b border-gray-200 pb-2">
