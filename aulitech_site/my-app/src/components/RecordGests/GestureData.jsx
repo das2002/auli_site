@@ -24,9 +24,9 @@ const GestureData = ({classNames, gestName, user}) => {
 
           const dataFile = await logFile.getFile();
           const dataContents = await dataFile.text();
-          console.log(dataContents)
+
           setGestData(dataContents);
-          StoreGestData(gestName, user, gestData );
+          StoreGestData(gestName, user, gestData);
         }
       }
     }

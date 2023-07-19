@@ -15,6 +15,7 @@ import CatoSettings from './components/CatoSettings/CatoSettings';
 import RegisterCatoDevice from './components/CatoSettings/RegisterCatoDevice';
 import { db } from "./firebase";
 import { collection, query, getDocs } from "firebase/firestore";
+import SelectGesture from './components/RecordGests/SelectGesture';
 
 
 
@@ -24,7 +25,7 @@ function App() {
   const [currIndex, setCurrIndex] = useState(0);
 
   useEffect(() => {
-            let configData = [];
+    let configData = [];
 
     const listen = onAuthStateChanged(auth, async(user) => {
       if(user) {
@@ -38,6 +39,7 @@ function App() {
           configData.push({
             id: doc.id,
             data: doc.data(),
+            jsondata: JSON.parse(doc.data().configjson),
             keysinfo: Object.keys(JSON.parse(doc.data().configjson)),
             valuesinfo: Object.values(JSON.parse(doc.data().configjson)),
             current: false,
@@ -79,6 +81,7 @@ function App() {
       }
     })
   }
+
   return (
     <div className="h-screen">
     <BrowserRouter>
@@ -91,27 +94,32 @@ function App() {
         <SignIn/>
       </>
       :
-      <>
-        <Navigation user={user} classNames={classNames} devices={devices} currIndex={currIndex} handleCurr={handleCurr} handleDevices={handleDevices}/>
+      devices === undefined || devices === [] ?
+        <>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 animate-spin">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
         </>
-      }
-        <main className="py-10 lg:pl-72">
-          <div className="px-4 sm:px-6 lg:px-8">
-            <Routes>
-              <Route exact path="/" element={<Dashboard classNames={classNames} user={user}/>}/>
-              <Route path="/profile" element={<ProfilePg user={user}/>}/>
-              {/* <Route path="/configure-cato" element={<RecordGstr classNames={classNames} user={user} devices={devices} currIndex={currIndex}/>}/> */}
-              {/* <Route path="/cato-device-access" element={<DeviceAccess classNames={classNames}/>}/> */}
-              <Route path="/cato-settings" element={<CatoSettings classNames={classNames} user={user} devices={devices} currIndex={currIndex}/>}/>
-              <Route path="/register-cato-device" element={<RegisterCatoDevice user={user}/>}/>
-              <Route path="/record-gestures" element={<ConfigureGesture classNames={classNames} user={user}/>}/>
-              <Route path="/sign-out" element={<SignOutAccount/>}/>
-              <Route path="/sign-in" element={<SignIn/>}/>
-              <Route path="/sign-up" element={<SignUp/>}/>
-            </Routes>
-          </div>
-        </main>
-
+      :
+      <>
+      <Navigation user={user} classNames={classNames} devices={devices} currIndex={currIndex} handleCurr={handleCurr} handleDevices={handleDevices}/>
+      <main className="py-10 lg:pl-72">
+        <div className="px-4 sm:px-6 lg:px-8">
+          <Routes>
+            <Route exact path="/" element={<Dashboard classNames={classNames} user={user}/>}/>
+            <Route path="profile" element={<ProfilePg user={user}/>}/>
+            <Route path="cato-settings" element={<CatoSettings classNames={classNames} user={user} devices={devices} currIndex={currIndex}/>}/>
+            <Route path="register-cato-device" element={<RegisterCatoDevice user={user}/>}/>
+            <Route path="record-gestures/*" element={<ConfigureGesture classNames={classNames} user={user}/>}/>
+              <Route path="select-pg" Component={ SelectGesture }/>
+            <Route path="sign-out" element={<SignOutAccount/>}/>
+            <Route path="sign-in" element={<SignIn/>}/>
+            <Route path="sign-up" element={<SignUp/>}/>
+          </Routes>
+        </div>
+      </main>
+     </>
+    }
       </BrowserRouter>
     </div>
   )

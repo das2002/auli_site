@@ -1,0 +1,19 @@
+{
+  "kennel" : {
+    "foo" : 1,
+    "value" : {
+      "dog1" : {
+        "foo" : 1,
+        "value" : "Fido"
+      },
+      "dog2" : {
+        "foo" : 1,
+        "value" : "Lassie"
+      }
+    }
+  },
+  "market" : {
+    "foo" : 1,
+    "value" : 100
+  }
+}
