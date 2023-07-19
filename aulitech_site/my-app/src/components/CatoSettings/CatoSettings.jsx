@@ -1,92 +1,88 @@
 import React, { useEffect, useState } from "react";
-import SettingsNav from "./SettingsNav";
+// import SettingsNav from "./SettingsNav";
 import FormatJson from "./FormatJson";
-import { defaultConfig } from "./RegisterCatoDevice";
+// import { defaultConfig } from "./RegisterCatoDevice";
 import { db } from "../../firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 
-import GetDeviceConfigs from "./GetDeviceConfigs";
+// import GetDeviceConfigs from "./GetDeviceConfigs";
 
-const CatoSettings = ({ classNames, user }) => {
-  const [firstDevice, setFirstDevice] = useState(null);
-  const [devices, setDevices] = useState([]);
-  // const [gotDevices, setGotDevices] = useState(false);
-  const [curr, setCurr] = useState(0);
-  // const [curC, setCurC] = useState(null);
-  // const [keys, setKeys] = useState([])
+const CatoSettings = ({ classNames, user, devices, currIndex }) => {
+  console.log('devices: ', devices);
 
-  const handleCurr = (currConfig) => {
-    setCurr(currConfig);
-  };
 
-  useEffect(() => {
-    const queryUserCatos = async () => {  
-      let docSnapData;
+  // useEffect(() => {
+  //   const queryUserCatos = async () => {  
+  //     let docSnapData;
 
-      try {
-        const colRef = collection(db, "users");
-        // const queryCol = query(collection(colRef, user.uid, 'userCatos'), where("initialize", "==", "initializeUserCatosSubcollection"));
-        const queryCol = query(collection(colRef, user.uid, "userCatos"));
+  //     try {
+  //       const colRef = collection(db, "users");
+  //       const queryCol = query(collection(colRef, user.uid, "userCatos"));
   
-        const docSnap = await getDocs(queryCol);
-        docSnap.forEach((doc) => {
-          docSnapData = doc.data();
-        });
+  //       const docSnap = await getDocs(queryCol);
+  //       docSnap.forEach((doc) => {
+  //         docSnapData = doc.data();
+  //       });
     
-        if (docSnapData === undefined) {
-          setFirstDevice(true);
-          return;
-        } else {
-          setFirstDevice(false);
-          return;
-        }
-      } catch (error) {
-        console.log("query userCatos collection error: ", error);
-      }
-    };
+  //       if (docSnapData === undefined) {
+  //         setFirstDevice(true);
+  //         return;
+  //       } else {
+  //         setFirstDevice(false);
+  //         return;
+  //       }
+  //     } catch (error) {
+  //       console.log("query userCatos collection error: ", error);
+  //     }
+  //   };
 
-    return () => {
-      queryUserCatos();
-    }
-  }, [])
+  //   return () => {
+  //     queryUserCatos();
+  //   }
+  // }, [])
 
-  useEffect(() => {
-    let configData = [];
+  // useEffect(() => {
+  //   let configData = [];
 
-    const getUserConfigs = async () => {
+  //   const getUserConfigs = async () => {
 
-        try {
-        const colRef = collection(db, "users");
-        const queryCol = query(collection(colRef, user.uid, "userCatos"));
+  //       try {
+  //       const colRef = collection(db, "users");
+  //       const queryCol = query(collection(colRef, user.uid, "userCatos"));
 
-          const colSnap = await getDocs(queryCol);
-          colSnap.forEach((doc) => {
-            configData.push({
-              id: doc.id,
-              data: doc.data(),
-              keysinfo: Object.keys(JSON.parse(doc.data().configjson)),
-              valuesinfo: Object.values(JSON.parse(doc.data().configjson))
-            });
-          });
-      } catch (error) {
-        console.log("get user cato configs error: ", error);
-      }
-    }
+  //         const colSnap = await getDocs(queryCol);
+  //         colSnap.forEach((doc) => {
+  //           configData.push({
+  //             id: doc.id,
+  //             data: doc.data(),
+  //             keysinfo: Object.keys(JSON.parse(doc.data().configjson)),
+  //             valuesinfo: Object.values(JSON.parse(doc.data().configjson))
+  //           });
+  //         });
+  //     } catch (error) {
+  //       console.log("get user cato configs error: ", error);
+  //     }
+  //   }
 
 
-    return () => {
-      getUserConfigs();
-      setDevices(configData);
-    }
-  }, []);
+  //   return () => {
+  //     getUserConfigs();
+  //     setDevices(configData);
+  //   }
+  // }, []);
 
-console.log('devices: ', devices);
 
   return (
-    <>
-      <SettingsNav classnames={classNames} devices={devices} handleCurr={handleCurr}/>
-      <FormatJson classnames={classNames} firstDevice={firstDevice} devices={devices} curr={curr}/> 
-    </>
+    <div className="flex min-h-full flex-col">
+      <header className="shrink-0 bg-transparent">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+            Cato Settings
+          </h2>
+        </div>
+      </header>
+      <FormatJson classnames={classNames} devices={devices} curr={currIndex}/> 
+    </div>
   );
 };
 

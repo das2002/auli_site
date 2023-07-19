@@ -14,10 +14,8 @@ import Dashboard from './components/Dashboard/Dashboard';
 import CatoSettings from './components/CatoSettings/CatoSettings';
 import DeviceAccess from './components/RecordGestures/DeviceAccess';
 import RegisterCatoDevice from './components/CatoSettings/RegisterCatoDevice';
-import AuthPg from './junk/AuthPg';
 import { db } from "./firebase";
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { clear, get, set } from "idb-keyval";
+import { collection, query, getDocs } from "firebase/firestore";
 
 
 function App() {
@@ -97,7 +95,7 @@ function App() {
       </>
       :
       <>
-        <Navigation user={user} classNames={classNames} devices={devices} handleCurr={handleCurr} handleDevices={handleDevices}/>
+        <Navigation user={user} classNames={classNames} devices={devices} currIndex={currIndex} handleCurr={handleCurr} handleDevices={handleDevices}/>
         </>
       }
         <main className="py-10 lg:pl-72">
@@ -107,7 +105,7 @@ function App() {
               <Route path="/profile" element={<ProfilePg user={user}/>}/>
               <Route path="/configure-cato" element={<ConfigureGesture classNames={classNames} user={user}/>}/>
               <Route path="/cato-device-access" element={<DeviceAccess classNames={classNames}/>}/>
-              <Route path="/cato-settings" element={<CatoSettings classNames={classNames} user={user}/>}/>
+              <Route path="/cato-settings" element={<CatoSettings classNames={classNames} user={user} devices={devices} currIndex={currIndex}/>}/>
               <Route path="/register-cato-device" element={<RegisterCatoDevice user={user}/>}/>
               <Route path="/sign-out" element={<SignOutAccount/>}/>
               <Route path="/sign-in" element={<SignIn/>}/>

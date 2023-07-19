@@ -5,12 +5,14 @@ import { Link, NavLink } from "react-router-dom";
 
 export default function Navigation({
   user,
+  currIndex,
   classNames,
   devices,
   handleCurr,
   handleDevices,
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  console.log('nav', devices);
 
   const Logo = () => {
     return (
@@ -42,50 +44,6 @@ export default function Navigation({
   };
 
   // -----------------------------------------------------------------------
-
-  // useEffect(() => {
-  //   let configData = [];
-
-  //   const getUserConfigs = async () => {
-  //     const useruid = await get('useruid');
-  //     try {
-  //       const colRef = collection(db, "users");
-  //       const queryCol = query(collection(colRef, user.uid, "userCatos"));
-
-  //       const colSnap = await getDocs(queryCol);
-  //       colSnap.forEach((doc) => {
-  //         configData.push({
-  //           id: doc.id,
-  //           catoname: doc.data().devicename,
-  //           data: doc.data(),
-  //           keysinfo: Object.keys(JSON.parse(doc.data().configjson)),
-  //           valuesinfo: Object.values(JSON.parse(doc.data().configjson)),
-  //           current: false,
-  //         });
-  //       });
-  //     } catch (error) {
-  //       console.log("get user cato configs error: ", error);
-  //     }
-  //   };
-
-  //   return () => {
-  //     getUserConfigs();
-  //     setDevices(configData);
-  //     set('devicesHandle', configData);
-  //   };
-  // }, []);
-
-  // const handleDeviceNav = (index) => {
-  //   //handleCurr(deviceId);
-  //   console.log(index);
-  //   devices.forEach((device, i) => {
-  //     if (index === i) {
-  //       console.log(device);
-  //     } else {
-  //       devices[i].current = false;
-  //     }
-  //   });
-  // };
 
   return (
     <>
@@ -142,17 +100,18 @@ export default function Navigation({
                       </button>
                     </div>
                   </Transition.Child>
+
                   {/* Sidebar component, swap this element with another sidebar if you like */}
                   <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 pb-2 ring-1 ring-white/10">
                     <div className="flex h-16 shrink-0 items-center">
                       <Logo />
                     </div>
                     <nav className="flex flex-1 flex-col">
-                      <ul role="list" className="flex flex-1 flex-col gap-y-7">
-                        <li>
-                          <ul role="list" className="-mx-2 space-y-1">
+                      <div role="list" className="flex flex-1 flex-col gap-y-7">
+                        <div>
+                          <div role="list" className="-mx-2 space-y-1">
                             {devices.map((device, index) => (
-                              <li key={device.id}>
+                              <div key={device.id}>
                                 <button
                                   onClick={() => handleCurr(device, index)}
                                   onKeyDown={() => {}}
@@ -165,10 +124,10 @@ export default function Navigation({
                                 >
                                   {device.data.devicename}
                                 </button>
-                              </li>
+                              </div>
                             ))}
-                          </ul>
-                        </li>
+                          </div>
+                        </div>
 
                         {/*                         <li>
                           <ul role="list" className="-mx-2 space-y-1">
@@ -216,7 +175,7 @@ export default function Navigation({
                             </NavLink> 
                           </ul>
                         </li> */}
-                      </ul>
+                      </div>
                     </nav>
                   </div>
                 </Dialog.Panel>
@@ -232,48 +191,143 @@ export default function Navigation({
             <div className="flex h-16 shrink-0 items-center">
               <Logo />
             </div>
+
             <nav className="flex flex-1 flex-col">
-              <div className="text-xs font-semibold leading-6 text-gray-400">
-                My Catos
-              </div>
               <div role="list" className="flex flex-1 flex-col gap-y-7">
                 <div>
-                  <div role="list" className="-mx-2 space-y-1">
-                    {devices.map((device, index) => (
+                  <div className="-mx-6 mt-auto">
+                    <div>
+                      <NavLink
+                        to="/dashboard"
+                        className={({ isActive }) =>
+                          classNames(
+                            isActive ?
+                            "bg-gray-800 text-white"
+                            : "text-gray-400 hover:text-white hover:bg-gray-800",
+                          "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                          )
+                        }
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          strokeWidth={1.5}
+                          stroke="currentColor"
+                          className="w-6 h-6"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
+                          />
+                        </svg>
+
+                        <p>Dashboard</p>
+                      </NavLink>
+                    </div>
+                  </div>
+                  {devices.map((device, index) => (
+                    <div className="-mx-2 space-y-1">
+                      <div>
                         <button
-                         key={device.id}
+                          key={device.id}
                           onClick={() => handleCurr(device, index)}
                           onKeyDown={() => {}}
                           className={classNames(
-                            device.current
-                              ? "bg-gray-800 text-white"
-                              : "text-gray-400 hover:text-white hover:bg-gray-800",
-                            "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                            index === currIndex
+                              ? "text-white"
+                              : "text-gray-400 hover:text-white ",
+                            "group flex gap-x-3 rounded-md p-2 text-base leading-6 font-semibold border-none"
                           )}
                         >
                           {device.data.devicename}
                         </button>
-                    ))}
+                      </div>
 
-                    {/* {navigation.map((item) => (
-                      <li key={item.name}>
-                        <a
-                          href={item.href}
-                          className={classNames(
-                            item.current
-                              ? 'bg-gray-800 text-white'
-                              : 'text-gray-400 hover:text-white hover:bg-gray-800',
-                            'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
-                          )}
-                        >
-                          <item.icon className="h-6 w-6 shrink-0" aria-hidden="true" />
-                          {item.name}
-                        </a>
-                      </li>
-                    ))} */}
-                  </div>
+                      {index === currIndex ? (
+                        <div className="-mx-2 mt-2 ">
+                          <div className="border-t border-gray-800">
+                            <NavLink
+                              key={'record'}
+                              to="/configure-cato"
+                              className={({ isActive }) =>
+                                classNames(
+                                  isActive
+                                    ? "text-white"
+                                    : "text-gray-400 hover:text-white hover:bg-gray-800",
+                                  "group flex p-2 text-sm leading-6 font-semibold border-none"
+                                )
+                              }
+                            >
+                              <p>Record Gestures</p>
+                            </NavLink>
+                          </div>
+                          <div className="border-t border-b border-gray-800">
+                            <NavLink
+                            key={'settings'}
+                              to="/cato-settings"
+                              className={({ isActive }) =>
+                                classNames(
+                                  isActive
+                                    ? "text-white"
+                                    : "text-gray-400 hover:text-white hover:bg-gray-800",
+                                  "group flex p-2 text-sm leading-6 font-semibold border-none"
+                                )
+                              }
+                            >
+                              <p>Device Settings</p>
+                            </NavLink>
+                          </div>
+                          {/* <div>
+                            <NavLink
+                              className={({ isActive }) =>
+                                classNames(
+                                  isActive
+                                    ? "bg-gray-800 text-white"
+                                    : "text-gray-400 hover:text-white hover:bg-gray-800",
+                                  "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                                )
+                              }
+                            >
+                              <p>Configure Device</p>
+                            </NavLink>
+                          </div> */}
+                        </div>
+                      ) : null}
+                    </div>
+                  ))}
                 </div>
+
                 <div className="-mx-6 mt-auto">
+                  <NavLink
+                    to="/register-cato-device"
+                    className={({ isActive }) =>
+                      classNames(
+                        isActive
+                          ? "bg-gray-800 text-white"
+                          : "text-gray-400 hover:text-white hover:bg-gray-800",
+                        "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                      )
+                    }
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className="w-6 h-6"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 6v12m6-6H6"
+                      />
+                    </svg>
+
+                    <p>Register new device</p>
+                  </NavLink>
                   <Link
                     to="/profile"
                     className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-gray-800"

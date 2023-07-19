@@ -3,7 +3,7 @@ import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
 
-const FormatJson = ({ classNames, firstDevice, devices, curr }) => {
+const FormatJson = ({ classNames, devices, curr }) => {
   const FormatValuesValueObj = () => {
     try {
     } catch (error) {
