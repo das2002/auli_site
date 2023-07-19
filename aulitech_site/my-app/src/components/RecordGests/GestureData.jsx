@@ -6,48 +6,8 @@ import StoreGestData from "../CloudFirestore/StoreGestData";
 
 const GestureData = ({classNames, gestName, user}) => {
   const [gestData, setGestData] = useState(null);
-  const [formattedData, setFormattedData] = useState([]);
-  // const [gest, setGest] = useState('');
-  // const [mappedData, setMappedData] = useState([]);
-  const [nowStore, setNowStore] = useState(false);
-  
 
-  const handleFormat = async(data) => {
-    const lineSeperated = data.split('\n');
-    const mapped = [];
-
-    const commaSeperated = [];
-    lineSeperated.forEach((line) => {
-      commaSeperated.push(line.split(','));
-    })
-
-  for(let i=0; i < commaSeperated.length - 1; i++) {
-    let dataObj = {};
-
-    commaSeperated[i].map((value, index) => {
-      switch (index) {
-          case 0 :
-            return dataObj.ax = value;
-          case 1 :
-            return dataObj.ay = value;
-          case 2 :
-            return dataObj.az = value;
-          case 3 : 
-            return dataObj.gx = value;
-          case 4 :
-            return dataObj.gy = value;
-          case 5 :
-            return dataObj.gz = value;
-          default:
-            return null;
-        };
-
-      })
-      mapped.push(dataObj);
-    };
-    setFormattedData(mapped);
-    setNowStore(true);
-  }
+  console.log(user);
 
 
   const getGestureData = async() => {
@@ -64,9 +24,9 @@ const GestureData = ({classNames, gestName, user}) => {
 
           const dataFile = await logFile.getFile();
           const dataContents = await dataFile.text();
+          console.log(dataContents)
           setGestData(dataContents);
-          handleFormat(dataContents);
-          StoreGestData(gestName, user, dataContents );
+          StoreGestData(gestName, user, gestData );
         }
       }
     }

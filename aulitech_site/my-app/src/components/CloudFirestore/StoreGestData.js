@@ -1,9 +1,9 @@
-import React, { addDoc, collection, serverTimestamp } from "firebase/firestore"; 
+import { addDoc, collection, serverTimestamp } from "firebase/firestore"; 
 import { db } from "../../firebase";
-import { useNavigate } from "react-router-dom";
 
-const StoreGestData = ({gesture, user, logFile}) => {
-  const navigate = useNavigate();
+const StoreGestData = (gesture, user, logFile) => {
+  console.log(user);
+
   const sendDocRef = async() => {
     try {
       await addDoc(collection(db, 'gesture-data'), {
@@ -11,8 +11,6 @@ const StoreGestData = ({gesture, user, logFile}) => {
         timestamp: serverTimestamp(),
         gesture: gesture,
         useruid: user.uid
-      }).then(() => {
-        navigate('/')
       })
     }
     catch(error) {
