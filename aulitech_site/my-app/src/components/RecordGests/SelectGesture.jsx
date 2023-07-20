@@ -30,12 +30,15 @@ const SelectGesture = ({classNames, handleGestName}) => {
     }
 
     return (
-      <div className={classNames(gestureNum !== 0 ? styles.ACTIVE_RING : "", "bg-white shadow sm:rounded-lg sm:mx-auto sm:w-full md:max-w-md")}>
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-base font-semibold leading-6 text-gray-900">2. Select Gesture</h3>
+      <div>
+        <div className="border-b border-gray-200 pb-5">
+          <h3 className="text-base font-semibold leading-6 text-gray-900">
+            Device Access
+          </h3>
+        </div>
           <div className="mt-2 max-w-xl text-sm text-gray-500">
             <p>
-              Select gesture that you would like to record from the dropdown below.
+              Select gesture that you would like to record.
             </p>
           </div>
           <div className="mt-5">
@@ -44,7 +47,7 @@ const SelectGesture = ({classNames, handleGestName}) => {
               <>
                 <Listbox.Label className="block text-sm font-medium leading-6 text-gray-900">Gestures</Listbox.Label>
                 <div className="relative mt-2">
-                  <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 sm:text-sm sm:leading-6">
+                  <Listbox.Button className="relative w-2/4 cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 sm:text-sm sm:leading-6">
                     <span className="block truncate">{selected.name}</span>
                     <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                       <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
@@ -95,7 +98,6 @@ const SelectGesture = ({classNames, handleGestName}) => {
             )}
           </Listbox>
         </div>
-      </div>
     </div>
     )
 

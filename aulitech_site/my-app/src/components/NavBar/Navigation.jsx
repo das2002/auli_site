@@ -246,7 +246,7 @@ export default function Navigation({
 
                       {index === currIndex ? (
                         <div className="space-y-1">
-                          <div className="border-t border-gray-800">
+                          {/* <div className="border-t border-gray-800">
                             <NavLink
                               key={'record'}
                               to="/dashboard"
@@ -261,7 +261,7 @@ export default function Navigation({
                             >
                               <p>Dashboard</p>
                             </NavLink>
-                          </div>
+                          </div> */}
                           <div className="border-t border-gray-800">
                             <NavLink
                               key={'record'}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useId } from "react";
 import { Fragment } from "react";
 
 const FormatJson = ({ classNames, devices, curr }) => {
@@ -6,63 +6,141 @@ const FormatJson = ({ classNames, devices, curr }) => {
   // const [val, setVal] = useState({});
   // const [title, setTitle] = useState('');
   // const [description, setDescription] = useState('');
-  const [value, setValue] = useState(false);
+  // const [valueValue, setValueValue] = useState('');
+  const [original, setOriginal] = useState(null);
+  const [text, setText] = useState('');
+  const passwordHintId = useId();
+  const inputRef = useRef(null);
 
-  const displayCard = (data, i) => {
+  function handleChange() {
+    setText(
+      inputRef.current.id
+    );
+
+    console.log(text);
+  }
+
+
+
+  let count = 0;
+  const displayCard = (firstData, i) => {
     try {
-        console.log("DO ONCE", data, i);
-        if (data.length - 10 === i) {
-          console.log("reached end of entires");
-          return;
-        } else {
-          for (const [keyA, valueA] of Object.entries(data)) {
-            // console.log(valueA[1]);
-  
-            switch (typeof valueA[1].value) {
-              case "object":
-                // console.log("object:", valueA[1].value);
-                displayCard(Object.entries(valueA[1]), i + 1);
-                break;
-              // case "string":
-              //   console.log("string:", valueA[1].value);
-              //   break;
-              // case "number":
-              //   console.log("number:", valueA[1].value);
-              //   break;
-              default:
-                console.log("break");
-                break;
-            }
-          }
-        }
+      let data;
 
+      if (i === 0) {
+        // setOriginal(firstData);
+        data = Object.entries(firstData);
+      } else {
+        data = firstData;
+      }
+
+      
+
+      if(original !== undefined) {
+        count += 1;
         return (
           <>
             <div className="p-5">
-                {data.length - 10 === i
-                  ? null
-                  : data.map((val, i) => (
-                      <>
-                        <div key={val[1].lable}className="p-2.5">
-                          <h2 className="text-base font-semibold leading-7 text-gray-900">
-                            {val[1].label}
-                          </h2>
-                          <p className="p-2.5 text-sm leading-6 text-gray-600">
-                            {val[1].description}
-                          </p>
-                        </div>
-                        {/* {typeof(val[1].value) === 'object' ?
-                        doFormat(Object.entries(val[1]), i + 1)
-                      : 
-                      null
-                      } */}
-                      </>
-                    ))}
+              {data.length === i
+                ? null
+                : data.map((val, index) => (
+                    <>
+                      <div key={val[0]} className="p-2.5">
+                        {val[1].access === "rw" ? (
+                          <>
+                            <h2 className="text-base font-semibold leading-7 text-gray-900">
+                              {val[1].label}
+                            </h2>
+                            <p className="p-2.5 text-sm leading-6 text-gray-600">
+                              {val[1].description}
+                            </p>
+  
+                            {typeof val[1].value === "object" ? (
+                              <>
+                                <>
+                                  {Array.isArray(val[1].value) ? (
+                                    <>
+                                      {/* <ul> */}
+                                      {val[1].value.map((item) => (
+                                        <p className="p-2.5 text-base leading-6 text-blue-500">
+                                          {item}
+                                        </p>
+                                      ))}
+                                    </>
+                                  ) : (
+                                    <>
+                                      {displayCard(
+                                        Object.entries(val[1].value),
+                                        i + 1
+                                      )}
+                                    </>
+                                  )}
+                                </>
+                              </>
+                            ) : typeof val[1].value === "string" ||
+                              typeof val[1].value === "number" ? (
+                              <>
+                                <input
+                                  type="text"
+                                  id={passwordHintId + count}
+                                  ref={inputRef} 
+                                  onChange={handleChange}
+                                  placeholder={val[1].value}
+                                  className="m-1 block w-full rounded-md border-0 px-1.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                />
+                              </>
+                            ) : (
+
+                              typeof val[1].value
+                            )}
+  
+                            {val[1].options !== undefined ? (
+                              <>
+                                <label className="mt-3.5 block text-base font-medium leading-6 text-gray-900">
+                                  Options:
+                                </label>
+                                {val[1].options.map((opt) => (
+                                  <p className="p-1.5 text-sm leading-6 text-blue-500">
+                                    {opt}
+                                  </p>
+                                ))}
+                              </>
+                            ) : null}
+  
+                            {val[1].range !== undefined ? (
+                              <>
+                                <label className="mt-3.5 block text-base font-medium leading-6 text-gray-900">
+                                  Range:
+                                </label>
+                                {Object.entries(val[1].range).map((rng, idx) => (
+                                  <>
+                                    <label
+                                      htmlFor="last-name"
+                                      className="block text-sm font-medium leading-6 text-gray-900"
+                                    >
+                                      {rng[0]}
+                                    </label>
+                                    <div className="mt-2">
+                                      <input
+                                        type="text"
+                                        placeholder={rng[1]}
+                                        className="block w-full rounded-md border-0 px-1.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                      />
+                                    </div>
+                                  </>
+                                ))}
+                              </>
+                            ) : null}
+                          </>
+                        ) : null}
+                      </div>
+                    </>
+                  ))}
             </div>
           </>
         );
+      }
 
-      
       // if ( !doOnce) {
       //   if (data.length - 10 === i) {
       //     console.log("reached end of entires");
@@ -101,7 +179,6 @@ const FormatJson = ({ classNames, devices, curr }) => {
       //   }
       //   console.log(i);
       // } else {
-
     } catch (err) {
       console.log("display card err: ", err);
     }
@@ -109,17 +186,18 @@ const FormatJson = ({ classNames, devices, curr }) => {
 
   // -----------------------------------------------------------------------------------------------
 
-  const Thing = (data, ) => {
+  const Thing = (data) => {
+    
     try {
-      return (
-        <>{displayCard(Object.entries(devices[curr].valuesinfo), 0)}</>
-      );
+      return <>{displayCard(devices[curr].jsondata, 0)}</>;
     } catch (err) {
       console.log("thing err: ", err);
     }
   };
 
   // ------------------------------------------------------------------------------------------------
+
+  console.log(text);
 
   return (
     <>
@@ -182,9 +260,9 @@ export default FormatJson;
 //                 <h2 className="text-base font-semibold leading-7 text-gray-900">
 //                   {item.label}
 //                 </h2>
-                // <p className="p-2.5 text-sm leading-6 text-gray-600">
-                //   {item.description}
-                // </p>
+// <p className="p-2.5 text-sm leading-6 text-gray-600">
+//   {item.description}
+// </p>
 //                 {item.options === undefined ? (
 //                   <>
 //                     {Object.keys(item.value) < 1 ||
