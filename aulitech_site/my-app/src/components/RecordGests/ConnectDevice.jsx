@@ -103,7 +103,7 @@ const ConnectDevice = ({classNames}) => {
             <button
               type="button"
               onClick={getDirectory}
-              className="mt-2 inline-flex items-center rounded-full bg-blue-300 px-2.5 py-1 text-base font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+              className="mt-2 inline-flex items-center rounded-full bg-blue-500 px-2.5 py-1 text-base font-semibold text-white shadow-sm hover:bg-blue-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
             >
               Connect Cato
             </button>
@@ -226,13 +226,13 @@ const ConnectDevice = ({classNames}) => {
           console.log('stored file handle:', logFile.name);
 
           setLogConnect(true);
-          setLogErr('')
+          // setLogErr('')
         }
       }
     }
     catch(error) {
       console.log("get log.txt file handle error:", error);
-      setLogErr(`${error}`);
+      // setLogErr(`${error}`);
     }
   }
 
@@ -245,11 +245,11 @@ const ConnectDevice = ({classNames}) => {
             {/* <div className="max-w-xl text-sm text-gray-500">
               <p>allow access to </p>
             </div> */}
-            <p className="text-sm text-red-500">{logErr}</p>
+            {/* <p className="text-sm text-red-500">{logErr}</p> */}
             <button
               type="button"
               onClick={getGestDataAccess}
-              className="inline-flex mt-2 items-center rounded-full bg-blue-300 px-2.5 py-1 text-base font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+              className="inline-flex mt-2 items-center rounded-full bg-blue-500 px-2.5 py-1 text-base font-semibold text-white shadow-sm hover:bg-blue-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
             >
               Connect Data
             </button>

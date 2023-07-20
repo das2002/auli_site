@@ -85,11 +85,11 @@ const RecordGestures = ({
                       className="absolute inset-0 flex items-center"
                       aria-hidden="true"
                     >
-                      <div className="h-0.5 w-full bg-blue-500" />
+                      <div className="h-0.5 w-full bg-gray-900" />
                     </div>
                     <a
                       href="#"
-                      className="relative flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 hover:bg-blue-500"
+                      className="relative flex h-8 w-8 items-center justify-center rounded-full bg-gray-900"
                     >
                       <CheckIcon
                         className="h-5 w-5 text-white"
@@ -108,11 +108,11 @@ const RecordGestures = ({
                     </div>
                     <a
                       href="#"
-                      className="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-blue-500 bg-white"
+                      className="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-900 bg-white"
                       aria-current="step"
                     >
                       <span
-                        className="h-2.5 w-2.5 rounded-full bg-blue-500"
+                        className="h-2.5 w-2.5 rounded-full bg-gray-900"
                         aria-hidden="true"
                       />
                       <span className="sr-only">{step.name}</span>
@@ -207,9 +207,9 @@ const RecordGestures = ({
           });
 
           console.log(writeFile);
-          
+
           const writable = await writeFile.createWritable();
-          await writable.write(1);
+          await writable.write('');
           await writable.close();
 
           await set("gesture.cato", writeFile);
@@ -365,7 +365,7 @@ const RecordGestures = ({
         <div className="mt-5 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center">
           <button
             type="button"
-            onClick={getGestureData}
+            onClick={handleStepCount}
             className="mt-3 rounded-full bg-white px-2.5 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
           >
             Next
