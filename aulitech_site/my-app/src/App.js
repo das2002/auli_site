@@ -106,14 +106,15 @@ function App() {
       <main className="py-10 lg:pl-72">
         <div className="px-4 sm:px-6 lg:px-8">
           <Routes>
-            <Route exact path="/" element={<Dashboard classNames={classNames} user={user}/>}/>
+            <Route exact path="/" element={<SignIn/>}/>
+            <Route path="/dashboard" element={<Dashboard classNames={classNames} user={user} devices={devices}/>}/>
             <Route path="/profile" element={<ProfilePg user={user}/>}/>
             <Route path="/cato-settings" element={<CatoSettings classNames={classNames} user={user} devices={devices} currIndex={currIndex}/>}/>
             <Route path="/register-cato-device" element={<RegisterCatoDevice user={user}/>}/>
             <Route path="/record-gestures" element={<ConfigureGestures classNames={classNames} user={user}/>}/>
             <Route path="/record" element={ <RecordGestures/> } />
             <Route path="/sign-out" element={<SignOutAccount/>}/>
-            <Route path="/sign-in" element={<SignIn/>}/>
+            {/* <Route path="/sign-in" element={<SignIn/>}/> */}
             <Route path="/sign-up" element={<SignUp/>}/>
           </Routes>
         </div>
