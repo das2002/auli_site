@@ -14,7 +14,7 @@ import Dashboard from './components/Dashboard/Dashboard';
 import CatoSettings from './components/CatoSettings/CatoSettings';
 import RegisterCatoDevice from './components/CatoSettings/RegisterCatoDevice';
 import { db } from "./firebase";
-import { collection, query, getDocs } from "firebase/firestore";
+import { collection, query, getDocs, where } from "firebase/firestore";
 import RecordGestures from './components/RecordGests/RecordGestures';
 
 
@@ -30,9 +30,16 @@ function App() {
     const listen = onAuthStateChanged(auth, async(user) => {
       if(user) {
         setUser(user);
-
+        
         const colRef = collection(db, "users");
-        const queryCol = query(collection(colRef, user.uid, "userCatos"));  
+        const queryCol = query(collection(colRef, user.uid, "userCatos")); 
+        
+        // const queryNew = query(collection(colRef, user.uid, "userCatos"), where("initialize", "==", "initializeUserCatosSubcollection")); 
+
+        // const newSnap = await getDocs(queryNew);
+        // console.log(newSnap);
+
+        // console.log(queryCol);
         const colSnap = await getDocs(queryCol);
 
         colSnap.forEach((doc) => {
@@ -106,14 +113,15 @@ function App() {
       <main className="py-10 lg:pl-72">
         <div className="px-4 sm:px-6 lg:px-8">
           <Routes>
-            <Route exact path="/" element={<Dashboard classNames={classNames} user={user}/>}/>
+            <Route exact path="/" element={<SignIn/>}/>
+            <Route path="/dashboard" element={<Dashboard classNames={classNames} user={user} devices={devices}/>}/>
             <Route path="/profile" element={<ProfilePg user={user}/>}/>
             <Route path="/cato-settings" element={<CatoSettings classNames={classNames} user={user} devices={devices} currIndex={currIndex}/>}/>
             <Route path="/register-cato-device" element={<RegisterCatoDevice user={user}/>}/>
             <Route path="/record-gestures" element={<ConfigureGestures classNames={classNames} user={user}/>}/>
             <Route path="/record" element={ <RecordGestures/> } />
             <Route path="/sign-out" element={<SignOutAccount/>}/>
-            <Route path="/sign-in" element={<SignIn/>}/>
+            {/* <Route path="/sign-in" element={<SignIn/>}/> */}
             <Route path="/sign-up" element={<SignUp/>}/>
           </Routes>
         </div>

@@ -2,6 +2,7 @@ import React, { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link, NavLink } from "react-router-dom";
+import { Accordion, AccordionItem as Item } from "@szhsin/react-accordion";
 
 export default function Navigation({
   user,
@@ -11,6 +12,44 @@ export default function Navigation({
   handleCurr,
   handleDevices,
 }) {
+  const AccordionItem = ({ header, ...rest }) => (
+    <Item
+      {...rest}
+      header={({ state: { isEnter } }) => (
+        <>
+          {header}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            // className="w-6 h-6"
+            className={`w-6 text-white h-6 ml-auto transition-transform duration-200 ease-out ${
+              isEnter && "rotate-180"
+            }`}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+            />
+          </svg>
+        </>
+      )}
+      className="text-white border-b"
+      buttonProps={{
+        className: ({ isEnter }) =>
+          `flex w-full p-4 text-left hover:bg-transparent ${
+            isEnter && "bg-transparent"
+          }`,
+      }}
+      contentProps={{
+        className: "transition-height duration-200 ease-out",
+      }}
+      panelProps={{ className: "p-4" }}
+    />
+  );
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const Logo = () => {
@@ -43,6 +82,12 @@ export default function Navigation({
   };
 
   // -----------------------------------------------------------------------
+
+ 
+
+ 
+
+  console.log(user, devices);
 
   return (
     <>
@@ -194,20 +239,20 @@ export default function Navigation({
             <nav className="flex flex-1 flex-col">
               <div role="list" className="flex flex-1 flex-col gap-y-7">
                 <div>
-                  <div className="-mx-6 mt-auto">
+                  <div className="ml-1 -mx-6 mt-auto">
                     <div>
                       <NavLink
                         to="/dashboard"
                         className={({ isActive }) =>
                           classNames(
-                            isActive ?
-                            "bg-gray-800 text-white"
-                            : "text-gray-400 hover:text-white hover:bg-gray-800",
-                          "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                            isActive
+                              ? "bg-gray-800 text-white"
+                              : "text-gray-400 hover:text-white hover:bg-gray-800",
+                            "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
                           )
                         }
                       >
-                        <svg
+                        {/* <svg
                           xmlns="http://www.w3.org/2000/svg"
                           fill="none"
                           viewBox="0 0 24 24"
@@ -220,101 +265,59 @@ export default function Navigation({
                             strokeLinejoin="round"
                             d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
                           />
-                        </svg>
+                        </svg> */}
 
                         <p>Dashboard</p>
                       </NavLink>
                     </div>
                   </div>
+                  <Accordion transition transitionTimeout={200}>
+
                   {devices.map((device, index) => (
-                    <div className="-mx-2 mt-2 ">
-                      <div>
-                        <button
-                          key={device.id}
-                          onClick={() => handleCurr(device, index)}
-                          onKeyDown={() => {}}
-                          className={classNames(
-                            index === currIndex
-                              ? "text-white"
-                              : "text-gray-400 hover:text-white ",
-                            "group flex gap-x-3 rounded-md p-2 text-base leading-6 font-semibold border-none"
-                          )}
+                        <AccordionItem
+                          header={device.data.devicename}
+                          itemKey={device.data.devicename}
+                          className="text-white mt-5 mb-5"
                         >
-                          {device.data.devicename}
-                        </button>
-                      </div>
-
-                      {index === currIndex ? (
-                        <div className="space-y-1">
-                          {/* <div className="border-t border-gray-800">
-                            <NavLink
-                              key={'record'}
-                              to="/dashboard"
-                              className={({ isActive }) =>
-                                classNames(
-                                  isActive
-                                    ? "text-white"
-                                    : "text-gray-400 hover:text-white hover:bg-gray-800",
-                                  "group flex p-2 text-sm leading-6 font-semibold border-none"
-                                )
-                              }
-                            >
-                              <p>Dashboard</p>
-                            </NavLink>
-                          </div> */}
-                          <div className="border-t border-gray-800">
-                            <NavLink
-                              key={'record'}
-                              to="/record-gestures"
-                              className={({ isActive }) =>
-                                classNames(
-                                  isActive
-                                    ? "text-white"
-                                    : "text-gray-400 hover:text-white hover:bg-gray-800",
-                                  "group flex p-2 text-sm leading-6 font-semibold border-none"
-                                )
-                              }
-                            >
-                              <p>Record Gestures</p>
-                            </NavLink>
-                          </div>
-                          <div className="border-t border-b border-gray-800">
-                            <NavLink
-                            key={'settings'}
-                              to="/cato-settings"
-                              className={({ isActive }) =>
-                                classNames(
-                                  isActive
-                                    ? "text-white"
-                                    : "text-gray-400 hover:text-white hover:bg-gray-800",
-                                  "group flex p-2 text-sm leading-6 font-semibold border-none"
-                                )
-                              }
-                            >
-                              <p>Device Settings</p>
-                            </NavLink>
-                          </div>
-                          {/* <div>
-                            <NavLink
-                              className={({ isActive }) =>
-                                classNames(
-                                  isActive
-                                    ? "bg-gray-800 text-white"
-                                    : "text-gray-400 hover:text-white hover:bg-gray-800",
-                                  "group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
-                                )
-                              }
-                            >
-                              <p>Configure Device</p>
-                            </NavLink>
-                          </div> */}
-                        </div>
-                      ) : null}
-                    </div>
+                            <div>
+                              <div>
+                                <NavLink
+                                  key={"record"}
+                                  to={device.data.devicename === "liv 3" ? "/dashboard" : "/record-gestures"}
+                                  className={({ isActive }) =>
+                                    classNames(
+                                      isActive
+                                        ? "text-white"
+                                        : "text-gray-400 hover:text-white hover:bg-gray-800",
+                                      "group flex p-2 text-sm leading-6 font-semibold border-none"
+                                    )
+                                  }
+                                >
+                                  <p>Record Gestures</p>
+                                </NavLink>
+                              </div>
+                              <div>
+                                <NavLink
+                                  key={"settings"}
+                                  to="/cato-settings"
+                                  className={({ isActive }) =>
+                                    classNames(
+                                      isActive
+                                        ? "text-white"
+                                        : "text-gray-400 hover:text-white hover:bg-gray-800",
+                                      "group flex p-2 text-sm leading-6 font-semibold border-none"
+                                    )
+                                  }
+                                >
+                                  <p>Device Settings</p>
+                                </NavLink>
+                              </div>
+                            </div>
+                          
+                        </AccordionItem>
                   ))}
-                </div>
-
-                <div className="-mx-6 mt-auto">
+                  </Accordion>
+                  <div className="-mx-6 mt-auto">
                   <NavLink
                     to="/register-cato-device"
                     className={({ isActive }) =>
@@ -343,6 +346,13 @@ export default function Navigation({
 
                     <p>Register new device</p>
                   </NavLink>
+                  </div>
+
+                </div>
+
+
+                <div className="-mx-6 mt-auto">
+                 
                   <Link
                     to="/profile"
                     className="flex items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-white hover:bg-gray-800"

@@ -15,11 +15,11 @@ const SignIn = () => {
         e.preventDefault();
         signInWithEmailAndPassword(auth, email, pass)
             .then((userCredential) => {
-              console.log(userCredential);
+              console.log("user credentials: ", userCredential);
               navigate('/')
             }) 
             .catch((error) => {
-              console.log(error);
+              console.log("sign in err: ", error);
             })
     }
 

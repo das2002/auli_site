@@ -4,6 +4,8 @@ import FormatJson from "./FormatJson";
 // import { defaultConfig } from "./RegisterCatoDevice";
 import { db } from "../../firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
+import { NavLink } from "react-router-dom";
+
 
 // import GetDeviceConfigs from "./GetDeviceConfigs";
 
@@ -70,7 +72,7 @@ const CatoSettings = ({ classNames, user, devices, currIndex }) => {
   //     setDevices(configData);
   //   }
   // }, []);
-
+  
 
   return (
     <div className="flex min-h-full flex-col">
@@ -81,7 +83,6 @@ const CatoSettings = ({ classNames, user, devices, currIndex }) => {
           </h2>
         </div>
       </header>
-      <FormatJson classnames={classNames} devices={devices} curr={currIndex}/> 
     </div>
   );
 };
