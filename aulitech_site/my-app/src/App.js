@@ -14,7 +14,7 @@ import Dashboard from './components/Dashboard/Dashboard';
 import CatoSettings from './components/CatoSettings/CatoSettings';
 import RegisterCatoDevice from './components/CatoSettings/RegisterCatoDevice';
 import { db } from "./firebase";
-import { collection, query, getDocs } from "firebase/firestore";
+import { collection, query, getDocs, where } from "firebase/firestore";
 import RecordGestures from './components/RecordGests/RecordGestures';
 
 
@@ -30,9 +30,16 @@ function App() {
     const listen = onAuthStateChanged(auth, async(user) => {
       if(user) {
         setUser(user);
-
+        
         const colRef = collection(db, "users");
-        const queryCol = query(collection(colRef, user.uid, "userCatos"));  
+        const queryCol = query(collection(colRef, user.uid, "userCatos")); 
+        
+        // const queryNew = query(collection(colRef, user.uid, "userCatos"), where("initialize", "==", "initializeUserCatosSubcollection")); 
+
+        // const newSnap = await getDocs(queryNew);
+        // console.log(newSnap);
+
+        // console.log(queryCol);
         const colSnap = await getDocs(queryCol);
 
         colSnap.forEach((doc) => {

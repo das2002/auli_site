@@ -11,6 +11,7 @@ import { getFirestore } from "firebase/firestore";
 const firebaseConfig = {
   apiKey: "AIzaSyBP9Wu6bJaP1xZ3ia5PXaomwL9G-iET_zM",
   authDomain: "auli-website.firebaseapp.com",
+  databaseURL: "https://auli-website-default-rtdb.firebaseio.com",
   projectId: "auli-website",
   storageBucket: "auli-website.appspot.com",
   messagingSenderId: "532419651189",
