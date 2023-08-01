@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { get, set } from "idb-keyval";
-import { collection, addDoc } from "firebase/firestore";
+import { collection, addDoc, where, query, doc, deleteDoc, getDocs } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { db } from "../../firebase";
 
@@ -35,6 +35,7 @@ const RegisterCatoDevice = ({ user }) => {
           const jsonDataFile = await jsonFile.getFile();
           const jsonData = await jsonDataFile.text();
 
+          deleteInitializeDoc();
           addDeviceDoc(jsonData);
         }
       }
@@ -49,7 +50,6 @@ const RegisterCatoDevice = ({ user }) => {
     // }
 
   const addDeviceDoc = (jsonData) => {
-
     try {
       const storeDevice = async () => {
         try {
@@ -69,6 +69,24 @@ const RegisterCatoDevice = ({ user }) => {
     }
     navigate('/')
   };
+
+  const deleteInitializeDoc = async() => {
+    try {
+      let id;
+      const colRef = collection(db, "users");
+      const firstDevice = query(collection(colRef, user.uid, "userCatos"), where("initialize", "==", "initializeUserCatosSubcollection"));
+      const newSnap = await getDocs(firstDevice);
+
+      newSnap.forEach((doc) => {
+        console.log(doc.id)
+        id = doc.id;
+      })
+      await deleteDoc(doc(colRef, user.uid, "userCatos", id));
+    }
+    catch(error) {
+      console.log("delete initialize doc, userCatos: ", error);
+    }
+  }
 
   return (
     <>

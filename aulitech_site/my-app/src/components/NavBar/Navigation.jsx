@@ -83,11 +83,6 @@ export default function Navigation({
 
   // -----------------------------------------------------------------------
 
- 
-
- 
-
-  console.log(user, devices);
 
   return (
     <>

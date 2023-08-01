@@ -9,15 +9,20 @@ const FormatJson = ({ classNames, devices, curr }) => {
   // const [valueValue, setValueValue] = useState('');
   const [original, setOriginal] = useState(null);
   const [text, setText] = useState('');
-  const passwordHintId = useId();
-  const inputRef = useRef(null);
+  // const passwordHintId = useId();
+  // const inputRef = useRef(null);
+  // const [edit, setEdit] = useState(false);
+  // const [currId, setCurrId] = useState('');
 
-  function handleChange() {
-    setText(
-      inputRef.current.id
-    );
-
-    console.log(text);
+  function handleChange(e) {
+    e.preventDefault();
+    console.log(e.target.id);
+    for (const [keyA, valueA] of Object.entries(devices[curr].jsondata)) {
+      if(e.target.id === valueA.label) {
+        console.log('matched label: ', e.target.value);
+  
+      }
+    }
   }
 
 
@@ -34,8 +39,6 @@ const FormatJson = ({ classNames, devices, curr }) => {
         data = firstData;
       }
 
-      
-
       if(original !== undefined) {
         count += 1;
         return (
@@ -45,7 +48,7 @@ const FormatJson = ({ classNames, devices, curr }) => {
                 ? null
                 : data.map((val, index) => (
                     <>
-                      <div key={val[0]} className="p-2.5">
+                      <div key={val[1].description} className="p-2.5">
                         {val[1].access === "rw" ? (
                           <>
                             <h2 className="text-base font-semibold leading-7 text-gray-900">
@@ -60,7 +63,6 @@ const FormatJson = ({ classNames, devices, curr }) => {
                                 <>
                                   {Array.isArray(val[1].value) ? (
                                     <>
-                                      {/* <ul> */}
                                       {val[1].value.map((item) => (
                                         <p className="p-2.5 text-base leading-6 text-blue-500">
                                           {item}
@@ -82,9 +84,9 @@ const FormatJson = ({ classNames, devices, curr }) => {
                               <>
                                 <input
                                   type="text"
-                                  id={passwordHintId + count}
-                                  ref={inputRef} 
-                                  onChange={handleChange}
+                                  id={val[1].label}
+                                  value={val[1].value}
+                                  onChange={(e) => val[1].value = e.target.value}
                                   placeholder={val[1].value}
                                   className="m-1 block w-full rounded-md border-0 px-1.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                 />
@@ -123,6 +125,8 @@ const FormatJson = ({ classNames, devices, curr }) => {
                                     <div className="mt-2">
                                       <input
                                         type="text"
+                                        id={rng[0]}
+                                        onChange={handleChange}
                                         placeholder={rng[1]}
                                         className="block w-full rounded-md border-0 px-1.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                       />

@@ -23,6 +23,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [devices, setDevices] = useState([]);
   const [currIndex, setCurrIndex] = useState(0);
+  const [check, setCheck] = useState(true);
 
   useEffect(() => {
     let configData = [];
@@ -30,31 +31,35 @@ function App() {
     const listen = onAuthStateChanged(auth, async(user) => {
       if(user) {
         setUser(user);
-        
+        console.log(auth);
         const colRef = collection(db, "users");
+
         const queryCol = query(collection(colRef, user.uid, "userCatos")); 
-        
-        // const queryNew = query(collection(colRef, user.uid, "userCatos"), where("initialize", "==", "initializeUserCatosSubcollection")); 
-
-        // const newSnap = await getDocs(queryNew);
-        // console.log(newSnap);
-
-        // console.log(queryCol);
         const colSnap = await getDocs(queryCol);
 
-        colSnap.forEach((doc) => {
-          configData.push({
-            id: doc.id,
-            data: doc.data(),
-            jsondata: JSON.parse(doc.data().configjson),
-            keysinfo: Object.keys(JSON.parse(doc.data().configjson)),
-            valuesinfo: Object.values(JSON.parse(doc.data().configjson)),
-            current: false,
+        const queryNew = query(collection(colRef, user.uid, "userCatos"), where("initialize", "==", "initializeUserCatosSubcollection")); 
+        const newSnap = await getDocs(queryNew);
+
+        if(newSnap.docs.length !== 0) {
+          console.log(newSnap.docs.length)
+          newSnap.forEach((doc) => {
+            console.log(doc.data())
+          })
+        } else {
+          colSnap.forEach((doc) => {
+            configData.push({
+              id: doc.id,
+              data: doc.data(),
+              jsondata: JSON.parse(doc.data().configjson),
+              keysinfo: Object.keys(JSON.parse(doc.data().configjson)),
+              valuesinfo: Object.values(JSON.parse(doc.data().configjson)),
+              current: false,
+            });
           });
-        });
+        }
 
         setDevices(configData);
-
+        setCheck(false);
       } else {
         setUser(null);
       }
@@ -63,7 +68,7 @@ function App() {
     return () => {
       listen();
     }
-  }, []);
+  }, [check]);
 
   
 
@@ -113,8 +118,8 @@ function App() {
       <main className="py-10 lg:pl-72">
         <div className="px-4 sm:px-6 lg:px-8">
           <Routes>
-            <Route exact path="/" element={<SignIn/>}/>
-            <Route path="/dashboard" element={<Dashboard classNames={classNames} user={user} devices={devices}/>}/>
+            <Route exact path="/" element={<Dashboard classNames={classNames} user={user} devices={devices}/>}/>
+            {/* <Route path="/dashboard" element={<Dashboard classNames={classNames} user={user} devices={devices}/>}/> */}
             <Route path="/profile" element={<ProfilePg user={user}/>}/>
             <Route path="/cato-settings" element={<CatoSettings classNames={classNames} user={user} devices={devices} currIndex={currIndex}/>}/>
             <Route path="/register-cato-device" element={<RegisterCatoDevice user={user}/>}/>

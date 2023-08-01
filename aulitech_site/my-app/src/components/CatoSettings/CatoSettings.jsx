@@ -83,6 +83,7 @@ const CatoSettings = ({ classNames, user, devices, currIndex }) => {
           </h2>
         </div>
       </header>
+      <FormatJson classNames={classNames} devices={devices} curr={currIndex}/> 
     </div>
   );
 };
