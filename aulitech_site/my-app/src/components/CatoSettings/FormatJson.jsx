@@ -17,6 +17,7 @@ const FormatJson = ({ classNames, devices, curr }) => {
   function handleChange(e) {
     e.preventDefault();
     console.log(e.target.id);
+    console.log(devices[curr].jsondata);
     for (const [keyA, valueA] of Object.entries(devices[curr].jsondata)) {
       if(e.target.id === valueA.label) {
         console.log('matched label: ', e.target.value);
@@ -86,7 +87,7 @@ const FormatJson = ({ classNames, devices, curr }) => {
                                   type="text"
                                   id={val[1].label}
                                   value={val[1].value}
-                                  onChange={(e) => val[1].value = e.target.value}
+                                  onChange={handleChange}
                                   placeholder={val[1].value}
                                   className="m-1 block w-full rounded-md border-0 px-1.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                                 />

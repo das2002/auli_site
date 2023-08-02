@@ -237,7 +237,7 @@ export default function Navigation({
                   <div className="ml-1 -mx-6 mt-auto">
                     <div>
                       <NavLink
-                        to="/dashboard"
+                        to="/"
                         className={({ isActive }) =>
                           classNames(
                             isActive

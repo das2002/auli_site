@@ -4,7 +4,7 @@ import { collection, addDoc, where, query, doc, deleteDoc, getDocs } from "fireb
 import { useNavigate } from "react-router-dom";
 import { db } from "../../firebase";
 
-const RegisterCatoDevice = ({ user }) => {
+const RegisterCatoDevice = ({ user, handleDeviceCount }) => {
   const [deviceName, setDeviceName] = useState("");
   //   const [hwUid, setHwUid] = useState('');
 
@@ -38,6 +38,15 @@ const RegisterCatoDevice = ({ user }) => {
           deleteInitializeDoc();
           addDeviceDoc(jsonData);
         }
+      } else {
+        const dirHandle = await window.showDirectoryPicker({
+          id: 'AULI_CATO',
+          mode: 'readwrite'
+        });
+  
+        await set('directory', dirHandle);
+        console.log('store dir handle:', dirHandle.name);
+        getJsonData();
       }
     } catch (error) {
       console.log("get config.json error:", error);
@@ -59,6 +68,7 @@ const RegisterCatoDevice = ({ user }) => {
             devicename: deviceName,
             configjson: jsonData,
           });
+          handleDeviceCount(1);
         } catch (error) {
           console.log("store another device error: ", error);
         }
@@ -76,12 +86,17 @@ const RegisterCatoDevice = ({ user }) => {
       const colRef = collection(db, "users");
       const firstDevice = query(collection(colRef, user.uid, "userCatos"), where("initialize", "==", "initializeUserCatosSubcollection"));
       const newSnap = await getDocs(firstDevice);
-
+      
       newSnap.forEach((doc) => {
         console.log(doc.id)
         id = doc.id;
       })
-      await deleteDoc(doc(colRef, user.uid, "userCatos", id));
+
+      if(id) {
+        await deleteDoc(doc(colRef, user.uid, "userCatos", id));
+      } else {
+        return;
+      }
     }
     catch(error) {
       console.log("delete initialize doc, userCatos: ", error);
@@ -89,10 +104,55 @@ const RegisterCatoDevice = ({ user }) => {
   }
 
   return (
-    <>
-      <h1>Register Cato Device</h1>
+    <div className="flex min-h-full flex-col">
+      <header className="shrink-0 bg-transparent">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight py-1">
+            Register new device
+          </h2>
+        </div>
+      </header>
 
-      <div>
+      <div className="border-b border-gray-200 px-4 sm:px-6 lg:px-8 pb-5">
+
+      {/* <h3 className="text-base font-semibold leading-6 text-gray-900">Connect Cato</h3> */}
+      <p className="mt-2 max-w-4xl text-sm text-gray-500">
+
+        To register a new Cato device, connect it to your computer via cable.
+      </p>
+    </div>
+    <div className="bg-white shadow rounded-lg m-5">
+      <div className="px-4 py-5 sm:p-6">
+        <h3 className="text-base font-semibold leading-6 text-gray-900">Name your Cato</h3>
+        <div className="mt-2 max-w-xl text-sm text-gray-500">
+          <p>Enter a name for your Cato below. 
+            <br/>
+            <br/>
+            When you click <strong>Save</strong> your browser will ask if you want to allow access to the device, allow access in order to register the device.</p>
+        </div>
+        <div className="mt-5 sm:flex sm:items-center">
+          <div className="w-full sm:max-w-xs">
+            <input
+              type="text"
+              value={deviceName}
+              onChange={(e) => setDeviceName(e.target.value)}
+              className="block w-full rounded-md border-0 px-1.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              placeholder="my-cato"
+            />
+          </div>
+          <div className="mt-4 sm:mt-0">
+          <button
+            disabled={deviceName === "" ? true : false}
+            onClick={getJsonData}
+            className="inline-flex rounded-full items-center bg-blue-500 sm:mx-4 px-2.5 py-1 text-sm font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-300"
+          >
+            Save
+          </button>
+          </div>
+        </div>
+      </div>
+    </div>
+      {/* <div>
         <label>
           Device Name
           <input
@@ -103,8 +163,8 @@ const RegisterCatoDevice = ({ user }) => {
           />
         </label>
       </div>
-      <button onClick={getJsonData}>get config.json</button>
-    </>
+      <button onClick={getJsonData}>get config.json</button> */}
+      </div>
   );
 };
 
