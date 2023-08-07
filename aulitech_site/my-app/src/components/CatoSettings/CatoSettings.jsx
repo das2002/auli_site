@@ -7,26 +7,25 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { NavLink } from "react-router-dom";
 import FlattenJson from "./FlattenJson";
 
-
 // import GetDeviceConfigs from "./GetDeviceConfigs";
 
 const CatoSettings = ({ classNames, user, devices, currIndex }) => {
-  console.log('devices: ', devices);
-
+  const [test, setTest] = useState(0);
+  console.log("devices: ", devices);
 
   // useEffect(() => {
-  //   const queryUserCatos = async () => {  
+  //   const queryUserCatos = async () => {
   //     let docSnapData;
 
   //     try {
   //       const colRef = collection(db, "users");
   //       const queryCol = query(collection(colRef, user.uid, "userCatos"));
-  
+
   //       const docSnap = await getDocs(queryCol);
   //       docSnap.forEach((doc) => {
   //         docSnapData = doc.data();
   //       });
-    
+
   //       if (docSnapData === undefined) {
   //         setFirstDevice(true);
   //         return;
@@ -67,13 +66,11 @@ const CatoSettings = ({ classNames, user, devices, currIndex }) => {
   //     }
   //   }
 
-
   //   return () => {
   //     getUserConfigs();
   //     setDevices(configData);
   //   }
   // }, []);
-  
 
   return (
     <div className="flex min-h-full flex-col">
@@ -86,7 +83,7 @@ const CatoSettings = ({ classNames, user, devices, currIndex }) => {
       </header>
       {/* <FormatJson classNames={classNames} devices={devices} curr={currIndex}/> */}
       {/* <FlattenJson classNames={classNames} devices={devices} curr={currIndex}/> */}
-      {/* {devices[currIndex].data.devicename} */}
+      {devices[currIndex].data.devicename}
     </div>
   );
 };

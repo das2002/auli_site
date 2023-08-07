@@ -204,6 +204,8 @@ export default function Navigation({
                         <AccordianElement
                           devices={devices}
                           classNames={classNames}
+                          handleCurr={handleCurr}
+                          currIndex={currIndex}
                         />
                         <RegisterNewRoute />
                         <ProfileRoute />
@@ -227,7 +229,12 @@ export default function Navigation({
             <nav className="flex flex-1 flex-col">
               <div role="list" className="flex flex-1 flex-col gap-y-7">
                 <DashRoute />
-                <AccordianElement devices={devices} classNames={classNames} />
+                <AccordianElement 
+                  devices={devices} 
+                  classNames={classNames} 
+                  handleCurr={handleCurr}
+                  currIndex={currIndex}  
+                />
                 <RegisterNewRoute />
                 <ProfileRoute />
               </div>

@@ -1,16 +1,21 @@
-import React from "react";
+import React, {useState} from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link, NavLink } from "react-router-dom";
 import { Accordion, AccordionItem as Item } from "@szhsin/react-accordion";
+import { initializeApp } from "firebase/app";
 
-export default function AccordianElement({ devices, classNames }) {
+
+export default function AccordianElement({ devices, classNames, handleCurr, currIndex }) {
+  const [thing, setThing] = useState(0);
+
   const devicePages = [
     {text: "Record Gestures", pageRoute: "/record-gestures"},
     {text: "Device Settings", pageRoute: "/cato-settings"}
   ]
   
-  const AccordionItem = ({ header, ...rest }) => (
+  const AccordionItem = ({ header, ...rest }) => {
+    return(
     <Item
       {...rest}
       header={({ state: { isEnter } }) => (
@@ -47,16 +52,24 @@ export default function AccordianElement({ devices, classNames }) {
       }}
       panelProps={{ className: "p-4" }}
     />
-  );
+  )}
 
   return (
     <>
-      <Accordion transition transitionTimeout={200}>
+      <Accordion 
+      transition 
+      transitionTimeout={200}
+      onStateChange={({ itemKey, key, current }) => {
+        if (current.isResolved)
+          handleCurr(key, current.isEnter);
+      }}
+      >
         {devices.map((device, index) => (
           <AccordionItem
             header={device.data.devicename}
-            itemKey={device.data.devicename}
-            key={device.data.devicename}
+            itemKey={index}
+            key={index}
+            initialEntered={currIndex === index}
             className="text-white mt-5 mb-5"
           >
             <div>

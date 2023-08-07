@@ -22,7 +22,7 @@ import RecordGestures from './components/RecordGests/RecordGestures';
 function App() {
   const [user, setUser] = useState(null);
   const [devices, setDevices] = useState([]);
-  const [currIndex, setCurrIndex] = useState(0);
+  const [currIndex, setCurrIndex] = useState(-1);
   const [deviceCount, setDeviceCount] = useState(0);
 
   useEffect(() => {
@@ -86,15 +86,13 @@ function App() {
     setDeviceCount(deviceCount + count);
   }
 
-  const handleCurr = (device, index) => {
+  const handleCurr = (index, state) => {
     devices.forEach((dev, i) => {
       if (index === i) {
-        devices[index].current = true;
-        setCurrIndex(index);
-        console.log('true', devices[index].current);
-      } else {
-        devices[i].current = false;
-        console.log('false', devices[i].current)
+        devices[index].current = state;
+        if(state) {
+          setCurrIndex(index);
+        }
       }
     })
   }
