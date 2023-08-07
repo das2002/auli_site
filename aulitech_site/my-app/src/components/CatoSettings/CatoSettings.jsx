@@ -5,6 +5,7 @@ import FormatJson from "./FormatJson";
 import { db } from "../../firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { NavLink } from "react-router-dom";
+import FlattenJson from "./FlattenJson";
 
 
 // import GetDeviceConfigs from "./GetDeviceConfigs";
@@ -83,7 +84,9 @@ const CatoSettings = ({ classNames, user, devices, currIndex }) => {
           </h2>
         </div>
       </header>
-      <FormatJson classNames={classNames} devices={devices} curr={currIndex}/> 
+      {/* <FormatJson classNames={classNames} devices={devices} curr={currIndex}/> */}
+      {/* <FlattenJson classNames={classNames} devices={devices} curr={currIndex}/> */}
+      {/* {devices[currIndex].data.devicename} */}
     </div>
   );
 };

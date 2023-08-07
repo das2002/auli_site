@@ -348,7 +348,7 @@ const RecordGestures = ({
                 </p>
               ) : null}
 
-              <p className="m-5">Click start to begin.</p>
+              {/* <p className="m-5">Click start to begin.</p> */}
             </div>
             <div className="m-5 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center">
               <button
