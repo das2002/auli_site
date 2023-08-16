@@ -77,6 +77,7 @@ const ConfigureGestures = ({ classNames, user }) => {
                 <SelectGesture
                   classNames={classNames}
                   handleGestName={handleGestName}
+                  user={user}
                 />
                 <div className="border-b border-gray-200 pb-5">
                   <button

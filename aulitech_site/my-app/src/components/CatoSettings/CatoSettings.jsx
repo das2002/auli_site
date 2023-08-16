@@ -1,17 +1,26 @@
 import React, { useEffect, useState } from "react";
 // import SettingsNav from "./SettingsNav";
-import FormatJson from "./FormatJson";
+import FormatJson from "../../junk/FormatJson";
 // import { defaultConfig } from "./RegisterCatoDevice";
 import { db } from "../../firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { NavLink } from "react-router-dom";
 import FlattenJson from "./FlattenJson";
+import { useParams } from 'react-router-dom';
+
 
 // import GetDeviceConfigs from "./GetDeviceConfigs";
 
 const CatoSettings = ({ classNames, user, devices, currIndex }) => {
-  const [test, setTest] = useState(0);
+  // const [test, setTest] = useState(0);
   console.log("devices: ", devices);
+
+  const { cato } = useParams();
+  currIndex = cato;
+  console.log("thecaot", cato, devices[cato]);
+
+
+  // console.log("current config.json", devices[currIndex].jsondata);
 
   // useEffect(() => {
   //   const queryUserCatos = async () => {
@@ -72,6 +81,7 @@ const CatoSettings = ({ classNames, user, devices, currIndex }) => {
   //   }
   // }, []);
 
+  // console.log(devices[currIndex].data.devicename)
   return (
     <div className="flex min-h-full flex-col">
       <header className="shrink-0 bg-transparent">
@@ -82,8 +92,7 @@ const CatoSettings = ({ classNames, user, devices, currIndex }) => {
         </div>
       </header>
       {/* <FormatJson classNames={classNames} devices={devices} curr={currIndex}/> */}
-      {/* <FlattenJson classNames={classNames} devices={devices} curr={currIndex}/> */}
-      {devices[currIndex].data.devicename}
+      <FlattenJson classNames={classNames} devices={devices} curr={currIndex}/>
     </div>
   );
 };

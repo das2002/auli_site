@@ -1,15 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { collection, query, where, getDocs, limit, getCountFromServer } from "firebase/firestore";
-import { EnvelopeIcon, PhoneIcon } from '@heroicons/react/20/solid'
-
-
-import { db } from "../../../firebase";
-import { Link } from "react-router-dom";
+import { db } from "../../firebase";
 import DropdownBtn from "./DropdownBtn";
 
 const QueryUserGstrData = ({classNames, user}) => {
-  const [gestureData, setGestureData] = useState(null);
-  const [selectCount, setSelectCount] = useState(0);
   const [nodUpCount, setNodUpCount] = useState(0);
   const [nodDownCount, setNodDownCount] = useState(0);
   const [nodRightCount, setNodRightCount] = useState(0);
@@ -20,9 +14,6 @@ const QueryUserGstrData = ({classNames, user}) => {
   const [shakeHorizontalCount, setShakeHorizontalCount] = useState(0);
   const [clockwiseCount, setClockwiseCount]  = useState(0);
   const [counterclockwiseCount, setCounterclockwiseCount] = useState(0);
-
-  const [test, setTest] = useState(null);
-  const [retrieveData, setRetrieveData] = useState(true);
 
   const getUserGestureData = async function() {
     let gestureCounts = [
@@ -149,19 +140,6 @@ const QueryUserGstrData = ({classNames, user}) => {
   const DisplayGestureCounts = (count) => {
     try{
       getUserGestureData();
-            
-    // const gestures = [
-    //   {name: 'Nod up', count: nodUpCount},
-    //   {name: 'Nod down', count: nodDownCount},
-    //   {name: 'Nod right', count: nodRightCount},
-    //   {name: 'Nod left', count: nodLeftCount},
-    //   {name: 'Tilt right', count: tiltRightCount},
-    //   {name: 'Tilt left', count: tiltLeftCount},
-    //   {name: 'Shake vertical', count: shakeVerticalCount},
-    //   {name: 'Shake horizontal', count: shakeHorizontalCount},
-    //   {name: 'Circle clockwise', count: clockwiseCount},
-    //   {name: 'Circle counterclockwise', count: counterclockwiseCount},
-    //  ];
   
      return(
       <tbody className="divide-y divide-gray-200 bg-white">

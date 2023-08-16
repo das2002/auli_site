@@ -5,7 +5,7 @@ import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../../firebase";
 
 import { Link } from "react-router-dom";
-import QueryUserGstrData from "./user-data-count/QueryUserGstrData";
+import UserDevices from "./UserDevices";
 
 export const styles = { ACTIVE_RING: "ring-1 ring-blue-500" };
 
@@ -24,10 +24,10 @@ export default function Dashboard({
           </h2>
         </div>
       </header>
+      <UserDevices devices={devices} />
 
-      {/* column wrapper*/}
+      {/* column wrapper
       <div className="mx-auto w-full max-w-7xl grow lg:flex xl:px-2 h-full mt-5">
-        {/* Left sidebar & main wrapper */}
         <div className="flex-1 xl:flex mr-5">
           {devices.map((device) => (
             <div key={device.data.devicename}>
@@ -38,7 +38,7 @@ export default function Dashboard({
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };
