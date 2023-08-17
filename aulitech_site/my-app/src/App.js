@@ -125,7 +125,7 @@ function App() {
             <Route exact path="/" element={<Dashboard classNames={classNames} user={user} devices={devices} />}/>
             {/* <Route path="/dashboard" element={<Dashboard classNames={classNames} user={user} devices={devices}/>}/> */}
             <Route path="/profile" element={<ProfilePg user={user}/>}/>
-            <Route path="/cato-settings/:cato" element={<CatoSettings classNames={classNames} user={user} devices={devices} currIndex={currIndex}/>}/>
+            <Route path="/cato-settings" element={<CatoSettings classNames={classNames} user={user} devices={devices} currIndex={currIndex}/>}/>
             <Route path="/register-cato-device" element={<RegisterCatoDevice user={user} devices={devices} handleDeviceCount={handleDeviceCount} classNames={classNames}/>}/>
             <Route path="/record-gestures" element={<ConfigureGestures classNames={classNames} user={user}/>}/>
             <Route path="/record" element={ <RecordGestures/> } />
