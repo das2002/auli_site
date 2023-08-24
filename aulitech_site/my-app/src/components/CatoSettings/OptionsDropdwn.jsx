@@ -4,12 +4,17 @@ import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 
 
-export default function OptionsDropdwn({classNames, current, options, handleOptSelect}) {
+export default function OptionsDropdwn({classNames, current, options, handleOptSelect, path}) {
   const [selected, setSelected] = useState(current)
 
   const shareSelectOpt = (e) => {
-    setSelected(e.target.value)
-    handleOptSelect(selected)
+    try {
+      console.log(e)
+      setSelected(e)
+      handleOptSelect(e, path)
+    } catch(error) {
+      console.log(error)
+    }
   }
 
   return (
@@ -35,7 +40,7 @@ export default function OptionsDropdwn({classNames, current, options, handleOptS
               <Listbox.Options className="text-gray-900 absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-sm shadow-lg focus:outline-none sm:text-base">
                 {options.map((opt, index) => (
                   <Listbox.Option
-                    key={`${opt} ${index}`}
+                    key={index}
                     className={({ active }) =>
                       classNames(
                         active ? 'bg-blue-500 text-white' : 'text-gray-900',

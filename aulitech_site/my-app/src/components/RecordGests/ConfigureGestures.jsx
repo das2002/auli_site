@@ -55,16 +55,14 @@ const ConfigureGestures = ({ classNames, user }) => {
         </div>
       </header>
 
-      {/* column wrapper*/}
       <div className="mx-auto w-full max-w-7xl grow lg:flex xl:px-2 h-full mt-5">
-        <div className="shrink-0 border-gray-200 px-4 flex-initial py-6 sm:px-6 lg:w-72 lg:border-r lg:border-t-0 lg:pr-8 xl:pr-6">
+        {/* <div className="shrink-0 border-gray-200 px-4 flex-initial py-6 sm:px-6 lg:w-72 lg:border-r lg:border-t-0 lg:pr-8 xl:pr-6">
           <ConnectDevice classNames={classNames} />
-        </div>
+        </div> */}
         {/* Left sidebar & main wrapper */}
 
         <div className="flex-1 mr-5">
           <div className="border-gray-200 px-4 py-6 sm:px-6 lg:pl-8 xl:border-b-0 xl:border-r xl:pl-6">
-            {/* Left column area */}
             {goToRecord ? (
               <RecordGestures
                 gestName={gestName}
@@ -89,7 +87,7 @@ const ConfigureGestures = ({ classNames, user }) => {
                         ? "bg-gray-300 cursor-not-allowed"
                         : "bg-gray-900 hover:bg-blue-500",
                       " focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500",
-                      "mt-10 inline-flex items-center rounded-full px-2.5 py-1 text-sm font-semibold text-white shadow-sm"
+                      "mt-10 inline-flex items-center rounded-full px-2.5 py-1 text-xl font-semibold text-white shadow-sm"
                     )}
                   >
                     Select
@@ -102,37 +100,6 @@ const ConfigureGestures = ({ classNames, user }) => {
       </div>
     </div>
   );
-
-  // return (
-  //   <div>
-  //     <header className="shrink-0 bg-transparent">
-  //       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-  //         <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-  //           Record Gestures
-  //         </h2>
-  //       </div>
-  //     </header>
-  //     <div className="flex flex-1 flex-col justify-center px-6 py-12 lg:px-8">
-  //       <ConnectDirectory
-  //         classNames={classNames}
-  //         reset={reset}
-  //         handleCatoConnected={handleCatoConnected}
-  //       />
-  //       <br />
-  //       <SelectGesture
-  //         classNames={classNames}
-  //         handleGestName={handleGestName}
-  //       />
-  //       <br />
-  //       <WriteCato
-  //         classNames={classNames}
-  //         handleConfigSuccess={handleConfigSuccess}
-  //       />
-  //       <br />
-  //       <GestureData classNames={classNames} gestName={gestName} user={user} />
-  //     </div>
-  //   </div>
-  // );
 };
 
 export default ConfigureGestures;

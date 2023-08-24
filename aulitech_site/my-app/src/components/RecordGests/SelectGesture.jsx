@@ -118,11 +118,11 @@ const SelectGesture = ({ classNames, handleGestName, user }) => {
             <div className="flex w-full items-center justify-between space-x-6 p-6">
               <div className="flex-1 truncate">
                 <div className="flex items-center space-x-3">
-                  <h3 className="truncate text-large font-medium text-gray-900">
+                  <h3 className="truncate text-xl font-medium text-gray-900">
                     {gest.name}
                   </h3>
                 </div>
-                <p className="mt-1 truncate text-large text-gray-500">{gest.count} / 5</p>
+                <p className="mt-1 truncate text-lg text-gray-500">{gest.count} / 5</p>
               </div>
             </div>
           </button>

@@ -109,14 +109,16 @@ export default function FlattenJson({ classNames, devices, curr }) {
     });
   };
 
-  const handleOptSelect = (opt) => {
+  const handleOptSelect = (opt, valPath) => {
+    console.log(valPath)
     if (typeof opt === "number") {
-      // set(devices[curr].jsondata, e.target.id, +opt)
-      console.log(opt);
+      set(devices[curr].jsondata, valPath, +opt)
+      console.log("option num: ", opt);
     } else {
-      // set(devices[curr].jsondata, e.target.id, e.target.value)
-      console.log(opt);
+      set(devices[curr].jsondata, valPath, opt)
+      console.log("option string: ", opt);
     }
+      console.log(devices[curr].jsondata);
   };
 
   const handleInput = (e) => {
@@ -128,27 +130,6 @@ export default function FlattenJson({ classNames, devices, curr }) {
     }
     console.log(devices[curr].jsondata);
   };
-
-  // const Range = (deviceJson, pthInfo) => {
-  //   console.log(pthInfo)
-  //   return (
-  //     <>
-  //       <div className="pt-2.5">
-  //         <p className="pt-2.5 text-base leading-6 text-gray-600">
-  //           {`Max: ${get(deviceJson, pthInfo.path).label} Min: ${get(deviceJson, pthInfo.path)}` }
-  //         </p>
-  //         <input
-  //           type="text"
-  //           id={pthInfo.valPath}
-  //           onInput={handleInput}
-  //           placeholder={get(deviceJson, pthInfo.valPath)}
-  //           className="m-1 block w-full rounded-md border-0 px-1.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-  //         />
-  //       </div>
-  //       <p className="text-pink-500">RANGE</p>
-  //     </>
-  //   );
-  // };
 
   const Display = () => {
     try {
@@ -187,6 +168,7 @@ export default function FlattenJson({ classNames, devices, curr }) {
                           current={get(deviceJson, pthInfo.valPath)}
                           options={get(deviceJson, pthInfo.path).options}
                           handleOptSelect={handleOptSelect}
+                          path={pthInfo.valPath}
                         />
                       </>
                     ) : get(deviceJson, pthInfo.path).range !== undefined ? (
@@ -214,6 +196,7 @@ export default function FlattenJson({ classNames, devices, curr }) {
                           current={'Select'}
                           options={get(deviceJson, pthInfo.valPath)}
                           handleOptSelect={handleOptSelect}
+                          path={pthInfo.valPath}
                         />
                       </>
                     ) : (

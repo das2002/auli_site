@@ -7,7 +7,7 @@ import {
   doc,
 } from "firebase/firestore";
 
-const StoreSettings = (devices, currIndex, newJson) => {
+const StoreSettings = (devices, user, currIndex, newJson) => {
   const sendNewJson = async() => {
     try {
       const userRef = doc(db, "users", user.uid, "userCatos", devices[currIndex].id);
