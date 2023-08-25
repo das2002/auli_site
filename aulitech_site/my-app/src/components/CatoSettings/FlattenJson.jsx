@@ -6,33 +6,76 @@ import OptionsDropdwn from "./OptionsDropdwn";
 export default function FlattenJson({ classNames, devices, curr }) {
   let thing = [];
 
+  let tester = [];
 
-  // let tester = []
+  const setUpJsonArr = (first, deviceJson, preKey, parent, children) => {
+    try {
+      let test;
+      let childrenArr = [];
+      let child;
+      let mainKey = "";
+      let parentKey = "";
 
-  // const setUpJsonArr = (deviceJson) => {
-  //   for (const [key, value] of Object.entries(deviceJson)) {
-  //     let test;
-  //     let children = []
-  //     if (value.access === "rw") {
-  //       if(typeof(value.value) === 'object') {
+      if (first) {
+        tester = [];
 
-  //           for (const [key, value] of Object.entries(value.value)) {
-  //             children.push({child: key})
-  //           }
-  //       }
-  //         test = Object.create(
-  //           {},
-  //           {
-  //             item: { value: { parent: key, children: children, pathstr: [] } },
-  //           }
-  //         );
-  //         tester.push(test);
-  //       }
-      
-  //   }
-  // }
+        for (const [key, value] of Object.entries(deviceJson)) {
+          if (value.access === "rw") {
+
+          test = Object.create(
+            {},
+            {
+              item: {
+                value: { mainParent: key, children: [] },
+              },
+            }
+          );
+          tester.push(test);
+        }
+      }
+      }
+
+      for (const [key, value] of Object.entries(deviceJson)) {
+        if (value.access === "rw") {
+          if (parent === "") {
+            mainKey = `${key}`;
+            parentKey = `${key}`;
+            // childrenArr = [];
+          } else {
+            mainKey = `${preKey}`;
+            parentKey = `${parent}.value.${key}`;
+            childrenArr = children
+          }
+
+          if (typeof value.value === "object") {
+            if (!Array.isArray(value.value)) { 
+              // if (parentKey !== mainKey) {
+              //   child = Object.create(
+              //     {},
+              //     { child: { value: { parent: parentKey, childs: [] } } }
+              //   );
+    
+              //   childrenArr.push(child);
+              // }
+              childrenArr.push(parentKey)
+              setUpJsonArr(false, value.value, mainKey, parentKey, childrenArr);
+            }
+          } else {
+            tester.forEach((item) => {
+              if (item.item.mainParent === mainKey) {
+                item.item.children.push(childrenArr)
+              }
+            });
+          }
+        }
+      }
+    } catch (err) {
+      console.log("set up json arr err:", err);
+    }
+  };
 
 
+  
   const breakDownJson = (deviceJson, i, preStr, preKey, first) => {
     let path = "";
     let valPath = "";
@@ -40,14 +83,13 @@ export default function FlattenJson({ classNames, devices, curr }) {
 
     if (first) {
       thing = [];
+      setUpJsonArr(true, deviceJson, "", "", []);
+      console.log(tester);
 
-      // setUpJsonArr(deviceJson)
-      // console.log("tester: ", tester);
       for (const [key, value] of Object.entries(deviceJson)) {
         let test;
         if (value.access === "rw") {
-          if(typeof(value.value) === 'object') {
-
+          if (typeof value.value === "object") {
           }
           test = Object.create(
             {},
@@ -75,12 +117,19 @@ export default function FlattenJson({ classNames, devices, curr }) {
               path = `${preStr}.${key}`;
               mainKey = `${preKey}`;
             }
-            if (typeof value.value === "object") {
 
+            if (typeof value.value === "object") {
               if (Array.isArray(value.value)) {
                 addItems(mainKey, path, valPath);
               }
-              breakDownJson(value.value, i + 1, valPath, mainKey, false);
+
+              breakDownJson(
+                value.value,
+                i + 1,
+                valPath,
+                mainKey,
+                false
+              );
             } else {
               addItems(mainKey, path, valPath);
             }
@@ -110,15 +159,15 @@ export default function FlattenJson({ classNames, devices, curr }) {
   };
 
   const handleOptSelect = (opt, valPath) => {
-    console.log(valPath)
+    console.log(valPath);
     if (typeof opt === "number") {
-      set(devices[curr].jsondata, valPath, +opt)
+      set(devices[curr].jsondata, valPath, +opt);
       console.log("option num: ", opt);
     } else {
-      set(devices[curr].jsondata, valPath, opt)
+      set(devices[curr].jsondata, valPath, opt);
       console.log("option string: ", opt);
     }
-      console.log(devices[curr].jsondata);
+    console.log(devices[curr].jsondata);
   };
 
   const handleInput = (e) => {
@@ -193,7 +242,7 @@ export default function FlattenJson({ classNames, devices, curr }) {
                       <>
                         <OptionsDropdwn
                           classNames={classNames}
-                          current={'Select'}
+                          current={"Select"}
                           options={get(deviceJson, pthInfo.valPath)}
                           handleOptSelect={handleOptSelect}
                           path={pthInfo.valPath}
