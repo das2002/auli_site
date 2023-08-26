@@ -1,19 +1,13 @@
-import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import React from "react";
 import { Accordion, AccordionItem as Item } from "@szhsin/react-accordion";
+import AccordianElement from "../components/NavBar/Accordian";
 
-export default function AccordianElement({
+export default function DevicesAccordian({
   devices,
   classNames,
   handleCurr,
   currIndex,
 }) {
-
-  const devicePages = [
-    { text: "Record Gestures", pageRoute: "/record-gestures" },
-    { text: "Device Settings", pageRoute: "/cato-settings" },
-  ];
-
   const AccordionItem = ({ header, ...rest }) => {
     return (
       <Item
@@ -42,7 +36,7 @@ export default function AccordianElement({
         className={({ isEnter }) =>
           classNames(
             isEnter ? "text-white" : "text-gray-400",
-            "border-b border-gray-400 py-3"
+            "border-b border-white py-3 -mx-6"
           )
         }
         buttonProps={{
@@ -59,10 +53,9 @@ export default function AccordianElement({
     );
   };
 
-  return (
-    <div>
-      <div className="-mx-6">
-        <div className="text-gray-400 group flex gap-x-3 px-6 py-3 border-b border-gray-400 text-xl leading-6 font-semibold">
+  const deviceHeader = <>
+  <div className="-mx-6">
+        <div className="text-gray-400 group flex gap-x-3 px-6 py-3 text-xl leading-6 font-semibold">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -81,53 +74,25 @@ export default function AccordianElement({
           <p>Devices</p>
         </div>
       </div>
+  </>
+
+  return (
+    <div>
       <Accordion
         transition
         transitionTimeout={200}
-        onStateChange={({ key, current }) => {
-          if (current.isResolved) handleCurr(key, current.isEnter);
-        }}
       >
-        {devices.map((device, index) => (
-          <AccordionItem
-            header={device.data.devicename}
-            key={index}
-            initialEntered={currIndex === index}
-          >
-            <div>
-              <div>
-                <NavLink
-                  to="/record-gestures"
-                  className={({ isActive }) =>
-                    classNames(
-                      isActive
-                        ? "text-white"
-                        : "text-gray-400 hover:text-white hover:bg-gray-800",
-                      "group flex p-2 text-lg leading-6 font-semibold border-none"
-                    )
-                  }
-                >
-                  <p>Record Gestures</p>
-                </NavLink>
-              </div>
-              <div>
-                <NavLink
-                  to="/cato-settings"
-                  className={({ isActive }) =>
-                    classNames(
-                      isActive
-                        ? "text-white"
-                        : "text-gray-400 hover:text-white hover:bg-gray-800",
-                      "group flex p-2 text-lg leading-6 font-semibold border-none"
-                    )
-                  }
-                >
-                  <p>Device Settings</p>
-                </NavLink>
-              </div>
-            </div>
-          </AccordionItem>
-        ))}
+        <AccordionItem
+          header={deviceHeader}
+
+        >
+          <AccordianElement
+            devices={devices}
+            classNames={classNames}
+            handleCurr={handleCurr}
+            currIndex={currIndex}
+          />
+        </AccordionItem>
       </Accordion>
     </div>
   );

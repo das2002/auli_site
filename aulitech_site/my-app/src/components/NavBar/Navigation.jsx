@@ -11,19 +11,24 @@ export default function Navigation({
   devices,
   handleCurr,
   handleDevices,
+  handleAccordian
 }) {
-  
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const handleChangeAcc = () => {
+    handleAccordian();
+  }
 
   const Logo = () => {
     return (
-      <div className="flex shrink-0 items-center">
-
-      <img
-        className="h-10 w-auto"
-        src={require("../../images/icononly_transparent_nobuffer.png")}
-        alt="Auli logo"
-      />
+      <div>
+        <div className="flex my-10 shrink-0 justify-center">
+          <img
+            className="h-16 w-auto"
+            src={require("../../images/icononly_transparent_nobuffer.png")}
+            alt="Auli logo"
+          />
+        </div>
       </div>
     );
   };
@@ -53,7 +58,7 @@ export default function Navigation({
         <div className="-mx-6 mt-auto">
           <Link
             to="/profile"
-            className="flex items-center gap-x-4 px-6 py-3 text-lg font-semibold leading-6 text-white hover:bg-gray-800"
+            className="flex items-center gap-x-4 px-6 py-3 text-xl font-semibold leading-6 text-white hover:bg-gray-800"
           >
             <UserIcon />
             <span className="sr-only">Your profile</span>
@@ -62,7 +67,7 @@ export default function Navigation({
         </div>
       </>
     );
-  }
+  };
 
   const RegisterNewRoute = () => {
     return (
@@ -70,12 +75,13 @@ export default function Navigation({
         <div className="-mx-6">
           <NavLink
             to="/register-cato-device"
+            onClick={handleChangeAcc}
             className={({ isActive }) =>
               classNames(
                 isActive
                   ? "bg-gray-800 text-white"
                   : "text-gray-400 hover:text-white hover:bg-gray-800",
-                "group flex gap-x-3 p-2 text-lg leading-6 font-semibold"
+                "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
               )
             }
           >
@@ -99,20 +105,21 @@ export default function Navigation({
         </div>
       </>
     );
-  }
+  };
 
   const DashRoute = () => {
     return (
       <>
-        <div className="-mx-6">
+        <div className="-mx-6 ">
           <NavLink
             to="/"
+            onClick={handleChangeAcc}
             className={({ isActive }) =>
               classNames(
                 isActive
                   ? "bg-gray-800 text-white"
                   : "text-gray-400 hover:text-white hover:bg-gray-800",
-                "group flex gap-x-3 p-2 text-lg leading-6 font-semibold"
+                "group flex gap-x-4 px-6 py-3 text-xl leading-6 font-semibold"
               )
             }
           >
@@ -136,11 +143,12 @@ export default function Navigation({
         </div>
       </>
     );
-  }
+  };
   // -----------------------------------------------------------------------
 
   return (
     <>
+      
       <div>
         <Transition.Root show={sidebarOpen} as={Fragment}>
           <Dialog
@@ -222,19 +230,18 @@ export default function Navigation({
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
           {/* Sidebar component, swap this element with another sidebar if you like */}
           <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6">
-            <div className="flex h-16 shrink-0 items-center">
-              <Logo />
-            </div>
+            <Logo />
 
             <nav className="flex flex-1 flex-col">
               <div role="list" className="flex flex-1 flex-col gap-y-7">
                 <DashRoute />
-                <AccordianElement 
-                  devices={devices} 
-                  classNames={classNames} 
+                <AccordianElement
+                  devices={devices}
+                  classNames={classNames}
                   handleCurr={handleCurr}
-                  currIndex={currIndex}  
+                  currIndex={currIndex}
                 />
+                
                 <RegisterNewRoute />
                 <ProfileRoute />
               </div>
