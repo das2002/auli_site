@@ -84,13 +84,14 @@ export default function AccordianElement({
       <Accordion
         transition
         transitionTimeout={200}
-        onStateChange={({ key, current }) => {
+        onStateChange={({ itemKey, key, current }) => {
           if (current.isResolved) handleCurr(key, current.isEnter);
         }}
       >
         {devices.map((device, index) => (
           <AccordionItem
             header={device.data.devicename}
+            itemKey={index}
             key={index}
             initialEntered={currIndex === index}
           >

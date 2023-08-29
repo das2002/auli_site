@@ -70,7 +70,7 @@ const ProfilePg = ({ user }) => {
             </div>
             <div >
               <div className="space-y-12">
-                <div className="border-b border-gray-200 pb-12">
+                <div className="border-b border-gray-200 pb-10">
                   <div className="mt-10 grid grid-cols-1 gap-x-10 gap-y-12 sm:grid-cols-6">
                     <div className="sm:col-span-3">
                       <label

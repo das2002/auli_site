@@ -9,15 +9,9 @@ export default function Navigation({
   currIndex,
   classNames,
   devices,
-  handleCurr,
-  handleDevices,
-  handleAccordian
+  handleCurr
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const handleChangeAcc = () => {
-    handleAccordian();
-  }
 
   const Logo = () => {
     return (
@@ -75,7 +69,6 @@ export default function Navigation({
         <div className="-mx-6">
           <NavLink
             to="/register-cato-device"
-            onClick={handleChangeAcc}
             className={({ isActive }) =>
               classNames(
                 isActive
@@ -113,7 +106,6 @@ export default function Navigation({
         <div className="-mx-6 ">
           <NavLink
             to="/"
-            onClick={handleChangeAcc}
             className={({ isActive }) =>
               classNames(
                 isActive

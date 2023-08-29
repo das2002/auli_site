@@ -142,15 +142,16 @@ const RegisterCatoDevice = ({ user, devices, handleDeviceCount }) => {
       </div>
       <div className="bg-white shadow-lg border border-gray-200 rounded-lg p-5 mt-10">
         <div className="px-4 py-5 sm:p-6 lg:px-8">
-          <div className="border-b border-gray-200 pb-5">
-            <h3 className="text-xl font-semibold leading-6 text-gray-900">
-              Name your Cato
-            </h3>
-          </div>
-          <div className="mt-5 max-w-xl text-lg text-gray-900">
-            <p>Enter a name for your Cato below.</p>
-          </div>
-          <div className="w-full mt-5 sm:max-w-xs">
+          <div className="border-b border-gray-200 pb-10">
+            <div className="border-b border-gray-200 pb-5">
+              <h3 className="text-xl font-semibold leading-6 text-gray-900">
+                Name your Cato
+              </h3>
+            </div>
+            <div className="mt-5 max-w-xl text-lg text-gray-900">
+              <p>Enter a name for your Cato below.</p>
+            </div>
+            <div className="w-full mt-5 sm:max-w-xs">
               <input
                 type="text"
                 value={deviceName}
@@ -159,20 +160,20 @@ const RegisterCatoDevice = ({ user, devices, handleDeviceCount }) => {
                 placeholder="my-cato"
               />
             </div>
-          <div className="mt-5 max-w-xl text-lg text-gray-900">
-            <p>
-              When you click <strong>Save</strong> your browser will ask if you
-              want to allow access to the device, allow access in order to
-              register the device.
-            </p>
+            <div className="mt-5 max-w-xl text-lg text-gray-900">
+              <p>
+                When you click <strong>Save</strong> your browser will ask if
+                you want to allow access to the device, allow access in order to
+                register the device.
+              </p>
+            </div>
           </div>
-          <div className="mt-5 sm:flex sm:items-center">
-            
+          <div className="mt-6 flex items-center justify-end">
             <div className="mt-4 sm:mt-0">
               <button
                 disabled={deviceName === "" ? true : false}
                 onClick={getJsonData}
-                className="inline-flex rounded-full items-center bg-blue-500 px-2.5 py-1 text-xl font-semibold text-white disabled:bg-gray-200 disabled:cursor-not-allowed hover:bg-blue-300"
+                className="inline-flex rounded-full items-center bg-blue-500 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-300"
               >
                 Save
               </button>
@@ -180,18 +181,6 @@ const RegisterCatoDevice = ({ user, devices, handleDeviceCount }) => {
           </div>
         </div>
       </div>
-      {/* <div>
-        <label>
-          Device Name
-          <input
-            type="text"
-            value={deviceName}
-            className="bg-gray-100"
-            onChange={(e) => setDeviceName(e.target.value)}
-          />
-        </label>
-      </div>
-      <button onClick={getJsonData}>get config.json</button> */}
     </div>
   );
 };

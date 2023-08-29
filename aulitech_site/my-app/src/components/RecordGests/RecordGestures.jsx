@@ -2,6 +2,11 @@ import React, { useState, useRef } from "react";
 import { CheckIcon } from "@heroicons/react/20/solid";
 import { get, clear, set } from "idb-keyval";
 import StoreGestData from "../CloudFirestore/StoreGestData";
+import ProgBar from "./record/ProgBar";
+import RcrdCard from "./record/RcrdCard";
+import WriteAccess from "./record/WriteAccess";
+import GestureData from "./record/GestureData";
+import DoneCard from "./record/DoneCard";
 
 const RecordGestures = ({
   classNames,
@@ -12,223 +17,29 @@ const RecordGestures = ({
   const [stepCount, setStepCount] = useState(0);
   const [doneMsg, setDoneMsg] = useState(false);
   const [writeConnect, setWriteConnect] = useState(false);
-  const [checkConnect, setCheckConnect] = useState(false);
-  const [gestData, setGestData] = useState(null);
+  // const [checkConnect, setCheckConnect] = useState(false);
   const [startGest, setStartGest] = useState(false);
   const [timer, setTimer] = useState("00");
   const Ref = useRef(null);
-
-  const ProgBar = () => {
-    const steps = [
-      {
-        name: "Step 1",
-        href: "#",
-        status: stepCount >= 1 ? "complete" : "current",
-      },
-      {
-        name: "Step 2",
-        href: "#",
-        status:
-          stepCount === 1
-            ? "current"
-            : stepCount >= 1
-            ? "complete"
-            : "upcoming",
-      },
-      {
-        name: "Step 3",
-        href: "#",
-        status:
-          stepCount === 2
-            ? "current"
-            : stepCount >= 2
-            ? "complete"
-            : "upcoming",
-      },
-      {
-        name: "Step 4",
-        href: "#",
-        status:
-          stepCount === 3
-            ? "current"
-            : stepCount >= 3
-            ? "complete"
-            : "upcoming",
-      },
-      {
-        name: "Step 5",
-        href: "#",
-        status:
-          stepCount === 4
-            ? "current"
-            : stepCount >= 4
-            ? "complete"
-            : "upcoming",
-      },
-    ];
-
-    return (
-      <>
-        <nav aria-label="Progress">
-          <ol role="list" className="flex justify-center">
-            {steps.map((step, stepIdx) => (
-              <li
-                key={step.name}
-                className={classNames(
-                  stepIdx !== steps.length - 1 ? "pr-8 sm:pr-20" : "",
-                  "relative"
-                )}
-              >
-                {step.status === "complete" ? (
-                  <>
-                    <div
-                      className="absolute inset-0 flex items-center"
-                      aria-hidden="true"
-                    >
-                      <div className="h-0.5 w-full bg-gray-900" />
-                    </div>
-                    <a
-                      href="#"
-                      className="relative flex h-8 w-8 items-center justify-center rounded-full bg-gray-900"
-                    >
-                      <CheckIcon
-                        className="h-5 w-5 text-white"
-                        aria-hidden="true"
-                      />
-                      <span className="sr-only">{step.name}</span>
-                    </a>
-                  </>
-                ) : step.status === "current" ? (
-                  <>
-                    <div
-                      className="absolute inset-0 flex items-center"
-                      aria-hidden="true"
-                    >
-                      <div className="h-0.5 w-full bg-gray-200" />
-                    </div>
-                    <a
-                      href="#"
-                      className="relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-900 bg-white"
-                      aria-current="step"
-                    >
-                      <span
-                        className="h-2.5 w-2.5 rounded-full bg-gray-900"
-                        aria-hidden="true"
-                      />
-                      <span className="sr-only">{step.name}</span>
-                    </a>
-                  </>
-                ) : (
-                  <>
-                    <div
-                      className="absolute inset-0 flex items-center"
-                      aria-hidden="true"
-                    >
-                      <div className="h-0.5 w-full bg-gray-200" />
-                    </div>
-                    <a
-                      href="#"
-                      className="group relative flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-300 bg-white hover:border-gray-400"
-                    >
-                      <span
-                        className="h-2.5 w-2.5 rounded-full bg-transparent group-hover:bg-gray-300"
-                        aria-hidden="true"
-                      />
-                      <span className="sr-only">{step.name}</span>
-                    </a>
-                  </>
-                )}
-              </li>
-            ))}
-          </ol>
-        </nav>
-      </>
-    );
-  };
 
   const handleStepCount = () => {
     if (stepCount <= 4) {
       setStepCount(stepCount + 1);
       setWriteConnect(false);
-      setCheckConnect(false);
-      setGestData(null);
+      // setCheckConnect(false);
     } else {
       setDoneMsg(true);
       setStepCount(0);
-      handleDoneRecording(true);
+      // handleDoneRecording(true);
     }
   };
 
-  const getGestureData = async () => {
-    try {
-      const directory = await get("directory");
-      console.log(directory);
-
-      if (typeof directory !== "undefined") {
-        const perm = await directory.requestPermission();
-
-        if (perm === "granted") {
-          const logFile = await directory.getFileHandle("log.txt", {
-            create: false,
-          });
-
-          const dataFile = await logFile.getFile();
-          console.log(dataFile);
-          const dataContents = await dataFile.text();
-          console.log(dataContents);
-
-          handleStepCount();
-          StoreGestData(gestName, user, dataContents);
-        }
-      }
-    } catch (error) {
-      console.log("get log.txt/ gesture data error:", error);
-    }
+  const handleWriteAccess = () => {
+    WriteAccess(setWriteConnect, setStartGest);
   };
 
-  const getWriteAccess = async () => {
-    try {
-      const directory = await get("directory");
-      console.log("retrieved dir handle:", directory);
-
-      if (typeof directory !== "undefined") {
-        const perm = await directory.requestPermission();
-
-        if (perm === "granted") {
-          const writeHandleOrUndefined = await get("gesture.cato");
-
-          if (writeHandleOrUndefined) {
-            console.log("retrieved file handle:", writeHandleOrUndefined.name);
-            setWriteConnect(true);
-          }
-
-          const writeFile = await directory.getFileHandle("gesture.cato", {
-            create: true,
-          });
-
-          console.log(writeFile);
-
-          const writable = await writeFile.createWritable();
-          await writable.write('');
-          await writable.close();
-
-          await set("gesture.cato", writeFile);
-          console.log("stored file handle:", writeFile.name);
-          setWriteConnect(true);
-          setStartGest(true);
-          const checkConfig = await directory.getFileHandle("gesture.cato", {
-            create: false,
-          });
-          if (checkConfig !== null) {
-            await set("checkConfig", checkConfig);
-            console.log("stored gesture.cato handle: ", checkConfig.name);
-            setCheckConnect(true);
-          }
-        }
-      }
-    } catch (error) {
-      console.log("write config.cato error:", error);
-    }
+  const handleGestureData = () => {
+    GestureData(user, gestName, handleStepCount);
   };
 
   const getTimeRemaining = (e) => {
@@ -282,11 +93,11 @@ const RecordGestures = ({
           const perm = await directory.requestPermission();
 
           if (perm === "granted") {
-            const logFile = await directory.getFileHandle("log.txt", {
+            const catoFile = await directory.getFileHandle("cato.py", {
               create: false,
             });
 
-            const dataFile = await logFile.getFile();
+            const dataFile = await catoFile.getFile();
             dataContents = await dataFile.text();
             console.log(dataContents);
             return dataContents;
@@ -331,46 +142,27 @@ const RecordGestures = ({
 
   return (
     <>
-      <div>
-        <ProgBar />
-        <div className="bg-white shadow sm:rounded-lg mt-2.5">
-          <div className="px-4 py-5 sm:p-6 ">
-            <h3 className="text-base font-semibold leading-6 text-gray-900">
-              {gestName} Recording {stepCount + 1}
-            </h3>
-            <div className="mt-2 sm:flex sm:items-start sm:justify-between">
-
-            <div className="mt-2 max-w-xl text-sm text-gray-500">
-              {stepCount === 0 ? (
-                <p className="text-sm leading-6 text-blue-500">
-                  When you click Start, a prompt from your broswer will appear.
-                  Select 'Save changes.'
-                </p>
-              ) : null}
-
-              {/* <p className="m-5">Click start to begin.</p> */}
-            </div>
-            <div className="m-5 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center">
-              <button
-                type="button"
-                onClick={getWriteAccess}
-                className="inline-flex items-center rounded-full bg-blue-500 px-2.5 py-1 text-sm font-semibold text-white shadow-sm hover:bg-blue-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
-              >
-                Start
-              </button>
-            </div>
-            </div>
-          </div>
+      <div className="flex h-full">
+        <div className="">
+          <ProgBar
+            classNames={classNames}
+            stepCount={stepCount}
+            gestName={gestName}
+          />
         </div>
-        <div className="mt-5 sm:ml-6 sm:mt-0 sm:flex sm:flex-shrink-0 sm:items-center">
-          <button
-            type="button"
-            onClick={handleStepCount}
-            className="mt-3 rounded-full bg-white px-2.5 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-          >
-            Next
-          </button>
-        </div>  
+        <div className="flex-auto my-5">
+          {doneMsg ? (
+            <DoneCard gestName={gestName} handleDoneRecording={handleDoneRecording}/>
+          ) : (
+            <RcrdCard
+              gestName={gestName}
+              stepCount={stepCount}
+              handleWriteAccess={handleWriteAccess}
+              handleGestureData={handleGestureData}
+              writeConnect={writeConnect}
+            />
+          )}
+        </div>
       </div>
     </>
   );

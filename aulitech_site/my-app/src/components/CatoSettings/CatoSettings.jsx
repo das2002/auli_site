@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import FlattenJson from "./FlattenJson";
 import StoreSettings from "../CloudFirestore/StoreSettings";
 
-const CatoSettings = ({ classNames, user, devices, currIndex }) => {
+const CatoSettings = ({classNames, user, devices, currIndex}) => {
   console.log("devices: ", devices);
 
   // const { cato } = useParams();
@@ -31,6 +31,13 @@ const CatoSettings = ({ classNames, user, devices, currIndex }) => {
       );
     } catch (err) {
       console.log("display devicename err: ", err);
+      return (
+        <>
+          <p className="pt-2.5 text-base leading-6 text-gray-600">
+            Error
+          </p>
+        </>
+      );
     }
   };
 

@@ -6,73 +6,72 @@ import OptionsDropdwn from "./OptionsDropdwn";
 export default function FlattenJson({ classNames, devices, curr }) {
   let thing = [];
 
-  let tester = [];
+  // let tester = [];
 
-  const setUpJsonArr = (first, deviceJson, preKey, parent, children) => {
-    try {
-      let test;
-      let childrenArr = [];
-      let child;
-      let mainKey = "";
-      let parentKey = "";
+  // const setUpJsonArr = (first, deviceJson, preKey, parent, children) => {
+  //   try {
+  //     let test;
+  //     let childrenArr = [];
+  //     let mainKey = "";
+  //     let parentKey = "";
 
-      if (first) {
-        tester = [];
+  //     if (first) {
+  //       tester = [];
 
-        for (const [key, value] of Object.entries(deviceJson)) {
-          if (value.access === "rw") {
+  //       for (const [key, value] of Object.entries(deviceJson)) {
+  //         if (value.access === "rw") {
 
-          test = Object.create(
-            {},
-            {
-              item: {
-                value: { mainParent: key, children: [] },
-              },
-            }
-          );
-          tester.push(test);
-        }
-      }
-      }
+  //         test = Object.create(
+  //           {},
+  //           {
+  //             item: {
+  //               value: { mainParent: key, children: [] },
+  //             },
+  //           }
+  //         );
+  //         tester.push(test);
+  //       }
+  //     }
+  //     }
 
-      for (const [key, value] of Object.entries(deviceJson)) {
-        if (value.access === "rw") {
-          if (parent === "") {
-            mainKey = `${key}`;
-            parentKey = `${key}`;
-            // childrenArr = [];
-          } else {
-            mainKey = `${preKey}`;
-            parentKey = `${parent}.value.${key}`;
-            childrenArr = children
-          }
+  //     for (const [key, value] of Object.entries(deviceJson)) {
+  //       if (value.access === "rw") {
+  //         if (parent === "") {
+  //           mainKey = `${key}`;
+  //           parentKey = `${key}`;
+  //           // childrenArr = [];
+  //         } else {
+  //           mainKey = `${preKey}`;
+  //           parentKey = `${parent}.value.${key}`;
+  //           childrenArr = children
+  //         }
 
-          if (typeof value.value === "object") {
-            if (!Array.isArray(value.value)) { 
-              // if (parentKey !== mainKey) {
-              //   child = Object.create(
-              //     {},
-              //     { child: { value: { parent: parentKey, childs: [] } } }
-              //   );
+  //         if (typeof value.value === "object") {
+  //           if (!Array.isArray(value.value)) { 
+  //             // if (parentKey !== mainKey) {
+  //             //   child = Object.create(
+  //             //     {},
+  //             //     { child: { value: { parent: parentKey, childs: [] } } }
+  //             //   );
     
-              //   childrenArr.push(child);
-              // }
-              childrenArr.push(parentKey)
-              setUpJsonArr(false, value.value, mainKey, parentKey, childrenArr);
-            }
-          } else {
-            tester.forEach((item) => {
-              if (item.item.mainParent === mainKey) {
-                item.item.children.push(childrenArr)
-              }
-            });
-          }
-        }
-      }
-    } catch (err) {
-      console.log("set up json arr err:", err);
-    }
-  };
+  //             //   childrenArr.push(child);
+  //             // }
+  //             childrenArr.push(parentKey)
+  //             setUpJsonArr(false, value.value, mainKey, parentKey, childrenArr);
+  //           }
+  //         } else {
+  //           tester.forEach((item) => {
+  //             if (item.item.mainParent === mainKey) {
+  //               item.item.children.push(childrenArr)
+  //             }
+  //           });
+  //         }
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.log("set up json arr err:", err);
+  //   }
+  // };
 
 
   
@@ -83,8 +82,7 @@ export default function FlattenJson({ classNames, devices, curr }) {
 
     if (first) {
       thing = [];
-      setUpJsonArr(true, deviceJson, "", "", []);
-      console.log(tester);
+      // setUpJsonArr(true, deviceJson, "", "", []);
 
       for (const [key, value] of Object.entries(deviceJson)) {
         let test;
@@ -184,8 +182,8 @@ export default function FlattenJson({ classNames, devices, curr }) {
     try {
       const deviceJson = devices[curr].jsondata;
       breakDownJson(deviceJson, 0, "", "", true);
-      console.log(devices[curr].jsondata);
-      console.log(thing);
+      // console.log(devices[curr].jsondata);
+      // console.log(thing);
 
       return (
         <>

@@ -97,9 +97,7 @@ function App() {
     })
   }
 
-  const handleAccordian = () => {
-    setCurrIndex(-1)
-  }
+  console.log(devices, currIndex);
 
 
   return (
@@ -122,7 +120,7 @@ function App() {
         </>
       :
       <>
-      <Navigation user={user} classNames={classNames} devices={devices} currIndex={currIndex} handleCurr={handleCurr} handleDevices={handleDevices} handleAccordian={handleAccordian}/>
+      <Navigation user={user} classNames={classNames} devices={devices} currIndex={currIndex} handleCurr={handleCurr}/>
       <main className="py-10 lg:pl-72">
         <div className="px-4 sm:px-6 lg:px-8">
           <Routes>
