@@ -33,14 +33,7 @@ export default function WriteAccess({setWriteConnect, setStartGest}) {
           console.log("stored file handle:", writeFile.name);
           setWriteConnect(true);
           setStartGest(true);
-          // const checkConfig = await directory.getFileHandle("gesture.cato", {
-          //   create: false,
-          // });
-          // if (checkConfig !== null) {
-          //   await set("checkConfig", checkConfig);
-          //   console.log("stored gesture.cato handle: ", checkConfig.name);
-          //   setCheckConnect(true);
-          // }
+          
         }
       }
     } catch (error) {

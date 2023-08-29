@@ -29,11 +29,11 @@ export default function GestureData({user, gestName, handleStepCount}) {
 
             dataFile = await logFile.getFile();
           }
-          
+
           const dataContents = await dataFile.text();
           console.log(dataContents);
 
-          handleStepCount();
+          // handleStepCount();
           StoreGestData(gestName, user, dataContents);
         }
       }

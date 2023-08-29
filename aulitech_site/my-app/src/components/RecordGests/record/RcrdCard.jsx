@@ -3,7 +3,9 @@ import React, { useState, useRef} from "react";
 export default function RcrdCard({
   gestName,
   stepCount,
+  handleDirAccess,
   handleWriteAccess,
+  handleStepCount,
   handleGestureData,
   writeConnect
 }) {
@@ -36,9 +38,9 @@ export default function RcrdCard({
             {/* <h3 className="text-sm font-medium text-blue-500">Attention</h3> */}
             <div className="text-sm text-blue-500">
               <p>
-                INSERT CONNECT TO DIRECTORY AND ALLOW WRITE ACCESS TEXT
-                {/* When you click Start, prompts from your broswer will appear. <br/><br/>You will be prompted by your browser to select a directory, select <strong>AULI_CATO</strong>, then
-                select <strong>Save Changes</strong>. */}
+                {/* INSERT CONNECT TO DIRECTORY AND ALLOW WRITE ACCESS TEXT */}
+                When you click Start,you will be prompted by your browser, select <strong>View Files</strong>, then
+                select <strong>Save Changes</strong>.
               </p>
             </div>
           </div>
@@ -86,11 +88,9 @@ export default function RcrdCard({
 
   const handleStart = async() => {
     try {
+      // await handleDirAccess();
       handleWriteAccess();
-
-      if (writeConnect) {
-        setStart(false);
-      }
+      setStart(false);
     }
     catch(err) {
       console.log('handle start btn err: ', err);
@@ -99,6 +99,7 @@ export default function RcrdCard({
 
   const handleNext = () => {
     handleGestureData();
+    handleStepCount();
     setStart(true);
   };
 

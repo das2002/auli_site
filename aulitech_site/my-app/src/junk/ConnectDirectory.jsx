@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { get, set, clear } from 'idb-keyval';
-import { styles } from "./ConfigureGestures";
+import { styles } from "../components/RecordGests/ConfigureGestures";
 
 const ConnectDirectory = ({classNames, reset, handleCatoConnected}) => {
   const [catoConnected, setCatoConnected] = useState(false);

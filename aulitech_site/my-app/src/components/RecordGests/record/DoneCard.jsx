@@ -5,8 +5,8 @@ export default function DoneCard({gestName, handleDoneRecording}) {
  return (
   <div className="bg-white shadow-lg border border-gray-200 rounded-lg p-5 h-full">
         <div className="px-4 py-5 sm:p-6 lg:px-8">
-          <div className="border-b border-gray-200 pb-10">
-            <div className="border-b border-gray-200 pb-5 flex justify-between">
+          <div className="border-b border-gray-200x">
+            <div className="pb-5 flex justify-center">
               <h3 className="text-xl font-semibold leading-6 text-gray-900 flex-none">
                 {gestName} Recording Set Complete!
               </h3>

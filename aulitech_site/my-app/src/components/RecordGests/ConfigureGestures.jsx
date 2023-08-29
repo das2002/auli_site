@@ -1,27 +1,25 @@
 import React, { useState } from "react";
 import { clear } from "idb-keyval";
-import ConnectDirectory from "./ConnectDirectory";
 import SelectGesture from "./SelectGesture";
-import ConnectDevice from "./ConnectDevice";
 import RecordGestures from "./RecordGestures";
+import DoneCard from './record/DoneCard'
+
+// import ConnectDevice from "./ConnectDevice";
+// import ConnectDirectory from "./ConnectDirectory";
 
 export const styles = { ACTIVE_RING: "ring-1 ring-blue-500" };
 
 const ConfigureGestures = ({ classNames, user }) => {
-  const [catoConnected, setCatoConnected] = useState(false);
-  const [gestName, setGestName] = useState("");
+  // const [catoConnected, setCatoConnected] = useState(false);
   // const [configSuccess, setConfigSuccess] = useState(false);
   const [goToRecord, setGoToRecord] = useState(false);
+  const [gestName, setGestName] = useState("");
+  const [doneMsg, setDoneMsg] = useState(false);
 
-
-  const handleCatoConnected = (connectState) => {
-    setCatoConnected(connectState);
-    console.log(catoConnected);
-  };
-
-  const handleGestName = (name) => {
-    setGestName(name);
-  };
+  // const handleCatoConnected = (connectState) => {
+  //   setCatoConnected(connectState);
+  //   console.log(catoConnected);
+  // };
 
   // const handleConfigSuccess = (writeState) => {
   //   setConfigSuccess(writeState);
@@ -30,8 +28,12 @@ const ConfigureGestures = ({ classNames, user }) => {
 
   const reset = () => {
     clear();
-    setCatoConnected(false);
+    // setCatoConnected(false);
     // setConfigSuccess(false);
+  };
+
+  const handleGestName = (name) => {
+    setGestName(name);
   };
 
   const goToRecordPage = () => {
@@ -39,7 +41,12 @@ const ConfigureGestures = ({ classNames, user }) => {
   };
 
   const handleDoneRecording = () => {
+    setDoneMsg(false);
     setGoToRecord(false);
+  };
+
+  const handleDoneMsg = () => {
+    setDoneMsg(true);
   };
 
   return (
@@ -56,12 +63,20 @@ const ConfigureGestures = ({ classNames, user }) => {
         <div className="flex-1">
           <div className="border-gray-200 xl:border-b-0">
             {goToRecord ? (
-              <RecordGestures
-                gestName={gestName}
-                user={user}
-                classNames={classNames}
-                handleDoneRecording={handleDoneRecording}
-              />
+              doneMsg ? (
+                <DoneCard
+                  gestName={gestName}
+                  handleDoneRecording={handleDoneRecording}
+                />
+              ) : (
+                <RecordGestures
+                  gestName={gestName}
+                  user={user}
+                  classNames={classNames}
+                  handleDoneRecording={handleDoneRecording}
+                  handleDoneMsg={handleDoneMsg}
+                />
+              )
             ) : (
               <div>
                 <SelectGesture

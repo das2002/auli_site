@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { get } from 'idb-keyval';
-import { styles } from "./ConfigureGestures";
-import StoreGestData from "../CloudFirestore/StoreGestData";
+import { styles } from "../components/RecordGests/ConfigureGestures";
+import StoreGestData from "../components/CloudFirestore/StoreGestData";
 
 
 const GestureData = ({classNames, gestName, user}) => {

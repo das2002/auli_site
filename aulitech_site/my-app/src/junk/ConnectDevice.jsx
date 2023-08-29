@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from "react";
 import { get, clear, set } from 'idb-keyval';
 // import ConnectDir from "./ConnectDir";
-import ConnectWrt from "../../junk/ConnectWrt";
-import ConnectLog from "../../junk/ConnectLog";
+import ConnectWrt from "./ConnectWrt";
+import ConnectLog from "./ConnectLog";
 
 const ConnectDevice = ({classNames}) => {
   const [dirConnect, setDirConnect] = useState(null);
