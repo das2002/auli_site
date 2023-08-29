@@ -197,7 +197,7 @@ export default function FlattenJson({ classNames, devices, curr }) {
                   {get(deviceJson, item.item.key).description}
                 </p>
                 {item.item.pathstr.map((pthInfo, index) => (
-                  <div key={index} className="p-5">
+                  <div key={index} className="py-5 px-10">
                     {pthInfo.depthOne ? null : (
                       <>
                         <h2 className="text-xl font-semibold leading-7 text-gray-900">

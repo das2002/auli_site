@@ -125,7 +125,7 @@ const SelectGesture = ({
                   active
                     ? "border-blue-500 ring-2 ring-blue-500"
                     : "border-gray-200",
-                  "relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none"
+                  "relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none hover:border-blue-300 hover:ring-blue-300 hover:ring-1 hover:ring-inset"
                 )
               }
             >

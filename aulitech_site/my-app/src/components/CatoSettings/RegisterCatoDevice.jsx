@@ -128,18 +128,19 @@ const RegisterCatoDevice = ({ user, devices, handleDeviceCount }) => {
   return (
     <div className="flex min-h-full flex-col">
       <header className="shrink-0 bg-transparent">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between">
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight py-1">
             Register new device
           </h2>
         </div>
       </header>
 
-      <div className="border-b border-gray-200 px-4 sm:px-6 lg:px-8 pb-5">
+      <div className="border-b border-gray-200 pb-5">
         <p className="max-w-4xl text-lg text-gray-900">
           To register a new Cato device, connect it to your computer via cable.
         </p>
       </div>
+      <div className="px-4 sm:px-6 lg:px-8">
       <div className="bg-white shadow-lg border border-gray-200 rounded-lg p-5 mt-10">
         <div className="px-4 py-5 sm:p-6 lg:px-8">
           <div className="border-b border-gray-200 pb-10">
@@ -180,6 +181,7 @@ const RegisterCatoDevice = ({ user, devices, handleDeviceCount }) => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
