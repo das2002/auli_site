@@ -2,6 +2,7 @@ import React from "react";
 import { get, set } from "idb-keyval";
 
 export default function WriteAccess({setWriteConnect, setStartGest}) {
+  console.log(typeof setError)
 
   const getWriteAccess = async () => {
     try {
@@ -33,11 +34,11 @@ export default function WriteAccess({setWriteConnect, setStartGest}) {
           console.log("stored file handle:", writeFile.name);
           setWriteConnect(true);
           setStartGest(true);
-          
         }
       }
-    } catch (error) {
-      console.log("write config.cato error:", error);
+    } catch (err) {
+      // setErrMsg(`${err.message}`)
+      console.log("write config.cato error:", err.message);
     }
   };
 

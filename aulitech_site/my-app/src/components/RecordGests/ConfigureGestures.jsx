@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { clear } from "idb-keyval";
+import { clear, entries } from "idb-keyval";
 import SelectGesture from "./SelectGesture";
 import RecordGestures from "./RecordGestures";
 import DoneCard from './record/DoneCard'
@@ -28,6 +28,7 @@ const ConfigureGestures = ({ classNames, user }) => {
 
   const reset = () => {
     clear();
+    entries().then((entries) => console.log(entries));
     // setCatoConnected(false);
     // setConfigSuccess(false);
   };
@@ -57,6 +58,12 @@ const ConfigureGestures = ({ classNames, user }) => {
             Record Gestures
           </h2>
         </div>
+        <button
+          type={"button"}
+          onClick={reset}
+        >
+          Reset Connection
+        </button>
       </header>
 
       <div className="mx-auto w-full max-w-7xl grow lg:flex xl:px-2 h-full mt-10 px-4 sm:px-6 lg:px-8">

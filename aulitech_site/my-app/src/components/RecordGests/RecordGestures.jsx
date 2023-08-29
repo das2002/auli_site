@@ -19,7 +19,8 @@ const RecordGestures = ({
   const [stepCount, setStepCount] = useState(0);
   const [doneMsg, setDoneMsg] = useState(false);
   const [writeConnect, setWriteConnect] = useState(false);
-  const [startGest, setStartGest] = useState(false);
+  const [dataRetrieved, setDataRetrieved] = useState(false);
+  // const [startGest, setStartGest] = useState(false);
   // const [timer, setTimer] = useState("00");
   // const Ref = useRef(null);
   // const [checkConnect, setCheckConnect] = useState(false);
@@ -36,17 +37,13 @@ const RecordGestures = ({
     }
   };
 
-  const handleDirAccess = () => {
-    DirAccess();
-  }
+  // const handleWriteAccess = () => {
+  //   WriteAccess(setWriteConnect, setStartGest);
+  // };
 
-  const handleWriteAccess = () => {
-    WriteAccess(setWriteConnect, setStartGest);
-  };
-
-  const handleGestureData = () => {
-    GestureData(user, gestName, handleStepCount);
-  };
+  // const handleGestureData = () => {
+  //   GestureData(user, gestName, handleStepCount);
+  // };
 
   // const getTimeRemaining = (e) => {
   //   const total = Date.parse(e) - Date.parse(new Date());
@@ -158,13 +155,15 @@ const RecordGestures = ({
         </div>
         <div className="flex-auto my-5">
             <RcrdCard
+              user={user}
               gestName={gestName}
               stepCount={stepCount}
-              handleDirAccess={handleDirAccess}
-              handleWriteAccess={handleWriteAccess}
-              handleGestureData={handleGestureData}
               handleStepCount={handleStepCount}
               writeConnect={writeConnect}
+              setWriteConnect={setWriteConnect}
+              dataRetrieved={dataRetrieved}
+              setDataRetrieved={setDataRetrieved}
+              handleDoneRecording={handleDoneRecording}
             />
         </div>
       </div>

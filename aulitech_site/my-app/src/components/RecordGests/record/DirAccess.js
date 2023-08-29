@@ -5,8 +5,8 @@ export default function DirAccess() {
     try {
       const dirHandleOrUndefined = await get('directory');
 
-      if (dirHandleOrUndefined !== 'undefined') {
-        console.log("retrieved dir handle:", dirHandleOrUndefined.name);
+      if (dirHandleOrUndefined !== undefined) {
+        console.log("retrieved dir handle:", dirHandleOrUndefined);
         return;
       }
 
@@ -17,9 +17,11 @@ export default function DirAccess() {
 
       await set('directory', dirHandle);
       console.log('store dir handle:', dirHandle.name);
+      
     }
-    catch(error) {
-      console.log("get directory error:", error);
+    catch(err) {
+      console.log("get directory error:", err);
+
     }
   }
 

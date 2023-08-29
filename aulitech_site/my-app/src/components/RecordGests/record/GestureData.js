@@ -33,12 +33,14 @@ export default function GestureData({user, gestName, handleStepCount}) {
           const dataContents = await dataFile.text();
           console.log(dataContents);
 
-          // handleStepCount();
-          StoreGestData(gestName, user, dataContents);
+          if (typeof dataContents !== "undefined") {
+            handleStepCount();
+            StoreGestData(gestName, user, dataContents);
+          }
         }
       }
-    } catch (error) {
-      console.log("get log.txt/ gesture data error:", error);
+    } catch (err) {
+      console.log("get log.txt/ gesture data error:", err);
     }
   };
 
