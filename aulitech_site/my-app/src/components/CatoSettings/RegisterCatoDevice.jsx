@@ -12,7 +12,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { db } from "../../firebase";
 
-const RegisterCatoDevice = ({ user, devices, handleDeviceCount }) => {
+const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
   const [deviceName, setDeviceName] = useState("");
   const [errMessage, setErrMessage] = useState(false);
   //   const [hwUid, setHwUid] = useState('');
@@ -77,7 +77,7 @@ const RegisterCatoDevice = ({ user, devices, handleDeviceCount }) => {
             devicename: deviceName,
             configjson: jsonData,
           });
-          handleDeviceCount(1);
+          handleRenderDevices();
         } catch (error) {
           console.log("store another device error: ", error);
         }

@@ -38,7 +38,7 @@ export default function WriteAccess({setWriteConnect, setStartGest}) {
       }
     } catch (err) {
       // setErrMsg(`${err.message}`)
-      console.log("write config.cato error:", err.message);
+      console.log("write gesture.cato error:", err.message);
     }
   };
 

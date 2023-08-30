@@ -13,12 +13,12 @@ export default function Navigation({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const Logo = () => {
+  const Logo = ({height, marginY}) => {
     return (
       <div>
-        <div className="flex my-10 shrink-0 justify-center">
+        <div className={`flex my-${marginY} shrink-0 justify-center`}>
           <img
-            className="h-16 w-auto"
+            className={`h-${height} w-auto`}
             src={require("../../images/icononly_transparent_nobuffer.png")}
             alt="Auli logo"
           />
@@ -52,7 +52,7 @@ export default function Navigation({
         <div className="-mx-6 mt-auto">
           <Link
             to="/profile"
-            className="flex items-center gap-x-4 px-6 py-3 text-xl font-semibold leading-6 text-white hover:bg-gray-800"
+            className="flex items-center gap-x-4 px-6 py-3 text-lg font-semibold leading-6 text-white hover:bg-gray-800"
           >
             <UserIcon />
             <span className="sr-only">Your profile</span>
@@ -197,7 +197,7 @@ export default function Navigation({
 
                   {/* Sidebar component, swap this element with another sidebar if you like */}
                   <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6">
-                    <Logo />
+                    <Logo height={16} marginY={10}/>
                     <nav className="flex flex-1 flex-col">
                       <div role="list" className="flex flex-1 flex-col gap-y-7">
                         <DashRoute />
@@ -222,7 +222,7 @@ export default function Navigation({
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
           {/* Sidebar component, swap this element with another sidebar if you like */}
           <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6">
-            <Logo />
+            <Logo height={16} marginY={10}/>
 
             <nav className="flex flex-1 flex-col">
               <div role="list" className="flex flex-1 flex-col gap-y-7">
@@ -250,8 +250,8 @@ export default function Navigation({
             <span className="sr-only">Open sidebar</span>
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </button>
-          <div className="flex-1 text-sm font-semibold leading-6 text-white">
-            Dashboard
+          <div className="flex-1 text-sm items-center font-semibold leading-6 text-white">
+            <Logo height={8} marginY={0}/>
           </div>
           <Link to="/profile">
             <span className="sr-only">Your profile</span>

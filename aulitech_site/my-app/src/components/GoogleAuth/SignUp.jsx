@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import StoreRegisterData from "../CloudFirestore/StoreRegisterData";
 import { useNavigate } from "react-router-dom";
 
-const SignUp = () => {
+export default function SignUp(handleRenderDevices) {
     const [email, setEmail] = useState('');
     const [pass, setPass] = useState('');
     const [confirmPass, setConfirmPass] = useState('');
@@ -20,9 +20,10 @@ const SignUp = () => {
         if(pass === confirmPass) {
           createUserWithEmailAndPassword(auth, email, pass)
             .then((userCredential) => {
-                //console.log(userCredential);
+                console.log("user credentials: ", userCredential);
                 StoreRegisterData(userCredential);
                 navigate('/')
+                handleRenderDevices();
             }) 
             .catch((error) => {
                 console.log(error);
@@ -35,14 +36,6 @@ const SignUp = () => {
 
     return (
       <>
-        {/*
-          This example requires updating your template:
-  
-          ```
-          <html class="h-full bg-white">
-          <body class="h-full">
-          ```
-        */}
         <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
           <div className="sm:mx-auto sm:w-full sm:max-w-sm">
             <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
@@ -128,60 +121,5 @@ const SignUp = () => {
         </div>
       </>
     )
-//     return(
-//         <>
-//         <form onSubmit={signUp}>
-//           <div className="divide-y divide-gray-400 overflow-hidden rounded-lg bg-white shadow ">
-//             <div className="px-4 py-5 sm:px-6 text-center">
-//               <h1 className="text-3xl font-bold tracking-tight text-gray-900">Create Account</h1>
-//             </div>
-//             <div className="px-4 py-5 sm:p-6">
-//               <div>
-//                 <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-//                   Email
-//                 </label>
-//                 <div className="mt-2">
-//                   <input
-//                     type="email"
-//                     name="email"
-//                     id="email"
-//                     value={email}
-//                     onChange={(e) => {setEmail(e.target.value)}}
-//                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-//                     placeholder=" Email"
-//                   />
-//                 </div>
-//               </div>
-  
-//               <div>
-//                 <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
-//                   Password
-//                 </label>
-//                 <div className="mt-2">
-//                   <input
-//                     type="password"
-//                     name="password"
-//                     id="password"
-//                     value={pass}
-//                     onChange={(e) => {setPass(e.target.value)}}
-//                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-//                     placeholder=" Password"
-//                   />
-//                 </div>
-//               </div>
-//             </div>
-//             <div className="px-4 py-4 sm:px-6 text-center">
-//             <button 
-//                 type="submit"
-//                 className="rounded-full bg-white px-2.5 py-1 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-//               >
-//                 Register
-//               </button>
-//           </div>
-//         </div>
-//       </form>
-//     </>
-// )
 }
 
-export default SignUp;
