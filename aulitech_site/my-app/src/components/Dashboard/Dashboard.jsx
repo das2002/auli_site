@@ -17,9 +17,9 @@ export default function Dashboard({
 
   return (
     <div className="flex min-h-full flex-col">
-      <header className="shrink-0 bg-transparent">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+      <header className="flex justify-between bg-transparent border-b border-gray-200">
+      <div className="flex h-16 max-w-7xl justify-between items-center">
+          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight py-1">
             Dashboard
           </h2>
         </div>

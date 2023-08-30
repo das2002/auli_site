@@ -1,21 +1,44 @@
-import { EnvelopeIcon, PhoneIcon } from '@heroicons/react/20/solid'
-
-const people = [
-  {
-    name: 'Jane Cooper',
-    title: 'Regional Paradigm Technician',
-    role: 'Admin',
-    email: 'janecooper@example.com',
-    telephone: '+1-202-555-0170',
-    imageUrl:
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=4&w=256&h=256&q=60',
-  },
-  // More people...
-]
 
 export default function UserDevices({devices}) {
-  return (
-    <ul role="list" className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+  const noDevices = <>
+    <div>
+    <div className="rounded-md w-full bg-blue-50 p-4">
+        <div className="flex items-center">
+        <div className="flex-shrink-0 text-blue-500">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-6 h-6"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+              />
+            </svg>
+          </div>
+          <div className="ml-3">
+            <h3 className="text-sm font-medium text-blue-500">
+              No Devices Registered
+            </h3>
+            <div className="text-sm text-blue-500">
+              <p>
+
+                Go to + Register Device page to register your Cato Devices.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </>
+
+  const listDevices = <>
+  <ul role="list" className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {devices.map((device) => (
         <li key={device.data.devicename} className="col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
           <div className="flex w-full items-center justify-between space-x-6 p-6">
@@ -29,5 +52,30 @@ export default function UserDevices({devices}) {
         </li>
       ))}
     </ul>
+  </>
+  const HandleDisplay = () => {
+    try {
+      if(devices === 'undefined') {
+
+      } else if(devices.length === 0) {
+        return (noDevices)
+      } else {
+        return (listDevices)
+      }
+    } catch(err) {
+      console.log(err)
+    }
+  }
+  return (
+    <div className="px-4 sm:px-6 lg:px-8 mt-10">
+      <div className="flex-1">
+        <div>
+        <p className="text-lg font-semibold leading-6 text-gray-900">
+          My Devices
+        </p>
+        </div>
+        <HandleDisplay/>
+      </div>
+    </div>
   )
 }
