@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import FlattenJson from "./FlattenJson";
 import StoreSettings from "../CloudFirestore/StoreSettings";
+import WriteNewConfig from "./WriteNewConfig";
 
 const CatoSettings = ({classNames, user, devices, currIndex}) => {
   console.log("devices: ", devices);
@@ -16,6 +17,8 @@ const CatoSettings = ({classNames, user, devices, currIndex}) => {
       currIndex,
       JSON.stringify(devices[currIndex].jsondata)
     );
+
+    WriteNewConfig(devices, currIndex)
   };
 
   const DisplayDevicename = () => {
