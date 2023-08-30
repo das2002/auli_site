@@ -88,7 +88,7 @@ const ProfilePg = ({ user }) => {
                             onChange={(e) => setFirst(e.target.value)}
                             value={first}
                             placeholder={data === null ? null : data.firstname}
-                            className="block w-full rounded-md outline-0 border-0 px-2.5 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
+                            className="block w-full rounded-md outline-0 border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
                           />
                         </div>
                       </div>
@@ -109,7 +109,7 @@ const ProfilePg = ({ user }) => {
                             onChange={(e) => setLast(e.target.value)}
                             value={last}
                             placeholder={data === null ? null : data.lastname}
-                            className="block w-full rounded-md outline-0 border-0 px-2.5 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
+                            className="block w-full rounded-md outline-0 border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
                           />
                         </div>
                       </div>
@@ -128,7 +128,7 @@ const ProfilePg = ({ user }) => {
                             type="email"
                             autoComplete="email"
                             placeholder={data === null ? null : data.email}
-                            className="block w-full outline-0 border-0 rounded-md border-0 px-2.5 py-2.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
+                            className="block w-full outline-0 border-0 rounded-md border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
                           />
                         </div>
                       </div>

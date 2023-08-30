@@ -243,7 +243,7 @@ export default function FlattenJson({ classNames, devices, curr }) {
                                 value={get(deviceJson, pthInfo.valPath)}
                                 onMouseUp={handleInput}
                                 generate-labels="true"
-                                max-label-margin="10px"
+                                generate-labels-text-color="#111827"
                                 min={get(deviceJson, pthInfo.path).range.min}
                                 max={get(deviceJson, pthInfo.path).range.max}
                                 round={get(deviceJson, pthInfo.path).range.max - get(deviceJson, pthInfo.path).range.min > 5 ? "0" : null}
@@ -268,7 +268,7 @@ export default function FlattenJson({ classNames, devices, curr }) {
                                 id={pthInfo.valPath}
                                 onInput={handleInput}
                                 placeholder={get(deviceJson, pthInfo.valPath)}
-                                className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-base sm:leading-6"
+                                className="relative w-full cursor-default border-0 outline-0 placeholder:text-gray-900 rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset sm:text-base sm:leading-6"
                               />
                             </div>
                           </>

@@ -23,10 +23,10 @@ export default function OptionsDropdwn({classNames, current, options, handleOptS
         <>
 
           <div className="relative mx-4">
-            <Listbox.Button className="relative w-full cursor-default rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-base sm:leading-6">
+            <Listbox.Button className="relative border-0 outline-0 w-full cursor-default rounded-md bg-white px-2.5 py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-500 focus:ring-inset sm:text-base sm:leading-6">
               <span className="block truncate">{selected}</span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
-                <ChevronUpDownIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                <ChevronUpDownIcon className="h-5 w-5 text-gray-900" aria-hidden="true" />
               </span>
             </Listbox.Button>
 
@@ -37,7 +37,7 @@ export default function OptionsDropdwn({classNames, current, options, handleOptS
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Listbox.Options className="text-gray-900 absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-sm shadow-lg focus:outline-none sm:text-base">
+              <Listbox.Options className="text-gray-900 absolute z-40 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-sm shadow-lg focus:outline-none sm:text-base">
                 {options.map((opt, index) => (
                   <Listbox.Option
                     key={index}
