@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { db } from "../../firebase";
-import { query, getDoc, updateDoc, doc } from "firebase/firestore";
+import { query, getDoc, doc } from "firebase/firestore";
 
 import SignOutAccount from "../GoogleAuth/SignOutAccount";
+import StoreProfileData from "../CloudFirestore/StoreProfileData";
 
 const ProfilePg = ({ user }) => {
   const [first, setFirst] = useState("");
   const [last, setLast] = useState("");
   const [data, setData] = useState(null);
   const [save, setSave] = useState(false);
+  // const [email, setEmail] = useState("")
 
   useEffect(() => {
     const getUserData = async () => {
@@ -30,19 +32,15 @@ const ProfilePg = ({ user }) => {
     setLast("");
   };
 
-  const handleSaveProfileInfo = async () => {
+  const handleSaveInfo = async () => {
     try {
-      const userRef = doc(db, "users", user.uid);
-
-      await updateDoc(userRef, {
-        firstname: first,
-        lastname: last,
-      });
+      console.log(first, last);
+      StoreProfileData(user, first, last);
       setSave(!save);
       setFirst("");
       setLast("");
     } catch (err) {
-      console.log("save user data err: ", err);
+      console.log("send to store profile data: ", err);
     }
   };
 
@@ -114,7 +112,7 @@ const ProfilePg = ({ user }) => {
                         </div>
                       </div>
 
-                      <div className="sm:col-span-4">
+                      {/* <div className="sm:col-span-4">
                         <label
                           htmlFor="email"
                           className="block text-lg font-medium leading-6 text-gray-900"
@@ -131,7 +129,7 @@ const ProfilePg = ({ user }) => {
                             className="block w-full outline-0 border-0 rounded-md border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
                           />
                         </div>
-                      </div>
+                      </div> */}
                     </div>
                   </div>
                 </div>
@@ -146,7 +144,7 @@ const ProfilePg = ({ user }) => {
                   <button
                     type="submit"
                     disabled={first === "" && last === "" ? true : false}
-                    onClick={handleSaveProfileInfo}
+                    onClick={handleSaveInfo}
                     className="rounded-full bg-gray-900 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-500"
                   >
                     Save

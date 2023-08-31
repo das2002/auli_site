@@ -1,7 +1,6 @@
-export default function Logo({height, marginY, marginX}) {
-  console.log(height, marginY)
+const Logo = ({height, marginY, marginX}) => {
   return (
-    <div>
+    <div className={`my-${marginY} mx-${marginX}`}>
       <div className={`flex my-${marginY} mx-${marginX} shrink-0 justify-center`}>
         <img
           className={`h-${height} w-auto`}
@@ -12,3 +11,5 @@ export default function Logo({height, marginY, marginX}) {
     </div>
   );
 }
+
+export default Logo;

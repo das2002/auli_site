@@ -1,3 +1,6 @@
+// FILE PURPOSE:
+// File was made to begin creating connection with Cato via bluetooth before being told to use the Filesystem API instead
+
 import React, {useState} from 'react';
 const uuid = "51ad213f-e568-4e35-84e4-67af89c79ef0";
 const ConnectBluetooth = () => {

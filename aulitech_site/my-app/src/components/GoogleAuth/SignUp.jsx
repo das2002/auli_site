@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import StoreRegisterData from "../CloudFirestore/StoreRegisterData";
 import { useNavigate } from "react-router-dom";
 
-export default function SignUp(handleRenderDevices) {
+export default function SignUp() {
     const [email, setEmail] = useState('');
     const [pass, setPass] = useState('');
     const [confirmPass, setConfirmPass] = useState('');
@@ -23,7 +23,6 @@ export default function SignUp(handleRenderDevices) {
                 console.log("user credentials: ", userCredential);
                 StoreRegisterData(userCredential);
                 navigate('/')
-                handleRenderDevices();
             }) 
             .catch((error) => {
                 console.log(error);

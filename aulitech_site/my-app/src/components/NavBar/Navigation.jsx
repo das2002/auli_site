@@ -3,29 +3,30 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link, NavLink } from "react-router-dom";
 import AccordianElement from "./Accordian";
+import Logo from "../Elements/Logo"
 
-export default function Navigation({
+const Navigation = ({
   user,
   currIndex,
   classNames,
   devices,
   handleCurr
-}) {
+}) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const Logo = ({height, marginY}) => {
-    return (
-      <div>
-        <div className={`flex my-${marginY} shrink-0 justify-center`}>
-          <img
-            className={`h-${height} w-auto`}
-            src={require("../../images/icononly_transparent_nobuffer.png")}
-            alt="Auli logo"
-          />
-        </div>
-      </div>
-    );
-  };
+  // const Logo = ({height, marginY}) => {
+  //   return (
+  //     <div>
+  //       <div className={`flex my-${marginY} shrink-0 justify-center`}>
+  //         <img
+  //           className={`h-${height} w-auto`}
+  //           src={require("../../images/icononly_transparent_nobuffer.png")}
+  //           alt="Auli logo"
+  //         />
+  //       </div>
+  //     </div>
+  //   );
+  // };
 
   const UserIcon = () => {
     return (
@@ -197,7 +198,7 @@ export default function Navigation({
 
                   {/* Sidebar component, swap this element with another sidebar if you like */}
                   <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6">
-                    <Logo height={16} marginY={10}/>
+                    <Logo height={16} marginY={5} marginX={10}/>
                     <nav className="flex flex-1 flex-col">
                       <div role="list" className="flex flex-1 flex-col gap-y-7">
                         <DashRoute />
@@ -222,8 +223,7 @@ export default function Navigation({
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
           {/* Sidebar component, swap this element with another sidebar if you like */}
           <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6">
-            <Logo height={16} marginY={10}/>
-
+            <Logo height={16} marginY={5} marginX={10}/>
             <nav className="flex flex-1 flex-col">
               <div role="list" className="flex flex-1 flex-col gap-y-7">
                 <DashRoute />
@@ -251,7 +251,7 @@ export default function Navigation({
             <Bars3Icon className="h-6 w-6" aria-hidden="true" />
           </button>
           <div className="flex-1 text-sm items-center font-semibold leading-6 text-white">
-            <Logo height={8} marginY={0}/>
+            <Logo height={8} marginY={0} marginX={0}/>
           </div>
           <Link to="/profile">
             <span className="sr-only">Your profile</span>
@@ -262,3 +262,5 @@ export default function Navigation({
     </>
   );
 }
+
+export default Navigation;

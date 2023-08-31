@@ -4,7 +4,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
-export default function SignIn(handleRenderDevices) {
+export default function SignIn() {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
 
@@ -16,7 +16,6 @@ export default function SignIn(handleRenderDevices) {
       .then((userCredential) => {
         console.log("user credentials: ", userCredential);
         navigate("/");
-        handleRenderDevices();
       })
       .catch((error) => {
         console.log("sign in err: ", error);

@@ -44,8 +44,8 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
           const jsonDataFile = await jsonFile.getFile();
           const jsonData = await jsonDataFile.text();
 
-          deleteInitializeDoc();
           addDeviceDoc(jsonData);
+          deleteInitializeDoc();
         }
       } else {
         const dirHandle = await window.showDirectoryPicker({
@@ -67,15 +67,31 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
   //   setHwUid(parsedJson.name);
   // }
 
+  // const changeConfigDevName = (jsonData) => {
+  //   let parsedJson = JSON.parse(jsonData);
+
+  //   parsedJson.name.value = deviceName;
+  //   console.log(parsedJson.name.value)
+
+  //   const newData = JSON.stringify(parsedJson)
+  // }
+
   const addDeviceDoc = (jsonData) => {
     try {
       const storeDevice = async () => {
         try {
+          let parsedJson = JSON.parse(jsonData);
+
+          parsedJson.name.value = deviceName;
+          console.log(parsedJson.name.value)
+      
+          const newData = JSON.stringify(parsedJson)
+
           const colRef = collection(db, "users");
           await addDoc(collection(colRef, user.uid, "userCatos"), {
             // hardwareuid: hwUid,
             devicename: deviceName,
-            configjson: jsonData,
+            configjson: newData,
           });
           handleRenderDevices();
         } catch (error) {

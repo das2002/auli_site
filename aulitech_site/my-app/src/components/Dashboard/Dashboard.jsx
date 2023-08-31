@@ -6,6 +6,7 @@ import { db } from "../../firebase";
 
 import { Link } from "react-router-dom";
 import UserDevices from "./UserDevices";
+import SignOutAccount from "../GoogleAuth/SignOutAccount";
 
 export const styles = { ACTIVE_RING: "ring-1 ring-blue-500" };
 
@@ -23,6 +24,7 @@ export default function Dashboard({
             Dashboard
           </h2>
         </div>
+        <SignOutAccount/>
       </header>
       <UserDevices devices={devices} />
 

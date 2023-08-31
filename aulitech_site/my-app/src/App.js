@@ -12,12 +12,10 @@ import SignUp from './components/GoogleAuth/SignUp';
 import ConfigureGestures from './components/RecordGests/ConfigureGestures';
 import Dashboard from './components/Dashboard/Dashboard';
 import CatoSettings from './components/CatoSettings/CatoSettings';
-import RegisterCatoDevice from './components/CatoSettings/RegisterCatoDevice';
+import RegisterCatoDevice from './components/RegisterDevice/RegisterCatoDevice';
 import { db } from "./firebase";
 import { collection, query, getDocs, where } from "firebase/firestore";
 import RecordGestures from './components/RecordGests/RecordGestures';
-import Logo from './components/Elements/Logo';
-
 
 
 function App() {
@@ -83,8 +81,8 @@ function App() {
   //   setDevices(catoArr);
   // }
 
-  const handleRenderDevices = () => {
-    setRenderDevices(!renderDevices);
+  const handleRenderDevices = (num) => {
+    setRenderDevices(renderDevices + num);
   }
 
   const handleCurr = (index, state) => {
@@ -97,9 +95,6 @@ function App() {
       }
     })
   }
-
-  console.log(devices, currIndex);
-
 
   const OnRenderDisplays = () => {
     if (user === 'spinner') {
@@ -130,13 +125,14 @@ function App() {
         </div>
       )
     } else if (user === null){
+
       return (
         <>
           <Routes>
             <Route path="/sign-in" element={<SignIn/>}/>
             <Route path="/sign-up" element={<SignUp/>}/>
           </Routes>
-          {/* <SignIn/> */}
+
         </>
       )
     } else {
@@ -163,7 +159,7 @@ function App() {
             <Route path="/record-gestures" element={<ConfigureGestures classNames={classNames} user={user}/>}/>
             <Route path="/record" element={ <RecordGestures/> } />
             <Route path="/sign-out" element={<SignOutAccount/>}/>
-            {/* <Route path="/sign-in" element={<SignIn/>}/> */}
+            <Route path="/sign-in" element={<SignIn/>}/>
             <Route path="/sign-up" element={<SignUp/>}/>
           </Routes>
         </div>
