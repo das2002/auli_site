@@ -2,7 +2,7 @@ import React from "react";
 import { get, set } from "idb-keyval";
 import StoreGestData from "../../CloudFirestore/StoreGestData";
 
-export default function GestureData({user, gestName, handleStepCount}) {
+const GestureData = (user, gestName, handleStepCount, handleGotData, handleSetErr) => {
   const getGestureData = async () => {
     try {
       const directory = await get("directory");
@@ -35,14 +35,19 @@ export default function GestureData({user, gestName, handleStepCount}) {
 
           if (typeof dataContents !== "undefined") {
             handleStepCount();
+            handleGotData(true);
             StoreGestData(gestName, user, dataContents);
           }
         }
       }
     } catch (err) {
+      handleSetErr(err);
+      handleGotData(false);
       console.log("get log.txt/ gesture data error:", err);
     }
   };
 
   return getGestureData();
 }
+
+export default GestureData;

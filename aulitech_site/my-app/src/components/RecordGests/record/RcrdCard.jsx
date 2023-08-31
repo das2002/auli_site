@@ -17,6 +17,7 @@ export default function RcrdCard({
   const [start, setStart] = useState(null);
   const [error, setError] = useState(false);
   const [errMsg, setErrMsg] = useState("");
+  const [gotData, setGotData] = useState(false);
   const [startGest, setStartGest] = useState(false);
   const [timer, setTimer] = useState("00");
   const Ref = useRef(null);
@@ -106,9 +107,9 @@ export default function RcrdCard({
 
   const ErrorAlert = () => {
     return (
-      <div className="rounded-md w-full bg-blue-50 p-4">
+      <div className="rounded-md w-full bg-amber-50 p-4">
         <div className="flex items-center">
-          <div className="flex-shrink-0 text-blue-500">
+          <div className="flex-shrink-0 text-yellow-500">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -126,8 +127,8 @@ export default function RcrdCard({
             </svg>
           </div>
           <div className="ml-3">
-            <h3 className="text-sm font-medium text-blue-500">Attention</h3>
-            <div className="text-sm text-blue-500">
+            <h3 className="text-sm font-medium text-yellow-500">Attention</h3>
+            <div className="text-sm text-yellow-500">
               <p>
                 {errMsg}
                 <br/>
@@ -141,7 +142,7 @@ export default function RcrdCard({
     );
   }
 
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------------------------------------
 
   const handleDirAccess = () => {
     DirAccess();
@@ -149,20 +150,19 @@ export default function RcrdCard({
   };
 
   const handleWriteAccess = () => {
-    WriteAccess(setWriteConnect, setStartGest);
+    WriteAccess(handleWriteConnect);
   };
 
   const handleGestureData = () => {
-    GestureData(user, gestName, handleStepCount);
+    GestureData(user, gestName, handleStepCount, handleGotData, handleSetErr);
   };
 
-  // --------------------------------------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------------------------------------------------------------------------
 
   const handleStart = () => {
     try {
       handleWriteAccess();
       setStart(false);
-      console.log(writeConnect, startGest)
     } catch (err) {
       console.log("handle start btn err: ", err);
     }
@@ -171,7 +171,6 @@ export default function RcrdCard({
   const handleNext = () => {
     try {
       handleGestureData();
-      // handleStepCount();
       setStart(true);
     } catch (err) {
       console.log("handle next btn err: ", err);
@@ -179,20 +178,31 @@ export default function RcrdCard({
   };
 
   const handleSetErr = (err) => {
+    console.log(err);
     setError(true);
-    setErrMsg(err);
+    setErrMsg(`${err.message}`);
   }
+
+  const handleGotData = (dataStatus) => {
+    setGotData(dataStatus);
+  }
+
+  const handleWriteConnect = (connectStatus) => {
+    setWriteConnect(connectStatus);
+  }
+
+// --------------------------------------------------------------------------------------------------------------------------------------------------
 
   const HandleInfoAlert = () => {
     let alert;
     if (start === null) {
       alert = <ConnectDirAlert />;
+    } else if (error) {
+      alert = <ErrorAlert />;
     } else if (start) {
       alert = <StartInfoAlert />;
     } else if (writeConnect) {
       alert = <NextInfoAlert />;
-    } else if (error) {
-      alert = <ErrorAlert />;
     }
     return <div className="mt-5 flex items-center justify-end">{alert}</div>;
   };
@@ -203,15 +213,15 @@ export default function RcrdCard({
     if (start === null) {
       click = handleDirAccess;
       btnTxt = "Connect Cato";
+    } else if (error) {
+      click = handleDoneRecording;
+      btnTxt = "Record Gestures Homepage"
     } else if (start) {
       click = handleStart;
       btnTxt = "Start Recording";
     } else if (writeConnect) {
       click = handleNext;
       btnTxt = "Next";
-    } else if (error) {
-      click = handleDoneRecording;
-      btnTxt = "Record Gestures Homepage"
     }
     return (
       <div className="flex justify-center mt-10">
@@ -279,7 +289,7 @@ export default function RcrdCard({
               Recording {stepCount + 1}:
             </h3>
           </div>
-          <HandleInfoAlert />
+          {stepCount === 0 ? <HandleInfoAlert /> : null}
         </div>
         <HandleButton />
         {/* <div className="flex justify-center mt-10">

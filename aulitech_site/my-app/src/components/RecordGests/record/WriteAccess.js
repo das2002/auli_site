@@ -1,8 +1,7 @@
 import React from "react";
 import { get, set } from "idb-keyval";
 
-const WriteAccess = (setWriteConnect, setStartGest) => {
-  console.log(typeof setError)
+const WriteAccess = (handleWriteConnect) => {
 
   const getWriteAccess = async () => {
     try {
@@ -17,7 +16,6 @@ const WriteAccess = (setWriteConnect, setStartGest) => {
 
           if (writeHandleOrUndefined) {
             console.log("retrieved file handle:", writeHandleOrUndefined.name);
-            setWriteConnect(true);
           }
 
           const writeFile = await directory.getFileHandle("gesture.cato", {
@@ -32,13 +30,13 @@ const WriteAccess = (setWriteConnect, setStartGest) => {
 
           await set("gesture.cato", writeFile);
           console.log("stored file handle:", writeFile.name);
-          setWriteConnect(true);
-          setStartGest(true);
+          handleWriteConnect(true);
         }
       }
     } catch (err) {
       // setErrMsg(`${err.message}`)
       console.log("write gesture.cato error:", err.message);
+      handleWriteConnect(false);
     }
   };
 
