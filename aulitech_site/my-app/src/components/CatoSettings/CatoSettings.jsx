@@ -18,7 +18,7 @@ const CatoSettings = ({classNames, user, devices, currIndex}) => {
       JSON.stringify(devices[currIndex].jsondata)
     );
 
-    WriteNewConfig(devices, currIndex)
+    WriteNewConfig(devices, currIndex);
   };
 
   const DisplayDevicename = () => {

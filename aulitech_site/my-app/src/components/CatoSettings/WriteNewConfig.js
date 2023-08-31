@@ -1,7 +1,8 @@
 import { get, set } from "idb-keyval";
 
 
-export default function WriteNewConfig({devices, currIndex}) {
+const WriteNewConfig = (devices, currIndex) => {
+  console.log(devices);
   const writeConfig  = async() => {
     try {
       const directory = await get("directory");
@@ -21,10 +22,8 @@ export default function WriteNewConfig({devices, currIndex}) {
             create: true,
           });
 
-          console.log(writeFile);
-
           const writable = await writeFile.createWritable();
-          await writable.write(devices[currIndex].jsondata);
+          await writable.write(JSON.stringify(devices[currIndex].jsondata));
           await writable.close();
 
           await set("wrtConfigJsn", writeFile);
@@ -33,9 +32,11 @@ export default function WriteNewConfig({devices, currIndex}) {
       }
     } catch (err) {
       // setErrMsg(`${err.message}`)
-      console.log("write config.cato error:", err.message);
+      console.log("write config.json error:", err.message);
     }
   }
 
   return writeConfig();
 }
+
+export default WriteNewConfig;

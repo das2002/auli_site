@@ -1,7 +1,7 @@
 import React from "react";
 import { get, set } from "idb-keyval";
 
-export default function WriteAccess({setWriteConnect, setStartGest}) {
+const WriteAccess = (setWriteConnect, setStartGest) => {
   console.log(typeof setError)
 
   const getWriteAccess = async () => {
@@ -44,3 +44,5 @@ export default function WriteAccess({setWriteConnect, setStartGest}) {
 
   return getWriteAccess();
 }
+
+export default WriteAccess;
