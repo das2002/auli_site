@@ -12,11 +12,15 @@ const ProfilePg = ({ user }) => {
   const [save, setSave] = useState(false);
   // const [email, setEmail] = useState("")
 
+  /* Display the users current data from their usr document in the DB*/
   useEffect(() => {
     const getUserData = async () => {
       try {
+        /* Get user doc from the DB */
         const userQuery = query(doc(db, "users", user.uid));
         const userDocSnap = await getDoc(userQuery);
+
+        /* Set user data to local variable */
         setData(userDocSnap.data());
       } catch (error) {
         console.log("query user collection error:", error);
@@ -25,17 +29,25 @@ const ProfilePg = ({ user }) => {
     return () => {
       getUserData();
     };
+
+    /* [save] makes this useEffect trigger when value changed so when the user saves the changes the new info is displayed right afterwards */
   }, [save]);
 
+// --------------------------------------------------------------------------------------------------------------------------------------------------
+
+  /* Cancel button resets local variables holding user input */
   const handleCancel = () => {
     setFirst("");
     setLast("");
   };
 
+  /* Save button that send the changes made to the DB and retriggers the useEffect */
   const handleSaveInfo = async () => {
     try {
-      console.log(first, last);
+      /* Update user document in DB */
       StoreProfileData(user, first, last);
+
+      /* Retrigger useEffect and reset local variables */
       setSave(!save);
       setFirst("");
       setLast("");
@@ -43,6 +55,8 @@ const ProfilePg = ({ user }) => {
       console.log("send to store profile data: ", err);
     }
   };
+
+// --------------------------------------------------------------------------------------------------------------------------------------------------
 
   return (
     <>

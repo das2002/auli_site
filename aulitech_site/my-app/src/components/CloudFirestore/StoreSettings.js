@@ -4,9 +4,12 @@ import {
   doc,
 } from "firebase/firestore";
 
+
+/* Update configjson changes from 'Device Setting' in cloud firestore */
 const StoreSettings = (devices, user, currIndex, newJson) => {
   const sendNewJson = async() => {
     try {
+      
       const userRef = doc(db, "users", user.uid, "userCatos", devices[currIndex].id);
 
       await updateDoc(userRef, {

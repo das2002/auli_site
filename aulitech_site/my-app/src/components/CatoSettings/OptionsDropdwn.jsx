@@ -9,7 +9,6 @@ export default function OptionsDropdwn({classNames, current, options, handleOptS
 
   const shareSelectOpt = (e) => {
     try {
-      console.log(e)
       setSelected(e)
       handleOptSelect(e, path)
     } catch(error) {

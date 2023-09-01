@@ -5,6 +5,7 @@ const StoreGestData = (gesture, user, logFile) => {
 
   const sendDocRef = async() => {
     try {
+      /* Add document to the GestureData DB with log.txt data, user, and time info */
       await addDoc(collection(db, 'gesture-data'), {
         samples: logFile,
         timestamp: serverTimestamp(),

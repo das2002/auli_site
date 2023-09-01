@@ -14,20 +14,6 @@ const Navigation = ({
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // const Logo = ({height, marginY}) => {
-  //   return (
-  //     <div>
-  //       <div className={`flex my-${marginY} shrink-0 justify-center`}>
-  //         <img
-  //           className={`h-${height} w-auto`}
-  //           src={require("../../images/icononly_transparent_nobuffer.png")}
-  //           alt="Auli logo"
-  //         />
-  //       </div>
-  //     </div>
-  //   );
-  // };
-
   const UserIcon = () => {
     return (
       <svg
