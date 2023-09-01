@@ -24,7 +24,6 @@ export default function Dashboard({
             Dashboard
           </h2>
         </div>
-        <SignOutAccount/>
       </header>
       <UserDevices devices={devices} />
 

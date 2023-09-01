@@ -40,7 +40,7 @@ export default function UserDevices({ devices }) {
   const listDevices = (
     <>
       <div>
-        <p className="text-lg font-semibold leading-6 text-gray-900">
+        <p className="text-lg font-semibold leading-6 text-gray-900 pb-4">
           My Devices
         </p>
       </div>
