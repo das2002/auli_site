@@ -52,9 +52,9 @@ function App() {
             configData.push({
               id: doc.id,
               data: doc.data(),
-              jsondata: JSON.parse(doc.data().configjson),
-              keysinfo: Object.keys(JSON.parse(doc.data().configjson)),
-              valuesinfo: Object.values(JSON.parse(doc.data().configjson)),
+              // jsondata: JSON.parse(doc.data().configjson),
+              // keysinfo: Object.keys(JSON.parse(doc.data().configjson)),
+              // valuesinfo: Object.values(JSON.parse(doc.data().configjson)),
               current: false,
             });
           });
