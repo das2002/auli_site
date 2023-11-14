@@ -91,7 +91,7 @@ const CatoSettings = ({classNames, user, devices, currIndex}) => {
   return (
     <div>
       <DisplayHeader />
-      {/* <FlattenJson classNames={classNames} devices={devices} curr={currIndex} /> */}
+      <FlattenJson classNames={classNames} devices={devices} curr={currIndex} />
     </div>
   );
 };
