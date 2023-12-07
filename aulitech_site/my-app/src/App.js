@@ -24,6 +24,10 @@ function App() {
   const [devices, setDevices] = useState([]);
   const [currIndex, setCurrIndex] = useState(-1);
   const [renderDevices, setRenderDevices] = useState(false);
+  const [isLoginPopupOpen, setIsLoginPopupOpen] = useState(false);
+  const toggleLoginPopup = () => {
+    setIsLoginPopupOpen(!isLoginPopupOpen);
+  };  
 
   const responseGoogle = (response) => {
     console.log(response);
@@ -195,9 +199,11 @@ function App() {
           </div>
         </div>
         <div className="flex flex-row items-center justify-end gap-3 h-full">
-          <button className="flex items-center justify-center text-white bg-accent hover:opacity-70 px-3 rounded-full h-6 login-button">
-            <span className="text-sm font-medium">Login</span>
-          </button>
+        <button className="flex items-center justify-center text-white bg-accent hover:opacity-70 px-3 rounded-full h-6 login-button"
+          onClick={toggleLoginPopup}
+        >
+          <span className="text-sm font-medium">Login</span>
+        </button>
         </div>
       </div>
     </div>
@@ -206,6 +212,33 @@ function App() {
       <BrowserRouter>
         <OnRenderDisplays/>
       </BrowserRouter>
+
+      {/* Styled Popup */}
+      {isLoginPopupOpen && (
+        <div className="flex flex-col overflow-hidden rounded-2xl bg-light-background-primary dark:bg-dark-background-primary shadow-xl transition-all max-w-lg w-full border border-light-divider dark:border-dark-divider opacity-100 translate-y-0 sm:scale-100">
+          <div className="flex items-center justify-between w-full px-3 py-5 border-b border-light-divider dark:border-dark-divider">
+            <h3 className="text-base font-medium text-light-text-primary dark:text-dark-text-primary pl-3">Login</h3>
+            <button 
+              type="button" 
+              className="text-light-text-primary dark:text-dark-text-primary hover:bg-light-background-tertiary dark:hover:bg-dark-background-tertiary rounded-full p-1"
+              onClick={toggleLoginPopup}
+            >
+              {/* Add Close button SVG here */}
+            </button>
+          </div>
+          <div className="flex flex-col items-center justify-center p-6">
+            <p>Welcome to Cato!</p>
+            <GoogleLogin
+              clientId="999005191810-rj8ru8qlch26mnk1qassmdd6ekektbb9.apps.googleusercontent.com"
+              buttonText="Continue with Google"
+              onSuccess={responseGoogle}
+              onFailure={responseGoogle}
+              cookiePolicy={'single_host_origin'}
+            />
+            <p>By continuing, you agree to Cato's Terms of Service and acknowledge that you've read our Privacy Policy.</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
