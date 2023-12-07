@@ -1,4 +1,15 @@
+import { signOut } from 'firebase/auth';
+import { auth } from '../../firebase';
+
 export default function UserDevices({ devices }) {
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Logout failed: ", error);
+    }
+  };
+  
   const noDevices = (
     <>
       <div>
@@ -86,7 +97,14 @@ export default function UserDevices({ devices }) {
     <div className="px-4 sm:px-6 lg:px-8 mt-10">
       <div className="flex-1">
         <HandleDisplay />
+        {/* logout */}
+        <button
+          onClick={handleLogout}
+          className="mt-4 py-2 px-4 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+        >
+          Logout
+        </button>
       </div>
     </div>
-  );
+  );  
 }

@@ -4,6 +4,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import GoogleLogin from 'react-google-login';
+import { FcGoogle } from "react-icons/fc";
 
 import ProfilePg from './components/ProfilePage/ProfilePg';
 import Navigation from './components/NavBar/Navigation';
@@ -18,6 +19,8 @@ import { db } from "./firebase";
 import { collection, query, getDocs, where } from "firebase/firestore";
 import RecordGestures from './components/RecordGests/RecordGestures';
 
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+
 
 function App() {
   const [user, setUser] = useState('spinner');
@@ -28,6 +31,22 @@ function App() {
   const toggleLoginPopup = () => {
     setIsLoginPopupOpen(!isLoginPopupOpen);
   };  
+
+  const handleGoogleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const token = credential.accessToken;
+      const user = result.user;
+      console.log(user);
+  
+      setIsLoginPopupOpen(false);
+    } catch (error) {
+      console.log("Error during Google sign-in:", error.message);
+    }
+  };
+  
 
   const responseGoogle = (response) => {
     console.log(response);
@@ -133,19 +152,21 @@ function App() {
           {/* </div> */}
         </div>
       )
-    } else if (user === null){
+    } else if (user === null) {
       return (
         <div className="login-container">
-          <h1>Cato</h1>
-          <GoogleLogin
-            clientId="999005191810-rj8ru8qlch26mnk1qassmdd6ekektbb9.apps.googleusercontent.com"
-            buttonText="Login with Google"
-            onSuccess={responseGoogle}
-            onFailure={responseGoogle}
-            cookiePolicy={'single_host_origin'}
-          />
+          <h1>CATO</h1>
+          {/* <button
+            onClick={handleGoogleLogin}
+            className="google-login-button"
+          >
+            <FcGoogle className="text-xl" />
+            <span className="text-sm font-medium">
+              Continue with Google
+            </span>
+          </button> */}
         </div>
-      )
+      );
     } else {
       if(typeof devices === 'undefined' || devices === []) {
         return (
@@ -183,59 +204,82 @@ function App() {
 
   return (
     <div className="h-screen">
-      {/* login header */}
+      {user === null && (
       <div className="flex w-full items-center justify-center z-50 transition px-6 bg-gradient-to-b from-[rgb(0,0,0,0.7)] to-transparent fixed top-0 h-landingNavigationBar">
-      <div className="flex w-full items-center justify-center z-50 transition px-6 bg-gradient-to-b from-[rgb(0,0,0,0.7)] to-transparent fixed top-0 h-landingNavigationBar">
-      <div className="text-white py-2 w-full grid grid-cols-3 max-w-5xl h-landingNavigationBar max-md:flex max-md:flex-row max-md:justify-between">
-        <div className="flex flex-row items-center gap-2 cursor-pointer active:opacity-75 transition-all text-light-text-primary dark:text-dark-text-primary">
-          {/* svg logo */}
-          <span className="text-white">CATO</span>
-        </div>
-        <div className="flex flex-row w-full justify-center max-md:hidden">
-          <div className="flex flex-row">
+        <div className="flex w-full items-center justify-center z-50 transition px-6 bg-gradient-to-b from-[rgb(0,0,0,0.7)] to-transparent fixed top-0 h-landingNavigationBar">
+        <div className="text-white py-2 w-full grid grid-cols-3 max-w-5xl h-landingNavigationBar max-md:flex max-md:flex-row max-md:justify-between">
+          <div className="flex flex-row items-center gap-2 cursor-pointer active:opacity-75 transition-all text-light-text-primary dark:text-dark-text-primary">
+            <span className="text-white">CATO</span>
+          </div>
+          <div className="flex flex-row w-full justify-center max-md:hidden">
             <div className="flex flex-row">
-              {/* put other buttons here */}
+              <div className="flex flex-row">
+              </div>
             </div>
           </div>
-        </div>
-        <div className="flex flex-row items-center justify-end gap-3 h-full">
-        <button className="flex items-center justify-center text-white bg-accent hover:opacity-70 px-3 rounded-full h-6 login-button"
-          onClick={toggleLoginPopup}
-        >
-          <span className="text-sm font-medium">Login</span>
-        </button>
+          <div className="flex flex-row items-center justify-end gap-3 h-full">
+          <button className="flex items-center justify-center text-white bg-accent hover:opacity-70 px-3 rounded-full h-6 login-button"
+            onClick={toggleLoginPopup}
+          >
+            <span className="text-sm font-medium">Login</span>
+          </button>
+          </div>
         </div>
       </div>
     </div>
-      </div>
+    )}
 
       <BrowserRouter>
         <OnRenderDisplays/>
       </BrowserRouter>
 
-      {/* Styled Popup */}
       {isLoginPopupOpen && (
-        <div className="flex flex-col overflow-hidden rounded-2xl bg-light-background-primary dark:bg-dark-background-primary shadow-xl transition-all max-w-lg w-full border border-light-divider dark:border-dark-divider opacity-100 translate-y-0 sm:scale-100">
-          <div className="flex items-center justify-between w-full px-3 py-5 border-b border-light-divider dark:border-dark-divider">
-            <h3 className="text-base font-medium text-light-text-primary dark:text-dark-text-primary pl-3">Login</h3>
+        <div className="simple-popup">
+          <div class="flex items-center justify-between w-full px-3 py-5 border-b border-light-divider dark:border-dark-divider">
+            <h3 class="text-base font-medium text-light-text-primary dark:text-dark-text-primary pl-3">Login</h3>
             <button 
               type="button" 
-              className="text-light-text-primary dark:text-dark-text-primary hover:bg-light-background-tertiary dark:hover:bg-dark-background-tertiary rounded-full p-1"
+              className="popup-close-button"
               onClick={toggleLoginPopup}
             >
-              {/* Add Close button SVG here */}
+              <svg 
+                stroke="currentColor" 
+                fill="none" 
+                strokeWidth="2" 
+                viewBox="0 0 24 24" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className="w-6 h-6 rotate-45" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
             </button>
           </div>
-          <div className="flex flex-col items-center justify-center p-6">
-            <p>Welcome to Cato!</p>
-            <GoogleLogin
+          <div className="flex flex-col items-center justify-center p-6 gap-6">
+            <h2 className="popup-title">Welcome to Cato!</h2> 
+
+            <button
+                  onClick={handleGoogleLogin}
+                  className="google-login-button"
+                >
+                  <FcGoogle className="text-xl" />
+                  <span className="text-sm font-medium">
+                    Continue with Google
+                  </span>
+            </button>
+
+            {/* <GoogleLogin
               clientId="999005191810-rj8ru8qlch26mnk1qassmdd6ekektbb9.apps.googleusercontent.com"
-              buttonText="Continue with Google"
+              buttonText="Login with Google"
               onSuccess={responseGoogle}
               onFailure={responseGoogle}
               cookiePolicy={'single_host_origin'}
-            />
-            <p>By continuing, you agree to Cato's Terms of Service and acknowledge that you've read our Privacy Policy.</p>
+            /> */}
+            <p className="text-center text-sm">
+              By continuing, you agree to Cato's Terms of Service and acknowledge that you've read our Privacy Policy.
+            </p>
           </div>
         </div>
       )}
