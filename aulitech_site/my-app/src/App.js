@@ -269,14 +269,6 @@ function App() {
                     Continue with Google
                   </span>
             </button>
-
-            {/* <GoogleLogin
-              clientId="999005191810-rj8ru8qlch26mnk1qassmdd6ekektbb9.apps.googleusercontent.com"
-              buttonText="Login with Google"
-              onSuccess={responseGoogle}
-              onFailure={responseGoogle}
-              cookiePolicy={'single_host_origin'}
-            /> */}
             <p className="text-center text-sm">
               By continuing, you agree to Cato's Terms of Service and acknowledge that you've read our Privacy Policy.
             </p>
