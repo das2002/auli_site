@@ -1,8 +1,9 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase";
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import GoogleLogin from 'react-google-login';
 
 import ProfilePg from './components/ProfilePage/ProfilePg';
 import Navigation from './components/NavBar/Navigation';
@@ -23,6 +24,10 @@ function App() {
   const [devices, setDevices] = useState([]);
   const [currIndex, setCurrIndex] = useState(-1);
   const [renderDevices, setRenderDevices] = useState(false);
+
+  const responseGoogle = (response) => {
+    console.log(response);
+  }
 
   useEffect(() => {
     let configData = [];
@@ -125,16 +130,17 @@ function App() {
         </div>
       )
     } else if (user === null){
-
       return (
-        <>
-          <Routes>
-            <Route path='/' element={<SignIn></SignIn>}/>
-            <Route path="/sign-in" element={<SignIn/>}/>
-            <Route path="/sign-up" element={<SignUp/>}/>
-          </Routes>
-
-        </>
+        <div className="login-container">
+          <h1>Cato</h1>
+          <GoogleLogin
+            clientId="999005191810-rj8ru8qlch26mnk1qassmdd6ekektbb9.apps.googleusercontent.com"
+            buttonText="Login with Google"
+            onSuccess={responseGoogle}
+            onFailure={responseGoogle}
+            cookiePolicy={'single_host_origin'}
+          />
+        </div>
       )
     } else {
       if(typeof devices === 'undefined' || devices === []) {
@@ -173,11 +179,35 @@ function App() {
 
   return (
     <div className="h-screen">
+      {/* login header */}
+      <div className="flex w-full items-center justify-center z-50 transition px-6 bg-gradient-to-b from-[rgb(0,0,0,0.7)] to-transparent fixed top-0 h-landingNavigationBar">
+      <div className="flex w-full items-center justify-center z-50 transition px-6 bg-gradient-to-b from-[rgb(0,0,0,0.7)] to-transparent fixed top-0 h-landingNavigationBar">
+      <div className="text-white py-2 w-full grid grid-cols-3 max-w-5xl h-landingNavigationBar max-md:flex max-md:flex-row max-md:justify-between">
+        <div className="flex flex-row items-center gap-2 cursor-pointer active:opacity-75 transition-all text-light-text-primary dark:text-dark-text-primary">
+          {/* svg logo */}
+          <span className="text-white">CATO</span>
+        </div>
+        <div className="flex flex-row w-full justify-center max-md:hidden">
+          <div className="flex flex-row">
+            <div className="flex flex-row">
+              {/* put other buttons here */}
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-row items-center justify-end gap-3 h-full">
+          <button className="flex items-center justify-center text-white bg-accent hover:opacity-70 px-3 rounded-full h-6 login-button">
+            <span className="text-sm font-medium">Login</span>
+          </button>
+        </div>
+      </div>
+    </div>
+      </div>
+
       <BrowserRouter>
         <OnRenderDisplays/>
       </BrowserRouter>
     </div>
-  )
+  );
 }
 
 export default App;
