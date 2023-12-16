@@ -17,6 +17,23 @@ const Devices = () => {
       marginBottom: '40px',
       textAlign: 'left'
     };
+    const containerStyle = {
+        position: 'relative',
+        paddingBottom: '70px' // Add padding to accommodate the Save button
+    };
+
+    const saveButtonStyle = {
+        position: 'absolute',
+        right: '20px',
+        bottom: '20px',
+        padding: '10px 20px',
+        backgroundColor: 'darkblue',
+        color: 'white',
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        fontSize: '16px'
+      };
   
     // Modified button style function
     const getButtonStyle = (setting) => ({
@@ -42,6 +59,7 @@ const Devices = () => {
     };
 
   return (
+    <div style={containerStyle}>
     <div>
       {/* Header */}
       <header className="flex justify-between bg-transparent border-b border-gray-200">
@@ -65,10 +83,10 @@ const Devices = () => {
           border: '2px solid darkblue'
         }}
       >
-        <option value="">Select a device</option>
-        <option value="device1">Device 1</option>
-        <option value="device2">Device 2</option>
-        <option value="device3">Device 3</option>
+        <option value="">Select an interface</option>
+        <option value="device1">Interface 1</option>
+        <option value="device2">Interface 2</option>
+        <option value="device3">Interface 3</option>
       </select>
 
       {selectedDevice && (
@@ -86,6 +104,10 @@ const Devices = () => {
         </div>
       )}
     </div>
+    </div>
+    {selectedSetting && (
+        <button style={saveButtonStyle}>Save</button>
+    )}
     </div>
 
   );
