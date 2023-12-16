@@ -18,6 +18,10 @@ import RegisterCatoDevice from './components/RegisterDevice/RegisterCatoDevice';
 import { db } from "./firebase";
 import { collection, query, getDocs, where } from "firebase/firestore";
 import RecordGestures from './components/RecordGests/RecordGestures';
+import UserSettings from './components/NavBar/UserSettings';
+// import RecordGestures from './components/RecordGestures';
+import Updates from './components/NavBar/Updates';
+import Devices from './components/NavBar/Devices';
 
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
@@ -68,7 +72,6 @@ function App() {
           where("initialize", "==", "initializeUserCatosSubcollection")
         );
         const newSnap = await getDocs(queryNew);
-
 
         if (newSnap.docs.length !== 0) {
           console.log(newSnap.docs.length);
@@ -193,6 +196,9 @@ function App() {
             <Route path="/sign-out" element={<SignOutAccount/>}/>
             <Route path="/sign-in" element={<SignIn/>}/>
             <Route path="/sign-up" element={<SignUp/>}/>
+            <Route path="/record-gestures" element={<RecordGestures />} />
+            <Route path="/updates" element={<Updates />} />
+            <Route path="/devices" element={<Devices />} />
           </Routes>
         </div>
       </main>

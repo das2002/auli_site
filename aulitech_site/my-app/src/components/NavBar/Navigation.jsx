@@ -50,6 +50,76 @@ const Navigation = ({
     );
   };
 
+  const UserSettingsRoute = () => {
+    return (
+      <>
+        <div className="-mx-6">
+          <NavLink
+            to="/user-settings"
+            className={({ isActive }) =>
+              classNames(
+                isActive
+                  ? "bg-gray-800 text-white"
+                  : "text-gray-400 hover:text-white hover:bg-gray-800",
+                "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
+              )
+            }
+          >
+            {/* icon here*/}
+            <p>User Settings</p>
+          </NavLink>
+        </div>
+      </>
+    );
+  };
+
+  const RecordGesturesRoute = () => {
+    return (
+      <>
+        <div className="-mx-6">
+          <NavLink
+            to="/record-gestures"
+            className={({ isActive }) =>
+              classNames(
+                isActive
+                  ? "bg-gray-800 text-white"
+                  : "text-gray-400 hover:text-white hover:bg-gray-800",
+                "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
+              )
+            }
+          >
+            {/* icon here*/}
+            <p>Record Gestures</p>
+          </NavLink>
+        </div>
+      </>
+    );
+  };
+
+  const DevicesRoute = () => {
+    return (
+      <>
+        <div className="-mx-6">
+          <NavLink
+            to="/devices" //updates
+            className={({ isActive }) =>
+              classNames(
+                isActive
+                  ? "bg-gray-800 text-white"
+                  : "text-gray-400 hover:text-white hover:bg-gray-800",
+                "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
+              )
+            }
+          >
+            {/* icon here*/}
+            <p>Devices</p>
+          </NavLink>
+        </div>
+      </>
+    );
+  };
+  
+
   const RegisterNewRoute = () => {
     return (
       <>
@@ -123,6 +193,7 @@ const Navigation = ({
       </>
     );
   };
+  
   // -----------------------------------------------------------------------
 
   return (
@@ -188,6 +259,10 @@ const Navigation = ({
                     <nav className="flex flex-1 flex-col">
                       <div role="list" className="flex flex-1 flex-col gap-y-7">
                         <DashRoute />
+                        <DevicesRoute />
+                        <UserSettingsRoute />
+                        <RecordGesturesRoute />
+                        <DevicesRoute />
                         <AccordianElement
                           devices={devices}
                           classNames={classNames}
@@ -207,25 +282,29 @@ const Navigation = ({
 
         {/* Static sidebar for desktop */}
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-          {/* Sidebar component, swap this element with another sidebar if you like */}
-          <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6">
-            <Logo height={16} marginY={5} marginX={10}/>
-            <nav className="flex flex-1 flex-col">
-              <div role="list" className="flex flex-1 flex-col gap-y-7">
+    {/* Sidebar component, swap this element with another sidebar if you like */}
+    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6">
+        <Logo height={16} marginY={5} marginX={10}/>
+        <nav className="flex flex-1 flex-col">
+            <div role="list" className="flex flex-1 flex-col gap-y-7">
                 <DashRoute />
+                <UserSettingsRoute />
+                <RecordGesturesRoute />
+                <DevicesRoute />
                 <AccordianElement
-                  devices={devices}
-                  classNames={classNames}
-                  handleCurr={handleCurr}
-                  currIndex={currIndex}
+                    devices={devices}
+                    classNames={classNames}
+                    handleCurr={handleCurr}
+                    currIndex={currIndex}
                 />
                 
                 <RegisterNewRoute />
                 <ProfileRoute />
-              </div>
-            </nav>
-          </div>
-        </div>
+            </div>
+        </nav>
+    </div>
+</div>
+
 
         <div className="sticky top-0 z-40 flex items-center gap-x-6 bg-gray-900 px-4 py-4 shadow-sm sm:px-6 lg:hidden">
           <button
