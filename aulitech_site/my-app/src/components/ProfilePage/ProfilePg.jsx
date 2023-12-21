@@ -19,7 +19,6 @@ const ProfilePg = ({ user }) => {
         /* Get user doc from the DB */
         const userQuery = query(doc(db, "users", user.uid));
         const userDocSnap = await getDoc(userQuery);
-
         /* Set user data to local variable */
         setData(userDocSnap.data());
       } catch (error) {
@@ -86,20 +85,20 @@ const ProfilePg = ({ user }) => {
                     <div className="mt-10 grid grid-cols-1 gap-x-10 gap-y-12 sm:grid-cols-6">
                       <div className="sm:col-span-3">
                         <label
-                          htmlFor="first-name"
+                          htmlFor="display-name"
                           className="block text-lg font-medium leading-6 text-gray-900"
                         >
-                          First name
+                          Display Name
                         </label>
                         <div className="mt-2">
                           <input
                             type="text"
-                            name="first-name"
-                            id="first-name"
+                            name="display-name"
+                            id="diplay-name"
                             autoComplete="given-name"
                             onChange={(e) => setFirst(e.target.value)}
                             value={first}
-                            placeholder={data === null ? null : data.firstname}
+                            placeholder={data === null ? null : data.first}
                             className="block w-full rounded-md outline-0 border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
                           />
                         </div>
@@ -120,7 +119,7 @@ const ProfilePg = ({ user }) => {
                             autoComplete="family-name"
                             onChange={(e) => setLast(e.target.value)}
                             value={last}
-                            placeholder={data === null ? null : data.lastname}
+                            placeholder={data === null ? null : data.last}
                             className="block w-full rounded-md outline-0 border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
                           />
                         </div>
