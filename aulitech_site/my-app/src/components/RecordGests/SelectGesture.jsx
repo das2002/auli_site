@@ -185,7 +185,7 @@ const SelectGesture = ({ user }) => {
     return (
       <div className="mt-4 mx-auto max-w-2xl">
         <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
-          {gestures.map((gesture) => ( // Ensure 'gesture' is used here
+          {gestures.map((gesture) => (
             <div
               key={gesture.id}
               className="relative flex flex-col items-center rounded-lg border border-gray-200 bg-gray-200 p-4 shadow-sm focus:outline-none"
@@ -204,7 +204,7 @@ const SelectGesture = ({ user }) => {
                   style={{ backgroundColor: 'rgba(219, 71, 71, 0.5)' }}
                   onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(201, 67, 67, 0.7)'}
                   onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(219, 71, 71, 0.5)'}
-                  onClick={() => startRecording(gesture)} // Pass 'gesture' to the function
+                  onClick={() => startRecording(gesture)} 
                 >
                   <svg className="h-8 w-8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="12" cy="12" r="9" fill="#F00B0B" />
@@ -226,8 +226,7 @@ const SelectGesture = ({ user }) => {
   };
   
   const updateGestureCount = async (gestureName) => {
-    // Implement logic to update the gesture count in Firestore
-    // This is a placeholder function
+    // update gesture count here
   };
 
   return (
