@@ -7,7 +7,6 @@ import { CheckCircleIcon } from "@heroicons/react/20/solid";
 import { TrashIcon } from '@heroicons/react/20/solid';
 import { PlusCircleIcon } from '@heroicons/react/20/solid';
 
-
 import {
   collection,
   query,
@@ -15,6 +14,7 @@ import {
   getDocs,
   limit,
   getCountFromServer,
+  addDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 
@@ -39,11 +39,33 @@ const SelectGesture = ({
 }) => {
   const [gestName, setGestName] = useState("");
   const [selected, setSelected] = useState();
+  const [showPopup, setShowPopup] = useState(false); // Moved outside getGestStats
 
   const shareGesture = (e) => {
     setSelected(e);
     setGestName(e.name);
     handleGestName(e.name);
+  };
+  const [selectedGesture, setSelectedGesture] = useState(null);
+
+  const startRecording = (gesture) => {
+    setSelectedGesture(gesture);
+    setShowPopup(true);
+  };
+  
+  const stopRecording = async () => {
+    setShowPopup(false);
+
+    if (selectedGesture) {
+      try {
+        const gestureDataRef = collection(db, "gesture-data");
+        const recordingData = { useruid: user.uid, gesture: selectedGesture.name, timestamp: new Date() };
+        await addDoc(gestureDataRef, recordingData);
+        console.log("Recording saved for gesture:", selectedGesture.name);
+      } catch (error) {
+        console.error("Error saving recording data:", error);
+      }
+    }
   };
 
   const getGestStats = async () => {
@@ -130,10 +152,12 @@ const SelectGesture = ({
               </div>
               <div className="mt-4 w-full flex items-center justify-between px-2">
                 {/* Record button */}
-                <button className="rounded-md p-1 cursor-pointer transition-colors duration-150 ease-in-out" 
+                <button 
+                  className="rounded-md p-1 cursor-pointer transition-colors duration-150 ease-in-out" 
                   style={{ backgroundColor: 'rgba(219, 71, 71, 0.5)' }}
                   onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(201, 67, 67, 0.7)'}
                   onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(219, 71, 71, 0.5)'}
+                  onClick={startRecording} // Add this line
                 >
                   <svg className="h-8 w-8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="12" cy="12" r="9" fill="#F00B0B" />
@@ -179,6 +203,22 @@ const SelectGesture = ({
           Select
         </button> */}
       </div>
+      {showPopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center justify-between" style={{ width: '50%', height: '50%' }}>
+            <p className="text-lg font-medium text-center">
+              <strong>Instructions:</strong> When the prompt for you to gesture shows up, perform the gesture as you would.
+            </p>
+            <p className="text-lg font-medium">Recording...</p>
+            <button 
+              className="rounded-md bg-red-500 p-3 text-white hover:bg-red-700" 
+              onClick={stopRecording}
+            >
+              Stop Recording
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
