@@ -1,38 +1,15 @@
-import React, { useState, useEffect, Fragment } from "react";
-import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
-import { Listbox, Transition } from "@headlessui/react";
-import { styles } from "./ConfigureGestures";
-import { RadioGroup } from "@headlessui/react";
-import { CheckCircleIcon } from "@heroicons/react/20/solid";
+import React, { useState, useEffect } from "react";
 import { TrashIcon } from '@heroicons/react/20/solid';
-import { PlusCircleIcon } from '@heroicons/react/20/solid';
-
 import {
   collection,
   query,
   where,
   getDocs,
-  limit,
-  getCountFromServer,
   addDoc,
-  updateDoc,
   doc,
   deleteDoc
 } from "firebase/firestore";
 import { db } from "../../firebase";
-
-const gestures = [
-  { id: 1, name: "Nod up", count: 0 },
-  { id: 2, name: "Nod down", count: 0 },
-  { id: 3, name: "Nod right", count: 0 },
-  { id: 4, name: "Nod left", count: 0 },
-  { id: 5, name: "Tilt right", count: 0 },
-  { id: 6, name: "Tilt left", count: 0 },
-  { id: 7, name: "Shake vertical", count: 0 },
-  { id: 8, name: "Shake horizontal", count: 0 },
-  { id: 9, name: "Circle clockwise", count: 0 },
-  { id: 10, name: "Circle counterclockwise", count: 0 },
-];
 
 const SelectGesture = ({ user }) => {
   const [showPopup, setShowPopup] = useState(false);
@@ -56,12 +33,6 @@ const SelectGesture = ({ user }) => {
   useEffect(() => {
     getGestStats();
   }, []);
-
-  // const shareGesture = (e) => {
-  //   setSelected(e);
-  //   setGestName(e.name);
-  //   handleGestName(e.name);
-  // };
 
   const selectTimestamp = (gestureName, timestamp) => {
     setSelectedTimestamps(prev => ({ ...prev, [gestureName]: timestamp }));
@@ -106,7 +77,6 @@ const SelectGesture = ({ user }) => {
         const gestureDataRef = collection(db, "gesture-data");
         const recordingData = { useruid: user.uid, gesture: selectedGesture.name, timestamp, duration };
         await addDoc(gestureDataRef, recordingData);
-  
         setGestures(currentGestures => {
           return currentGestures.map(gesture => {
             if (gesture.name === selectedGesture.name) {
@@ -118,21 +88,17 @@ const SelectGesture = ({ user }) => {
             return gesture;
           });
         });
-  
         console.log("Recording saved for gesture:", selectedGesture.name);
       } catch (error) {
         console.error("Error saving recording data:", error);
       }
     }
   };
-  
-  
 
   const getGestStats = async () => {
     const dataRef = collection(db, "gesture-data");
     const userDataQuery = query(dataRef, where("useruid", "==", user.uid));
     const snapshot = await getDocs(userDataQuery);
-  
     const updatedGestures = gestures.map(gesture => ({
       ...gesture,
       recordings: []
@@ -152,7 +118,6 @@ const SelectGesture = ({ user }) => {
         }
       }
     });
-  
     setGestures(updatedGestures);
   };
 
@@ -180,7 +145,6 @@ const SelectGesture = ({ user }) => {
                     <circle cx="12" cy="12" r="9" fill="#F00B0B" />
                   </svg>
                 </button>
-  
                 <div className="flex-grow bg-white p-4 mx-2 rounded shadow flex flex-col items-center h-24 overflow-auto">
                   {gesture.recordings.length > 0 ? (
                     gesture.recordings.map((recording, index) => (
@@ -196,7 +160,6 @@ const SelectGesture = ({ user }) => {
                     <div className="text-sm text-gray-500">No recordings</div>
                   )}
                 </div>
-  
                 <button
                   className="rounded-md bg-gray-300 p-2 text-gray-700 hover:bg-gray-500 cursor-pointer"
                   onClick={() => deleteRecording(gesture.name)}
@@ -215,22 +178,6 @@ const SelectGesture = ({ user }) => {
     <div className="">
       <div className="border-b border-gray-200 pb-10">
         <GestureGrid />
-      </div>
-      <div>
-        {/* <button
-          type="button"
-          disabled={gestName === ""}
-          onClick={goToRecordPage}
-          className={classNames(
-            gestName === ""
-              ? "bg-gray-300 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-300",
-            " focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500",
-            "mt-10 inline-flex items-center rounded-full px-2.5 py-1 text-xl font-semibold text-white shadow-sm"
-          )}
-        >
-          Select
-        </button> */}
       </div>
       {showPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
