@@ -4,6 +4,10 @@ import { Listbox, Transition } from "@headlessui/react";
 import { styles } from "./ConfigureGestures";
 import { RadioGroup } from "@headlessui/react";
 import { CheckCircleIcon } from "@heroicons/react/20/solid";
+import { TrashIcon } from '@heroicons/react/20/solid';
+import { PlusCircleIcon } from '@heroicons/react/20/solid';
+
+
 import {
   collection,
   query,
@@ -110,69 +114,49 @@ const SelectGesture = ({
     getGestStats();
 
     return (
-      <RadioGroup value={selected} onChange={shareGesture}>
-        <RadioGroup.Label className="text-lg font-semibold leading-6 text-gray-900">
-          Select Gesture
-        </RadioGroup.Label>
-
-        <div className="mt-4 grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-4">
+      <div className="mt-4 mx-auto max-w-2xl">
+        <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
           {gestures.map((gest) => (
-            <RadioGroup.Option
+            <div
               key={gest.id}
-              value={gest}
-              className={({ active }) =>
-                classNames(
-                  active
-                    ? "border-blue-500 ring-2 ring-blue-500"
-                    : "border-gray-200",
-                  "relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none hover:border-blue-300 hover:ring-blue-300 hover:ring-1 hover:ring-inset"
-                )
-              }
+              className="relative flex flex-col items-center rounded-lg border border-gray-200 bg-gray-200 p-4 shadow-sm focus:outline-none"
             >
-              {({ checked, active }) => (
-                <>
-                  <span className="flex flex-1">
-                    <span className="flex flex-col">
-                      <RadioGroup.Label
-                        as="span"
-                        className="block text-lg font-medium text-gray-900"
-                      >
-                        {gest.name}
-                      </RadioGroup.Label>
-                      {/* <RadioGroup.Description as="span" className="mt-1 flex items-center text-sm text-gray-500">
-                      {gest.count}
-                    </RadioGroup.Description> */}
-                      <RadioGroup.Description
-                        as="span"
-                        className="mt-6 text-sm font-medium text-gray-900"
-                      >
-                        {gest.count} / 5
-                      </RadioGroup.Description>
-                    </span>
-                  </span>
-                  <CheckCircleIcon
-                    className={classNames(
-                      !checked ? "invisible" : "",
-                      "h-6 w-6 text-blue-500"
-                    )}
-                    aria-hidden="true"
-                  />
-                  <span
-                    className={classNames(
-                      active ? "border" : "border-2",
-                      checked ? "border-blue-500" : "border-transparent",
-                      "pointer-events-none absolute -inset-px rounded-lg"
-                    )}
-                    aria-hidden="true"
-                  />
-                </>
-              )}
-            </RadioGroup.Option>
+              <span className="block text-lg font-medium text-gray-900">
+                {gest.name}
+              </span>
+              {/* Placeholder for the recordings list */}
+              <div className="mt-2 flex-1 w-full">
+                  {/* space for recordings list */}
+              </div>
+              <div className="mt-4 w-full flex items-center justify-between px-2">
+                {/* Record button */}
+                <button className="rounded-md p-1 cursor-pointer transition-colors duration-150 ease-in-out" 
+                  style={{ backgroundColor: 'rgba(219, 71, 71, 0.5)' }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(201, 67, 67, 0.7)'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(219, 71, 71, 0.5)'}
+                >
+                  <svg className="h-8 w-8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="9" fill="#F00B0B" />
+                  </svg>
+                </button>
+  
+                {/* Taller rectangular box for recording names */}
+                <div className="flex-grow bg-white p-4 mx-2 rounded shadow flex items-center h-24">
+                  {/* recording names here */}
+                </div>
+  
+                {/* Trash button */}
+                <button className="rounded-md bg-gray-300 p-2 text-gray-700 hover:bg-gray-500 cursor-pointer">
+                  <TrashIcon className="h-6 w-6" aria-hidden="true" />
+                </button>
+              </div>
+            </div>
           ))}
         </div>
-      </RadioGroup>
+      </div>
     );
   };
+  
 
   return (
     <div className="">
@@ -180,7 +164,7 @@ const SelectGesture = ({
         <GestureGrid />
       </div>
       <div>
-        <button
+        {/* <button
           type="button"
           disabled={gestName === ""}
           onClick={goToRecordPage}
@@ -193,7 +177,7 @@ const SelectGesture = ({
           )}
         >
           Select
-        </button>
+        </button> */}
       </div>
     </div>
   );
