@@ -76,24 +76,31 @@ const SelectGesture = ({ user }) => {
       try {
         const gestureDataRef = collection(db, "gesture-data");
         const recordingData = { useruid: user.uid, gesture: selectedGesture.name, timestamp, duration };
-        await addDoc(gestureDataRef, recordingData);
+        const docRef = await addDoc(gestureDataRef, recordingData); // Capture the document reference
+  
+        // Update the local state with the new recording
         setGestures(currentGestures => {
           return currentGestures.map(gesture => {
             if (gesture.name === selectedGesture.name) {
+              const newRecording = {
+                timestamp: timestamp.toLocaleString(),
+                docId: docRef.id // Use the document ID from Firestore
+              };
               return {
                 ...gesture,
-                recordings: [...gesture.recordings, timestamp.toLocaleString()]
+                recordings: [...gesture.recordings, newRecording]
               };
             }
             return gesture;
           });
         });
+  
         console.log("Recording saved for gesture:", selectedGesture.name);
       } catch (error) {
         console.error("Error saving recording data:", error);
       }
     }
-  };
+  };  
 
   const getGestStats = async () => {
     const dataRef = collection(db, "gesture-data");
