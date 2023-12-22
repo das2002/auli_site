@@ -16,7 +16,8 @@ import {
   getCountFromServer,
   addDoc,
   updateDoc,
-  doc
+  doc,
+  deleteDoc
 } from "firebase/firestore";
 import { db } from "../../firebase";
 
@@ -37,18 +38,20 @@ const SelectGesture = ({ user }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [selectedGesture, setSelectedGesture] = useState(null);
   const [recordingStart, setRecordingStart] = useState(null);
+  const [selectedTimestamps, setSelectedTimestamps] = useState({});
+
   const [gestures, setGestures] = useState([
     { id: 1, name: "Nod up", count: 0, recordings: [] },
-  { id: 2, name: "Nod down", count: 0, recordings: [] },
-  { id: 3, name: "Nod right", count: 0, recordings: [] },
-  { id: 4, name: "Nod left", count: 0, recordings: [] },
-  { id: 5, name: "Tilt right", count: 0, recordings: [] },
-  { id: 6, name: "Tilt left", count: 0, recordings: [] },
-  { id: 7, name: "Shake vertical", count: 0, recordings: [] },
-  { id: 8, name: "Shake horizontal", count: 0, recordings: [] },
-  { id: 9, name: "Circle clockwise", count: 0, recordings: [] },
-  { id: 10, name: "Circle counterclockwise", count: 0, recordings: [] },
-  ]);
+    { id: 2, name: "Nod down", count: 0, recordings: [] },
+    { id: 3, name: "Nod right", count: 0, recordings: [] },
+    { id: 4, name: "Nod left", count: 0, recordings: [] },
+    { id: 5, name: "Tilt right", count: 0, recordings: [] },
+    { id: 6, name: "Tilt left", count: 0, recordings: [] },
+    { id: 7, name: "Shake vertical", count: 0, recordings: [] },
+    { id: 8, name: "Shake horizontal", count: 0, recordings: [] },
+    { id: 9, name: "Circle clockwise", count: 0, recordings: [] },
+    { id: 10, name: "Circle counterclockwise", count: 0, recordings: [] },
+    ]);
 
   useEffect(() => {
     getGestStats();
@@ -59,6 +62,33 @@ const SelectGesture = ({ user }) => {
   //   setGestName(e.name);
   //   handleGestName(e.name);
   // };
+
+  const selectTimestamp = (gestureName, timestamp) => {
+    setSelectedTimestamps(prev => ({ ...prev, [gestureName]: timestamp }));
+  };
+
+  const deleteRecording = async (gestureName) => {
+    const selectedRecording = selectedTimestamps[gestureName];
+    if (!selectedRecording) return;
+
+    // delete the recording from FB
+    const recordingDocRef = doc(db, "gesture-data", selectedRecording.docId);
+    await deleteDoc(recordingDocRef);
+
+    // update the local state & remove recordings
+    setGestures(currentGestures => {
+      return currentGestures.map(gesture => {
+        if (gesture.name === gestureName) {
+          return {
+            ...gesture,
+            recordings: gesture.recordings.filter(recording => recording.timestamp !== selectedRecording.timestamp)
+          };
+        }
+        return gesture;
+      });
+    });
+    setSelectedTimestamps(prev => ({ ...prev, [gestureName]: null }));
+  };
 
   const startRecording = (gesture) => {
     setSelectedGesture(gesture);
@@ -77,7 +107,6 @@ const SelectGesture = ({ user }) => {
         const recordingData = { useruid: user.uid, gesture: selectedGesture.name, timestamp, duration };
         await addDoc(gestureDataRef, recordingData);
   
-        // Update only the local state for the selected gesture with the new recording
         setGestures(currentGestures => {
           return currentGestures.map(gesture => {
             if (gesture.name === selectedGesture.name) {
@@ -114,14 +143,18 @@ const SelectGesture = ({ user }) => {
       const gestureIndex = updatedGestures.findIndex(g => g.name === gestureName);
       if (gestureIndex !== -1) {
         const timestampString = doc.data().timestamp.toDate().toLocaleString();
-        if (!updatedGestures[gestureIndex].recordings.includes(timestampString)) {
-          updatedGestures[gestureIndex].recordings.push(timestampString);
+        const recording = {
+          timestamp: timestampString,
+          docId: doc.id  // store FB document id
+        };
+        if (!updatedGestures[gestureIndex].recordings.find(r => r.timestamp === timestampString)) {
+          updatedGestures[gestureIndex].recordings.push(recording);
         }
       }
     });
   
     setGestures(updatedGestures);
-  };  
+  };
 
   const GestureGrid = () => {
     return (
@@ -136,7 +169,6 @@ const SelectGesture = ({ user }) => {
                 {gesture.name}
               </span>
               <div className="mt-4 w-full flex items-center justify-between px-2">
-                {/* Record button */}
                 <button
                   className="rounded-md p-1 cursor-pointer transition-colors duration-150 ease-in-out"
                   style={{ backgroundColor: 'rgba(219, 71, 71, 0.5)' }}
@@ -149,12 +181,15 @@ const SelectGesture = ({ user }) => {
                   </svg>
                 </button>
   
-                {/* Box to display timestamps */}
                 <div className="flex-grow bg-white p-4 mx-2 rounded shadow flex flex-col items-center h-24 overflow-auto">
                   {gesture.recordings.length > 0 ? (
-                    gesture.recordings.map((timestamp, index) => (
-                      <div key={index} className="text-sm">
-                        {timestamp}
+                    gesture.recordings.map((recording, index) => (
+                      <div
+                        key={index}
+                        className={`text-sm cursor-pointer ${selectedTimestamps[gesture.name]?.timestamp === recording.timestamp ? 'bg-gray-200' : ''}`}
+                        onClick={() => selectTimestamp(gesture.name, recording)}
+                      >
+                        {recording.timestamp}
                       </div>
                     ))
                   ) : (
@@ -162,8 +197,10 @@ const SelectGesture = ({ user }) => {
                   )}
                 </div>
   
-                {/* Trash button */}
-                <button className="rounded-md bg-gray-300 p-2 text-gray-700 hover:bg-gray-500 cursor-pointer">
+                <button
+                  className="rounded-md bg-gray-300 p-2 text-gray-700 hover:bg-gray-500 cursor-pointer"
+                  onClick={() => deleteRecording(gesture.name)}
+                >
                   <TrashIcon className="h-6 w-6" aria-hidden="true" />
                 </button>
               </div>
@@ -174,10 +211,6 @@ const SelectGesture = ({ user }) => {
     );
   };  
   
-  const updateGestureCount = async (gestureName) => {
-    // update gesture count here
-  };
-
   return (
     <div className="">
       <div className="border-b border-gray-200 pb-10">
