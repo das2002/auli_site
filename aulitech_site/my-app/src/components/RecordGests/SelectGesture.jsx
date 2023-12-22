@@ -37,6 +37,18 @@ const SelectGesture = ({ user }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [selectedGesture, setSelectedGesture] = useState(null);
   const [recordingStart, setRecordingStart] = useState(null);
+  const [gestures, setGestures] = useState([
+    { id: 1, name: "Nod up", count: 0, recordings: [] },
+  { id: 2, name: "Nod down", count: 0, recordings: [] },
+  { id: 3, name: "Nod right", count: 0, recordings: [] },
+  { id: 4, name: "Nod left", count: 0, recordings: [] },
+  { id: 5, name: "Tilt right", count: 0, recordings: [] },
+  { id: 6, name: "Tilt left", count: 0, recordings: [] },
+  { id: 7, name: "Shake vertical", count: 0, recordings: [] },
+  { id: 8, name: "Shake horizontal", count: 0, recordings: [] },
+  { id: 9, name: "Circle clockwise", count: 0, recordings: [] },
+  { id: 10, name: "Circle counterclockwise", count: 0, recordings: [] },
+  ]);
 
   useEffect(() => {
     getGestStats();
@@ -48,7 +60,7 @@ const SelectGesture = ({ user }) => {
   //   handleGestName(e.name);
   // };
 
-  const startRecording = (gesture) => { 
+  const startRecording = (gesture) => {
     setSelectedGesture(gesture);
     setRecordingStart(new Date());
     setShowPopup(true);
@@ -56,132 +68,62 @@ const SelectGesture = ({ user }) => {
   
   const stopRecording = async () => {
     const duration = new Date() - recordingStart;
+    const timestamp = new Date();
     setShowPopup(false);
-
+  
     if (selectedGesture) {
       try {
         const gestureDataRef = collection(db, "gesture-data");
-        const recordingData = { useruid: user.uid, gesture: selectedGesture.name, timestamp: new Date(), duration };
+        const recordingData = { useruid: user.uid, gesture: selectedGesture.name, timestamp, duration };
         await addDoc(gestureDataRef, recordingData);
-        updateGestureCount(selectedGesture.name);
+  
+        // Update only the local state for the selected gesture with the new recording
+        setGestures(currentGestures => {
+          return currentGestures.map(gesture => {
+            if (gesture.name === selectedGesture.name) {
+              return {
+                ...gesture,
+                recordings: [...gesture.recordings, timestamp.toLocaleString()]
+              };
+            }
+            return gesture;
+          });
+        });
+  
         console.log("Recording saved for gesture:", selectedGesture.name);
       } catch (error) {
         console.error("Error saving recording data:", error);
       }
     }
   };
+  
+  
 
   const getGestStats = async () => {
     const dataRef = collection(db, "gesture-data");
     const userDataQuery = query(dataRef, where("useruid", "==", user.uid));
     const snapshot = await getDocs(userDataQuery);
-
+  
+    const updatedGestures = gestures.map(gesture => ({
+      ...gesture,
+      recordings: []
+    }));
+  
     snapshot.forEach((doc) => {
       const gestureName = doc.data().gesture;
-      const gestureIndex = gestures.findIndex(g => g.name === gestureName);
+      const gestureIndex = updatedGestures.findIndex(g => g.name === gestureName);
       if (gestureIndex !== -1) {
-        gestures[gestureIndex].count += 1;
+        const timestampString = doc.data().timestamp.toDate().toLocaleString();
+        if (!updatedGestures[gestureIndex].recordings.includes(timestampString)) {
+          updatedGestures[gestureIndex].recordings.push(timestampString);
+        }
       }
     });
-  };
-
-  // const getGestStats = async () => {
-  //   try {
-  //     const dataRef = collection(db, "gesture-data");
-  //     const userDataQuery = query(dataRef, where("useruid", "==", user.uid));
-  //     const countSnapshot = await getCountFromServer(userDataQuery);
   
-  //     if (countSnapshot.data().count !== 0) {
-  //       const queryTest = query(
-  //         dataRef,
-  //         where("useruid", "==", user.uid),
-  //         limit(countSnapshot.data().count)
-  //       );
-  //       const getTest = await getDocs(queryTest);
-  
-  //       if (getTest !== null) {
-  //         getTest.forEach((doc) => {
-  //           const gestureName = doc.data().gesture; // Replace 'gest' with 'gesture' if that's the field name in Firestore
-  //           const gestureIndex = gestures.findIndex(g => g.name === gestureName);
-  //           if (gestureIndex !== -1) {
-  //             gestures[gestureIndex].count += 1;
-  //           }
-  //         });
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Error querying gesture-data collection:", error);
-  //   }
-  // };
-  
-  
-  // const getGestStats = async () => {
-  //   try {
-  //     const dataRef = collection(db, "gesture-data");
-
-  //     const userDataQuery = query(dataRef, where("useruid", "==", user.uid));
-  //     const countSnapshot = await getCountFromServer(userDataQuery);
-
-  //     if (countSnapshot.data().count !== 0) {
-  //       console.log("Count > 0");
-  //       const queryTest = query(
-  //         dataRef,
-  //         where("useruid", "==", user.uid),
-  //         limit(countSnapshot.data().count)
-  //       );
-  //       const getTest = await getDocs(queryTest);
-
-  //       if (getTest !== null) {
-  //         getTest.forEach((doc) => {
-  //           switch (doc.data().gest) {
-  //             case "Select":
-  //               return null;
-  //             case "Nod up":
-  //               gestures[1].count += 1;
-  //               break;
-  //             case "Nod down":
-  //               gestures[2].count += 1;
-  //               break;
-  //             case "Nod right":
-  //               gestures[3].count += 1;
-  //               break;
-  //             case "Nod left":
-  //               gestures[4].count += 1;
-  //               break;
-  //             case "Tilt right":
-  //               gestures[5].count += 1;
-  //               break;
-  //             case "Tilt left":
-  //               gestures[6].count += 1;
-  //               break;
-  //             case "Shake vertical":
-  //               gestures[7].count += 1;
-  //               break;
-  //             case "Shake horizontal":
-  //               gestures[8].count += 1;
-  //               break;
-  //             case "Circle clockwise":
-  //               gestures[9].count += 1;
-  //               break;
-  //             case "Circle counterclockwise":
-  //               gestures[10].count += 1;
-  //               break;
-  //             default:
-  //               console.log("switch error");
-  //           }
-  //         });
-  //       } else {
-  //         console.log(getTest);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.log("guery gesture-data collection error:", error);
-  //   }
-  // };
+    setGestures(updatedGestures);
+  };  
 
   const GestureGrid = () => {
-    getGestStats();
-
     return (
       <div className="mt-4 mx-auto max-w-2xl">
         <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
@@ -193,27 +135,34 @@ const SelectGesture = ({ user }) => {
               <span className="block text-lg font-medium text-gray-900">
                 {gesture.name}
               </span>
-              {/* recordings list */}
-              <div className="mt-2 flex-1 w-full">
-                  {/* recordings list */}
-              </div>
               <div className="mt-4 w-full flex items-center justify-between px-2">
-                {/* record button */}
-                <button 
+                {/* Record button */}
+                <button
                   className="rounded-md p-1 cursor-pointer transition-colors duration-150 ease-in-out"
                   style={{ backgroundColor: 'rgba(219, 71, 71, 0.5)' }}
                   onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(201, 67, 67, 0.7)'}
                   onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(219, 71, 71, 0.5)'}
-                  onClick={() => startRecording(gesture)} 
+                  onClick={() => startRecording(gesture)}
                 >
                   <svg className="h-8 w-8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="12" cy="12" r="9" fill="#F00B0B" />
                   </svg>
                 </button>
   
-                <div className="flex-grow bg-white p-4 mx-2 rounded shadow flex items-center h-24">
-                  {/* recording names here */}
+                {/* Box to display timestamps */}
+                <div className="flex-grow bg-white p-4 mx-2 rounded shadow flex flex-col items-center h-24 overflow-auto">
+                  {gesture.recordings.length > 0 ? (
+                    gesture.recordings.map((timestamp, index) => (
+                      <div key={index} className="text-sm">
+                        {timestamp}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-sm text-gray-500">No recordings</div>
+                  )}
                 </div>
+  
+                {/* Trash button */}
                 <button className="rounded-md bg-gray-300 p-2 text-gray-700 hover:bg-gray-500 cursor-pointer">
                   <TrashIcon className="h-6 w-6" aria-hidden="true" />
                 </button>
@@ -223,7 +172,7 @@ const SelectGesture = ({ user }) => {
         </div>
       </div>
     );
-  };
+  };  
   
   const updateGestureCount = async (gestureName) => {
     // update gesture count here
