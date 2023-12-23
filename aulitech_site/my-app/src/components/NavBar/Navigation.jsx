@@ -74,6 +74,7 @@ const Navigation = ({
       </>
     );
   };
+  
 
   const RecordGesturesRoute = () => {
     return (
@@ -149,6 +150,27 @@ const Navigation = ({
           </NavLink>
         </div>
       </>
+    );
+  };
+
+  const UpdatesRoute = () => {
+    return (
+      <div className="-mx-6">
+        <NavLink
+          to="/updates"
+          className={({ isActive }) =>
+            classNames(
+              isActive
+                ? "bg-gray-800 text-white"
+                : "text-gray-400 hover:text-white hover:bg-gray-800",
+              "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
+            )
+          }
+        >
+          {/* Icon here (optional) */}
+          <p>Updates</p>
+        </NavLink>
+      </div>
     );
   };
   
@@ -317,6 +339,8 @@ const Navigation = ({
                     <Logo height={16} marginY={5} marginX={10}/>
                     <nav className="flex flex-1 flex-col">
                       <div role="list" className="flex flex-1 flex-col gap-y-7">
+                        <DashRoute />
+                        <UpdatesRoute />
                         <DevicesRoute />
                         <PracticeRoute />
                         <UpdateRoute/>
@@ -341,9 +365,11 @@ const Navigation = ({
         <Logo height={16} marginY={5} marginX={10}/>
         <nav className="flex flex-1 flex-col">
             <div role="list" className="flex flex-1 flex-col gap-y-7">
+                <DashRoute />
+                <UpdatesRoute />
                 <DevicesRoute />
                 <PracticeRoute />
-                <UpdateRoute />
+                <UpdateRoute/>
                 <RecordGesturesRoute />
                 {/* We need to add a line to divide between these sections */}
                 <div className="border-t border-gray-700"></div>
