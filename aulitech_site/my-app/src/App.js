@@ -22,7 +22,7 @@ import UserSettings from './components/NavBar/UserSettings';
 // import RecordGestures from './components/RecordGestures';
 import Updates from './components/NavBar/Updates';
 import Devices from './components/NavBar/Devices';
-import Practice from './components/PracticeMode/Practice';
+import PracticeMode from './components/PracticeMode/Practice';
 
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
@@ -200,7 +200,7 @@ function App() {
             <Route path="/record-gestures" element={<RecordGestures />} />
             <Route path="/updates" element={<Updates />} />
             <Route path="/devices" element={<Devices />} />
-            <Route path="/practice" element={<Practice />} />
+            <Route path="/practice" element={<PracticeMode />} />
           </Routes>
         </div>
       </main>
