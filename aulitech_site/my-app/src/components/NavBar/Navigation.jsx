@@ -1,3 +1,5 @@
+
+
 import React, { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
@@ -88,8 +90,37 @@ const Navigation = ({
               )
             }
           >
-            {/* icon here*/}
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+              <circle cx="12" cy="12" r="8" stroke-width="2" />
+              <circle cx="12" cy="12" r="4" fill="currentColor" />
+              <rect x="2" y="2" width="20" height="20" rx="10" stroke-width="2" />
+            </svg>
             <p>Record Gestures</p>
+          </NavLink>
+        </div>
+      </>
+    );
+  };
+
+  const UpdateRoute = () => {
+    return (
+      <>
+        <div className="-mx-6">
+          <NavLink
+            to="/updates"
+            className={({ isActive }) =>
+              classNames(
+                isActive
+                  ? "bg-gray-800 text-white"
+                  : "text-gray-400 hover:text-white hover:bg-gray-800",
+                "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
+              )
+            }
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            <p>Updates</p>
           </NavLink>
         </div>
       </>
@@ -111,7 +142,9 @@ const Navigation = ({
               )
             }
           >
-            {/* icon here*/}
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6l8 4v8l-8 4-8-4V10l8-4z"></path>
+            </svg>
             <p>Devices</p>
           </NavLink>
         </div>
@@ -150,7 +183,33 @@ const Navigation = ({
               />
             </svg>
 
-            <p>Register Device</p>
+            <p>Register Device/Interface</p>
+          </NavLink>
+        </div>
+      </>
+    );
+  };
+
+  const PracticeRoute = () => {
+    return (
+      <>
+        <div className="-mx-6">
+          <NavLink
+            to="/practice"
+            className={({ isActive }) =>
+              classNames(
+                isActive
+                  ? "bg-gray-800 text-white"
+                  : "text-gray-400 hover:text-white hover:bg-gray-800",
+                "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
+              )
+            }
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
+             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2C6.48 2 2 6.48 2 12c0 3.866 2.964 7.017 6.75 7.017 1.657 0 3.22-.61 4.406-1.717l3.844 3.844a.6.6 0 00.848 0l1.5-1.5a.6.6 0 000-.848l-3.844-3.844A7.963 7.963 0 0019.017 12C19.017 6.48 14.537 2 9.017 2zm0 4a4 4 0 100 8 4 4 0 000-8z"></path>
+            </svg>
+
+            <p>Practice Mode</p>
           </NavLink>
         </div>
       </>
@@ -258,17 +317,12 @@ const Navigation = ({
                     <Logo height={16} marginY={5} marginX={10}/>
                     <nav className="flex flex-1 flex-col">
                       <div role="list" className="flex flex-1 flex-col gap-y-7">
-                        <DashRoute />
                         <DevicesRoute />
-                        <UserSettingsRoute />
+                        <PracticeRoute />
+                        <UpdateRoute/>
                         <RecordGesturesRoute />
-                        <DevicesRoute />
-                        <AccordianElement
-                          devices={devices}
-                          classNames={classNames}
-                          handleCurr={handleCurr}
-                          currIndex={currIndex}
-                        />
+                        {/* We need to add a line to divide between these sections */}
+                        
                         <RegisterNewRoute />
                         <ProfileRoute />
                       </div>
@@ -287,17 +341,12 @@ const Navigation = ({
         <Logo height={16} marginY={5} marginX={10}/>
         <nav className="flex flex-1 flex-col">
             <div role="list" className="flex flex-1 flex-col gap-y-7">
-                <DashRoute />
-                <UserSettingsRoute />
-                <RecordGesturesRoute />
                 <DevicesRoute />
-                <AccordianElement
-                    devices={devices}
-                    classNames={classNames}
-                    handleCurr={handleCurr}
-                    currIndex={currIndex}
-                />
-                
+                <PracticeRoute />
+                <UpdateRoute />
+                <RecordGesturesRoute />
+                {/* We need to add a line to divide between these sections */}
+                <div className="border-t border-gray-700"></div>
                 <RegisterNewRoute />
                 <ProfileRoute />
             </div>
@@ -329,3 +378,4 @@ const Navigation = ({
 }
 
 export default Navigation;
+
