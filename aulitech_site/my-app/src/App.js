@@ -20,7 +20,7 @@ import { collection, query, getDocs, where } from "firebase/firestore";
 import RecordGestures from './components/RecordGests/RecordGestures';
 import UserSettings from './components/NavBar/UserSettings';
 // import RecordGestures from './components/RecordGestures';
-import Updates from './components/NavBar/Updates';
+import Updates from './components/UpdatePage/Updates';
 import Devices from './components/NavBar/Devices';
 
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
