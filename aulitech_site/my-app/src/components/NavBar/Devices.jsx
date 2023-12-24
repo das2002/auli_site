@@ -75,42 +75,42 @@ const Devices = () => {
     const [deviceHeight, setDeviceHeight] = useState(500);
     const [deviceWidth, setDeviceWidth] = useState(500);
     const [opMode, setOpMode] = useState('');
-    const [slider1Value, setSlider1Value] = useState(0);
-    const [slider2Value, setSlider2Value] = useState(0);
-    const [slider3Value, setSlider3Value] = useState(0);
-    const [slider4Value, setSlider4Value] = useState(0);
-    const [slider5Value, setSlider5Value] = useState(0);
-    const [slider6Value, setSlider6Value] = useState(0);
-    const [slider7Value, setSlider7Value] = useState(0);
+    const [scaleXSlider, setscaleXSlider] = useState(0);
+    const [scaleYSlider, setscaleYSlider] = useState(0);
+    const [screenSizeSlider, setscreenSizeSlider] = useState(0);
+    const [sleepSlider, setSleepSlider] = useState(0);
+    const [maxClick, setmaxClick] = useState(0);
+    const [tapThreshold, settapThreshold] = useState(0);
+    const [quietValue, setQuietValue] = useState(0);
     const [awaitSet, setAwaitSet] = useState('');
     const [threshold, setThreshold] = useState('');
 
-  const handleSlider1Change = (value) => {
-    setSlider1Value(value);
+  const handleScaleXChange = (value) => {
+    setscaleXSlider(value);
   };
 
-  const handleSlider2Change = (value) => {
-    setSlider2Value(value);
+  const handleScaleYChange = (value) => {
+    setscaleYSlider(value);
   };
 
-  const handleSlider3Change = (value) => {
-    setSlider3Value(value);
+  const handleScreenSizeSliderChange = (value) => {
+    setscreenSizeSlider(value);
   };
 
-  const handleSlider4Change = (value) => {
-    setSlider4Value(value);
+  const handleSleepSliderChange = (value) => {
+    setSleepSlider(value);
   };
 
-  const handleSlider5Change = (value) => {
-    setSlider5Value(value);
+  const handleMaxClickChange = (value) => {
+    setmaxClick(value);
   }
 
-  const handleSlider6Change = (value) => {
-    setSlider6Value(value);
+  const handleTapThresholdChange = (value) => {
+    settapThreshold(value);
   }
 
-  const handleSlider7Change = (value) => {
-    setSlider7Value(value);
+  const handleQuietChange = (value) => {
+    setQuietValue(value);
   }
   
     const handleDeviceChange = (event) => {
@@ -227,17 +227,17 @@ const Devices = () => {
         <div style={{ textAlign: 'center', padding: '20px' }}>
           <div>
             <h2 style={{ fontSize: '20px' }}> Scale X </h2>
-            <TickedSlider value={slider1Value} onChange={handleSlider1Change} ticks={[0, 25, 50, 75, 100]} />
+            <TickedSlider value={scaleXSlider} onChange={handleScaleXChange} ticks={[0, 25, 50, 75, 100]} />
           </div>
           <br></br>
           <div>
             <h2 style={{ fontSize: '20px' }}> Scale Y </h2>
-            <TickedSlider value={slider2Value} onChange={handleSlider2Change} ticks={[0, 25, 50, 75, 100]} />
+            <TickedSlider value={scaleYSlider} onChange={handleScaleYChange} ticks={[0, 25, 50, 75, 100]} />
           </div>
           <br></br>
           <div>
             <h2 style={{ fontSize: '20px' }}> Screen Size </h2>
-            <TickedSlider value={slider3Value} onChange={handleSlider3Change} ticks={[0, 25, 50, 75, 100]} />
+            <TickedSlider value={screenSizeSlider} onChange={handleScreenSizeSliderChange} ticks={[0, 25, 50, 75, 100]} />
           </div>
           <br></br>
     
@@ -253,7 +253,7 @@ const Devices = () => {
     
           <div>
             <h2 style={{ fontSize: '20px' }}> Sleep </h2>
-            <TickedSlider value={slider4Value} onChange={handleSlider4Change} ticks={[0, 25, 50, 75, 100]} />
+            <TickedSlider value={sleepSlider} onChange={handleSleepSliderChange} ticks={[0, 25, 50, 75, 100]} />
           </div>
     
           <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
@@ -275,11 +275,11 @@ const Devices = () => {
       return (
         <div>
           <h2 style={{ fontSize: '20px' }}> Max Click Spacing</h2>
-          <TickedSlider value={slider5Value} onChange={handleSlider5Change} ticks={[0, 0.2, 0.4, 0.6, 0.8, 1.0]} />
+          <TickedSlider value={maxClick} onChange={handleMaxClickChange} ticks={[0, 0.2, 0.4, 0.6, 0.8, 1.0]} />
           <h2 style={{ fontSize: '20px' }}> Tap Threshold </h2>
-          <TickedSlider value={slider6Value} onChange={handleSlider6Change} ticks={[0, 2, 4, 8, 16, 31]} />
+          <TickedSlider value={tapThreshold} onChange={handleTapThresholdChange} ticks={[0, 2, 4, 8, 16, 31]} />
           <h2 style={{ fontSize: '20px' }}> Quiet </h2>
-          <TickedSlider value={slider7Value} onChange={handleSlider7Change} ticks={[0, 1, 2, 3]} />
+          <TickedSlider value={quietValue} onChange={handleQuietChange} ticks={[0, 1, 2, 3]} />
         </div>
       );
     };
