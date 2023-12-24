@@ -366,7 +366,6 @@ const Navigation = ({
         <nav className="flex flex-1 flex-col">
             <div role="list" className="flex flex-1 flex-col gap-y-7">
                 <DashRoute />
-                <UpdatesRoute />
                 <DevicesRoute />
                 <PracticeRoute />
                 <UpdateRoute/>
