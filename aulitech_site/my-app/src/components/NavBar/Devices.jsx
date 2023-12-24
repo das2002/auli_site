@@ -17,7 +17,7 @@ const TickedSlider = ({ value, onChange, ticks }) => {
             style={{
               ...props.style,
               height: '15px',
-              width: '100%',
+              width: (1 - state.value) * 100 + '%',
               backgroundColor: state.index === 0 ? '#fff' : '#ccc',
             }}
           />
@@ -35,10 +35,11 @@ const TickedSlider = ({ value, onChange, ticks }) => {
               outline: 'black',
             }}
           >
-            {state.valueNow}
+            {/* {state.valueNow} */}
           </div>
         )}
       />
+      <br></br>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
         {ticks.map((tick) => (
           <div key={tick} style={{ textAlign: 'center', flex: '1' }}>
