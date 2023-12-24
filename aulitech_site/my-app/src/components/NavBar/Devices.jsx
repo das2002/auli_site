@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Slider from 'react-slider';
+
 const TickedSlider = ({ value, onChange, ticks }) => {
   return (
     <div style={{ marginTop: '20px' }}>
@@ -49,6 +50,8 @@ const TickedSlider = ({ value, onChange, ticks }) => {
   );
 };
 
+
+
 const DashedLine = () => {
   const lineStyle = {
     border: '1px dashed #000', // 1px width dashed line with black color
@@ -71,10 +74,14 @@ const Devices = () => {
     const [deviceHeight, setDeviceHeight] = useState(500);
     const [deviceWidth, setDeviceWidth] = useState(500);
     const [opMode, setOpMode] = useState('');
-    const [slider1Value, setSlider1Value] = useState(50);
-    const [slider2Value, setSlider2Value] = useState(25);
-    const [slider3Value, setSlider3Value] = useState(75);
+    const [slider1Value, setSlider1Value] = useState(0);
+    const [slider2Value, setSlider2Value] = useState(0);
+    const [slider3Value, setSlider3Value] = useState(0);
     const [slider4Value, setSlider4Value] = useState(0);
+    const [slider5Value, setSlider5Value] = useState(0);
+    const [slider6Value, setSlider6Value] = useState(0);
+    const [slider7Value, setSlider7Value] = useState(0);
+    const [awaitSet, setAwaitSet] = useState('');
     const [threshold, setThreshold] = useState('');
 
   const handleSlider1Change = (value) => {
@@ -92,6 +99,18 @@ const Devices = () => {
   const handleSlider4Change = (value) => {
     setSlider4Value(value);
   };
+
+  const handleSlider5Change = (value) => {
+    setSlider5Value(value);
+  }
+
+  const handleSlider6Change = (value) => {
+    setSlider6Value(value);
+  }
+
+  const handleSlider7Change = (value) => {
+    setSlider7Value(value);
+  }
   
     const handleDeviceChange = (event) => {
       setSelectedDevice(event.target.value);
@@ -106,6 +125,10 @@ const Devices = () => {
     const handleSettingClick = (setting) => {
       setSelectedSetting(setting);
     };
+
+    const handleAwaitChange = (setting) => {
+      setAwaitSet(setting);
+    }
 
     const handleHeightChange = (event) => {
       setDeviceHeight(event.target.value);
@@ -166,6 +189,16 @@ const Devices = () => {
       color: opMode === setting ? 'white' : 'black' // change color text
     });
 
+    const getAwaitStyle = (setting) => ({
+      padding: '10px 20px',
+      fontSize: '16px',
+      border: '2px solid #B49837',
+      cursor: 'pointer',
+      borderRadius: '5px',
+      backgroundColor: awaitSet === setting ? '#B49837' : 'transparent', // highlight
+      color: awaitSet === setting ? 'white' : 'black' // change color text
+    });
+
     const getThreshStyle = (setting) => ({
       padding: '10px 20px',
       fontSize: '16px',
@@ -186,6 +219,82 @@ const Devices = () => {
       backgroundColor: '#f5f5f5',
       fontSize: '24px',
     };
+
+
+    const MouseOptions = () => {
+      return (
+        <div style={{ textAlign: 'center', padding: '20px' }}>
+          <div>
+            <h2 style={{ fontSize: '20px' }}> Scale X </h2>
+            <TickedSlider value={slider1Value} onChange={handleSlider1Change} ticks={[0, 25, 50, 75, 100]} />
+          </div>
+          <br></br>
+          <div>
+            <h2 style={{ fontSize: '20px' }}> Scale Y </h2>
+            <TickedSlider value={slider2Value} onChange={handleSlider2Change} ticks={[0, 25, 50, 75, 100]} />
+          </div>
+          <br></br>
+          <div>
+            <h2 style={{ fontSize: '20px' }}> Screen Size </h2>
+            <TickedSlider value={slider3Value} onChange={handleSlider3Change} ticks={[0, 25, 50, 75, 100]} />
+          </div>
+          <br></br>
+    
+          <h2 style={{ fontSize: '15px' }}> Edit Number of Shakes </h2>
+          <form>
+            {/* add onsubmit */}
+            <label>
+              <input style={{ borderColor: 'black', borderWidth: 1, marginLeft: '15px', marginRight: '15px' }} type="text" />
+            </label>
+            <br></br>
+          </form>
+          <br></br>
+    
+          <div>
+            <h2 style={{ fontSize: '20px' }}> Sleep </h2>
+            <TickedSlider value={slider4Value} onChange={handleSlider4Change} ticks={[0, 25, 50, 75, 100]} />
+          </div>
+    
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
+            <button style={getThreshStyle('Low')} onClick={() => handleThreshChange('Low')}>
+              Low
+            </button>
+            <button style={getThreshStyle('Medium')} onClick={() => handleThreshChange('Medium')}>
+              Medium
+            </button>
+            <button style={getThreshStyle('High')} onClick={() => handleThreshChange('High')}>
+              High
+            </button>
+          </div>
+        </div>
+      );
+    };
+
+    const ClickerOptions = () => {
+      return (
+        <div>
+          <h2 style={{ fontSize: '20px' }}> Max Click Spacing</h2>
+          <TickedSlider value={slider5Value} onChange={handleSlider5Change} ticks={[0, 0.2, 0.4, 0.6, 0.8, 1.0]} />
+          <h2 style={{ fontSize: '20px' }}> Tap Threshold </h2>
+          <TickedSlider value={slider6Value} onChange={handleSlider6Change} ticks={[0, 2, 4, 8, 16, 31]} />
+          <h2 style={{ fontSize: '20px' }}> Quiet </h2>
+          <TickedSlider value={slider7Value} onChange={handleSlider7Change} ticks={[0, 1, 2, 3]} />
+        </div>
+      );
+    };
+
+    const TVRemoteOptions = () => {
+      return (
+        <div>
+
+          <h2 style={{ fontSize: '20px' }}> Await Actions </h2>
+          <button style={getAwaitStyle('True')} onClick={() => handleAwaitChange('True')}>True</button>
+          <button style={getAwaitStyle('False')} onClick={() => handleAwaitChange('False')}>False</button>
+
+        </div>
+      );
+    };
+
 
   return (
     <div style={containerStyle}>
@@ -308,8 +417,6 @@ const Devices = () => {
 
             </select>
 
-
-
             <p style={{fontSize: '15px'}}>Width</p>
             {/* height  */}
               <select 
@@ -342,41 +449,13 @@ const Devices = () => {
             <button style={getOpStyle('Practice')} onClick={() => handleOpChange ('Practice')}>Practice</button>
 
             </div>
+            {opMode == 'Gesture Mouse' && <MouseOptions />}
+            {/* {opMode == 'Pointer'} idk what to do here */}
+            {opMode == 'Clicker' && <ClickerOptions/>}
+            {opMode == 'TV Remote' && <TVRemoteOptions/>}
 
-            <div style={{ textAlign: 'center', padding: '20px' }}>
-              <h2 style={{fontSize: '20px'}}> Scale X </h2>
-              <TickedSlider value={slider1Value} onChange={handleSlider1Change} ticks={[0, 25, 50, 75, 100]} />
-              <br></br>
-              <h2 style={{fontSize: '20px'}}> Scale Y </h2>
-              <TickedSlider value={slider2Value} onChange={handleSlider2Change} ticks={[0, 25, 50, 75, 100]} />
-              <br></br>
-              <h2 style={{fontSize: '20px'}}> Screen Size </h2>
-              <TickedSlider value={slider3Value} onChange={handleSlider3Change} ticks={[0, 25, 50, 75, 100]} />
-              <br></br>
-            </div>
-
-
-            <h2 style={{fontSize: '15px'}}> Edit Number of Shakes </h2>
-            <form >
-              {/* add onsubmit */}
-              <label>
-                <input style={{borderColor: 'black', borderWidth: 1, marginLeft: '15px', marginRight: '15px'}} type="text" />
-              </label>
-              <br></br>
-              </form>
-
-            <br></br>
-
-            <h2 style={{fontSize: '20px'}}> Sleep </h2>
-            <TickedSlider value={slider4Value} onChange={handleSlider4Change} ticks={[0, 25, 50, 75, 100]} />
-
-
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
-            <button style={getThreshStyle('Low')} onClick={() => handleThreshChange('Low')}>Low</button>
-            <button style={getThreshStyle('Medium')} onClick={() => handleThreshChange('Medium')}>Medium</button>
-            <button style={getThreshStyle('High')} onClick={() => handleThreshChange('High')}>High</button>
-
-            </div>
+            
+            
           
         </div>
       )}

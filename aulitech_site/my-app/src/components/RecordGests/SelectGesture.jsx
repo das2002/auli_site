@@ -1,200 +1,207 @@
-import React, { useState, Fragment } from "react";
-import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
-import { Listbox, Transition } from "@headlessui/react";
-import { styles } from "./ConfigureGestures";
-import { RadioGroup } from "@headlessui/react";
-import { CheckCircleIcon } from "@heroicons/react/20/solid";
+import React, { useState, useEffect } from "react";
+import { TrashIcon } from '@heroicons/react/20/solid';
 import {
   collection,
   query,
   where,
   getDocs,
-  limit,
-  getCountFromServer,
+  addDoc,
+  doc,
+  deleteDoc
 } from "firebase/firestore";
 import { db } from "../../firebase";
 
-const gestures = [
-  { id: 1, name: "Nod up", count: 0 },
-  { id: 2, name: "Nod down", count: 0 },
-  { id: 3, name: "Nod right", count: 0 },
-  { id: 4, name: "Nod left", count: 0 },
-  { id: 5, name: "Tilt right", count: 0 },
-  { id: 6, name: "Tilt left", count: 0 },
-  { id: 7, name: "Shake vertical", count: 0 },
-  { id: 8, name: "Shake horizontal", count: 0 },
-  { id: 9, name: "Circle clockwise", count: 0 },
-  { id: 10, name: "Circle counterclockwise", count: 0 },
-];
+const SelectGesture = ({ user }) => {
+  const [showPopup, setShowPopup] = useState(false);
+  const [selectedGesture, setSelectedGesture] = useState(null);
+  const [recordingStart, setRecordingStart] = useState(null);
+  const [selectedTimestamps, setSelectedTimestamps] = useState({});
 
-const SelectGesture = ({
-  classNames,
-  handleGestName,
-  user,
-  goToRecordPage,
-}) => {
-  const [gestName, setGestName] = useState("");
-  const [selected, setSelected] = useState();
+  const [gestures, setGestures] = useState([
+    { id: 1, name: "Nod up", count: 0, recordings: [] },
+    { id: 2, name: "Nod down", count: 0, recordings: [] },
+    { id: 3, name: "Nod right", count: 0, recordings: [] },
+    { id: 4, name: "Nod left", count: 0, recordings: [] },
+    { id: 5, name: "Tilt right", count: 0, recordings: [] },
+    { id: 6, name: "Tilt left", count: 0, recordings: [] },
+    { id: 7, name: "Shake vertical", count: 0, recordings: [] },
+    { id: 8, name: "Shake horizontal", count: 0, recordings: [] },
+    { id: 9, name: "Circle clockwise", count: 0, recordings: [] },
+    { id: 10, name: "Circle counterclockwise", count: 0, recordings: [] },
+    ]);
 
-  const shareGesture = (e) => {
-    setSelected(e);
-    setGestName(e.name);
-    handleGestName(e.name);
+  useEffect(() => {
+    getGestStats();
+  }, []);
+
+  const selectTimestamp = (gestureName, timestamp) => {
+    setSelectedTimestamps(prev => ({ ...prev, [gestureName]: timestamp }));
   };
 
-  const getGestStats = async () => {
-    try {
-      const dataRef = collection(db, "gesture-data");
+  const deleteRecording = async (gestureName) => {
+    const selectedRecording = selectedTimestamps[gestureName];
+    if (!selectedRecording) return;
 
-      const userDataQuery = query(dataRef, where("useruid", "==", user.uid));
-      const countSnapshot = await getCountFromServer(userDataQuery);
+    // delete the recording from FB
+    const recordingDocRef = doc(db, "gesture-data", selectedRecording.docId);
+    await deleteDoc(recordingDocRef);
 
-      if (countSnapshot.data().count !== 0) {
-        console.log("Count > 0");
-        const queryTest = query(
-          dataRef,
-          where("useruid", "==", user.uid),
-          limit(countSnapshot.data().count)
-        );
-        const getTest = await getDocs(queryTest);
+    // update the local state & remove recordings
+    setGestures(currentGestures => {
+      return currentGestures.map(gesture => {
+        if (gesture.name === gestureName) {
+          return {
+            ...gesture,
+            recordings: gesture.recordings.filter(recording => recording.timestamp !== selectedRecording.timestamp)
+          };
+        }
+        return gesture;
+      });
+    });
+    setSelectedTimestamps(prev => ({ ...prev, [gestureName]: null }));
+  };
 
-        if (getTest !== null) {
-          getTest.forEach((doc) => {
-            switch (doc.data().gesture) {
-              case "Select":
-                return null;
-              case "Nod up":
-                gestures[1].count += 1;
-                break;
-              case "Nod down":
-                gestures[2].count += 1;
-                break;
-              case "Nod right":
-                gestures[3].count += 1;
-                break;
-              case "Nod left":
-                gestures[4].count += 1;
-                break;
-              case "Tilt right":
-                gestures[5].count += 1;
-                break;
-              case "Tilt left":
-                gestures[6].count += 1;
-                break;
-              case "Shake vertical":
-                gestures[7].count += 1;
-                break;
-              case "Shake horizontal":
-                gestures[8].count += 1;
-                break;
-              case "Circle clockwise":
-                gestures[9].count += 1;
-                break;
-              case "Circle counterclockwise":
-                gestures[10].count += 1;
-                break;
-              default:
-                console.log("switch error");
+  const startRecording = (gesture) => {
+    setSelectedGesture(gesture);
+    setRecordingStart(new Date());
+    setShowPopup(true);
+  };
+  
+  const stopRecording = async () => {
+    const duration = new Date() - recordingStart;
+    const timestamp = new Date();
+    setShowPopup(false);
+  
+    if (selectedGesture) {
+      try {
+        const gestureDataRef = collection(db, "gesture-data");
+        const recordingData = { useruid: user.uid, gesture: selectedGesture.name, timestamp, duration };
+        const docRef = await addDoc(gestureDataRef, recordingData); // Capture the document reference
+  
+        // Update the local state with the new recording
+        setGestures(currentGestures => {
+          return currentGestures.map(gesture => {
+            if (gesture.name === selectedGesture.name) {
+              const newRecording = {
+                timestamp: timestamp.toLocaleString(),
+                docId: docRef.id // Use the document ID from Firestore
+              };
+              return {
+                ...gesture,
+                recordings: [...gesture.recordings, newRecording]
+              };
             }
+            return gesture;
           });
-        } else {
-          console.log(getTest);
+        });
+  
+        console.log("Recording saved for gesture:", selectedGesture.name);
+      } catch (error) {
+        console.error("Error saving recording data:", error);
+      }
+    }
+  };  
+
+  const getGestStats = async () => {
+    const dataRef = collection(db, "gesture-data");
+    const userDataQuery = query(dataRef, where("useruid", "==", user.uid));
+    const snapshot = await getDocs(userDataQuery);
+    const updatedGestures = gestures.map(gesture => ({
+      ...gesture,
+      recordings: []
+    }));
+  
+    snapshot.forEach((doc) => {
+      const gestureName = doc.data().gesture;
+      const gestureIndex = updatedGestures.findIndex(g => g.name === gestureName);
+      if (gestureIndex !== -1) {
+        const timestampString = doc.data().timestamp.toDate().toLocaleString();
+        const recording = {
+          timestamp: timestampString,
+          docId: doc.id  // store FB document id
+        };
+        if (!updatedGestures[gestureIndex].recordings.find(r => r.timestamp === timestampString)) {
+          updatedGestures[gestureIndex].recordings.push(recording);
         }
       }
-    } catch (error) {
-      console.log("guery gesture-data collection error:", error);
-    }
+    });
+    setGestures(updatedGestures);
   };
 
   const GestureGrid = () => {
-    getGestStats();
-
     return (
-      <RadioGroup value={selected} onChange={shareGesture}>
-        <RadioGroup.Label className="text-lg font-semibold leading-6 text-gray-900">
-          Select Gesture
-        </RadioGroup.Label>
-
-        <div className="mt-4 grid grid-cols-1 gap-y-6 sm:grid-cols-3 sm:gap-x-4">
-          {gestures.map((gest) => (
-            <RadioGroup.Option
-              key={gest.id}
-              value={gest}
-              className={({ active }) =>
-                classNames(
-                  active
-                    ? "border-blue-500 ring-2 ring-blue-500"
-                    : "border-gray-200",
-                  "relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none hover:border-blue-300 hover:ring-blue-300 hover:ring-1 hover:ring-inset"
-                )
-              }
+      <div className="mt-4 mx-auto max-w-2xl">
+        <div className="grid grid-cols-1 gap-y-6 sm:grid-cols-2 sm:gap-x-4">
+          {gestures.map((gesture) => (
+            <div
+              key={gesture.id}
+              className="relative flex flex-col items-center rounded-lg border border-gray-200 bg-gray-200 p-4 shadow-sm focus:outline-none"
             >
-              {({ checked, active }) => (
-                <>
-                  <span className="flex flex-1">
-                    <span className="flex flex-col">
-                      <RadioGroup.Label
-                        as="span"
-                        className="block text-lg font-medium text-gray-900"
+              <span className="block text-lg font-medium text-gray-900">
+                {gesture.name}
+              </span>
+              <div className="mt-4 w-full flex items-center justify-between px-2">
+                <button
+                  className="rounded-md p-1 cursor-pointer transition-colors duration-150 ease-in-out"
+                  style={{ backgroundColor: 'rgba(219, 71, 71, 0.5)' }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(201, 67, 67, 0.7)'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(219, 71, 71, 0.5)'}
+                  onClick={() => startRecording(gesture)}
+                >
+                  <svg className="h-8 w-8" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="9" fill="#F00B0B" />
+                  </svg>
+                </button>
+                <div className="flex-grow bg-white p-4 mx-2 rounded shadow flex flex-col items-center h-24 overflow-auto">
+                  {gesture.recordings.length > 0 ? (
+                    gesture.recordings.map((recording, index) => (
+                      <div
+                        key={index}
+                        className={`text-sm cursor-pointer ${selectedTimestamps[gesture.name]?.timestamp === recording.timestamp ? 'bg-gray-200' : ''}`}
+                        onClick={() => selectTimestamp(gesture.name, recording)}
                       >
-                        {gest.name}
-                      </RadioGroup.Label>
-                      {/* <RadioGroup.Description as="span" className="mt-1 flex items-center text-sm text-gray-500">
-                      {gest.count}
-                    </RadioGroup.Description> */}
-                      <RadioGroup.Description
-                        as="span"
-                        className="mt-6 text-sm font-medium text-gray-900"
-                      >
-                        {gest.count} / 5
-                      </RadioGroup.Description>
-                    </span>
-                  </span>
-                  <CheckCircleIcon
-                    className={classNames(
-                      !checked ? "invisible" : "",
-                      "h-6 w-6 text-blue-500"
-                    )}
-                    aria-hidden="true"
-                  />
-                  <span
-                    className={classNames(
-                      active ? "border" : "border-2",
-                      checked ? "border-blue-500" : "border-transparent",
-                      "pointer-events-none absolute -inset-px rounded-lg"
-                    )}
-                    aria-hidden="true"
-                  />
-                </>
-              )}
-            </RadioGroup.Option>
+                        {recording.timestamp}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-sm text-gray-500">No recordings</div>
+                  )}
+                </div>
+                <button
+                  className="rounded-md bg-gray-300 p-2 text-gray-700 hover:bg-gray-500 cursor-pointer"
+                  onClick={() => deleteRecording(gesture.name)}
+                >
+                  <TrashIcon className="h-6 w-6" aria-hidden="true" />
+                </button>
+              </div>
+            </div>
           ))}
         </div>
-      </RadioGroup>
+      </div>
     );
-  };
-
+  };  
+  
   return (
     <div className="">
       <div className="border-b border-gray-200 pb-10">
         <GestureGrid />
       </div>
-      <div>
-        <button
-          type="button"
-          disabled={gestName === ""}
-          onClick={goToRecordPage}
-          className={classNames(
-            gestName === ""
-              ? "bg-gray-300 cursor-not-allowed"
-              : "bg-blue-500 hover:bg-blue-300",
-            " focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500",
-            "mt-10 inline-flex items-center rounded-full px-2.5 py-1 text-xl font-semibold text-white shadow-sm"
-          )}
-        >
-          Select
-        </button>
-      </div>
+      {showPopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center justify-between" style={{ width: '50%', height: '50%' }}>
+            <p className="text-lg font-medium text-center">
+              <strong>Instructions:</strong> When the prompt for you to gesture shows up, perform the gesture as you would.
+            </p>
+            <p className="text-lg font-medium">Recording...</p>
+            <button 
+              className="rounded-md bg-red-500 p-3 text-white hover:bg-red-700" 
+              onClick={stopRecording}
+            >
+              Stop Recording
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
