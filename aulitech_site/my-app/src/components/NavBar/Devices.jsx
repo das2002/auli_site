@@ -1,5 +1,17 @@
 import React, { useState } from 'react';
 import Slider from 'react-slider';
+import {db} from "../../firebase"
+import {collection, getDocs} from "firebase/firestore"
+
+// when you open this page, the dropdown should be populated with all of the devices that are registered with the user.
+  // only the devices that are connected to the computer via USB should be clickable and highlighted
+// when you click on the device
+  // the fields to edit the nickname, the hardware id, and the interface selection should come up
+  
+
+
+
+
 
 const TickedSlider = ({ value, onChange, ticks }) => {
   return (
