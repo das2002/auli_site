@@ -71,7 +71,49 @@ const DashedLine = () => {
   );
 };
 
+
 const Devices = () => {
+
+   
+const [userCatosList, setUserCatosList] = useState([]);
+
+useEffect(() => {
+  const fetchReleases = async () => {
+    const releasesRef = collection(
+      db,
+       'users/Giohxu3jrKP1rVE7AdBoe65u6Kh1/userCatos'
+    );
+    try {
+      const querySnapshot = await getDocs(releasesRef);
+      const userCatosData = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        console.log('data ', data);
+        userCatosData.push(data);
+      });
+
+      console.log('UserCatos list:', userCatosData);
+      setUserCatosList(userCatosData);
+    } catch (error) {
+      console.error('Error fetching releases:', error);
+    }
+  };
+
+  fetchReleases();
+}, []);
+
+
+const [devices, getUSBDevices] = USBDeviceList();
+
+// devices.push(userCatosList[0]);
+
+useEffect(() => {
+// Use the USB devices array here
+console.log('USB Devices:', devices);
+}, [devices]);
+
+
+
     const [selectedDevice, setSelectedDevice] = useState('');
     const [selectedSetting, setSelectedSetting] = useState('');
     const [deviceName, setDeviceName] = useState('');
@@ -87,8 +129,8 @@ const Devices = () => {
     const [quietValue, setQuietValue] = useState(0);
     const [awaitSet, setAwaitSet] = useState('');
     const [threshold, setThreshold] = useState('');
+    const [givenDevice, setGivenDevice] = useState(userCatosList[0]);
 
-    
 
   const handleScaleXChange = (value) => {
     setscaleXSlider(value);
@@ -126,6 +168,20 @@ const Devices = () => {
     const handleNewDevice = (event) => {
       setDeviceName(event.target.value);
       setSelectedSetting('');
+
+      if (deviceName == 'Select A Device Here' || deviceName == '') {
+        console.log('default');
+      }
+      else {
+        userCatosList.forEach((doc) => {
+          if (doc.device_info.device_nickname == deviceName) {
+            setGivenDevice(doc);
+          }
+        });
+
+      }
+      // console.log(givenDevice.device_info);
+      
     }
   
     const handleSettingClick = (setting) => {
@@ -225,42 +281,7 @@ const Devices = () => {
       backgroundColor: '#f5f5f5',
       fontSize: '24px',
     };
-
-const userCatosList = [];
-useEffect(() => {
-  const fetchReleases = async () => {
-    const releasesRef = collection(db, 'users/21bk8eEk6iRg2WMaBfOrljlsH1z2/userCatos');
-    try {
-      setTimeout(async () => {
-        const querySnapshot = await getDocs(releasesRef);
-        // Array to store userCatos
-        
-
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          console.log('data ', data)
-          userCatosList.push(data);
-        });
-
-        console.log('UserCatos list:', userCatosList);
-      }, 500); // 500 milliseconds delay
-    } catch (error) {
-      console.error('Error fetching releases:', error);
-    }
-  };
-
-  fetchReleases();
-}, []);
-
-const [devices, getUSBDevices] = USBDeviceList();
-
-devices.push(userCatosList[0]);
-
-useEffect(() => {
-  // Use the USB devices array here
-  console.log('USB Devices:', devices);
-}, [devices]);
-
+    
 
     const MouseOptions = () => {
       return (
@@ -351,7 +372,9 @@ useEffect(() => {
         <p style={paragraphStyle}>This is the Devices page where you can manage and view connected devices.</p>
         
       <h2 style={{fontSize: '30px'}}>Select Device</h2>
-      <select 
+
+      <div>
+      <select
         value={deviceName}
         onChange={handleNewDevice}
         style={{
@@ -361,22 +384,16 @@ useEffect(() => {
           cursor: 'pointer',
           marginBottom: '20px',
           border: '2px solid #B49837'
-        }}
-        >
-        <option value="">Choose your device here!</option>
-        {/* need to get these values from the config file, hardcode for now? */}
-        <option value="device1">My Device 1</option>
-        <option value="device2">My Device 2</option>
-        <option value="device3">My Device 3</option>
+      }}>
+        <option> Select A Device Here </option>
+        {userCatosList.map((userCato, index) => (
+          <option key={index} value={userCato.device_info.device_nickname}>
+            {userCato.device_info.device_nickname}
+          </option>
+        ))}
 
-        </select>
-
-        {/* <View style={{
-            borderStyle: 'dotted',
-            borderWidth: 1,
-            borderRadius: 1,
-          }}>
-        </View> */}
+      </select>
+    </div>
 
         <DashedLine />
         <br></br>
@@ -386,7 +403,8 @@ useEffect(() => {
       <form >
         <label>
           Name:  
-          <input style={{borderColor: 'black', borderWidth: 1, marginLeft: '15px', marginRight: '15px'}} type="text" />
+          <input value={givenDevice.device_info.device_nickname}
+           style={{borderColor: 'black', borderWidth: 1, marginLeft: '15px', marginRight: '15px'}} type="text" />
         </label>
         <br></br>
         </form>
@@ -396,7 +414,8 @@ useEffect(() => {
 
       <h2 style={{fontSize: '20px'}}> Hardware UID </h2>
       {/* value to be read in from config  */}
-      <input style={{borderColor: 'black', borderWidth: 1, paddingLeft: '15px', marginLeft: '15px', marginRight: '15px'}} className="e-input" type="text" placeholder="UID Here" value="" readOnly={true}/>
+      <input value={givenDevice.device_info.HW_UID}
+      style={{borderColor: 'black', borderWidth: 1, paddingLeft: '15px', marginLeft: '15px', marginRight: '15px'}} className="e-input" type="text" placeholder="UID Here" readOnly={true}/>
       <br></br>
       <br></br>
 
@@ -413,7 +432,9 @@ useEffect(() => {
           border: '2px solid #B49837'
         }}
       >
-        <option value="">Select an interface</option>
+
+        <option> Select An Interface </option>
+        {/* <option value="">Select an interface</option> */}
         <option value="inter1">Interface 1</option>
         <option value="inter2">Interface 2</option>
         <option value="inter3">Interface 3</option>
