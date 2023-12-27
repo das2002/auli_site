@@ -2,7 +2,18 @@ import React, { useEffect, useState } from 'react';
 import Slider from 'react-slider';
 import { db } from "../../firebase";
 import { collection, getDocs } from 'firebase/firestore';
-import  USBDeviceList  from './USBDeviceList.jsx';
+import USBDeviceList from './USBDeviceList.jsx';
+import { auth } from "../../firebase"
+
+const getCurrentUserId = () => {
+  const currentUser = auth.currentUser;
+  if (currentUser) {
+    const userId = currentUser.uid;
+    return userId;
+  } else {
+    return null;
+  }
+};
 
 const TickedSlider = ({ value, onChange, ticks }) => {
   return (
@@ -74,62 +85,53 @@ const DashedLine = () => {
 
 const Devices = () => {
 
-   
-const [userCatosList, setUserCatosList] = useState([]);
 
-useEffect(() => {
-  const fetchReleases = async () => {
-    const releasesRef = collection(
-      db,
-       'users/Giohxu3jrKP1rVE7AdBoe65u6Kh1/userCatos'
-    );
-    try {
-      const querySnapshot = await getDocs(releasesRef);
-      const userCatosData = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        console.log('data ', data);
-        userCatosData.push(data);
-      });
+  const [userCatosList, setUserCatosList] = useState([]);
 
-      console.log('UserCatos list:', userCatosData);
-      setUserCatosList(userCatosData);
-    } catch (error) {
-      console.error('Error fetching releases:', error);
-    }
-  };
+  useEffect(() => {
+    const fetchReleases = async () => {
+      const releasesRef = collection(
+        db,
+        'users/' + getCurrentUserId() + '/userCatos'
+      );
+      try {
+        const querySnapshot = await getDocs(releasesRef);
+        const userCatosData = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          console.log('data ', data);
+          userCatosData.push(data);
+        });
 
-  fetchReleases();
-}, []);
+        console.log('UserCatos list:', userCatosData);
+        setUserCatosList(userCatosData);
+      } catch (error) {
+        console.error('Error fetching releases:', error);
+      }
+    };
 
+    fetchReleases();
+  }, []);
 
-const [devices, getUSBDevices] = USBDeviceList();
-
-// devices.push(userCatosList[0]);
-
-useEffect(() => {
-// Use the USB devices array here
-console.log('USB Devices:', devices);
-}, [devices]);
-
-
-
-    const [selectedDevice, setSelectedDevice] = useState('');
-    const [selectedSetting, setSelectedSetting] = useState('');
-    const [deviceName, setDeviceName] = useState('');
-    const [deviceHeight, setDeviceHeight] = useState(500);
-    const [deviceWidth, setDeviceWidth] = useState(500);
-    const [opMode, setOpMode] = useState('');
-    const [scaleXSlider, setscaleXSlider] = useState(0);
-    const [scaleYSlider, setscaleYSlider] = useState(0);
-    const [screenSizeSlider, setscreenSizeSlider] = useState(0);
-    const [sleepSlider, setSleepSlider] = useState(0);
-    const [maxClick, setmaxClick] = useState(0);
-    const [tapThreshold, settapThreshold] = useState(0);
-    const [quietValue, setQuietValue] = useState(0);
-    const [awaitSet, setAwaitSet] = useState('');
-    const [threshold, setThreshold] = useState('');
-    const [givenDevice, setGivenDevice] = useState(userCatosList[0]);
+  const [isSelected, setIsSelected] = useState(false);
+  const [devices, getUSBDevices] = USBDeviceList();
+  const [selectedDevice, setSelectedDevice] = useState('');
+  const [selectedSetting, setSelectedSetting] = useState('');
+  //let [deviceName, setDeviceName] = useState('');
+  let deviceName = ''
+  const [deviceHeight, setDeviceHeight] = useState(500);
+  const [deviceWidth, setDeviceWidth] = useState(500);
+  const [opMode, setOpMode] = useState('');
+  const [scaleXSlider, setscaleXSlider] = useState(0);
+  const [scaleYSlider, setscaleYSlider] = useState(0);
+  const [screenSizeSlider, setscreenSizeSlider] = useState(0);
+  const [sleepSlider, setSleepSlider] = useState(0);
+  const [maxClick, setmaxClick] = useState(0);
+  const [tapThreshold, settapThreshold] = useState(0);
+  const [quietValue, setQuietValue] = useState(0);
+  const [awaitSet, setAwaitSet] = useState('');
+  const [threshold, setThreshold] = useState('');
+  const [givenDevice, setGivenDevice] = useState(userCatosList[0]);
 
 
   const handleScaleXChange = (value) => {
@@ -159,309 +161,288 @@ console.log('USB Devices:', devices);
   const handleQuietChange = (value) => {
     setQuietValue(value);
   }
-  
-    const handleDeviceChange = (event) => {
-      setSelectedDevice(event.target.value);
-      setSelectedSetting(''); // Reset setting selection when device changes
-    };
 
-    const handleNewDevice = (event) => {
-      setDeviceName(event.target.value);
-      setSelectedSetting('');
+  const handleDeviceChange = (event) => {
+    setSelectedDevice(event.target.value);
+    setSelectedSetting(''); // Reset setting selection when device changes
+  };
 
-      if (deviceName == 'Select A Device Here' || deviceName == '') {
-        console.log('default');
-      }
-      else {
-        userCatosList.forEach((doc) => {
-          if (doc.device_info.device_nickname == deviceName) {
-            setGivenDevice(doc);
-          }
-        });
+  const connectionsData = [];
 
-      }
-      // console.log(givenDevice.device_info);
-      
-    }
-  
-    const handleSettingClick = (setting) => {
-      setSelectedSetting(setting);
-    };
-
-    const handleAwaitChange = (setting) => {
-      setAwaitSet(setting);
-    }
-
-    const handleHeightChange = (event) => {
-      setDeviceHeight(event.target.value);
-    }
-
-    const handleWidthChange = (event) => {
-      setDeviceWidth(event.target.value);
-    }
-
-    const handleOpChange = (setting) => {
-      setOpMode(setting);
-    }
-
-    const handleThreshChange = (setting) => {
-      setThreshold(setting);
-    }
-  
-    const paragraphStyle = {
-      marginBottom: '40px',
-      textAlign: 'left'
-    };
-    const containerStyle = {
-        position: 'relative',
-        paddingBottom: '70px' // Add padding to accommodate the Save button
-    };
-
-    const saveButtonStyle = {
-        position: 'absolute',
-        right: '20px',
-        bottom: '20px',
-        padding: '10px 20px',
-        backgroundColor: '#B49837',
-        color: 'white',
-        border: 'none',
-        borderRadius: '5px',
-        cursor: 'pointer',
-        fontSize: '16px'
-      };
-  
-    // Modified button style function
-    const getButtonStyle = (setting) => ({
-      padding: '10px 20px',
-      fontSize: '16px',
-      border: '2px solid #B49837',
-      cursor: 'pointer',
-      borderRadius: '5px',
-      backgroundColor: selectedSetting === setting ? '#B49837' : 'transparent', // highlight
-      color: selectedSetting === setting ? 'white' : 'black' // change color text
-    });
-
-    const getOpStyle = (setting) => ({
-      padding: '10px 20px',
-      fontSize: '16px',
-      border: '2px solid #B49837',
-      cursor: 'pointer',
-      borderRadius: '5px',
-      backgroundColor: opMode === setting ? '#B49837' : 'transparent', // highlight
-      color: opMode === setting ? 'white' : 'black' // change color text
-    });
-
-    const getAwaitStyle = (setting) => ({
-      padding: '10px 20px',
-      fontSize: '16px',
-      border: '2px solid #B49837',
-      cursor: 'pointer',
-      borderRadius: '5px',
-      backgroundColor: awaitSet === setting ? '#B49837' : 'transparent', // highlight
-      color: awaitSet === setting ? 'white' : 'black' // change color text
-    });
-
-    const getThreshStyle = (setting) => ({
-      padding: '10px 20px',
-      fontSize: '16px',
-      border: '2px solid #B49837',
-      cursor: 'pointer',
-      borderRadius: '5px',
-      backgroundColor: threshold === setting ? '#B49837' : 'transparent', // highlight
-      color: threshold === setting ? 'white' : 'black' // change color text
-    });
-  
-    const settingsBoxStyle = {
-      display: 'flex',
-      flexDirection: 'column', // Changed to column layout
-      alignItems: 'center',
-      width: '80%',
-      margin: '20px auto',
-      borderRadius: '15px',
-      backgroundColor: '#f5f5f5',
-      fontSize: '24px',
-    };
+  const handleNewDevice = (event) => {
+    console.log(event.target.value);
+    //setDeviceName(event.target.value);
+    setSelectedSetting('');
     
+    deviceName = event.target.value;
+    // console.log(deviceName);
 
-    const MouseOptions = () => {
-      return (
-        <div style={{ textAlign: 'center', padding: '20px' }}>
-          <div>
-            <h2 style={{ fontSize: '20px' }}> Scale X </h2>
-            <TickedSlider value={scaleXSlider} onChange={handleScaleXChange} ticks={[0, 25, 50, 75, 100]} />
-          </div>
-          <br></br>
-          <div>
-            <h2 style={{ fontSize: '20px' }}> Scale Y </h2>
-            <TickedSlider value={scaleYSlider} onChange={handleScaleYChange} ticks={[0, 25, 50, 75, 100]} />
-          </div>
-          <br></br>
-          <div>
-            <h2 style={{ fontSize: '20px' }}> Screen Size </h2>
-            <TickedSlider value={screenSizeSlider} onChange={handleScreenSizeSliderChange} ticks={[0, 25, 50, 75, 100]} />
-          </div>
-          <br></br>
-    
-          <h2 style={{ fontSize: '15px' }}> Edit Number of Shakes </h2>
-          <form>
-            {/* add onsubmit */}
-            <label>
-              <input style={{ borderColor: 'black', borderWidth: 1, marginLeft: '15px', marginRight: '15px' }} type="text" />
-            </label>
-            <br></br>
-          </form>
-          <br></br>
-    
-          <div>
-            <h2 style={{ fontSize: '20px' }}> Sleep </h2>
-            <TickedSlider value={sleepSlider} onChange={handleSleepSliderChange} ticks={[0, 25, 50, 75, 100]} />
-          </div>
-    
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
-            <button style={getThreshStyle('Low')} onClick={() => handleThreshChange('Low')}>
-              Low
-            </button>
-            <button style={getThreshStyle('Medium')} onClick={() => handleThreshChange('Medium')}>
-              Medium
-            </button>
-            <button style={getThreshStyle('High')} onClick={() => handleThreshChange('High')}>
-              High
-            </button>
-          </div>
-        </div>
-      );
-    };
 
-    const ClickerOptions = () => {
-      return (
+    if (event.target.value === 'Select A Device Here' || event.target.value == '') {
+      console.log('default');
+      setIsSelected(false);
+    }
+    else {
+      setIsSelected(true);
+      userCatosList.forEach((doc) => {
+        console.log("line 190");
+        console.log(doc);
+        if (doc.device_info.device_nickname == event.target.value) {
+          setGivenDevice(doc);
+        }
+      });
+
+    }
+
+    console.log(isSelected);
+    if (isSelected) {
+      givenDevice.connections.forEach((doc) => {
+        const data = doc.data();
+        console.log('connection interface ', data);
+        connectionsData.push(data);
+      });
+    }
+  }
+
+  const handleSettingClick = (setting) => {
+    setSelectedSetting(setting);
+  };
+
+  const handleAwaitChange = (setting) => {
+    setAwaitSet(setting);
+  }
+
+  const handleHeightChange = (event) => {
+    setDeviceHeight(event.target.value);
+  }
+
+  const handleWidthChange = (event) => {
+    setDeviceWidth(event.target.value);
+  }
+
+  const handleOpChange = (setting) => {
+    setOpMode(setting);
+  }
+
+  const handleThreshChange = (setting) => {
+    setThreshold(setting);
+  }
+
+  const paragraphStyle = {
+    marginBottom: '40px',
+    textAlign: 'left'
+  };
+  const containerStyle = {
+    position: 'relative',
+    paddingBottom: '70px' // Add padding to accommodate the Save button
+  };
+
+  const saveButtonStyle = {
+    position: 'absolute',
+    right: '20px',
+    bottom: '20px',
+    padding: '10px 20px',
+    backgroundColor: '#B49837',
+    color: 'white',
+    border: 'none',
+    borderRadius: '5px',
+    cursor: 'pointer',
+    fontSize: '16px'
+  };
+
+  // Modified button style function
+  const getButtonStyle = (setting) => ({
+    padding: '10px 20px',
+    fontSize: '16px',
+    border: '2px solid #B49837',
+    cursor: 'pointer',
+    borderRadius: '5px',
+    backgroundColor: selectedSetting === setting ? '#B49837' : 'transparent', // highlight
+    color: selectedSetting === setting ? 'white' : 'black' // change color text
+  });
+
+  const getOpStyle = (setting) => ({
+    padding: '10px 20px',
+    fontSize: '16px',
+    border: '2px solid #B49837',
+    cursor: 'pointer',
+    borderRadius: '5px',
+    backgroundColor: opMode === setting ? '#B49837' : 'transparent', // highlight
+    color: opMode === setting ? 'white' : 'black' // change color text
+  });
+
+  const getAwaitStyle = (setting) => ({
+    padding: '10px 20px',
+    fontSize: '16px',
+    border: '2px solid #B49837',
+    cursor: 'pointer',
+    borderRadius: '5px',
+    backgroundColor: awaitSet === setting ? '#B49837' : 'transparent', // highlight
+    color: awaitSet === setting ? 'white' : 'black' // change color text
+  });
+
+  const getThreshStyle = (setting) => ({
+    padding: '10px 20px',
+    fontSize: '16px',
+    border: '2px solid #B49837',
+    cursor: 'pointer',
+    borderRadius: '5px',
+    backgroundColor: threshold === setting ? '#B49837' : 'transparent', // highlight
+    color: threshold === setting ? 'white' : 'black' // change color text
+  });
+
+  const settingsBoxStyle = {
+    display: 'flex',
+    flexDirection: 'column', // Changed to column layout
+    alignItems: 'center',
+    width: '80%',
+    margin: '20px auto',
+    borderRadius: '15px',
+    backgroundColor: '#f5f5f5',
+    fontSize: '24px',
+  };
+
+
+  const MouseOptions = () => {
+    return (
+      <div style={{ textAlign: 'center', padding: '20px' }}>
         <div>
-          <h2 style={{ fontSize: '20px' }}> Max Click Spacing</h2>
-          <TickedSlider value={maxClick} onChange={handleMaxClickChange} ticks={[0, 0.2, 0.4, 0.6, 0.8, 1.0]} />
-          <h2 style={{ fontSize: '20px' }}> Tap Threshold </h2>
-          <TickedSlider value={tapThreshold} onChange={handleTapThresholdChange} ticks={[0, 2, 4, 8, 16, 31]} />
-          <h2 style={{ fontSize: '20px' }}> Quiet </h2>
-          <TickedSlider value={quietValue} onChange={handleQuietChange} ticks={[0, 1, 2, 3]} />
+          <h2 style={{ fontSize: '20px' }}> Scale X </h2>
+          <TickedSlider value={scaleXSlider} onChange={handleScaleXChange} ticks={[0, 25, 50, 75, 100]} />
         </div>
-      );
-    };
-
-    const TVRemoteOptions = () => {
-      return (
+        <br></br>
         <div>
-
-          <h2 style={{ fontSize: '20px' }}> Await Actions </h2>
-          <button style={getAwaitStyle('True')} onClick={() => handleAwaitChange('True')}>True</button>
-          <button style={getAwaitStyle('False')} onClick={() => handleAwaitChange('False')}>False</button>
-
+          <h2 style={{ fontSize: '20px' }}> Scale Y </h2>
+          <TickedSlider value={scaleYSlider} onChange={handleScaleYChange} ticks={[0, 25, 50, 75, 100]} />
         </div>
-      );
-    };
+        <br></br>
+        <div>
+          <h2 style={{ fontSize: '20px' }}> Screen Size </h2>
+          <TickedSlider value={screenSizeSlider} onChange={handleScreenSizeSliderChange} ticks={[0, 25, 50, 75, 100]} />
+        </div>
+        <br></br>
+
+        <h2 style={{ fontSize: '15px' }}> Edit Number of Shakes </h2>
+        <form>
+          {/* add onsubmit */}
+          <label>
+            <input style={{ borderColor: 'black', borderWidth: 1, marginLeft: '15px', marginRight: '15px' }} type="text" />
+          </label>
+          <br></br>
+        </form>
+        <br></br>
+
+        <div>
+          <h2 style={{ fontSize: '20px' }}> Sleep </h2>
+          <TickedSlider value={sleepSlider} onChange={handleSleepSliderChange} ticks={[0, 25, 50, 75, 100]} />
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
+          <button style={getThreshStyle('Low')} onClick={() => handleThreshChange('Low')}>
+            Low
+          </button>
+          <button style={getThreshStyle('Medium')} onClick={() => handleThreshChange('Medium')}>
+            Medium
+          </button>
+          <button style={getThreshStyle('High')} onClick={() => handleThreshChange('High')}>
+            High
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const ClickerOptions = () => {
+    return (
+      <div>
+        <h2 style={{ fontSize: '20px' }}> Max Click Spacing</h2>
+        <TickedSlider value={maxClick} onChange={handleMaxClickChange} ticks={[0, 0.2, 0.4, 0.6, 0.8, 1.0]} />
+        <h2 style={{ fontSize: '20px' }}> Tap Threshold </h2>
+        <TickedSlider value={tapThreshold} onChange={handleTapThresholdChange} ticks={[0, 2, 4, 8, 16, 31]} />
+        <h2 style={{ fontSize: '20px' }}> Quiet </h2>
+        <TickedSlider value={quietValue} onChange={handleQuietChange} ticks={[0, 1, 2, 3]} />
+      </div>
+    );
+  };
+
+  const TVRemoteOptions = () => {
+    return (
+      <div>
+
+        <h2 style={{ fontSize: '20px' }}> Await Actions </h2>
+        <button style={getAwaitStyle('True')} onClick={() => handleAwaitChange('True')}>True</button>
+        <button style={getAwaitStyle('False')} onClick={() => handleAwaitChange('False')}>False</button>
+
+      </div>
+    );
+  };
 
 
   return (
     <div style={containerStyle}>
-    <div>
-      {/* Header */}
-      <header className="flex justify-between bg-transparent border-b border-gray-200">
-        <div className="flex h-16 max-w-7xl justify-between items-center">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight py-1">Devices</h2>
-        </div>
-      </header>
-
-      <div style={{ textAlign: 'center', marginTop: '20px' }}>
-        <p style={paragraphStyle}>This is the Devices page where you can manage and view connected devices.</p>
-        
-      <h2 style={{fontSize: '30px'}}>Select Device</h2>
-
       <div>
-      <select
-        value={deviceName}
-        onChange={handleNewDevice}
-        style={{
-          padding: '10px',
-          borderRadius: '5px',
-          outline: 'none',
-          cursor: 'pointer',
-          marginBottom: '20px',
-          border: '2px solid #B49837'
-      }}>
-        <option> Select A Device Here </option>
-        {userCatosList.map((userCato, index) => (
-          <option key={index} value={userCato.device_info.device_nickname}>
-            {userCato.device_info.device_nickname}
-          </option>
-        ))}
+        {/* Header */}
+        <header className="flex justify-between bg-transparent border-b border-gray-200">
+          <div className="flex h-16 max-w-7xl justify-between items-center">
+            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight py-1">Devices</h2>
+          </div>
+        </header>
 
-      </select>
-    </div>
+        <div style={{ textAlign: 'center', marginTop: '20px' }}>
+          <p style={paragraphStyle}>This is the Devices page where you can manage and view connected devices.</p>
 
-        <DashedLine />
-        <br></br>
+          <h2 style={{ fontSize: '30px' }}>Select Device</h2>
 
+          <div>
+            <select
+              value={deviceName}
+              onChange={handleNewDevice}
+              style={{
+                padding: '10px',
+                borderRadius: '5px',
+                outline: 'none',
+                cursor: 'pointer',
+                marginBottom: '20px',
+                border: '2px solid #B49837'
+              }}>
+              <option> Select A Device Here </option>
+              {userCatosList.length > 0 && userCatosList.map((userCato, index) => (
+                <option key={index} value={userCato.device_info.device_nickname}>
+                  {userCato.device_info.device_nickname}
+                </option>
+              ))}
 
-      <h2 style={{fontSize: '20px'}}> Edit Nickname </h2>
-      <form >
-        <label>
-          Name:  
-          <input value={givenDevice.device_info.device_nickname}
-           style={{borderColor: 'black', borderWidth: 1, marginLeft: '15px', marginRight: '15px'}} type="text" />
-        </label>
-        <br></br>
-        </form>
+            </select>
+          </div>
 
-        <br></br>
-
-
-      <h2 style={{fontSize: '20px'}}> Hardware UID </h2>
-      {/* value to be read in from config  */}
-      <input value={givenDevice.device_info.HW_UID}
-      style={{borderColor: 'black', borderWidth: 1, paddingLeft: '15px', marginLeft: '15px', marginRight: '15px'}} className="e-input" type="text" placeholder="UID Here" readOnly={true}/>
-      <br></br>
-      <br></br>
-
-      <h2 style={{fontSize: '20px'}}> Device Interface </h2>
-      <select 
-        value={selectedDevice} 
-        onChange={handleDeviceChange}
-        style={{
-          padding: '10px',
-          borderRadius: '5px',
-          outline: 'none',
-          cursor: 'pointer',
-          marginBottom: '20px',
-          border: '2px solid #B49837'
-        }}
-      >
-
-        <option> Select An Interface </option>
-        {/* <option value="">Select an interface</option> */}
-        <option value="inter1">Interface 1</option>
-        <option value="inter2">Interface 2</option>
-        <option value="inter3">Interface 3</option>
-      </select>
-
-      <DashedLine />
-
-
-      {selectedDevice && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
-          <button style={getButtonStyle('TV')} onClick={() => handleSettingClick('TV')}>TV</button>
-          <button style={getButtonStyle('Mac')} onClick={() => handleSettingClick('Mac')}>Mac</button>
-          <button style={getButtonStyle('Wheelchair')} onClick={() => handleSettingClick('Wheelchair')}>Wheelchair</button>
-          <button style={getButtonStyle('iPad')} onClick={() => handleSettingClick('iPad')}>iPad</button>
-        </div>
-      )}
-
-      {selectedSetting && (
-        <div style={settingsBoxStyle}>
-          <p>Settings for {selectedSetting}</p>
-          <h2 style={{fontSize: '20px'}}> Screen Size </h2>
+          <DashedLine />
           <br></br>
-          <p style={{fontSize: '15px'}}>Height</p>
-            {/* height  */}
-              <select 
-            value={deviceHeight}
-            onChange={handleHeightChange}
+
+
+          <h2 style={{ fontSize: '20px' }}> Edit Nickname </h2>
+          <form >
+            <label>
+              Name:
+              {isSelected && givenDevice != null && <input value={givenDevice.device_info.device_nickname}
+                style={{ borderColor: 'black', borderWidth: 1, marginLeft: '15px', marginRight: '15px' }} type="text" />}
+            </label>
+            <br></br>
+          </form>
+
+          <br></br>
+
+
+          <h2 style={{ fontSize: '20px' }}> Hardware UID </h2>
+          {/* value to be read in from config  */}
+          {isSelected && givenDevice != null && <input value={givenDevice.device_info.HW_UID}
+            style={{ borderColor: 'black', borderWidth: 1, paddingLeft: '15px', marginLeft: '15px', marginRight: '15px' }} className="e-input" type="text" placeholder="UID Here" readOnly={true} />}
+          <br></br>
+          <br></br>
+
+          <h2 style={{ fontSize: '20px' }}> Device Interface </h2>
+          <select
+            value={selectedDevice}
+            onChange={handleDeviceChange}
             style={{
               padding: '10px',
               borderRadius: '5px',
@@ -470,62 +451,107 @@ console.log('USB Devices:', devices);
               marginBottom: '20px',
               border: '2px solid #B49837'
             }}
-            >
-            <option value="">Choose Your Interface Height!</option>
-            {/* need to get these values from the config file, hardcode for now? */}
-            <option value="height1">height 1</option>
-            <option value="height2">height 2</option>
-            <option value="height3">height 3</option>
+          >
 
+            <option> Select An Interface </option>
+            {isSelected && givenDevice != null && 
+              givenDevice.connections.map((interfaceChosen, index) => (
+                <option key={index} value={interfaceChosen.device_type}>
+                  {interfaceChosen.device_type}
+                </option>
+              ))}
+            {/* <option value="">Select an interface</option> */}
+            {/* <option value="inter1">Interface 1</option>
+            <option value="inter2">Interface 2</option>
+            <option value="inter3">Interface 3</option> */}
             </select>
 
-            <p style={{fontSize: '15px'}}>Width</p>
-            {/* height  */}
-              <select 
-            value={deviceWidth}
-            onChange={handleWidthChange}
-            style={{
-              padding: '10px',
-              borderRadius: '5px',
-              outline: 'none',
-              cursor: 'pointer',
-              marginBottom: '20px',
-              border: '2px solid #B49837'
-            }}
-            >
-            <option value="">Choose Your Interface Width!</option>
-            {/* need to get these values from the config file, hardcode for now? */}
-            <option value="width1">width 1</option>
-            <option value="width2">width 2</option>
-            <option value="width3">width 3</option>
+          <DashedLine />
 
-            </select>
 
-            <h2 style={{fontSize: '20px'}}> Operation Mode </h2>
-
+          {selectedDevice && (
             <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
-            <button style={getOpStyle('Gesture Mouse')} onClick={() => handleOpChange('Gesture Mouse')}>Gesture Mouse</button>
-            <button style={getOpStyle('Pointer')} onClick={() => handleOpChange('Pointer')}>Pointer</button>
-            <button style={getOpStyle('Clicker')} onClick={() => handleOpChange('Clicker')}>Clicker</button>
-            <button style={getOpStyle('TV Remote')} onClick={() => handleOpChange('TV Remote')}>TV Remote</button>
-            <button style={getOpStyle('Practice')} onClick={() => handleOpChange ('Practice')}>Practice</button>
+              <button style={getButtonStyle('TV')} onClick={() => handleSettingClick('TV')}>TV</button>
+              <button style={getButtonStyle('Mac')} onClick={() => handleSettingClick('Mac')}>Mac</button>
+              <button style={getButtonStyle('Wheelchair')} onClick={() => handleSettingClick('Wheelchair')}>Wheelchair</button>
+              <button style={getButtonStyle('iPad')} onClick={() => handleSettingClick('iPad')}>iPad</button>
+            </div>
+          )}
+
+          {selectedSetting && (
+            <div style={settingsBoxStyle}>
+              <p>Settings for {selectedSetting}</p>
+              <h2 style={{ fontSize: '20px' }}> Screen Size </h2>
+              <br></br>
+              <p style={{ fontSize: '15px' }}>Height</p>
+              {/* height  */}
+              <select
+                value={deviceHeight}
+                onChange={handleHeightChange}
+                style={{
+                  padding: '10px',
+                  borderRadius: '5px',
+                  outline: 'none',
+                  cursor: 'pointer',
+                  marginBottom: '20px',
+                  border: '2px solid #B49837'
+                }}
+              >
+                <option value="">Choose Your Interface Height!</option>
+                {/* need to get these values from the config file, hardcode for now? */}
+                <option value="height1">height 1</option>
+                <option value="height2">height 2</option>
+                <option value="height3">height 3</option>
+
+              </select>
+
+              <p style={{ fontSize: '15px' }}>Width</p>
+              {/* height  */}
+              <select
+                value={deviceWidth}
+                onChange={handleWidthChange}
+                style={{
+                  padding: '10px',
+                  borderRadius: '5px',
+                  outline: 'none',
+                  cursor: 'pointer',
+                  marginBottom: '20px',
+                  border: '2px solid #B49837'
+                }}
+              >
+                <option value="">Choose Your Interface Width!</option>
+                {/* need to get these values from the config file, hardcode for now? */}
+                <option value="width1">width 1</option>
+                <option value="width2">width 2</option>
+                <option value="width3">width 3</option>
+
+              </select>
+
+              <h2 style={{ fontSize: '20px' }}> Operation Mode </h2>
+
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
+                <button style={getOpStyle('Gesture Mouse')} onClick={() => handleOpChange('Gesture Mouse')}>Gesture Mouse</button>
+                <button style={getOpStyle('Pointer')} onClick={() => handleOpChange('Pointer')}>Pointer</button>
+                <button style={getOpStyle('Clicker')} onClick={() => handleOpChange('Clicker')}>Clicker</button>
+                <button style={getOpStyle('TV Remote')} onClick={() => handleOpChange('TV Remote')}>TV Remote</button>
+                <button style={getOpStyle('Practice')} onClick={() => handleOpChange('Practice')}>Practice</button>
+
+              </div>
+              {opMode == 'Gesture Mouse' && <MouseOptions />}
+              {/* {opMode == 'Pointer'} idk what to do here */}
+              {opMode == 'Clicker' && <ClickerOptions />}
+              {opMode == 'TV Remote' && <TVRemoteOptions />}
+
+
+
 
             </div>
-            {opMode == 'Gesture Mouse' && <MouseOptions />}
-            {/* {opMode == 'Pointer'} idk what to do here */}
-            {opMode == 'Clicker' && <ClickerOptions/>}
-            {opMode == 'TV Remote' && <TVRemoteOptions/>}
-
-            
-            
-          
+          )}
         </div>
-      )}
-    </div>
-    </div>
-    {selectedSetting && (
+      </div>
+      {selectedSetting && (
         <button style={saveButtonStyle}>Save</button>
-    )}
+      )}
     </div>
 
   );
