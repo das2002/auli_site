@@ -8,6 +8,7 @@ import StoreProfileData from "../CloudFirestore/StoreProfileData";
 const ProfilePg = ({ user }) => {
   const [first, setFirst] = useState("");
   const [last, setLast] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [data, setData] = useState(null);
   const [save, setSave] = useState(false);
   // const [email, setEmail] = useState("")
@@ -19,7 +20,7 @@ const ProfilePg = ({ user }) => {
         /* Get user doc from the DB */
         const userQuery = query(doc(db, "users", user.uid));
         const userDocSnap = await getDoc(userQuery);
-
+        console.log(userDocSnap);
         /* Set user data to local variable */
         setData(userDocSnap.data());
       } catch (error) {
@@ -39,6 +40,7 @@ const ProfilePg = ({ user }) => {
   const handleCancel = () => {
     setFirst("");
     setLast("");
+    setDisplayName("");
   };
 
   /* Save button that send the changes made to the DB and retriggers the useEffect */
@@ -51,6 +53,7 @@ const ProfilePg = ({ user }) => {
       setSave(!save);
       setFirst("");
       setLast("");
+      setDisplayName("");
     } catch (err) {
       console.log("send to store profile data: ", err);
     }
@@ -86,46 +89,24 @@ const ProfilePg = ({ user }) => {
                     <div className="mt-10 grid grid-cols-1 gap-x-10 gap-y-12 sm:grid-cols-6">
                       <div className="sm:col-span-3">
                         <label
-                          htmlFor="first-name"
+                          htmlFor="display-name"
                           className="block text-lg font-medium leading-6 text-gray-900"
                         >
-                          First name
+                          Display name
                         </label>
                         <div className="mt-2">
                           <input
                             type="text"
-                            name="first-name"
-                            id="first-name"
+                            name="display-name"
+                            id="display-name"
                             autoComplete="given-name"
                             onChange={(e) => setFirst(e.target.value)}
                             value={first}
-                            placeholder={data === null ? null : data.firstname}
+                            placeholder={data === null ? null : data.displayname}
                             className="block w-full rounded-md outline-0 border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
                           />
                         </div>
                       </div>
-
-                      <div className="sm:col-span-3">
-                        <label
-                          htmlFor="last-name"
-                          className="block text-lg font-medium leading-6 text-gray-900"
-                        >
-                          Last name
-                        </label>
-                        <div className="mt-2">
-                          <input
-                            type="text"
-                            name="last-name"
-                            id="last-name"
-                            autoComplete="family-name"
-                            onChange={(e) => setLast(e.target.value)}
-                            value={last}
-                            placeholder={data === null ? null : data.lastname}
-                            className="block w-full rounded-md outline-0 border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
-                          />
-                        </div>
-                      </div>
-
                       {/* <div className="sm:col-span-4">
                         <label
                           htmlFor="email"
