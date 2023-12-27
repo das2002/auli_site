@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Slider from 'react-slider';
+import { db } from "../../firebase";
+import { collection, getDocs } from 'firebase/firestore';
+import  USBDeviceList  from './USBDeviceList.jsx';
 
 const TickedSlider = ({ value, onChange, ticks }) => {
   return (
@@ -84,6 +87,8 @@ const Devices = () => {
     const [quietValue, setQuietValue] = useState(0);
     const [awaitSet, setAwaitSet] = useState('');
     const [threshold, setThreshold] = useState('');
+
+    
 
   const handleScaleXChange = (value) => {
     setscaleXSlider(value);
@@ -220,6 +225,41 @@ const Devices = () => {
       backgroundColor: '#f5f5f5',
       fontSize: '24px',
     };
+
+const userCatosList = [];
+useEffect(() => {
+  const fetchReleases = async () => {
+    const releasesRef = collection(db, 'users/21bk8eEk6iRg2WMaBfOrljlsH1z2/userCatos');
+    try {
+      setTimeout(async () => {
+        const querySnapshot = await getDocs(releasesRef);
+        // Array to store userCatos
+        
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          console.log('data ', data)
+          userCatosList.push(data);
+        });
+
+        console.log('UserCatos list:', userCatosList);
+      }, 500); // 500 milliseconds delay
+    } catch (error) {
+      console.error('Error fetching releases:', error);
+    }
+  };
+
+  fetchReleases();
+}, []);
+
+const [devices, getUSBDevices] = USBDeviceList();
+
+devices.push(userCatosList[0]);
+
+useEffect(() => {
+  // Use the USB devices array here
+  console.log('USB Devices:', devices);
+}, [devices]);
 
 
     const MouseOptions = () => {
