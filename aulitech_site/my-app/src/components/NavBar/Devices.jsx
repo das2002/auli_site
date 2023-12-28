@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Slider from 'react-slider';
 import { db } from "../../firebase";
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query } from 'firebase/firestore';
 import USBDeviceList from './USBDeviceList.jsx';
 import { auth } from "../../firebase"
 
@@ -82,46 +82,41 @@ const DashedLine = () => {
   );
 };
 
+const getDeviceData = async (currentUserId) => {
+  try {
+    const releasesRef = collection(db, 'users', currentUserId, 'userCatos');
+    const querySnapshot = await getDocs(releasesRef);
+    const data = querySnapshot.docs.map((doc) => doc.data());
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error;
+  }
+}
 
 const Devices = () => {
+  const currentUserId = getCurrentUserId();
 
+  const [userDeviceData, setUserDeviceData] = useState(null); //this is the result of pulling everything under userCatos
+  
+  const [userCatosList, setUserCatosList] = useState([]); // this is the list of all the nicknames of userCatos
 
-  const [userCatosList, setUserCatosList] = useState([]);
+  const [selectedDevice, setSelectedDevice] = useState(''); // this is the device that is selected from the Select Device dropdown
+  
+  const [selectedDeviceData, setSelectedDeviceData] = useState(null); // this is the data associated with the device that is selected
+  
+  const [interfaceOptions, setInterfaceOptions] = useState([]); // this is the list of all interface options associated with the selected device
 
-  useEffect(() => {
-    const fetchReleases = async () => {
-      const releasesRef = collection(
-        db,
-        'users/' + getCurrentUserId() + '/userCatos'
-      );
-      try {
-        const querySnapshot = await getDocs(releasesRef);
-        const userCatosData = [];
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          console.log('data ', data);
-          userCatosData.push(data);
-        });
-
-        console.log('UserCatos list:', userCatosData);
-        setUserCatosList(userCatosData);
-      } catch (error) {
-        console.error('Error fetching releases:', error);
-      }
-    };
-
-    fetchReleases();
-  }, []);
-
-  const [isSelected, setIsSelected] = useState(false);
-  const [devices, getUSBDevices] = USBDeviceList();
-  const [selectedDevice, setSelectedDevice] = useState('');
-  const [selectedSetting, setSelectedSetting] = useState('');
-  //let [deviceName, setDeviceName] = useState('');
-  let deviceName = ''
-  const [deviceHeight, setDeviceHeight] = useState(500);
-  const [deviceWidth, setDeviceWidth] = useState(500);
-  const [opMode, setOpMode] = useState('');
+  
+  const [selectedInterface, setSelectedInterface] = useState(''); // this is the interface that is selected from the Select Interface dropdown
+  
+  const [fetchedDeviceConfig, setFetchedDeviceConfig] = useState(''); // this is the config file associated with the interace that is selected
+  
+  const [activeOperationMode, setActiveOperationMode] = useState(''); // this is the operation mode that is active on the device
+  
+  
+  const [devices, setUSBDevices] = useState([]); // this is the list of all USB devices connected to the computer
+  const [selectedOperationMode, setSelectedOperationMode] = useState(''); // this is the operation mode that is selected from the Select Operation Mode
   const [scaleXSlider, setscaleXSlider] = useState(0);
   const [scaleYSlider, setscaleYSlider] = useState(0);
   const [screenSizeSlider, setscreenSizeSlider] = useState(0);
@@ -129,9 +124,97 @@ const Devices = () => {
   const [maxClick, setmaxClick] = useState(0);
   const [tapThreshold, settapThreshold] = useState(0);
   const [quietValue, setQuietValue] = useState(0);
+  const [selectedSetting, setSelectedSetting] = useState('');
+  const [deviceName, setDeviceName] = useState('');
+  const [isSelected, setIsSelected] = useState(false);
+  const [givenDevice, setGivenDevice] = useState(null);
   const [awaitSet, setAwaitSet] = useState('');
+  const [deviceHeight, setDeviceHeight] = useState('');
+  const [deviceWidth, setDeviceWidth] = useState('');
+  const [opMode, setOpMode] = useState('');
   const [threshold, setThreshold] = useState('');
-  const [givenDevice, setGivenDevice] = useState(userCatosList[0]);
+
+
+  const handleDeviceSelection = (event) => {
+    const selectedValue = event.target.value;
+    if (selectedValue === 'Select A Device Here') {
+      setSelectedDevice('');
+      setSelectedDeviceData(null);
+      setSelectedInterface('');
+      setInterfaceOptions([]);
+    } else {
+      setSelectedDevice(selectedValue);
+    }
+  };
+
+  const handleInterfaceSelection = (event) => {
+    const selectedValue = event.target.value;
+    setSelectedInterface(selectedValue);
+  };
+
+  useEffect(() => {
+    console.log('currentUserId: ', currentUserId);
+    const fetchData = async () => {
+      try {
+        const userDeviceDataValue = await getDeviceData(currentUserId);
+        setUserDeviceData(userDeviceDataValue);
+      } catch (error) {
+        console.error('error fetching data:', error);
+      }
+    };
+    fetchData();
+  }, [currentUserId]);
+
+  useEffect(() => {
+    console.log('userDeviceData: ', userDeviceData);
+    if (userDeviceData) {
+      for (let i = 0; i < userDeviceData.length; i++) {
+        setUserCatosList(userCatosList => [...userCatosList, userDeviceData[i]]);
+      }
+    }
+  }, [userDeviceData]);
+
+  useEffect(() => {
+    console.log('selectedDevice: ', selectedDevice);
+
+    const getSelectedDeviceData = async () => {
+      try {
+        for (let i = 0; i < userDeviceData.length; i++) {
+          if (userDeviceData[i].device_info.device_nickname === selectedDevice) {
+            setSelectedDeviceData(userDeviceData[i]);
+            break;
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    getSelectedDeviceData();
+  }, [selectedDevice]);
+
+  useEffect(() => {
+    console.log('selectedDeviceData: ', selectedDeviceData);
+    const getInterfaceOptions = async () => {
+      try {
+        const interfaceOptions = [];
+        for (let i = 0; i < userDeviceData.length; i++) {
+          if (userDeviceData[i].device_info.device_nickname === selectedDevice) {
+            for (let j = 0; j < userDeviceData[i].connection.length; j++) {
+              interfaceOptions.push(userDeviceData[i].connection[j].device_type);
+            }
+          }
+        }
+        setInterfaceOptions(interfaceOptions);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+    getInterfaceOptions();
+  }, [selectedDeviceData]);
+
+  useEffect(() => {
+    console.log('interfaceOptions: ', interfaceOptions);
+  }, [interfaceOptions]);
 
 
   const handleScaleXChange = (value) => {
@@ -191,7 +274,6 @@ const Devices = () => {
           setGivenDevice(doc);
         }
       });
-
     }
 
     console.log(isSelected);
@@ -257,8 +339,8 @@ const Devices = () => {
     border: '2px solid #B49837',
     cursor: 'pointer',
     borderRadius: '5px',
-    backgroundColor: selectedSetting === setting ? '#B49837' : 'transparent', // highlight
-    color: selectedSetting === setting ? 'white' : 'black' // change color text
+    //backgroundColor: selectedSetting === setting ? '#B49837' : 'transparent', // highlight
+    //color: selectedSetting === setting ? 'white' : 'black' // change color text
   });
 
   const getOpStyle = (setting) => ({
@@ -395,8 +477,8 @@ const Devices = () => {
 
           <div>
             <select
-              value={deviceName}
-              onChange={handleNewDevice}
+              value={selectedDevice}
+              onChange={handleDeviceSelection}
               style={{
                 padding: '10px',
                 borderRadius: '5px',
@@ -423,7 +505,7 @@ const Devices = () => {
           <form >
             <label>
               Name:
-              {isSelected && givenDevice != null && <input value={givenDevice.device_info.device_nickname}
+              {selectedDeviceData != null && <input value={selectedDeviceData.device_info.device_nickname}
                 style={{ borderColor: 'black', borderWidth: 1, marginLeft: '15px', marginRight: '15px' }} type="text" />}
             </label>
             <br></br>
@@ -434,15 +516,15 @@ const Devices = () => {
 
           <h2 style={{ fontSize: '20px' }}> Hardware UID </h2>
           {/* value to be read in from config  */}
-          {isSelected && givenDevice != null && <input value={givenDevice.device_info.HW_UID}
+          {selectedDeviceData != null && <input value={selectedDeviceData.device_info.HW_UID}
             style={{ borderColor: 'black', borderWidth: 1, paddingLeft: '15px', marginLeft: '15px', marginRight: '15px' }} className="e-input" type="text" placeholder="UID Here" readOnly={true} />}
           <br></br>
           <br></br>
 
           <h2 style={{ fontSize: '20px' }}> Device Interface </h2>
           <select
-            value={selectedDevice}
-            onChange={handleDeviceChange}
+            value={selectedInterface}
+            onChange={handleInterfaceSelection}
             style={{
               padding: '10px',
               borderRadius: '5px',
@@ -454,16 +536,12 @@ const Devices = () => {
           >
 
             <option> Select An Interface </option>
-            {isSelected && givenDevice != null && 
-              givenDevice.connections.map((interfaceChosen, index) => (
-                <option key={index} value={interfaceChosen.device_type}>
-                  {interfaceChosen.device_type}
+            {interfaceOptions != null && 
+              interfaceOptions.map((chosenInterface, index) => (
+                <option key={index} value={chosenInterface}>
+                  {chosenInterface}
                 </option>
               ))}
-            {/* <option value="">Select an interface</option> */}
-            {/* <option value="inter1">Interface 1</option>
-            <option value="inter2">Interface 2</option>
-            <option value="inter3">Interface 3</option> */}
             </select>
 
           <DashedLine />

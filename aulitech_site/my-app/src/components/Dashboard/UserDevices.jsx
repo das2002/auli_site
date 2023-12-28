@@ -72,7 +72,6 @@ export default function UserDevices({ devices }) {
                   </h3>
                 </div>
                 <p className="mt-1 truncate text-lg text-gray-500">
-                  {device.jsondata.operation_mode.value}
                 </p>
               </div>
             </div>
