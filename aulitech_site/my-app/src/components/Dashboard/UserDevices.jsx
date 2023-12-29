@@ -2,6 +2,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../../firebase';
 
 export default function UserDevices({ devices }) {
+  console.log(devices);
   const handleLogout = async () => {
     try {
       await signOut(auth);
