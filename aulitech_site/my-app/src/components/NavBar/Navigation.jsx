@@ -6,6 +6,15 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link, NavLink } from "react-router-dom";
 import AccordianElement from "./Accordian";
 import Logo from "../Elements/Logo"
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import RegisterInterface from './RegisterInterface';
+
+
+<Router>
+  <Routes>
+    <Route path="/register-interface" element={<RegisterInterface />} />
+  </Routes>
+</Router>
 
 const Navigation = ({
   user,
@@ -177,19 +186,54 @@ const Navigation = ({
 
   const RegisterNewRoute = () => {
     return (
-      <>
-        <div className="-mx-6">
-          <NavLink
-            to="/register-cato-device"
-            className={({ isActive }) =>
-              classNames(
-                isActive
-                  ? "bg-gray-800 text-white"
-                  : "text-gray-400 hover:text-white hover:bg-gray-800",
-                "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
-              )
-            }
+      <div className="-mx-6">
+        <NavLink
+          to="/register-cato-device"
+          className={({ isActive }) =>
+            classNames(
+              isActive
+                ? "bg-gray-800 text-white"
+                : "text-gray-400 hover:text-white hover:bg-gray-800",
+              "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
+            )
+          }
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-6 h-6"
           >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 6v12m6-6H6"
+            />
+          </svg>
+
+          <p>Register Device</p>
+          
+          </NavLink>
+      </div>
+    );
+  };
+
+  const RegisterInterfaceRoute = () => {
+    return (
+      <div className="-mx-6">
+        <NavLink
+          to="/register-interface"
+          className={({ isActive }) =>
+            classNames(
+              isActive
+                ? "bg-gray-800 text-white"
+                : "text-gray-400 hover:text-white hover:bg-gray-800",
+              "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
+            )
+          }
+        >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -201,14 +245,12 @@ const Navigation = ({
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d="M12 6v12m6-6H6"
+                d="M12 6v12m6-6H6" // Plus icon
               />
             </svg>
-
-            <p>Register Device/Interface</p>
+            <p>Register Interface</p>
           </NavLink>
         </div>
-      </>
     );
   };
 
@@ -373,6 +415,7 @@ const Navigation = ({
                 {/* We need to add a line to divide between these sections */}
                 <div className="border-t border-gray-700"></div>
                 <RegisterNewRoute />
+                <RegisterInterfaceRoute /> 
                 <ProfileRoute />
             </div>
         </nav>
