@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { get, set } from "idb-keyval";
 import {
   collection,
@@ -12,75 +12,105 @@ import {
 import { useNavigate } from "react-router-dom";
 import { db } from "../../firebase";
 
+async function requestDeviceAccess() {
+  try {
+    const device = await navigator.usb.requestDevice({filters: []});
+    console.log("access granted to :", device);
+  } catch (error) {
+    console.log("access denied to device: ", error);
+  }
+}
+
 const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
+  const [parsedJson, setParsedJson] = useState({}); // [parsedJson, setParsedJson
   const [deviceName, setDeviceName] = useState("");
   const [errMessage, setErrMessage] = useState(false);
-  //   const [hwUid, setHwUid] = useState('');
+  const [hwUid, setHwUid] = useState('');
+
 
   const navigate = useNavigate();
 
+
   const getJsonData = async () => {
     try {
-      const directory = await get("directory");
-      console.log(directory);
 
-      if (typeof directory !== "undefined") {
-        const perm = await directory.requestPermission();
-
-        if (perm === "granted") {
-          const jsonHandleOrUndefined = await get("config.json");
-
-          if (jsonHandleOrUndefined) {
-            console.log("retrieved file handle:", jsonHandleOrUndefined.name);
-          }
-
-          const jsonFile = await directory.getFileHandle("config.json", {
-            create: false,
+      if (window.showDirectoryPicker) {
+        try {
+          // request the user to pick a directory
+          const dirHandle = await window.showDirectoryPicker({
+            id: "AULI_CATO",
+            mode: "readwrite",
           });
 
-          await set("config.json", jsonFile);
-          console.log("stored file handle:", jsonFile.name);
+          // attempt to find the config.json file in the directory
+          for await (const entry of dirHandle.values()) {
+            if (entry.kind === "file" && entry.name === "config.json") {
+              // found the file, read it
+              const file = await entry.getFile();
+              const jsonDataText = await file.text();
+              let parsedJson = JSON.parse(jsonDataText);
+              parsedJson.name.value = deviceName;
+              setParsedJson(parsedJson);
+              setHwUid(parsedJson.HW_UID.value);
+              addDeviceDoc(parsedJson);
+              deleteInitializeDoc();
 
-          const jsonDataFile = await jsonFile.getFile();
-          const jsonData = await jsonDataFile.text();
+              // create a sample file
+              const fileName = "config.json";
+              const fileData = JSON.stringify(parsedJson);
+              const fileHandle = await dirHandle.getFileHandle(fileName, {
+                create: true,
+              });
+              const writable = await fileHandle.createWritable();
+              await writable.write(fileData);
+              await writable.close();
 
-          addDeviceDoc(jsonData);
-          deleteInitializeDoc();
+              // create a blob object from the file
+              const blob = new Blob([fileData], { type: "application/json" });
+
+              // create a URL for the blob
+              const url = URL.createObjectURL(blob);
+
+              // create a link element
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = fileName;
+
+              // simulate a click on the link to download the file
+              link.click();
+
+              // remove the link from the DOM
+              link.remove();
+
+              return;              
+            }
+          }
+        } catch (error) {
+          console.log("get config.json error:", error);
         }
       } else {
-        const dirHandle = await window.showDirectoryPicker({
-          id: "AULI_CATO",
-          mode: "readwrite",
-        });
-
-        await set("directory", dirHandle);
-        console.log("store dir handle:", dirHandle.name);
-        getJsonData();
+        console.log("file system access not supported");
       }
     } catch (error) {
       console.log("get config.json error:", error);
     }
   };
 
-  // const getHWuid = (jsonData) => {
-  //   const parsedJson = JSON.parse(jsonData);
-  //   setHwUid(parsedJson.name);
-  // }
 
-  // const changeConfigDevName = (jsonData) => {
-  //   let parsedJson = JSON.parse(jsonData);
+  function changeConfigDevName(jsonData) {
+    try {
+      jsonData.name.value = deviceName;
+      console.log(jsonData.name.value)
+    } catch (error) {
+      console.log("changeConfigDevName error: ", error);
+    }
+  }
 
-  //   parsedJson.name.value = deviceName;
-  //   console.log(parsedJson.name.value)
-
-  //   const newData = JSON.stringify(parsedJson)
-  // }
-
-  const addDeviceDoc = (jsonData) => {
+  const addDeviceDoc = (parsedJson) => {
     try {
       const storeDevice = async () => {
         try {
-          let parsedJson = JSON.parse(jsonData);
+          //let parsedJson = JSON.parse(jsonData);
 
           parsedJson.name.value = deviceName;
           console.log(parsedJson.name.value)
@@ -89,8 +119,8 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
           const colRef = collection(db, "users");
           await addDoc(collection(colRef, user.uid, "userCatos"), {
-            // hardwareuid: hwUid,
-            devicename: deviceName,
+            hardwareuid: hwUid,
+            device_nickname: deviceName,
             configjson: newData,
           });
           handleRenderDevices();

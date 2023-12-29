@@ -96,7 +96,8 @@ const getDeviceData = async (currentUserId) => {
 
 const Devices = () => {
   const currentUserId = getCurrentUserId();
-
+  
+  const [usbDevices, setUsbDevices] = useState([]); // this is the list of all aulicato USB devices connected to the computer
   const [userDeviceData, setUserDeviceData] = useState(null); //this is the result of pulling everything under userCatos
   
   const [userCatosList, setUserCatosList] = useState([]); // this is the list of all the nicknames of userCatos
@@ -134,6 +135,23 @@ const Devices = () => {
   const [opMode, setOpMode] = useState('');
   const [threshold, setThreshold] = useState('');
 
+  const checkForAuliCatoDevices = async () => {
+    try {
+      console.log("checking for aulicato devices");
+      const devices = await navigator.usb.getDevices();
+      console.log('Connected USB devices:', devices);
+      const auliCatoDevices = devices.filter(device => device.productName === 'AULI_CATO');
+      if (auliCatoDevices.length > 0) {
+        setUsbDevices(auliCatoDevices);
+      } else {
+        setUsbDevices([]);
+        console.log('No AuliCato devices connected');
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
 
   const handleDeviceSelection = (event) => {
     const selectedValue = event.target.value;
@@ -152,6 +170,8 @@ const Devices = () => {
     setSelectedInterface(selectedValue);
   };
 
+
+
   useEffect(() => {
     console.log('currentUserId: ', currentUserId);
     const fetchData = async () => {
@@ -163,7 +183,12 @@ const Devices = () => {
       }
     };
     fetchData();
+    checkForAuliCatoDevices();
   }, [currentUserId]);
+
+  useEffect(() => {
+    console.log('usbDevices: ', usbDevices);
+  }, [usbDevices]);
 
   useEffect(() => {
     console.log('userDeviceData: ', userDeviceData);
