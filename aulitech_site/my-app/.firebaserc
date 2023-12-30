@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "my-cato"
-  }
+    "default": "my-cato",
+    "staging": "my-cato"
+  },
+  "targets": {},
+  "etags": {}
 }
