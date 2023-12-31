@@ -109,7 +109,7 @@ const RegisterInterface = ({ user }) => {
           tempdata.connections.push(firebaseMap);
 
           // Update the document in Firebase
-          await setDoc(doc(userRef, "KxRXpjs6EPRtX6WczV8w"), tempdata);
+          await setDoc(doc(userRef, "efPwkVh1zjzMVxgfGqLa"), tempdata);
           console.log("Interface registered successfully");
 
       }
