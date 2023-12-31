@@ -104,15 +104,15 @@ const RegisterInterface = ({ user }) => {
           device_type: interfaceName,
           // Add other fields as needed
         };
+            // Add the new connection to the existing connections array
+          tempdata.connections = tempdata.connections || [];
+          tempdata.connections.push(firebaseMap);
 
-        // console.log(firebaseMap);
-
-        tempdata.connections.push(firebaseMap);
-
-        console.log('temp data new', tempdata);
+          // Update the document in Firebase
+          await setDoc(doc(userRef, "KxRXpjs6EPRtX6WczV8w"), tempdata);
+          console.log("Interface registered successfully");
 
       }
-
       getConnections();
     }
     catch (error) {
