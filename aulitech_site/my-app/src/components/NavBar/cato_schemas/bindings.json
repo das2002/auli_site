@@ -1,0 +1,16 @@
+{
+    "bindings": [
+        {
+            "command" : "noop",
+            "args" : []
+        },
+        {
+            "command": "button_action",
+            "args": [
+                0,
+                "",
+                0
+            ]
+        }
+    ]
+}

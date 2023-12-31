@@ -22,6 +22,7 @@ async function requestDeviceAccess() {
 }
 
 const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
+  // console.log('user',user);
   const [parsedJson, setParsedJson] = useState({}); // [parsedJson, setParsedJson
   const [deviceName, setDeviceName] = useState("");
   const [errMessage, setErrMessage] = useState(false);
@@ -49,6 +50,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
               const file = await entry.getFile();
               const jsonDataText = await file.text();
               let parsedJson = JSON.parse(jsonDataText);
+              parsedJson.name.value = deviceName;
               let globalConfig = parsedJson;
               if (globalConfig['mouse'] != null) {
                 delete globalConfig['mouse'];
@@ -62,9 +64,8 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
               if (globalConfig['pointer'] != null) {
                 delete globalConfig['pointer'];
               }
-
               console.log("i parsed this and deleted opmode configs", globalConfig);
-              parsedJson.name.value = deviceName;
+              
               setParsedJson(parsedJson);
               setHwUid(parsedJson.HW_UID.value);
               addDeviceDoc(parsedJson, globalConfig);
@@ -109,7 +110,12 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     } catch (error) {
       console.log("get config.json error:", error);
     }
+
+    const getName = () => {
+      return parsedJson.name.value;
+    }
   };
+
 
 
   function changeConfigDevName(jsonData) {

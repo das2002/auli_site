@@ -1,12 +1,21 @@
 import React, { useState } from "react";
-import { collection, doc, getDoc, setDoc } from "firebase/firestore"; 
+import { collection, doc, getDoc, setDoc, getDocs, setDocs } from "firebase/firestore"; 
 import { db } from "../../firebase"; 
+import * as clickerDefault from './cato_schemas/clicker.json';
+import * as mouseDefault from './cato_schemas/mouse.json';
+import * as gestureDefault from './cato_schemas/gesture.json';
+import * as tvRemoteDefault from './cato_schemas/tv_remote.json';
+import * as bindingsDefault from './cato_schemas/bindings.json';
 
-const RegisterInterface = ({ userId }) => {
+
+
+const RegisterInterface = ({ user }) => {
   const [interfaceName, setInterfaceName] = useState("");
   const [bluetoothId, setBluetoothId] = useState("");
   const [isInterfaceFocused, setIsInterfaceFocused] = useState(false);
   const [isBluetoothFocused, setIsBluetoothFocused] = useState(false);
+  const [isOpModeFocused, setIsOpModeFocused] = useState(false);
+  const [operationMode, setOperationMode] = useState("");
 
   const focusStyle = {
     borderColor: '#AA9358',
@@ -16,27 +25,118 @@ const RegisterInterface = ({ userId }) => {
   const handleSave = () => {
     console.log("Save button clicked"); //debug
 
+    if (!user) {
+      console.log("No user available");
+      return;
+    }
+
+    const userId = user.uid;
+
     if (!userId) {
       console.log("No user ID available");
       return;
     }
 
-    const userRef = doc(db, "users", userId, "userCatos", "connections");
-    getDoc(userRef)
-      .then(docSnap => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (data[interfaceName] || Object.values(data).includes(bluetoothId)) {
-            console.log("Interface or Bluetooth ID already associated with this device.");
-            return;
-          }
-          return setDoc(userRef, { [interfaceName]: bluetoothId }, { merge: true });
-        } else {
-          return setDoc(userRef, { [interfaceName]: bluetoothId });
+    try {
+      const getConnections = async () => {
+        //parse thru and check if int name already exists TODO 
+
+
+        const colRef = collection(db, "users");
+        const userRef = collection(colRef, userId, "userCatos");
+        // console.log('my user ref', userRef);
+    
+        const querySnapshot =  await getDocs(userRef);
+    
+        // console.log('my query snapshot', querySnapshot.docs);
+        const data = querySnapshot.docs.map((doc) => doc.data());
+
+        console.log('data', data);
+        // if (data.device_info.device_nickname == )
+        const tempdata = data[0];
+
+        // console.log('temp old', tempdata);
+
+        let combinedData = {}
+
+        if (operationMode == 'clicker') {
+          //bindings and clicker
+          //lowkey will hardcode picking out which atoms its easier
+          combinedData = {
+            ...clickerDefault,
+            ...bindingsDefault,
+          };
+
         }
-      })
-      .then(() => console.log("Interface registered successfully"))
-      .catch(error => console.error("Error registering interface: ", error));
+        else if (operationMode == 'gesture mouse') {
+          combinedData = {
+            ...mouseDefault, 
+            ...gestureDefault, 
+            ...bindingsDefault,
+          };
+        }
+
+        else if (operationMode == 'tv remote') {
+          combinedData = {
+            ...tvRemoteDefault, 
+            ...gestureDefault, 
+            ...bindingsDefault,
+          };
+        }
+
+        else if (operationMode == 'pointer') {
+          combinedData = {
+            ...mouseDefault,
+            ...bindingsDefault,
+          };
+        }
+        else {
+          combinedData = null;
+        }
+
+        // console.log(combinedData);
+
+        const stringCombinedData = JSON.stringify(combinedData);
+
+        const firebaseMap = {
+          bt_id: bluetoothId,
+          configjson: stringCombinedData,
+          device_type: interfaceName,
+          // Add other fields as needed
+        };
+
+        // console.log(firebaseMap);
+
+        tempdata.connections.push(firebaseMap);
+
+        console.log('temp data new', tempdata);
+
+      }
+
+      getConnections();
+    }
+    catch (error) {
+      console.log("add interface doc to usersCato connections error: ", error);
+    }
+
+
+
+
+    // getDoc(userRef)
+    //   .then(docSnap => {
+    //     if (docSnap.exists()) {
+    //       const data = docSnap.data();
+    //       if (data[interfaceName] || Object.values(data).includes(bluetoothId)) {
+    //         console.log("Interface or Bluetooth ID already associated with this device.");
+    //         return;
+    //       }
+    //       return setDoc(userRef, { [interfaceName]: bluetoothId }, { merge: true });
+    //     } else {
+    //       return setDoc(userRef, { [interfaceName]: bluetoothId });
+    //     }
+    //   })
+    //   .then(() => console.log("Interface registered successfully"))
+    //   .catch(error => console.error("Error registering interface: ", error));
   };
 
   return (
@@ -94,6 +194,24 @@ const RegisterInterface = ({ userId }) => {
                 style={isBluetoothFocused ? focusStyle : null}
                 />
             </div>
+
+            <div className="mt-5">
+                <label htmlFor="op-mode" className="block text-lg text-gray-900">
+                Enter your operation mode below (i will change this to a dropdown later):
+                </label>
+                <input
+                type="text"
+                id="op-mode"
+                value={operationMode}
+                onChange={(e) => setOperationMode(e.target.value)}
+                onFocus={() => setIsOpModeFocused(true)}
+                onBlur={() => setIsOpModeFocused(false)}
+                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm focus:border-customColor focus:ring-customColor`}
+                placeholder="sample-nickname"
+                style={isOpModeFocused ? focusStyle : null}
+                />
+            </div>
+
             <p className="mt-5 text-lg text-gray-900">
               When you click <strong>Save</strong>, your browser will ask if you want to allow access to the device. Allow access in order to register the interface.
             </p>

@@ -1,0 +1,158 @@
+{
+    "mouse" : {
+        "label" : "Mouse", 
+        "description" : "Settings specific to mouse movement",
+        "access"  : "rw",
+        "value" : {
+            "idle_threshold"   : {
+                "label" : "Mouse Idle Threshold",
+                "description" : "Value of move speed below which is considered idle. Causes mouse exit; High value: easier to idle out; Low value: mouse stays active.",
+                "access" : "rw",
+                "value" : 5.0, 
+                "range" : {
+                    "min" : 5.0,
+                    "max" : 12.0
+                } 
+            },
+            "min_run_cycles": {
+                "label" : "Minimum Mouse Runtime",
+                "description" : "Minimum time (in .01 second increments) that mouse will always run before checking idle conditions for exit",
+                "access" : "rw",
+                "value" : 0,
+                "range" : {
+                    "min" : 0,
+                    "max" : 100
+                }
+            },
+            "idle_duration" : {
+                "label" : "Idle timeout cycles",
+                "description" : "Amount of idle time (in .01 second increments) required to trigger mouse exit",
+                "access" : "rw",
+                "value" : 80,
+                "range" : {
+                    "min" : 30,
+                    "max" : 150
+                }
+            },
+            "dwell_duration" : {
+                "label" : "Dwell Trigger Cycles",
+                "description" : "Amount of idle time (in .01 second increments) needed to trigger action in dwell_click",
+                "access" : "rw",
+                "value" : 50,
+                "range" : {
+                    "min" : 20,
+                    "max" : 100
+                }
+            },
+            "dwell_repeat" : {
+                "label" : "Dwell Repeat Clicks",
+                "description" : "Continued idle causes multiple clicks",
+                "access" : "rw",
+                "value" : true,
+                "options" : [true, false]
+            },
+            "scale_x" : {
+                "label" : "Horizontal Movement Scale Factor",
+                "description" : "Mouse sensitivity to horizontal movement",
+                "access" : "rw",
+                "value" : 0.50,
+                "range" : {
+                    "min" : 0.1,
+                    "max" : 4.0
+                }
+            },
+            "scale_y"         : {
+                "label" : "Vertical Movement Scale Factor",
+                "description" : "Mouse sensitivity to vertical movement",
+                "access" : "rw",
+                "value" : 0.40,
+                "range" : {
+                    "min" : 0.1,
+                    "max" : 4.0
+                }
+            },
+            "dynamic_mouse" :{
+                "label" : "Dynamic Mouse",
+                "description" : "Settings for dynamic mouse acceleration",
+                "access" : "rw",
+                "note" : "For both input and output, required that Fast > Slow.",
+                "value" : {
+                    "input" : {
+                        "label" : "Input",
+                        "description" : "User movement conditions defining slow and fast head movement in degrees/second",
+                        "access" : "rw",
+                        "value" : {
+                            "slow"   : {
+                                "label" : "Slow",
+                                "description" : "Rotation speed floor below which scale remains constant",
+                                "access" : "rw",
+                                "value" : 20.0,
+                                "range" : {
+                                    "min" : 0.0,
+                                    "max" : 400.0
+                                }
+                            },
+                            "fast"   : {
+                                "label" : "Fast",
+                                "description" : "Rotation speed ceiling above which scale remains constant",
+                                "access" : "rw",
+                                "value" : 40.0,
+                                "range" : {
+                                    "min" : 0.0,
+                                    "max" : 500.0
+                                }
+                            }
+                        }
+                    },
+                    "output" : {
+                        "label" : "Output",
+                        "description" : "Cursor speed output scaling. Slow input uses 'slow' setting. Fast input uses 'fast' setting. Intermediate movement is scaled linearly between.",
+                        "access" : "rw",
+                        "value" : {
+                            "slow"    : {
+                                "label" : "Slow",
+                                "description" : "Scale factor at (and below) slowest input speed",
+                                "access" : "rw",
+                                "value" : 0.50, 
+                                "range" : {
+                                    "min" : 0.1,
+                                    "max" : 2.0
+                                }
+                            },
+                            "fast"    : {
+                                "label" : "Fast",
+                                "description" : "Scale factor at (and above) fastest input speed",
+                                "access" : "rw",
+                                "value" : 1.5,
+                                "range" : {
+                                    "min" : 1.0,
+                                    "max" : 6.0
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "shake_size" : {
+                "label" : "Shake Size",
+                "description" : "Size of cursor movement for gesture indicator",
+                "access" : "rw",
+                "value" : 6,
+                "range" : {
+                    "min" : 0,
+                    "max" : 20
+                }
+            },
+            "num_shake" : {
+                "label" : "Number of Shakes",
+                "description" : "Number of times to repeat gesture ready indicator",
+                "access" : "rw",
+                "value" : 3,
+                "range" : {
+                    "min" : 0,
+                    "max" : 5
+                }
+            }
+        }
+    }
+}

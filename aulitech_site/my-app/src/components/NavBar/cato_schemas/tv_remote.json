@@ -1,0 +1,15 @@
+{
+    "tv_remote" : {
+        "label" : "TV Remote",
+        "description" : "Unique TV Remote Settings",
+        "value" : {
+            "await_actions" : {
+                "label" : "Await Actions",
+                "description" : "wait for previous action to end before reading a new gesture",
+                "access" : "rw",
+                "value" : true,
+                "options" : [true, false]
+            }
+        }
+    }
+}
