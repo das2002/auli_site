@@ -10,6 +10,7 @@ import {
   deleteDoc
 } from "firebase/firestore";
 import { db } from "../../firebase";
+import StoreGestData from "../CloudFirestore/StoreGestData";
 
 const SelectGesture = ({ user }) => {
   const [showPopup, setShowPopup] = useState(false);
@@ -33,6 +34,67 @@ const SelectGesture = ({ user }) => {
   useEffect(() => {
     getGestStats();
   }, []);
+
+  async function writeFileToDevice(fileName, content) {
+      try {
+          console.log(`Writing file ${fileName} to device...`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          console.log(`File ${fileName} written to device.`);
+          return true;
+      } catch (error) {
+          console.error(`Failed to write file ${fileName} to device:`, error);
+          return false;
+      }
+  }
+
+  async function connectToDevice() {
+      try {
+          // device connection logic here
+          console.log("Connecting to device...");
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          console.log("Device connected.");
+          return true; // true if successfully connected
+      } catch (error) {
+          console.error("Failed to connect to device:", error);
+          return false;
+      }
+  }
+
+
+  async function readFileFromDevice(fileName) {
+      try {
+          console.log(`Reading file ${fileName} from device...`);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          const fileContent = "Sample content from device"; //placeholder
+          console.log(`File ${fileName} read from device.`);
+          return fileContent;
+      } catch (error) {
+          console.error(`Failed to read file ${fileName} from device:`, error);
+          return null;
+      }
+  }
+
+
+  const initiateRecording = async () => {
+    try {
+      const device = await connectToDevice(); // connect to device
+      await writeFileToDevice(device, 'gesture.cato', ''); // empty file for reboot
+      console.log('Device reboot initiated for gesture collection.');
+
+    } catch (error) {
+      console.error('Error initiating recording:', error);
+    }
+  };
+
+  const fetchGestureData = async () => {
+    try {
+      const device = await connectToDevice(); // reconnect to device if needed
+      const logData = await readFileFromDevice(device, 'log.txt');
+      // processAndUploadData(logData); // process + upload data to Firebase
+    } catch (error) {
+      console.error('Error fetching gesture data:', error);
+    }
+  };
 
   const selectTimestamp = (gestureName, timestamp) => {
     setSelectedTimestamps(prev => ({ ...prev, [gestureName]: timestamp }));
@@ -61,10 +123,26 @@ const SelectGesture = ({ user }) => {
     setSelectedTimestamps(prev => ({ ...prev, [gestureName]: null }));
   };
 
+  let gestureEvents = [];
+
   const startRecording = (gesture) => {
     setSelectedGesture(gesture);
     setRecordingStart(new Date());
     setShowPopup(true);
+    gestureEvents = []; // clear the gesture events
+  };
+
+  const logGestureEvent = (gestureType) => {
+    const startTime = new Date();
+    // const endTime = ...
+    // const duration = endTime - startTime;
+
+    gestureEvents.push({
+      gesture: gestureType,
+      startTime: startTime.toISOString(),
+      // endTime: endTime.toISOString(), //when the gesture ends
+      // duration: duration,
+    });
   };
   
   const stopRecording = async () => {
@@ -74,17 +152,31 @@ const SelectGesture = ({ user }) => {
   
     if (selectedGesture) {
       try {
+        const recordingEnd = new Date();
         const gestureDataRef = collection(db, "gesture-data");
-        const recordingData = { useruid: user.uid, gesture: selectedGesture.name, timestamp, duration };
-        const docRef = await addDoc(gestureDataRef, recordingData); // Capture the document reference
-  
-        // Update the local state with the new recording
+        const csvData = gestureEvents.map(event => {
+          const endTime = new Date(); // gesture's end time
+          const duration = endTime - new Date(event.startTime);
+          return `${event.gesture},${event.startTime},${endTime.toISOString()},${duration},${user.uid}`;
+        }).join('\n');
+        const csvContent = `Gesture,StartTime,EndTime,Duration,User\n${csvData}`;
+
+        // const recordingData = { 
+        //   csvData: csvData,
+        //   useruid: user.uid, 
+        //   gesture: selectedGesture.name, 
+        //   timestamp, 
+        //   duration 
+        // };
+        
+        const formattedData = `Gesture: ${selectedGesture.name}, Duration: ${duration}, Timestamp: ${timestamp}`;
+        StoreGestData(selectedGesture.name, user, formattedData);
         setGestures(currentGestures => {
           return currentGestures.map(gesture => {
             if (gesture.name === selectedGesture.name) {
               const newRecording = {
                 timestamp: timestamp.toLocaleString(),
-                docId: docRef.id // Use the document ID from Firestore
+                // docId: docRef.id // use document ID from Firestore
               };
               return {
                 ...gesture,
@@ -96,6 +188,7 @@ const SelectGesture = ({ user }) => {
         });
   
         console.log("Recording saved for gesture:", selectedGesture.name);
+        gestureEvents = [];
       } catch (error) {
         console.error("Error saving recording data:", error);
       }

@@ -6,15 +6,7 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link, NavLink } from "react-router-dom";
 import AccordianElement from "./Accordian";
 import Logo from "../Elements/Logo"
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import RegisterInterface from './RegisterInterface';
 
-
-<Router>
-  <Routes>
-    <Route path="/register-interface" element={<RegisterInterface />} />
-  </Routes>
-</Router>
 
 const Navigation = ({
   user,

@@ -1,23 +1,24 @@
 import { addDoc, collection, serverTimestamp } from "firebase/firestore"; 
 import { db } from "../../firebase";
 
-const StoreGestData = (gesture, user, logFile) => {
+const StoreGestData = (gesture, user, csvData) => {
 
   const sendDocRef = async() => {
     try {
-      /* Add document to the GestureData DB with log.txt data, user, and time info */
       await addDoc(collection(db, 'gesture-data'), {
-        samples: logFile,
+        
+        csvContent: csvData,
         timestamp: serverTimestamp(),
-        gesture: gesture,
-        useruid: user.uid
-      })
+        gestureName: gesture,
+        userId: user.uid
+      });
     }
     catch(error) {
-      console.log("Gesture cloud firebase error: ", error);
+      console.error("Gesture cloud firebase error: ", error);
     }
-  }
+  };
 
   return sendDocRef();
 };
+
 export default StoreGestData;

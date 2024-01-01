@@ -34,10 +34,12 @@ const GestureData = (user, gestName, handleStepCount, handleGotData, handleSetEr
           console.log(dataContents);
 
           if (typeof dataContents !== "undefined") {
+            //csv format
+            const csvData = `Gesture Name, ${gestName}, Timestamp, ${new Date().toISOString()}\n${dataContents}`;
             handleStepCount();
             handleGotData(true);
-            StoreGestData(gestName, user, dataContents);
-          }
+            StoreGestData(gestName, user, csvData);
+          }             
         }
       }
     } catch (err) {
