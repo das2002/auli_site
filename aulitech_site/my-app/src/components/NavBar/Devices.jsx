@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
-//import Slider from 'react-slider';
-import Slider from 'react-rangeslider';
-import 'react-rangeslider/lib/index.css';
 import { db } from "../../firebase";
 import { collection, getDocs, query } from 'firebase/firestore';
 import USBDeviceList from './USBDeviceList.jsx';
 import { auth } from "../../firebase"
+import * as clickerDefault from './cato_schemas/clicker.json';
+import * as mouseDefault from './cato_schemas/mouse.json';
+import * as gestureDefault from './cato_schemas/gesture.json';
+import * as tvRemoteDefault from './cato_schemas/tv_remote.json';
+import * as bindingsDefault from './cato_schemas/bindings.json';
+import * as connectionSpecificDefault from './cato_schemas/connection_specific.json';
 
 const getCurrentUserId = () => {
   const currentUser = auth.currentUser;
@@ -17,73 +20,38 @@ const getCurrentUserId = () => {
   }
 };
 
+function parseBool(value) {
+  if (typeof value === 'string') {
+    value = value.toLowerCase().trim();
+    if (value === 'true') {
+      return true;
+    } else if (value === 'false') {
+      return false;
+    }
+  }
+  return Boolean(value);
+}
+
 const deepCopy = (obj) => {
   return JSON.parse(JSON.stringify(obj));
 };
 
-/*
-const TickedSlider = ({ value, onChange, min, max, ticks, sliderTitle, sliderDescription }) => {
-  const tickLabels = Array.from({ length: ticks }, (_, index) => {
-    const tickValue = min + ((max - min) / (ticks - 1)) * index;
-    return tickValue.toFixed(2);
-  });
-
+const InputSlider = ({ value, onChange, min, max, sliderTitle, sliderDescription, sliderLabel }) => {
   return (
-    <div>
-      <h2
-        style={{fontSize: '20px'}}
-        title={sliderDescription}
-      >
-        {sliderTitle}
-      </h2>
-      <div style={{ marginTop: '20px' }}>
-        <Slider>
-          value={value}
-          onChange={onChange}
-          min={min}
-          max={max}
-          step={(max - min) / (ticks - 1)}
-          labels={tickLabels}
-        </Slider>
-      </div>
-    </div>
-  );
-};
-*/
-
-const TickedSlider = ({ value, onChange, min, max, ticks, sliderTitle, sliderDescription }) => {
-  // Calculate the step value
-  const step = (max - min) / (ticks - 1);
-
-  // Generate tick labels
-  const tickLabels = Array.from({ length: ticks }, (_, index) => {
-    const tickValue = min + step * index;
-    return tickValue.toFixed(2);
-  });
-
-  return (
-    <div>
-      <h2 style={{ fontSize: '20px' }} title={sliderDescription}>
-        {sliderTitle}
-      </h2>
-      <div style={{ marginTop: '20px' }}>
-        {/* Assuming you're using a third-party Slider component */}
-        <Slider
-          value={value}
-          onChange={onChange}
-          min={min}
-          max={max}
-          step={step}
-          // ... other props you might need to pass
-        />
-        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-          {tickLabels.map((label, index) => (
-            <span key={index} style={{ flex: 1, textAlign: index === 0 ? 'left' : index === ticks - 1 ? 'right' : 'center' }}>
-              {label}
-            </span>
-          ))}
-        </div>
-      </div>
+    <div style={{ marginBottom: '20px' }}>
+      <label htmlFor={sliderLabel}>{`${sliderTitle} (${value}px)`}</label>
+      <input
+        type="range"
+        id={sliderLabel}
+        value={value}
+        onChange={onChange}
+        min={min}
+        max={max}
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={value}
+        aria-label={sliderDescription}  // Providing an accessible name for the range input
+      />
     </div>
   );
 };
@@ -181,25 +149,6 @@ const Devices = () => {
   const [deviceWidth, setDeviceWidth] = useState('');
   const [opMode, setOpMode] = useState('');
   const [threshold, setThreshold] = useState('');
-
-  /*
-  const checkForAuliCatoDevices = async () => {
-    try {
-      console.log("checking for aulicato devices");
-      const devices = await navigator.usb.getDevices();
-      console.log('Connected USB devices:', devices);
-      const auliCatoDevices = devices.filter(device => device.productName === 'AULI_CATO');
-      if (auliCatoDevices.length > 0) {
-        setUsbDevices(auliCatoDevices);
-      } else {
-        setUsbDevices([]);
-        console.log('No AuliCato devices connected');
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    }
-  };
-  */
 
   // the first step is to get the current user id
   const currentUserId = getCurrentUserId();
@@ -351,7 +300,7 @@ const Devices = () => {
         } catch (error) {
           console.error('Error fetching data:', error);
         }
-      
+
       }
       getConnectionSpecificConfig();
     }
@@ -363,7 +312,7 @@ const Devices = () => {
     if (fetchedConnectionSpecificConfig) {
       const getActiveOperationMode = async () => {
         try {
-          setActiveOperationMode(fetchedConnectionSpecificConfig.operation_mode);
+          setActiveOperationMode(fetchedConnectionSpecificConfig.operation_mode.value);
         } catch (error) {
           console.error('Error fetching data:', error);
         }
@@ -383,7 +332,7 @@ const Devices = () => {
   // at this point, we have the device config sections and the connection config sections
 
 
-  const handleConnectionConfigChange = ([keyList]) => (value) => {
+  const handleConnectionConfigChange = (keyList) => (value) => {
     console.log('keyList: ', keyList);
     console.log('value: ', value);
     const deepConnectionConfigCopy = deepCopy(editedConnectionSpecificConfig);
@@ -392,102 +341,9 @@ const Devices = () => {
       currentConfig = currentConfig[keyList[i]];
     }
     currentConfig[keyList[keyList.length - 1]] = value;
-    setEditedDeviceConfig(deepConnectionConfigCopy);
+    console.log('currentConfig: ', deepConnectionConfigCopy);
+    setEditedConnectionSpecificConfig(deepConnectionConfigCopy);
   };
-
-
-  const handleScaleXChange = (value) => {
-    setscaleXSlider(value);
-  };
-
-  const handleScaleYChange = (value) => {
-    setscaleYSlider(value);
-  };
-
-  const handleScreenSizeSliderChange = (value) => {
-    setscreenSizeSlider(value);
-  };
-
-  const handleSleepSliderChange = (value) => {
-    setSleepSlider(value);
-  };
-
-  const handleMaxClickChange = (value) => {
-    setmaxClick(value);
-  }
-
-  const handleTapThresholdChange = (value) => {
-    settapThreshold(value);
-  }
-
-  const handleQuietChange = (value) => {
-    setQuietValue(value);
-  }
-
-  const handleDeviceChange = (event) => {
-    setSelectedDevice(event.target.value);
-    setSelectedSetting(''); // Reset setting selection when device changes
-  };
-
-  const connectionsData = [];
-
-  const handleNewDevice = (event) => {
-    console.log(event.target.value);
-    //setDeviceName(event.target.value);
-    setSelectedSetting('');
-
-    deviceName = event.target.value;
-    // console.log(deviceName);
-
-
-    if (event.target.value === 'Select A Device Here' || event.target.value == '') {
-      console.log('default');
-      setIsSelected(false);
-    }
-    else {
-      setIsSelected(true);
-      userCatosList.forEach((doc) => {
-        console.log("line 190");
-        console.log(doc);
-        if (doc.device_info.device_nickname == event.target.value) {
-          setGivenDevice(doc);
-        }
-      });
-    }
-
-    console.log(isSelected);
-    if (isSelected) {
-      givenDevice.connections.forEach((doc) => {
-        const data = doc.data();
-        console.log('connection interface ', data);
-        connectionsData.push(data);
-      });
-    }
-  }
-
-  const handleSettingClick = (setting) => {
-    setSelectedSetting(setting);
-  };
-
-  const handleAwaitChange = (setting) => {
-    setAwaitSet(setting);
-  }
-
-  const handleHeightChange = (event) => {
-    setDeviceHeight(event.target.value);
-  }
-
-  const handleWidthChange = (event) => {
-    setDeviceWidth(event.target.value);
-  }
-
-  const handleOpChange = (setting) => {
-    setOpMode(setting);
-  }
-
-  const handleThreshChange = (setting) => {
-    setThreshold(setting);
-  }
 
   const paragraphStyle = {
     marginBottom: '40px',
@@ -563,33 +419,35 @@ const Devices = () => {
     fontSize: '24px',
   };
 
-  const ConnectionSpecificSettings = () => {    
+  const ConnectionSpecificSettings = () => {
     return (
-      <div style={{display: 'flex', flexDirection: 'row'}}>
+      <div style={{ display: 'flex', flexDirection: 'row' }}>
         <div>
-          <h2 style={{fontSize: '20px'}}>Operation Mode</h2>
-          {selectedDeviceData != null && <input value={fetchedInterfaceData.operation_mode}
+          <h2 style={{ fontSize: '20px' }}>Operation Mode</h2>
+          {selectedDeviceData != null && <input value={activeOperationMode}
             style={{ borderColor: 'black', borderWidth: 1, paddingLeft: '15px', marginLeft: '15px', marginRight: '15px' }} className="e-input" type="text" placeholder="Operation Mode" readOnly={true} />}
           <br></br>
           <br></br>
         </div>
-        <TickedSlider
-          value = {editedConnectionSpecificConfig.screen_size.value.height}
-          onChange={(value) => handleConnectionConfigChange(['screen_size', 'value', 'height', 'value'])(value)}
+
+        <InputSlider
+          sliderLabel={'screenSizeHeight'}
+          value={editedConnectionSpecificConfig.screen_size.value.height.value}
+          onChange={(e) => handleConnectionConfigChange(['screen_size', 'value', 'height', 'value'])(e.target.value)}
           min={600}
           max={4320}
-          ticks={20}
-          sliderTitle= "Screen Size - Height"
-          sliderDescription= "height of interface screen"
+          sliderTitle={"Screen Size - Height"}
+          sliderDescription={"height of interface screen"}
         />
-        <TickedSlider
-          value = {editedConnectionSpecificConfig.screen_size.value.width}
-          onChange={(value) => handleConnectionConfigChange(['screen_size', 'value', 'width', 'value'])(value)}
+
+        <InputSlider
+          sliderLabel={'screenSizeWidth'}
+          value={editedConnectionSpecificConfig.screen_size.value.width.value}
+          onChange={(e) => handleConnectionConfigChange(['screen_size', 'value', 'width', 'value'])(e.target.value)}
           min={800}
           max={8192}
-          ticks={25}
-          sliderTitle= "Screen Size - Width"
-          sliderDescription= "width of interface screen"
+          sliderTitle={"Screen Size - Width"}
+          sliderDescription={"width of interface screen"}
         />
       </div>
     )
@@ -598,136 +456,154 @@ const Devices = () => {
 
   const MouseOptions = () => {
     //const currentOperationMode = editedConnectionSpecificConfig.operation_mode;
-    const [currentMouseConfig, setCurrentMouseConfig] = useState(editedConnectionSpecificConfig.mouse);
-
-    useEffect(() => {
-      setCurrentMouseConfig(editedConnectionSpecificConfig.mouse);
-    }, [editedConnectionSpecificConfig]);
 
     return (
-      <div style={{display: 'flex', flexDirection: 'row'}}>
-        <TickedSlider 
-          value={currentMouseConfig.value.idle_threshold.value} 
-          onChange={(value) => handleConnectionConfigChange(['mouse', 'value', 'idle_threshold', 'value'])(value)}
-          min= {5}
-          max= {12} 
-          ticks={4}
+      <div style={{ display: 'flex', flexDirection: 'row' }}>
+        <InputSlider
+          sliderLabel={'mouseIdleThreshold'}
+          value={editedConnectionSpecificConfig.mouse.value.idle_threshold.value}
+          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'idle_threshold', 'value'])(parseInt(e.target.value))}
+          min={5}
+          max={12}
           sliderTitle="Mouse Idle Threshold"
-          sliderDescription="Value of move speed below which is considered idle. Causes mouse exit; High value: easier to idle out; Low value: mouse stays active." 
+          sliderDescription="Value of move speed below which is considered idle. Causes mouse exit; High value: easier to idle out; Low value: mouse stays active."
         />
-        <TickedSlider 
-          value={currentMouseConfig.value.min_run_cycles.value} 
-          onChange={(value) => handleConnectionConfigChange(['mouse', 'value', 'min_run_cycles', 'value'])(value)}
-          min= {0}
-          max= {100} 
-          ticks={10}
+        <InputSlider
+          sliderLabel={'minMouseRuntime'}
+          value={editedConnectionSpecificConfig.mouse.value.min_run_cycles.value}
+          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'min_run_cycles', 'value'])(parseInt(e.target.value))}
+          min={0}
+          max={100}
           sliderTitle="Minimum Mouse Runtime"
-          sliderDescription="Minimum time (in .01 second increments) that mouse will always run before checking idle conditions for exit" 
+          sliderDescription="Minimum time (in .01 second increments) that mouse will always run before checking idle conditions for exit"
         />
-        <TickedSlider 
-          value={currentMouseConfig.value.idle_duration.value} 
-          onChange={(value) => handleConnectionConfigChange(['mouse', 'value', 'idle_duration', 'value'])(value)}
-          min= {30}
-          max= {150} 
-          ticks={12}
+        <InputSlider
+          sliderLabel={'mouseIdleDuration'}
+          value={editedConnectionSpecificConfig.mouse.value.idle_duration.value}
+          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'idle_duration', 'value'])(parseInt(e.target.value))}
+          min={30}
+          max={150}
           sliderTitle="Idle Timeout Cycles"
-          sliderDescription="Amount of idle time (in .01 second increments) required to trigger mouse exit" 
+          sliderDescription="Amount of idle time (in .01 second increments) required to trigger mouse exit"
         />
-        <TickedSlider
-          value={currentMouseConfig.value.dwell_duration.value}
-          onChange={(value) => handleConnectionConfigChange(['mouse', 'value','dwell_duration'])(value)}
-          min= {20}
-          max= {100}
-          ticks={8}
+        <InputSlider
+          sliderLabel={'mouseDwellDuration'}
+          value={editedConnectionSpecificConfig.mouse.value.dwell_duration.value}
+          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'dwell_duration'])(parseInt(e.target.value))}
+          min={20}
+          max={100}
           sliderTitle="Dwell Trigger Cycles"
           sliderDescription="Amount of idle time (in .01 second increments) needed to trigger action in dwell_click"
         />
         <Dropdown
-          value={currentMouseConfig.value.dwell_repeat.value}
-          onChange={(value) => handleConnectionConfigChange(['mouse', 'value', 'dwell_repeat', 'value'])(value)}
+          value={editedConnectionSpecificConfig.mouse.value.dwell_repeat.value}
+          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'dwell_repeat', 'value'])(parseBool(e.target.value))}
           title="Dwell Repeat Clicks"
           description="Continued idle causes multiple clicks"
           options={[true, false]}
         />
-        <TickedSlider
-          value = {currentMouseConfig.value.scale_x.value}
-          onChange={(value) => handleConnectionConfigChange(['mouse', 'value', 'scale_x', 'value'])(value)}
+        <InputSlider
+          sliderLabel={'mouseScaleX'}
+          value={editedConnectionSpecificConfig.mouse.value.scale_x.value}
+          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'scale_x', 'value'])(e.target.value)}
           min={0.1}
           max={4.0}
-          ticks={10}
           sliderTitle="Horizontal Movement Scale Factor"
           sliderDescription="Mouse sensitivity to horizontal movement"
         />
-        <TickedSlider
-          value = {currentMouseConfig.value.scale_y.value}
-          onChange={(value) => handleConnectionConfigChange(['mouse', 'value', 'scale_y', 'value'])(value)}
+        <InputSlider
+          sliderLabel={'mouseScaleY'}
+          value={editedConnectionSpecificConfig.mouse.value.scale_y.value}
+          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'scale_y', 'value'])(e.target.value)}
           min={0.1}
           max={4.0}
-          ticks={10}
-          sliderTitle= "Vertical Movement Scale Factor"
-          sliderDescription= "Flat multiplier for all mouse movements"
+          sliderTitle="Vertical Movement Scale Factor"
+          sliderDescription="Mouse sensitivity to vertical movement"
         />
-        <TickedSlider
-          value = {currentMouseConfig.value.shake_size.value}
-          onChange={(value) => handleConnectionConfigChange(['mouse', 'value', 'scale_y', 'value'])(value)}
+        <InputSlider
+          sliderLabel={'mouseShakeSize'}
+          value={editedConnectionSpecificConfig.mouse.value.shake_size.value}
+          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'scale_y', 'value'])(e.target.value)}
           min={0}
           max={20}
-          ticks={10}
-          sliderTitle= "Shake Size"
-          sliderDescription= "size of cursor movement for gesturer indicator"
+          sliderTitle="Shake Size"
+          sliderDescription="size of cursor movement for gesturer indicator"
         />
-        <TickedSlider
-          value = {currentMouseConfig.value.num_shake.value}
-          onChange={(value) => handleConnectionConfigChange(['mouse', 'value', 'num_shake', 'value'])(value)}
+        <InputSlider
+          sliderLabel={'mouseNumberShakes'}
+          value={editedConnectionSpecificConfig.mouse.value.num_shake.value}
+          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'num_shake', 'value'])(e.target.value)}
           min={1}
           max={4}
-          ticks={4}
-          sliderTitle= "Number of Shakes"
-          sliderDescription= "Number of times to repeat gesture ready indicator"
+          sliderTitle="Number of Shakes"
+          sliderDescription="Number of times to repeat gesture ready indicator"
         />
       </div>
     )
   };
 
   const ClickerOptions = () => {
+    const sliderContainerStyle = {
+      padding: '20px',
+      margin: '10px 0',
+      borderRadius: '8px',
+      backgroundColor: '#f5f5f5', // Light grey background
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)' // Subtle shadow for depth
+    };
+
+    const titleStyle = {
+      color: '#333', // Darker text for better readability
+      textAlign: 'center',
+      marginBottom: '20px'
+    };
+
+    const descriptionStyle = {
+      fontSize: '14px',
+      color: '#666', // Lighter text for the description
+      marginBottom: '10px'
+    };
     return (
-      <div>
-        <TickedSlider
-          value = {editedConnectionSpecificConfig.clicker.value.max_click_spacing.value}
-          onChange={(value) => handleConnectionConfigChange(['clicker', 'value', 'max_click_spacing', 'value'])(value)}
-          min={0.1}
-          max={1.0}
-          ticks={18}
-          sliderTitle={"Max Click Spacing"}
-          sliderDescription={"Time (seconds) to await next tap before dispatching counted result"}
-        />
-        <TickedSlider>
-          value = {editedConnectionSpecificConfig.clicker.value.tap_ths.value}
-          onChange={(value) => handleConnectionConfigChange(['clicker', 'value', 'tap_ths', 'value'])(value)}
-          min={0}
-          max={31}
-          ticks={16}
-          sliderTitle={"Tap Threshold"}
-          sliderDescription={"Level of impact needed to trigger a click. Lower -> more Sensitive to impact"}
-        </TickedSlider>
-        <TickedSlider
-          value = {editedConnectionSpecificConfig.clicker.value.quiet.value}
-          onChange={(value) => handleConnectionConfigChange(['clicker', 'value', 'quiet', 'value'])(value)}
-          min={0}
-          max={3}
-          ticks={4}
-          sliderTitle={"Quiet"}
-          sliderDescription={"Amount of quiet required after a click"}
-        />
-        <TickedSlider
-          value={editedConnectionSpecificConfig.clicker.value.shock.value}
-          onChange={(value) => handleConnectionConfigChange(['clicker', 'value', 'shock', 'value'])(value)}
-          min={0}
-          max={3}
-          ticks={4}
-          sliderTitle={"Shock"}
-          sliderDescription={"Max duration of over threshold event"}
-        />
+      <div style={{ maxWidth: '600px', margin: 'auto' }}>
+        <h1 style={titleStyle}>Clicker Settings</h1>
+        <div style={sliderContainerStyle}>
+          <p style={descriptionStyle}>Adjust your clicker settings below:</p>
+          <InputSlider
+            value={editedConnectionSpecificConfig.clicker.value.max_click_spacing.value}
+            onChange={(e) => handleConnectionConfigChange(['clicker', 'value', 'max_click_spacing', 'value'])(parseFloat(e.target.value))}
+            min={0.1}
+            max={1.0}
+            sliderTitle={"Max Click Spacing"}
+            sliderDescription={"Time (seconds) to await next tap before dispatching counted result"}
+            sliderLabel={"clickerMaxClickSpacing"}
+          />
+          <InputSlider
+            value={editedConnectionSpecificConfig.clicker.value.tap_ths.value}
+            onChange={(e) => handleConnectionConfigChange(['clicker', 'value', 'tap_ths', 'value'])(parseFloat(e.target.value))}
+            min={0}
+            max={31}
+            sliderTitle={"Tap Threshold"}
+            sliderDescription={"Level of impact needed to trigger a click. Lower -> more Sensitive to impact"}
+            sliderLabel={"clickerTapThreshold"}
+          />
+          <InputSlider
+            value={editedConnectionSpecificConfig.clicker.value.quiet.value}
+            onChange={(e) => handleConnectionConfigChange(['clicker', 'value', 'quiet', 'value'])(parseInt(e.target.value))}
+            min={0}
+            max={3}
+            sliderTitle={"Quiet"}
+            sliderDescription={"Amount of quiet required after a click"}
+            sliderLabel={"clickerQuiet"}
+          />
+          <InputSlider
+            value={editedConnectionSpecificConfig.clicker.value.shock.value}
+            onChange={(e) => handleConnectionConfigChange(['clicker', 'value', 'shock', 'value'])(parseInt(e.target.value))}
+            min={0}
+            max={3}
+            sliderTitle={"Shock"}
+            sliderDescription={"Max duration of over threshold event"}
+            sliderLabel={"clickerShock"}
+          />
+        </div>
       </div>
     );
   };
@@ -739,7 +615,7 @@ const Devices = () => {
         <h1> TV Remote Options </h1>
         <Dropdown
           value={editedConnectionSpecificConfig.value.await_actions.value}
-          onChange={(value) => handleConnectionConfigChange(['tv_remote', 'value', 'await_actions', 'value'])(value)}
+          onChange={(e) => handleConnectionConfigChange(['tv_remote', 'value', 'await_actions', 'value'])(parseBool(e.target.value))}
           title="Await Actions"
           description="wait for previous action to end before reading a new gesture"
           options={[true, false]}
@@ -803,7 +679,7 @@ const Devices = () => {
                   value={selectedDeviceData.device_info.device_nickname}
                   style={{ borderColor: 'black', borderWidth: 1, marginLeft: '15px', marginRight: '15px' }}
                   type="text"
-                  //onChange={(event) => handleNameChange(event.target.value)}
+                //onChange={(event) => handleNameChange(event.target.value)}
                 />
               )}
             </label>
@@ -846,6 +722,12 @@ const Devices = () => {
           <DashedLine />
 
           {editedConnectionSpecificConfig && ConnectionSpecificSettings()}
+
+          {activeOperationMode === 'gesture_mouse' && editedConnectionSpecificConfig && MouseOptions()}
+          {activeOperationMode === 'clicker' && editedConnectionSpecificConfig && ClickerOptions()}
+          {activeOperationMode === 'tv_remote' && editedConnectionSpecificConfig && TVRemoteOptions()}
+          {activeOperationMode === 'pointer' && editedConnectionSpecificConfig && MouseOptions()}
+
 
         </div>
       </div>
