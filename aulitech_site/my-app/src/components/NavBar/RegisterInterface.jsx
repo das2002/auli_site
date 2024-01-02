@@ -1,12 +1,108 @@
-import React, { useState } from "react";
-import { collection, doc, getDoc, setDoc } from "firebase/firestore"; 
+import React, { useState, useEffect } from "react";
+import { collection, doc, getDoc, setDoc, getDocs, setDocs } from "firebase/firestore"; 
 import { db } from "../../firebase"; 
+import * as clickerDefault from './cato_schemas/clicker.json';
+import * as mouseDefault from './cato_schemas/mouse.json';
+import * as gestureDefault from './cato_schemas/gesture.json';
+import * as tvRemoteDefault from './cato_schemas/tv_remote.json';
+import * as bindingsDefault from './cato_schemas/bindings.json';
 
-const RegisterInterface = ({ userId }) => {
+
+
+const RegisterInterface = ({ user }) => {
   const [interfaceName, setInterfaceName] = useState("");
   const [bluetoothId, setBluetoothId] = useState("");
   const [isInterfaceFocused, setIsInterfaceFocused] = useState(false);
   const [isBluetoothFocused, setIsBluetoothFocused] = useState(false);
+  const [isOpModeFocused, setIsOpModeFocused] = useState(false);
+  const [operationMode, setOperationMode] = useState("");
+  const [userCatosList, setUserCatosList] = useState([]); // this is the list of all the nicknames of userCatos
+  const [userDeviceData, setUserDeviceData] = useState(null); //this is the result of pulling everything under userCatos
+  const [selectedDevice, setSelectedDevice] = useState(''); // this is the device that is selected from the Select Device dropdown
+  const [selectedDeviceData, setSelectedDeviceData] = useState(null); // this is the data associated with the device that is selected
+
+
+  if (!user) {
+    console.log("No user available");
+  }
+
+  const userId = user.uid;
+
+  if (!userId) {
+    console.log("No user ID available");
+  }
+
+  
+  const handleDeviceSelection = async (event) => {
+    const selectedValue = event.target.value;
+    if (selectedValue === 'Select A Device Here') {
+      setSelectedDevice('');
+      setSelectedDeviceData(null);
+    } else {
+      setSelectedDevice(selectedValue);
+      for (let i = 0; i < userCatosList.length; i++) {
+        if (userCatosList[i].device_info.device_nickname == event.target.value) {
+          const docID = await getDocID(userId, i);
+          console.log('testing', docID);
+          setSelectedDeviceData(docID);
+          break;
+        }
+      }
+    }
+  };
+
+
+
+  const getDocID = async (userId, index) => {
+    try {
+      const releasesRef = collection(db, 'users', userId, 'userCatos');
+      const querySnapshot = await getDocs(releasesRef);
+      const qd = querySnapshot.docs[index]._key.path.segments[8];
+      return qd;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      throw error;
+    }  
+  }
+
+  const getDeviceData = async (userId) => {
+    try {
+      const releasesRef = collection(db, 'users', userId, 'userCatos');
+      const querySnapshot = await getDocs(releasesRef);
+      // console.log('qd', querySnapshot.docs);
+      const data = querySnapshot.docs.map((doc) => doc.data());
+      return data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      throw error;
+    }
+  }
+
+  useEffect(() => {
+    console.log('userId: ', userId);
+    const fetchData = async () => {
+      try {
+        const userDeviceDataValue = await getDeviceData(userId);
+        const test = await getDocID(userId, 0);
+        console.log('helo', test);
+        setUserDeviceData(userDeviceDataValue);
+      } catch (error) {
+        console.error('error fetching data:', error);
+      }
+    };
+    fetchData();
+  }, [userId]);
+
+
+  useEffect(() => {
+    console.log('userDeviceData: ', userDeviceData);
+    if (userDeviceData) {
+      for (let i = 0; i < userDeviceData.length; i++) {
+        setUserCatosList(userCatosList => [...userCatosList, userDeviceData[i]]);
+      }
+    }
+  }, [userDeviceData]);
+  
 
   const focusStyle = {
     borderColor: '#AA9358',
@@ -16,27 +112,97 @@ const RegisterInterface = ({ userId }) => {
   const handleSave = () => {
     console.log("Save button clicked"); //debug
 
-    if (!userId) {
-      console.log("No user ID available");
-      return;
+    console.log('selected device', selectedDevice);
+
+    if (selectedDevice == 'Select A Device Here' || selectedDevice == '') {
+      console.log('Please choose a device');
+      return; 
     }
 
-    const userRef = doc(db, "users", userId, "userCatos", "connections");
-    getDoc(userRef)
-      .then(docSnap => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (data[interfaceName] || Object.values(data).includes(bluetoothId)) {
-            console.log("Interface or Bluetooth ID already associated with this device.");
-            return;
-          }
-          return setDoc(userRef, { [interfaceName]: bluetoothId }, { merge: true });
-        } else {
-          return setDoc(userRef, { [interfaceName]: bluetoothId });
+    try {
+
+      const getConnections = async () => {
+        //parse thru and check if int name already exists TODO 
+        console.log('list of catos', userCatosList);
+
+        const colRef = collection(db, "users");
+        const userRef = collection(colRef, userId, "userCatos");
+        // console.log('my user ref', userRef);
+    
+        const querySnapshot =  await getDocs(userRef);
+    
+        // console.log('my query snapshot', querySnapshot.docs);
+        const data = querySnapshot.docs.map((doc) => doc.data());
+
+        console.log('data', data);
+        // if (data.device_info.device_nickname == )
+        const tempdata = data[0];
+
+        // console.log('temp old', tempdata);
+
+        let combinedData = {}
+
+        if (operationMode == 'clicker') {
+          //bindings and clicker
+          //lowkey will hardcode picking out which atoms its easier
+          combinedData = {
+            ...clickerDefault,
+            ...bindingsDefault,
+          };
+
         }
-      })
-      .then(() => console.log("Interface registered successfully"))
-      .catch(error => console.error("Error registering interface: ", error));
+        else if (operationMode == 'gesturemouse') {
+          combinedData = {
+            ...mouseDefault, 
+            ...gestureDefault, 
+            ...bindingsDefault,
+          };
+        }
+
+        else if (operationMode == 'tvremote') {
+          combinedData = {
+            ...tvRemoteDefault, 
+            ...gestureDefault, 
+            ...bindingsDefault,
+          };
+        }
+
+        else if (operationMode == 'pointer') {
+          combinedData = {
+            ...mouseDefault,
+            ...bindingsDefault,
+          };
+        }
+        else {
+          combinedData = null;
+        }
+
+        // console.log(combinedData);
+
+        const stringCombinedData = JSON.stringify(combinedData);
+
+        const firebaseMap = {
+          bt_id: bluetoothId,
+          configjson: stringCombinedData,
+          device_type: interfaceName,
+          // Add other fields as needed
+        };
+            // Add the new connection to the existing connections array
+          tempdata.connections = tempdata.connections || [];
+          tempdata.connections.push(firebaseMap);
+
+          // Update the document in Firebase
+          await setDoc(doc(userRef, selectedDeviceData), tempdata);
+          console.log("Interface registered successfully");
+
+          setUserCatosList([]);
+
+      }
+      getConnections();
+    }
+    catch (error) {
+      console.log("add interface doc to usersCato connections error: ", error);
+    }
   };
 
   return (
@@ -58,6 +224,27 @@ const RegisterInterface = ({ userId }) => {
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="bg-white shadow-lg border border-gray-200 rounded-lg p-5 mt-10">
           <div className="px-4 py-5 sm:p-6 lg:px-8">
+
+            <h3> Choose Device </h3>
+            <select
+              value={selectedDevice}
+              onChange={handleDeviceSelection}
+              style={{
+                padding: '10px',
+                borderRadius: '5px',
+                outline: 'none',
+                cursor: 'pointer',
+                marginBottom: '20px',
+                border: '2px solid #B49837'
+              }}>
+                <option> Select A Device Here </option>
+            {userCatosList.length > 0 && userCatosList.map((userCato, index) => (
+                <option key={index} value={userCato.device_info.device_nickname}>
+                  {userCato.device_info.device_nickname}
+                </option>
+              ))}
+              </select>
+
             <h3 className="text-xl font-semibold leading-6 text-gray-900">
               Name your Interface
             </h3>
@@ -94,6 +281,27 @@ const RegisterInterface = ({ userId }) => {
                 style={isBluetoothFocused ? focusStyle : null}
                 />
             </div>
+            <div className="mt-5">
+                <label htmlFor="op-mode" className="block text-lg text-gray-900">
+                    Select your operation mode below:
+                </label>
+                <select
+                    id="op-mode"
+                    value={operationMode}
+                    onChange={(e) => setOperationMode(e.target.value)}
+                    onFocus={() => setIsOpModeFocused(true)}
+                    onBlur={() => setIsOpModeFocused(false)}
+                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm focus:border-customColor focus:ring-customColor`}
+                    style={isOpModeFocused ? focusStyle : null}
+                >
+                    <option value="pointer">Pointer</option>
+                    <option value="clicker">Clicker</option>
+                    <option value="gesturemouse">Gesture Mouse</option>
+                    <option value="tvremote">TV Remote</option>
+                </select>
+            </div>
+
+
             <p className="mt-5 text-lg text-gray-900">
               When you click <strong>Save</strong>, your browser will ask if you want to allow access to the device. Allow access in order to register the interface.
             </p>

@@ -1,0 +1,79 @@
+{
+    "gesture" : {
+        "label" : "Gesture Parameters",
+        "description" : "Settings for gesture collection and recognition cutoff tools",
+        "access" : "rw",
+        "value" : {
+            "key" : {
+                "label" : "Gesture Key",
+                "description" : "Human-readable field describing Gesture model's names of gestures",
+                "note" : "This determines text output of practice mode",
+                "access" : "r",
+                "value" : [
+                    "None",
+                    "Nod Up",
+                    "Nod Down",
+                    "Nod Right",
+                    "Nod Left",
+                    "Tilt Right",
+                    "Tilt Left"
+                ]
+            },
+            "confidence_threshold" : {
+                "label" : "Confidence threshold",
+                "description" : "Threshold of gesture confidence probability [0, 1], for Cato to accept gesture and execute command",
+                "note" : "Low value -> few dry-fires, more frequent misinterpretation. High value -> frequent dry-fires, rare misinterpretation", 
+                "access" : "rw",
+                "value" : 0.62,
+                "range" : {
+                    "min" : 0.55,
+                    "max" : 0.90
+                }
+            },
+            "length" : {
+                "label" : "Length",
+                "description" : "Number of samples (max) in a gesture to be fed to Neuton",
+                "access" : "r",
+                "value" : 200
+            },
+            "idle_cutoff" : {
+                "label" : "Idle Cutoff",
+                "description" : "Number of consecutive idle samples leading to gesture cutoff",
+                "access" : "r",
+                "value" : 20
+            },
+            "start_threshold" : {
+                "label" : "Movement threshold",
+                "description" : "movement required to start capturing gesture. Startup threshold",
+                "access" : "r",
+                "value" : 22.36
+            },
+            "idle_threshold" : {
+                "label" : "Idle threshold",
+                "description" : "Value of move speed below which is considered idle - leading to mouse exit. Low number = more stillness to idle out of gesture recognition",
+                "access" : "r",
+                "value" : 30
+            },
+            "timeout" : {
+                "label" : "Timeout",
+                "description" : "Maximum Time (seconds) to Wait for Gesture Start before exiting recognition window",
+                "access" : "rw",
+                "value" : 1.0,
+                "range" : {
+                    "min" : 0.1,
+                    "max" : 3.0
+                }
+            },
+            "gc_timeout" : {
+                "label" : "Gesture Collection Timeout",
+                "description" : "Time to wait before beginning gesture collection over bluetooth",
+                "access" : "rw",
+                "value" : 10,
+                "range" : {
+                    "min" : 5,
+                    "max" : 60
+                }
+            }
+        }
+    }
+}

@@ -22,6 +22,7 @@ async function requestDeviceAccess() {
 }
 
 const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
+  // console.log('user',user);
   const [parsedJson, setParsedJson] = useState({}); // [parsedJson, setParsedJson
   const [deviceName, setDeviceName] = useState("");
   const [errMessage, setErrMessage] = useState(false);
@@ -50,9 +51,24 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
               const jsonDataText = await file.text();
               let parsedJson = JSON.parse(jsonDataText);
               parsedJson.name.value = deviceName;
+              let globalConfig = parsedJson;
+              if (globalConfig['mouse'] != null) {
+                delete globalConfig['mouse'];
+              }
+              if (globalConfig['clicker'] != null) {
+                delete globalConfig['clicker'];
+              }
+              if (globalConfig['tv_remote'] != null) {
+                delete globalConfig['tv_remote'];
+              }
+              if (globalConfig['pointer'] != null) {
+                delete globalConfig['pointer'];
+              }
+              console.log("i parsed this and deleted opmode configs", globalConfig);
+              
               setParsedJson(parsedJson);
               setHwUid(parsedJson.HW_UID.value);
-              addDeviceDoc(parsedJson);
+              addDeviceDoc(parsedJson, globalConfig);
               deleteInitializeDoc();
 
               // create a sample file
@@ -94,7 +110,12 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     } catch (error) {
       console.log("get config.json error:", error);
     }
+
+    const getName = () => {
+      return parsedJson.name.value;
+    }
   };
+
 
 
   function changeConfigDevName(jsonData) {
@@ -106,20 +127,23 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     }
   }
 
-  const addDeviceDoc = (parsedJson) => {
+  const addDeviceDoc = (parsedJson, globalConfig) => {
     try {
       const storeDevice = async () => {
         try {
           //let parsedJson = JSON.parse(jsonData);      
           const newData = JSON.stringify(parsedJson)
+          const globalData = JSON.stringify(globalConfig)
 
           const colRef = collection(db, "users");
           await addDoc(collection(colRef, user.uid, "userCatos"), {
             device_info: {
               HW_UID: hwUid,
               device_nickname: deviceName,
+              global_config: globalData,
             },
-            current_config: newData,
+            connections:[],
+            // current_config: newData,
           });
           handleRenderDevices();
         } catch (error) {

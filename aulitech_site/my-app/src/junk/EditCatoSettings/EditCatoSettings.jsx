@@ -32,7 +32,7 @@ const EditCatoSettings = ({classNames, user}) => {
   const handleJsonDataState= (docData) => {
     setCatoConfig(docData);
     console.log(catoConfig);
-    console.log(catoConfig.operation_mode);
+    // console.log(catoConfig.operation_mode);
   };
 
 

@@ -1,0 +1,52 @@
+{
+  "clicker" : {
+      "label" : "Clicker",
+      "description" : "Settings for clicker sensitivity and spacing",
+      "access" : "rw",
+      "value" : {
+          "max_click_spacing" : {
+              "label" : "Max Click Spacing",
+              "description" : "Time (seconds) to await next tap before dispatching counted result",
+              "access" : "rw",
+              "value" : 0.45,
+              "range" : {
+                  "min" : 0.1,
+                  "max" : 1.0
+              }
+          },
+          "tap_ths" : {
+              "label" : "Tap Threshold",
+              "description" : "Level of impact needed to trigger a click. Lower -> more Sensitive to impact",
+              "note" : "5 bits, takes on values 0-31. Lower -> MORE SENSITIVE",
+              "access" : "rw",
+              "value" : 11,
+              "range" : {
+                  "min" : 0,
+                  "max" : 31
+              }
+          },
+          "quiet" : {
+              "label" : "Quiet",
+              "description" : "Amount of quiet required after a click",
+              "note" : "2-bit, 0-3",
+              "access" : "rw",
+              "value" : 2,
+              "range" : {
+                  "min" : 0,
+                  "max" : 3
+              }
+          },
+          "shock" : {
+              "label" : "Shock",
+              "description" : "Max duration of over threshold event",
+              "note" : "2-bit, 0-3",
+              "access" : "rw",
+              "value" : 2,
+              "range" : {
+                  "min" : 0,
+                  "max" : 3
+              }
+          }
+      }
+  }
+}
