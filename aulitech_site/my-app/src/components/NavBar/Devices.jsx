@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import Slider from 'react-slider';
+//import Slider from 'react-slider';
+import Slider from 'react-rangeslider';
+import 'react-rangeslider/lib/index.css';
 import { db } from "../../firebase";
 import { collection, getDocs, query } from 'firebase/firestore';
 import USBDeviceList from './USBDeviceList.jsx';
@@ -15,52 +17,52 @@ const getCurrentUserId = () => {
   }
 };
 
-const TickedSlider = ({ value, onChange, ticks }) => {
+const deepCopy = (obj) => {
+  return JSON.parse(JSON.stringify(obj));
+};
+
+const TickedSlider = ({ value, onChange, min, max, ticks, sliderTitle, sliderDescription }) => {
+  const tickLabels = Array.from({ length: ticks }, (_, index) => {
+    const tickValue = min + ((max - min) / (ticks - 1)) * index;
+    return tickValue.toFixed(2);
+  });
+
   return (
-    <div style={{ marginTop: '20px' }}>
-      <Slider
-        value={value}
-        onChange={onChange}
-        withBars
-        min={0}
-        max={100}
-        step={25}
-        renderTrack={(props, state) => (
-          <div
-            {...props}
-            style={{
-              ...props.style,
-              height: '15px',
-              width: (1 - state.value) * 100 + '%',
-              backgroundColor: state.index === 0 ? '#fff' : '#ccc',
-            }}
-          />
-        )}
-        renderThumb={(props, state) => (
-          <div
-            {...props}
-            style={{
-              ...props.style,
-              height: '20px',
-              width: '20px',
-              borderRadius: '50%',
-              backgroundColor: '#B49837',
-              boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)',
-              outline: 'black',
-            }}
-          >
-            {/* {state.valueNow} */}
-          </div>
-        )}
-      />
-      <br></br>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
-        {ticks.map((tick) => (
-          <div key={tick} style={{ textAlign: 'center', flex: '1' }}>
-            {tick}
-          </div>
-        ))}
+    <div>
+      <h2
+        style={{fontSize: '20px'}}
+        title={sliderDescription}
+      >
+        {sliderTitle}
+      </h2>
+      <div style={{ marginTop: '20px' }}>
+        <Slider>
+          value={value}
+          onChange={onChange}
+          min={min}
+          max={max}
+          step={(max - min) / (ticks - 1)}
+          labels={tickLabels}
+        </Slider>
       </div>
+    </div>
+  );
+};
+
+const Dropdown = ({ value, onChange, title, description, options }) => {
+  return (
+    <div>
+      <label htmlFor="dropdown" style={{ fontSize: '20px' }}>
+        {title}
+      </label>
+      <select id="dropdown" value={value} onChange={onChange}>
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <p>{description}</p>
     </div>
   );
 };
@@ -95,27 +97,32 @@ const getDeviceData = async (currentUserId) => {
 }
 
 const Devices = () => {
-  const currentUserId = getCurrentUserId();
-  
-  const [usbDevices, setUsbDevices] = useState([]); // this is the list of all aulicato USB devices connected to the computer
+
+  //once we get the current user id, we need to get all of the devices that are associated with that userID
+  //const [usbDevices, setUsbDevices] = useState([]); // this is the list of all aulicato USB devices connected to the computer
   const [userDeviceData, setUserDeviceData] = useState(null); //this is the result of pulling everything under userCatos
-  
+
+  //once we get all the data from userCatos, we need to get the list of all the nicknames of the devices
   const [userCatosList, setUserCatosList] = useState([]); // this is the list of all the nicknames of userCatos
 
+  // once the user selects a nickname from the list of nicknames, we need to get the name of the device and the data associated with that device
   const [selectedDevice, setSelectedDevice] = useState(''); // this is the device that is selected from the Select Device dropdown
-  
   const [selectedDeviceData, setSelectedDeviceData] = useState(null); // this is the data associated with the device that is selected
-  
   const [interfaceOptions, setInterfaceOptions] = useState([]); // this is the list of all interface options associated with the selected device
 
-  
+  // once the user selects an interface from the list of interfaces, we need to get the data associated with that interface
   const [selectedInterface, setSelectedInterface] = useState(''); // this is the interface that is selected from the Select Interface dropdown
-  
-  const [fetchedDeviceConfig, setFetchedDeviceConfig] = useState(''); // this is the config file associated with the interace that is selected
-  
+  const [fetchedInterfaceData, setFetchedInterfaceData] = useState(null); // this is the data associated with the interface that is selected
+  const [fetchedDeviceConfig, setFetchedDeviceConfig] = useState(null); // this is the config file associated with the interace that is selected
+  const [isConfigFetched, setIsConfigFetched] = useState(false); // this is a boolean that tells us whether or not the config file has been fetched
+  const [editedDeviceConfig, setEditedDeviceConfig] = useState(null); // this is the config file that is edited by the user
+
+  // for now, we will just do one operation mode per interface
   const [activeOperationMode, setActiveOperationMode] = useState(''); // this is the operation mode that is active on the device
-  
-  
+  const [fetchedConnectionSpecificConfig, setFetchedConnectionSpecificConfig] = useState(null); // this is the config file associated with the connection
+  const [isConnectionConfigFetched, setIsConnectionConfigFetched] = useState(false); // this is a boolean that tells us whether or not the config file has been fetched
+  const [editedConnectionSpecificConfig, setEditedConnectionSpecificConfig] = useState(null); // this is the config file that is edited by the user
+
   const [devices, setUSBDevices] = useState([]); // this is the list of all USB devices connected to the computer
   const [selectedOperationMode, setSelectedOperationMode] = useState(''); // this is the operation mode that is selected from the Select Operation Mode
   const [scaleXSlider, setscaleXSlider] = useState(0);
@@ -135,6 +142,7 @@ const Devices = () => {
   const [opMode, setOpMode] = useState('');
   const [threshold, setThreshold] = useState('');
 
+  /*
   const checkForAuliCatoDevices = async () => {
     try {
       console.log("checking for aulicato devices");
@@ -151,7 +159,41 @@ const Devices = () => {
       console.error('Error fetching data:', error);
     }
   };
+  */
 
+  // the first step is to get the current user id
+  const currentUserId = getCurrentUserId();
+
+  //once we get the current user id, we have to get all the device data associated with that user id
+  useEffect(() => {
+    console.log('currentUserId: ', currentUserId);
+    const fetchData = async () => {
+      try {
+        const userDeviceDataValue = await getDeviceData(currentUserId);
+        setUserDeviceData(userDeviceDataValue);
+      } catch (error) {
+        console.error('error fetching data:', error);
+      }
+    };
+    fetchData();
+    //checkForAuliCatoDevices();
+  }, [currentUserId]);
+
+  // now that we have all the device data, we need to get the list of all the nicknames of the devices
+  useEffect(() => {
+    console.log('userDeviceData: ', userDeviceData);
+    if (userDeviceData) {
+      const userCatosList = [];
+      for (let i = 0; i < userDeviceData.length; i++) {
+        //console.log(userDeviceData[i].device_info.device_nickname);
+        userCatosList.push(userDeviceData[i].device_info.device_nickname);
+      }
+      console.log(userCatosList);
+      setUserCatosList(userCatosList);
+    }
+  }, [userDeviceData]);
+
+  // when a user selects a device from the userCatosList, we need to get the data associated with that device
 
   const handleDeviceSelection = (event) => {
     const selectedValue = event.target.value;
@@ -165,40 +207,7 @@ const Devices = () => {
     }
   };
 
-  const handleInterfaceSelection = (event) => {
-    const selectedValue = event.target.value;
-    setSelectedInterface(selectedValue);
-  };
-
-
-
-  useEffect(() => {
-    console.log('currentUserId: ', currentUserId);
-    const fetchData = async () => {
-      try {
-        const userDeviceDataValue = await getDeviceData(currentUserId);
-        setUserDeviceData(userDeviceDataValue);
-      } catch (error) {
-        console.error('error fetching data:', error);
-      }
-    };
-    fetchData();
-    checkForAuliCatoDevices();
-  }, [currentUserId]);
-
-  useEffect(() => {
-    console.log('usbDevices: ', usbDevices);
-  }, [usbDevices]);
-
-  useEffect(() => {
-    console.log('userDeviceData: ', userDeviceData);
-    if (userDeviceData) {
-      for (let i = 0; i < userDeviceData.length; i++) {
-        setUserCatosList(userCatosList => [...userCatosList, userDeviceData[i]]);
-      }
-    }
-  }, [userDeviceData]);
-
+  // once the user has selected a device, we need to get the data associated with that device
   useEffect(() => {
     console.log('selectedDevice: ', selectedDevice);
 
@@ -217,16 +226,26 @@ const Devices = () => {
     getSelectedDeviceData();
   }, [selectedDevice]);
 
+
+  //once we get the data associated with the device, we need to get the list of all the interfaces associated with that device
   useEffect(() => {
     console.log('selectedDeviceData: ', selectedDeviceData);
+    const getFetchedDeviceConfig = async () => {
+      try {
+        const fetchedDeviceConfig = await selectedDeviceData.device_info.global_config;
+        const jsonObject = JSON.parse(fetchedDeviceConfig);
+        setFetchedDeviceConfig(jsonObject);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
     const getInterfaceOptions = async () => {
       try {
         const interfaceOptions = [];
-        for (let i = 0; i < userDeviceData.length; i++) {
-          if (userDeviceData[i].device_info.device_nickname === selectedDevice) {
-            for (let j = 0; j < userDeviceData[i].connection.length; j++) {
-              interfaceOptions.push(userDeviceData[i].connection[j].device_type);
-            }
+        if (selectedDeviceData) {
+          for (let i = 0; i < selectedDeviceData.connection.length; i++) {
+            interfaceOptions.push(selectedDeviceData.connection[i].device_type);
           }
         }
         setInterfaceOptions(interfaceOptions);
@@ -234,12 +253,107 @@ const Devices = () => {
         console.error('Error fetching data:', error);
       }
     };
+    getFetchedDeviceConfig();
     getInterfaceOptions();
   }, [selectedDeviceData]);
 
   useEffect(() => {
+    if (fetchedDeviceConfig && !isConfigFetched) {
+      const deepCopyFetchedDeviceConfig = deepCopy(fetchedDeviceConfig);
+      setEditedDeviceConfig(deepCopyFetchedDeviceConfig);
+      setIsConfigFetched(true);
+    }
+  }, [fetchedDeviceConfig, isConfigFetched]);
+
+  useEffect(() => {
     console.log('interfaceOptions: ', interfaceOptions);
   }, [interfaceOptions]);
+
+
+  const handleInterfaceSelection = (event) => {
+    const selectedValue = event.target.value;
+    if (selectedValue === 'Select An Interface') {
+      setSelectedInterface('');
+    } else {
+      setSelectedInterface(selectedValue);
+    }
+  };
+
+  // once the user has selected an interface, we need to get the data associated with that interface
+  useEffect(() => {
+    console.log('selectedInterface: ', selectedInterface);
+    if (selectedInterface) {
+      const getFetchedInterfaceData = async () => {
+        try {
+          for (let i = 0; i < selectedDeviceData.connection.length; i++) {
+            if (selectedDeviceData.connection[i].device_type === selectedInterface) {
+              setFetchedInterfaceData(selectedDeviceData.connection[i]);
+              break;
+            }
+          }
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      }
+      getFetchedInterfaceData();
+    }
+  }, [selectedInterface]);
+
+  // once we get the data associated with the interface, we need to get the config file associated with that interface
+  useEffect(() => {
+    console.log('fetchedInterfaceData: ', fetchedInterfaceData);
+    if (fetchedInterfaceData) {
+      const getConnectionSpecificConfig = async () => {
+        try {
+          const fetchedConnectionSpecificConfigString = await fetchedInterfaceData.configjson;
+          const jsonObject = JSON.parse(fetchedConnectionSpecificConfigString);
+          setFetchedConnectionSpecificConfig(jsonObject);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      
+      }
+      getConnectionSpecificConfig();
+    }
+  }, [fetchedInterfaceData]);
+
+  // once we get the config file associated with the interface, we need to get the operation mode associated with that interface
+  useEffect(() => {
+    console.log('fetchedConnectionSpecificConfig: ', fetchedConnectionSpecificConfig);
+    if (fetchedConnectionSpecificConfig) {
+      const getActiveOperationMode = async () => {
+        try {
+          setActiveOperationMode(fetchedConnectionSpecificConfig.operation_mode);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      }
+      getActiveOperationMode();
+    }
+  }, [fetchedConnectionSpecificConfig]);
+
+  useEffect(() => {
+    if (fetchedConnectionSpecificConfig && !isConnectionConfigFetched) {
+      const deepCopyFetchedConnectionSpecificConfig = deepCopy(fetchedConnectionSpecificConfig);
+      setEditedConnectionSpecificConfig(deepCopyFetchedConnectionSpecificConfig);
+      setIsConnectionConfigFetched(true);
+    }
+  }, [fetchedConnectionSpecificConfig, isConnectionConfigFetched]);
+
+  // at this point, we have the device config sections and the connection config sections
+
+
+  const handleConnectionConfigChange = ([keyList]) => (value) => {
+    console.log('keyList: ', keyList);
+    console.log('value: ', value);
+    const deepConnectionConfigCopy = deepCopy(editedConnectionSpecificConfig);
+    let currentConfig = deepConnectionConfigCopy;
+    for (let i = 0; i < keyList.length - 1; i++) {
+      currentConfig = currentConfig[keyList[i]];
+    }
+    currentConfig[keyList[keyList.length - 1]] = value;
+    setEditedDeviceConfig(deepConnectionConfigCopy);
+  };
 
 
   const handleScaleXChange = (value) => {
@@ -281,7 +395,7 @@ const Devices = () => {
     console.log(event.target.value);
     //setDeviceName(event.target.value);
     setSelectedSetting('');
-    
+
     deviceName = event.target.value;
     // console.log(deviceName);
 
@@ -411,52 +525,96 @@ const Devices = () => {
 
 
   const MouseOptions = () => {
+    //const currentOperationMode = editedConnectionSpecificConfig.operation_mode;
+    const [currentMouseConfig, setCurrentMouseConfig] = useState(editedConnectionSpecificConfig.mouse);
+
+    useEffect(() => {
+      setCurrentMouseConfig(editedConnectionSpecificConfig.mouse);
+    }, [editedConnectionSpecificConfig]);
+
     return (
-      <div style={{ textAlign: 'center', padding: '20px' }}>
-        <div>
-          <h2 style={{ fontSize: '20px' }}> Scale X </h2>
-          <TickedSlider value={scaleXSlider} onChange={handleScaleXChange} ticks={[0, 25, 50, 75, 100]} />
-        </div>
-        <br></br>
-        <div>
-          <h2 style={{ fontSize: '20px' }}> Scale Y </h2>
-          <TickedSlider value={scaleYSlider} onChange={handleScaleYChange} ticks={[0, 25, 50, 75, 100]} />
-        </div>
-        <br></br>
-        <div>
-          <h2 style={{ fontSize: '20px' }}> Screen Size </h2>
-          <TickedSlider value={screenSizeSlider} onChange={handleScreenSizeSliderChange} ticks={[0, 25, 50, 75, 100]} />
-        </div>
-        <br></br>
-
-        <h2 style={{ fontSize: '15px' }}> Edit Number of Shakes </h2>
-        <form>
-          {/* add onsubmit */}
-          <label>
-            <input style={{ borderColor: 'black', borderWidth: 1, marginLeft: '15px', marginRight: '15px' }} type="text" />
-          </label>
-          <br></br>
-        </form>
-        <br></br>
-
-        <div>
-          <h2 style={{ fontSize: '20px' }}> Sleep </h2>
-          <TickedSlider value={sleepSlider} onChange={handleSleepSliderChange} ticks={[0, 25, 50, 75, 100]} />
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
-          <button style={getThreshStyle('Low')} onClick={() => handleThreshChange('Low')}>
-            Low
-          </button>
-          <button style={getThreshStyle('Medium')} onClick={() => handleThreshChange('Medium')}>
-            Medium
-          </button>
-          <button style={getThreshStyle('High')} onClick={() => handleThreshChange('High')}>
-            High
-          </button>
-        </div>
+      <div style={{display: 'flex', flexDirection: 'row'}}>
+        <TickedSlider 
+          value={currentMouseConfig.value.idle_threshold.value} 
+          onChange={(value) => handleConnectionConfigChange(['mouse', 'value', 'idle_threshold', 'value'])(value)}
+          min= {5}
+          max= {12} 
+          ticks={4}
+          sliderTitle="Mouse Idle Threshold"
+          sliderDescription="Value of move speed below which is considered idle. Causes mouse exit; High value: easier to idle out; Low value: mouse stays active." 
+        />
+        <TickedSlider 
+          value={currentMouseConfig.value.min_run_cycles.value} 
+          onChange={(value) => handleConnectionConfigChange(['mouse', 'value', 'min_run_cycles', 'value'])(value)}
+          min= {0}
+          max= {100} 
+          ticks={10}
+          sliderTitle="Minimum Mouse Runtime"
+          sliderDescription="Minimum time (in .01 second increments) that mouse will always run before checking idle conditions for exit" 
+        />
+        <TickedSlider 
+          value={currentMouseConfig.value.idle_duration.value} 
+          onChange={(value) => handleConnectionConfigChange(['mouse', 'value', 'idle_duration', 'value'])(value)}
+          min= {30}
+          max= {150} 
+          ticks={12}
+          sliderTitle="Idle Timeout Cycles"
+          sliderDescription="Amount of idle time (in .01 second increments) required to trigger mouse exit" 
+        />
+        <TickedSlider
+          value={currentMouseConfig.value.dwell_duration.value}
+          onChange={(value) => handleConnectionConfigChange(['mouse', 'value','dwell_duration'])(value)}
+          min= {20}
+          max= {100}
+          ticks={8}
+          sliderTitle="Dwell Trigger Cycles"
+          sliderDescription="Amount of idle time (in .01 second increments) needed to trigger action in dwell_click"
+        />
+        <Dropdown
+          value={currentMouseConfig.value.dwell_repeat.value}
+          onChange={(value) => handleConnectionConfigChange(['mouse', 'value', 'dwell_repeat', 'value'])(value)}
+          title="Dwell Repeat Clicks"
+          description="Continued idle causes multiple clicks"
+          options={[true, false]}
+        />
+        <TickedSlider
+          value = {currentMouseConfig.value.scale_x.value}
+          onChange={(value) => handleConnectionConfigChange(['mouse', 'value', 'scale_x', 'value'])(value)}
+          min={0.1}
+          max={4.0}
+          ticks={10}
+          sliderTitle="Horizontal Movement Scale Factor"
+          sliderDescription="Mouse sensitivity to horizontal movement"
+        />
+        <TickedSlider
+          value = {currentMouseConfig.value.scale_y.value}
+          onChange={(value) => handleConnectionConfigChange(['mouse', 'value', 'scale_y', 'value'])(value)}
+          min={0.1}
+          max={4.0}
+          ticks={10}
+          sliderTitle= "Vertical Movement Scale Factor"
+          sliderDescription= "Flat multiplier for all mouse movements"
+        />
+        <TickedSlider
+          value = {currentMouseConfig.value.shake_size.value}
+          onChange={(value) => handleConnectionConfigChange(['mouse', 'value', 'scale_y', 'value'])(value)}
+          min={0}
+          max={20}
+          ticks={10}
+          sliderTitle= "Shake Size"
+          sliderDescription= "size of cursor movement for gesturer indicator"
+        />
+        <TickedSlider
+          value = {currentMouseConfig.value.num_shake.value}
+          onChange={(value) => handleConnectionConfigChange(['mouse', 'value', 'num_shake', 'value'])(value)}
+          min={1}
+          max={4}
+          ticks={4}
+          sliderTitle= "Number of Shakes"
+          sliderDescription= "Number of times to repeat gesture ready indicator"
+        />
       </div>
-    );
+    )
   };
 
   const ClickerOptions = () => {
@@ -514,8 +672,8 @@ const Devices = () => {
               }}>
               <option> Select A Device Here </option>
               {userCatosList.length > 0 && userCatosList.map((userCato, index) => (
-                <option key={index} value={userCato.device_info.device_nickname}>
-                  {userCato.device_info.device_nickname}
+                <option key={index} value={userCato}>
+                  {userCato}
                 </option>
               ))}
 
@@ -561,13 +719,13 @@ const Devices = () => {
           >
 
             <option> Select An Interface </option>
-            {interfaceOptions != null && 
+            {interfaceOptions != null &&
               interfaceOptions.map((chosenInterface, index) => (
                 <option key={index} value={chosenInterface}>
                   {chosenInterface}
                 </option>
               ))}
-            </select>
+          </select>
 
           <DashedLine />
 
