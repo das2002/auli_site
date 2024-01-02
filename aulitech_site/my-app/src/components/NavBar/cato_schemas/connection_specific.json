@@ -1,0 +1,64 @@
+{
+    "operation_mode" : {
+        "label" : "Mode",
+        "description" : "a name defining the operation mode of Cato",
+        "access"  : "rw",
+        "value" : "gesture_mouse",
+        "options" : ["gesture_mouse", "tv_remote", "pointer", "clicker", "practice"]
+    },
+    "screen_size" : {
+        "label" : "Screen Size", 
+        "description" : "structure containing screen height and width in pixels",
+        "access"  : "rw",
+        "value" : {
+            "height" : {
+                "description" : "height in pixels",
+                "access" : "rw",
+                "value" : 1080,
+                "range" : {
+                    "min" : 600,
+                    "max" : 4320
+                }
+            },
+            "width" : {
+                "description" : "width in pixels",
+                "access" : "rw",
+                "value" : 1920,
+                "range" : {
+                    "min" : 800,
+                    "max" : 8192
+                }
+            }
+        }
+    },
+    "turbo_rate" : {
+        "label" : "Turbo Options",
+        "description" : "Options for 'Turbo' (repeated, accelerating button presses until cancelled)",
+        "note" : "TODO: not yet implemented with current button acctions",
+        "access" : "rw",
+        "value" : {
+            "initial" : {
+                "label" : "Initial Spacing",
+                "description" : "Initial button-press spacing",
+                "access" : "rw",
+                "value" : 1
+            },
+            "minimum" : {
+                "label" : "Minimum Spacing",
+                "description" : "Minimum (fastest) button press spacings",
+                "access" : "rw",
+                "value" : 0.2
+            },
+            "decay_rate" : {
+                "label" : "Decay Rate",
+                "description" : "Rate (geometric) of time-between-press decay",
+                "access" : "rw",
+                "value" : 0.9,
+                "range" : {
+                    "min" : 0.65,
+                    "max" : 0.95
+                }
+            }
+        }
+    }
+}

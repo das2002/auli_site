@@ -21,6 +21,7 @@ const deepCopy = (obj) => {
   return JSON.parse(JSON.stringify(obj));
 };
 
+/*
 const TickedSlider = ({ value, onChange, min, max, ticks, sliderTitle, sliderDescription }) => {
   const tickLabels = Array.from({ length: ticks }, (_, index) => {
     const tickValue = min + ((max - min) / (ticks - 1)) * index;
@@ -48,6 +49,45 @@ const TickedSlider = ({ value, onChange, min, max, ticks, sliderTitle, sliderDes
     </div>
   );
 };
+*/
+
+const TickedSlider = ({ value, onChange, min, max, ticks, sliderTitle, sliderDescription }) => {
+  // Calculate the step value
+  const step = (max - min) / (ticks - 1);
+
+  // Generate tick labels
+  const tickLabels = Array.from({ length: ticks }, (_, index) => {
+    const tickValue = min + step * index;
+    return tickValue.toFixed(2);
+  });
+
+  return (
+    <div>
+      <h2 style={{ fontSize: '20px' }} title={sliderDescription}>
+        {sliderTitle}
+      </h2>
+      <div style={{ marginTop: '20px' }}>
+        {/* Assuming you're using a third-party Slider component */}
+        <Slider
+          value={value}
+          onChange={onChange}
+          min={min}
+          max={max}
+          step={step}
+          // ... other props you might need to pass
+        />
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          {tickLabels.map((label, index) => (
+            <span key={index} style={{ flex: 1, textAlign: index === 0 ? 'left' : index === ticks - 1 ? 'right' : 'center' }}>
+              {label}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 const Dropdown = ({ value, onChange, title, description, options }) => {
   return (
@@ -523,6 +563,38 @@ const Devices = () => {
     fontSize: '24px',
   };
 
+  const ConnectionSpecificSettings = () => {    
+    return (
+      <div style={{display: 'flex', flexDirection: 'row'}}>
+        <div>
+          <h2 style={{fontSize: '20px'}}>Operation Mode</h2>
+          {selectedDeviceData != null && <input value={fetchedInterfaceData.operation_mode}
+            style={{ borderColor: 'black', borderWidth: 1, paddingLeft: '15px', marginLeft: '15px', marginRight: '15px' }} className="e-input" type="text" placeholder="Operation Mode" readOnly={true} />}
+          <br></br>
+          <br></br>
+        </div>
+        <TickedSlider
+          value = {editedConnectionSpecificConfig.screen_size.value.height}
+          onChange={(value) => handleConnectionConfigChange(['screen_size', 'value', 'height', 'value'])(value)}
+          min={600}
+          max={4320}
+          ticks={20}
+          sliderTitle= "Screen Size - Height"
+          sliderDescription= "height of interface screen"
+        />
+        <TickedSlider
+          value = {editedConnectionSpecificConfig.screen_size.value.width}
+          onChange={(value) => handleConnectionConfigChange(['screen_size', 'value', 'width', 'value'])(value)}
+          min={800}
+          max={8192}
+          ticks={25}
+          sliderTitle= "Screen Size - Width"
+          sliderDescription= "width of interface screen"
+        />
+      </div>
+    )
+  }
+
 
   const MouseOptions = () => {
     //const currentOperationMode = editedConnectionSpecificConfig.operation_mode;
@@ -620,28 +692,66 @@ const Devices = () => {
   const ClickerOptions = () => {
     return (
       <div>
-        <h2 style={{ fontSize: '20px' }}> Max Click Spacing</h2>
-        <TickedSlider value={maxClick} onChange={handleMaxClickChange} ticks={[0, 0.2, 0.4, 0.6, 0.8, 1.0]} />
-        <h2 style={{ fontSize: '20px' }}> Tap Threshold </h2>
-        <TickedSlider value={tapThreshold} onChange={handleTapThresholdChange} ticks={[0, 2, 4, 8, 16, 31]} />
-        <h2 style={{ fontSize: '20px' }}> Quiet </h2>
-        <TickedSlider value={quietValue} onChange={handleQuietChange} ticks={[0, 1, 2, 3]} />
+        <TickedSlider
+          value = {editedConnectionSpecificConfig.clicker.value.max_click_spacing.value}
+          onChange={(value) => handleConnectionConfigChange(['clicker', 'value', 'max_click_spacing', 'value'])(value)}
+          min={0.1}
+          max={1.0}
+          ticks={18}
+          sliderTitle={"Max Click Spacing"}
+          sliderDescription={"Time (seconds) to await next tap before dispatching counted result"}
+        />
+        <TickedSlider>
+          value = {editedConnectionSpecificConfig.clicker.value.tap_ths.value}
+          onChange={(value) => handleConnectionConfigChange(['clicker', 'value', 'tap_ths', 'value'])(value)}
+          min={0}
+          max={31}
+          ticks={16}
+          sliderTitle={"Tap Threshold"}
+          sliderDescription={"Level of impact needed to trigger a click. Lower -> more Sensitive to impact"}
+        </TickedSlider>
+        <TickedSlider
+          value = {editedConnectionSpecificConfig.clicker.value.quiet.value}
+          onChange={(value) => handleConnectionConfigChange(['clicker', 'value', 'quiet', 'value'])(value)}
+          min={0}
+          max={3}
+          ticks={4}
+          sliderTitle={"Quiet"}
+          sliderDescription={"Amount of quiet required after a click"}
+        />
+        <TickedSlider
+          value={editedConnectionSpecificConfig.clicker.value.shock.value}
+          onChange={(value) => handleConnectionConfigChange(['clicker', 'value', 'shock', 'value'])(value)}
+          min={0}
+          max={3}
+          ticks={4}
+          sliderTitle={"Shock"}
+          sliderDescription={"Max duration of over threshold event"}
+        />
       </div>
     );
   };
 
   const TVRemoteOptions = () => {
     return (
+      // give a title for the TV Remote Options
       <div>
-
-        <h2 style={{ fontSize: '20px' }}> Await Actions </h2>
-        <button style={getAwaitStyle('True')} onClick={() => handleAwaitChange('True')}>True</button>
-        <button style={getAwaitStyle('False')} onClick={() => handleAwaitChange('False')}>False</button>
-
+        <h1> TV Remote Options </h1>
+        <Dropdown
+          value={editedConnectionSpecificConfig.value.await_actions.value}
+          onChange={(value) => handleConnectionConfigChange(['tv_remote', 'value', 'await_actions', 'value'])(value)}
+          title="Await Actions"
+          description="wait for previous action to end before reading a new gesture"
+          options={[true, false]}
+        />
       </div>
     );
   };
 
+  const handleNameChange = (value) => {
+    console.log(value);
+    setDeviceName(value);
+  }
 
   return (
     <div style={containerStyle}>
@@ -685,11 +795,17 @@ const Devices = () => {
 
 
           <h2 style={{ fontSize: '20px' }}> Edit Nickname </h2>
-          <form >
+          <form>
             <label>
               Name:
-              {selectedDeviceData != null && <input value={selectedDeviceData.device_info.device_nickname}
-                style={{ borderColor: 'black', borderWidth: 1, marginLeft: '15px', marginRight: '15px' }} type="text" />}
+              {selectedDeviceData != null && (
+                <input
+                  value={selectedDeviceData.device_info.device_nickname}
+                  style={{ borderColor: 'black', borderWidth: 1, marginLeft: '15px', marginRight: '15px' }}
+                  type="text"
+                  //onChange={(event) => handleNameChange(event.target.value)}
+                />
+              )}
             </label>
             <br></br>
           </form>
@@ -729,85 +845,8 @@ const Devices = () => {
 
           <DashedLine />
 
+          {editedConnectionSpecificConfig && ConnectionSpecificSettings()}
 
-          {selectedDevice && (
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
-              <button style={getButtonStyle('TV')} onClick={() => handleSettingClick('TV')}>TV</button>
-              <button style={getButtonStyle('Mac')} onClick={() => handleSettingClick('Mac')}>Mac</button>
-              <button style={getButtonStyle('Wheelchair')} onClick={() => handleSettingClick('Wheelchair')}>Wheelchair</button>
-              <button style={getButtonStyle('iPad')} onClick={() => handleSettingClick('iPad')}>iPad</button>
-            </div>
-          )}
-
-          {selectedSetting && (
-            <div style={settingsBoxStyle}>
-              <p>Settings for {selectedSetting}</p>
-              <h2 style={{ fontSize: '20px' }}> Screen Size </h2>
-              <br></br>
-              <p style={{ fontSize: '15px' }}>Height</p>
-              {/* height  */}
-              <select
-                value={deviceHeight}
-                onChange={handleHeightChange}
-                style={{
-                  padding: '10px',
-                  borderRadius: '5px',
-                  outline: 'none',
-                  cursor: 'pointer',
-                  marginBottom: '20px',
-                  border: '2px solid #B49837'
-                }}
-              >
-                <option value="">Choose Your Interface Height!</option>
-                {/* need to get these values from the config file, hardcode for now? */}
-                <option value="height1">height 1</option>
-                <option value="height2">height 2</option>
-                <option value="height3">height 3</option>
-
-              </select>
-
-              <p style={{ fontSize: '15px' }}>Width</p>
-              {/* height  */}
-              <select
-                value={deviceWidth}
-                onChange={handleWidthChange}
-                style={{
-                  padding: '10px',
-                  borderRadius: '5px',
-                  outline: 'none',
-                  cursor: 'pointer',
-                  marginBottom: '20px',
-                  border: '2px solid #B49837'
-                }}
-              >
-                <option value="">Choose Your Interface Width!</option>
-                {/* need to get these values from the config file, hardcode for now? */}
-                <option value="width1">width 1</option>
-                <option value="width2">width 2</option>
-                <option value="width3">width 3</option>
-
-              </select>
-
-              <h2 style={{ fontSize: '20px' }}> Operation Mode </h2>
-
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginTop: '20px' }}>
-                <button style={getOpStyle('Gesture Mouse')} onClick={() => handleOpChange('Gesture Mouse')}>Gesture Mouse</button>
-                <button style={getOpStyle('Pointer')} onClick={() => handleOpChange('Pointer')}>Pointer</button>
-                <button style={getOpStyle('Clicker')} onClick={() => handleOpChange('Clicker')}>Clicker</button>
-                <button style={getOpStyle('TV Remote')} onClick={() => handleOpChange('TV Remote')}>TV Remote</button>
-                <button style={getOpStyle('Practice')} onClick={() => handleOpChange('Practice')}>Practice</button>
-
-              </div>
-              {opMode == 'Gesture Mouse' && <MouseOptions />}
-              {/* {opMode == 'Pointer'} idk what to do here */}
-              {opMode == 'Clicker' && <ClickerOptions />}
-              {opMode == 'TV Remote' && <TVRemoteOptions />}
-
-
-
-
-            </div>
-          )}
         </div>
       </div>
       {selectedSetting && (

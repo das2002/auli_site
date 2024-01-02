@@ -52,6 +52,12 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
               let parsedJson = JSON.parse(jsonDataText);
               parsedJson.name.value = deviceName;
               let globalConfig = parsedJson;
+              if (globalConfig['operation_mode'] != null) {
+                delete globalConfig['operation_mode'];
+              }
+              if (globalConfig['screen_size'] != null) {
+                delete globalConfig['screen_size'];
+              }
               if (globalConfig['mouse'] != null) {
                 delete globalConfig['mouse'];
               }
@@ -64,10 +70,17 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
               if (globalConfig['pointer'] != null) {
                 delete globalConfig['pointer'];
               }
+              if (globalConfig['bindings'] != null) {
+                delete globalConfig['bindings'];
+              }
+              if (globalConfig['turbo_rate'] != null) {
+                delete globalConfig['turbo_rate'];
+              }
               console.log("i parsed this and deleted opmode configs", globalConfig);
               
               setParsedJson(parsedJson);
-              setHwUid(parsedJson.HW_UID.value);
+              //setHwUid(parsedJson.HW_UID.value);
+              //console.log("hwUid", hwUid);
               addDeviceDoc(parsedJson, globalConfig);
               deleteInitializeDoc();
 
@@ -116,6 +129,13 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     }
   };
 
+  useEffect(() => {
+    console.log("parsedJson", parsedJson);
+    if (parsedJson && Object.keys(parsedJson).length > 0) {
+      setHwUid(parsedJson.HW_UID.value);
+    }
+  }, [parsedJson]);
+
 
 
   function changeConfigDevName(jsonData) {
@@ -138,11 +158,11 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
           const colRef = collection(db, "users");
           await addDoc(collection(colRef, user.uid, "userCatos"), {
             device_info: {
-              HW_UID: hwUid,
+              HW_UID: parsedJson.HW_UID.value,
               device_nickname: deviceName,
               global_config: globalData,
             },
-            connections:[],
+            connection:[],
             // current_config: newData,
           });
           handleRenderDevices();

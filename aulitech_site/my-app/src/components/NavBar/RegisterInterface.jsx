@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { collection, doc, getDoc, setDoc, getDocs, setDocs } from "firebase/firestore"; 
-import { db } from "../../firebase"; 
+import { collection, doc, getDoc, setDoc, getDocs, setDocs, Firestore, FieldValue, arrayUnion, updateDoc } from "firebase/firestore";
+import { db } from "../../firebase";
 import * as clickerDefault from './cato_schemas/clicker.json';
 import * as mouseDefault from './cato_schemas/mouse.json';
 import * as gestureDefault from './cato_schemas/gesture.json';
 import * as tvRemoteDefault from './cato_schemas/tv_remote.json';
 import * as bindingsDefault from './cato_schemas/bindings.json';
+import * as connectionSpecificDefault from './cato_schemas/connection_specific.json';
 
 
 
@@ -32,7 +33,7 @@ const RegisterInterface = ({ user }) => {
     console.log("No user ID available");
   }
 
-  
+
   const handleDeviceSelection = async (event) => {
     const selectedValue = event.target.value;
     if (selectedValue === 'Select A Device Here') {
@@ -62,7 +63,7 @@ const RegisterInterface = ({ user }) => {
     } catch (error) {
       console.error('Error fetching data:', error);
       throw error;
-    }  
+    }
   }
 
   const getDeviceData = async (userId) => {
@@ -102,21 +103,21 @@ const RegisterInterface = ({ user }) => {
       }
     }
   }, [userDeviceData]);
-  
+
 
   const focusStyle = {
     borderColor: '#AA9358',
-    boxShadow: '0 0 0 2px #AA9358', 
+    boxShadow: '0 0 0 2px #AA9358',
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     console.log("Save button clicked"); //debug
 
     console.log('selected device', selectedDevice);
 
     if (selectedDevice == 'Select A Device Here' || selectedDevice == '') {
       console.log('Please choose a device');
-      return; 
+      return;
     }
 
     try {
@@ -127,57 +128,82 @@ const RegisterInterface = ({ user }) => {
 
         const colRef = collection(db, "users");
         const userRef = collection(colRef, userId, "userCatos");
+        const docRef = doc(userRef, selectedDeviceData);
+
         // console.log('my user ref', userRef);
-    
-        const querySnapshot =  await getDocs(userRef);
-    
+
+        //const querySnapshot =  await getDocs(userRef);
+
         // console.log('my query snapshot', querySnapshot.docs);
-        const data = querySnapshot.docs.map((doc) => doc.data());
+        // const data = querySnapshot.docs.map((doc) => doc.data());
 
-        console.log('data', data);
-        // if (data.device_info.device_nickname == )
-        const tempdata = data[0];
 
+        let tempdata = null;
+
+        //iterate through userCatosList and find the one that matches the selected device
+        for (let i = 0; i < userCatosList.length; i++) {
+          if (userCatosList[i].device_info.device_nickname == selectedDevice) {
+            tempdata = userCatosList[i];
+            break;
+          }
+        }
         // console.log('temp old', tempdata);
-
         let combinedData = {}
+
+        console.log('tempdata', tempdata);
+
+        //iterate through connectionSpecificDefault and add the fields to combinedData
+        for (const [key, value] of Object.entries(connectionSpecificDefault)) {
+          combinedData[key] = value;
+        }
+
+        console.log('combinedData', combinedData);
 
         if (operationMode == 'clicker') {
           //bindings and clicker
           //lowkey will hardcode picking out which atoms its easier
           combinedData = {
+            ...combinedData,
             ...clickerDefault,
             ...bindingsDefault,
           };
+          combinedData.operation_mode.value = 'clicker'
 
         }
-        else if (operationMode == 'gesturemouse') {
+        else if (operationMode == 'gesture_mouse') {
           combinedData = {
-            ...mouseDefault, 
-            ...gestureDefault, 
+            ...combinedData,
+            ...mouseDefault,
+            ...gestureDefault,
             ...bindingsDefault,
           };
+          combinedData.operation_mode.value = 'gesture_mouse'
+
         }
 
-        else if (operationMode == 'tvremote') {
+        else if (operationMode == 'tv_remote') {
           combinedData = {
-            ...tvRemoteDefault, 
-            ...gestureDefault, 
+            ...combinedData,
+            ...tvRemoteDefault,
+            ...gestureDefault,
             ...bindingsDefault,
           };
+          combinedData.operation_mode.value = 'tv_remote'
         }
 
         else if (operationMode == 'pointer') {
           combinedData = {
+            ...combinedData,
             ...mouseDefault,
             ...bindingsDefault,
           };
+          combinedData.operation_mode.value = 'pointer'
         }
         else {
           combinedData = null;
         }
 
-        // console.log(combinedData);
+        console.log(combinedData);
 
         const stringCombinedData = JSON.stringify(combinedData);
 
@@ -185,20 +211,43 @@ const RegisterInterface = ({ user }) => {
           bt_id: bluetoothId,
           configjson: stringCombinedData,
           device_type: interfaceName,
+          operation_mode: operationMode,
           // Add other fields as needed
         };
-            // Add the new connection to the existing connections array
-          tempdata.connections = tempdata.connections || [];
-          tempdata.connections.push(firebaseMap);
+        // Add the new connection to the existing connections array
+        //tempdata.connection = tempdata.connection || [];
+        //tempdata.connection.push(firebaseMap);
 
-          // Update the document in Firebase
-          await setDoc(doc(userRef, selectedDeviceData), tempdata);
-          console.log("Interface registered successfully");
+        // Update the document in Firebase
+        //await setDoc(doc(userRef, selectedDeviceData, 'connection'), tempdata);
+        
+        await Promise.all([
+          updateDoc(docRef, {
+            connection: arrayUnion(firebaseMap)
+          }),
+        ])
 
-          setUserCatosList([]);
+        /*
+                docRef.update({
+          connection: FieldValue.arrayUnion(firebaseMap),
+        })
+          .then(() => {
+            console.log("Document successfully updated!");
+          })
+          .catch((error) => {
+            console.error("Error updating document: ", error);
+          });
+        */
+
+        console.log("Interface registered successfully");
+
+        //setUserCatosList([]);
 
       }
-      getConnections();
+      await getConnections();
+
+      window.location.reload();
+
     }
     catch (error) {
       console.log("add interface doc to usersCato connections error: ", error);
@@ -237,22 +286,22 @@ const RegisterInterface = ({ user }) => {
                 marginBottom: '20px',
                 border: '2px solid #B49837'
               }}>
-                <option> Select A Device Here </option>
-            {userCatosList.length > 0 && userCatosList.map((userCato, index) => (
+              <option> Select A Device Here </option>
+              {userCatosList.length > 0 && userCatosList.map((userCato, index) => (
                 <option key={index} value={userCato.device_info.device_nickname}>
                   {userCato.device_info.device_nickname}
                 </option>
               ))}
-              </select>
+            </select>
 
             <h3 className="text-xl font-semibold leading-6 text-gray-900">
               Name your Interface
             </h3>
             <div className="mt-5">
-                <label htmlFor="interface-name" className="block text-lg text-gray-900">
+              <label htmlFor="interface-name" className="block text-lg text-gray-900">
                 Enter a name for your interface below:
-                </label>
-                <input
+              </label>
+              <input
                 type="text"
                 id="interface-name"
                 value={interfaceName}
@@ -262,14 +311,14 @@ const RegisterInterface = ({ user }) => {
                 className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm focus:border-customColor focus:ring-customColor`}
                 placeholder="sample-nickname"
                 style={isInterfaceFocused ? focusStyle : null}
-                />
+              />
             </div>
 
             <div className="mt-5">
-                <label htmlFor="bluetooth-id" className="block text-lg text-gray-900">
+              <label htmlFor="bluetooth-id" className="block text-lg text-gray-900">
                 Enter the Bluetooth ID for your device:
-                </label>
-                <input
+              </label>
+              <input
                 type="text"
                 id="bluetooth-id"
                 value={bluetoothId}
@@ -279,26 +328,26 @@ const RegisterInterface = ({ user }) => {
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"
                 placeholder="sample-bluetooth-id"
                 style={isBluetoothFocused ? focusStyle : null}
-                />
+              />
             </div>
             <div className="mt-5">
-                <label htmlFor="op-mode" className="block text-lg text-gray-900">
-                    Select your operation mode below:
-                </label>
-                <select
-                    id="op-mode"
-                    value={operationMode}
-                    onChange={(e) => setOperationMode(e.target.value)}
-                    onFocus={() => setIsOpModeFocused(true)}
-                    onBlur={() => setIsOpModeFocused(false)}
-                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm focus:border-customColor focus:ring-customColor`}
-                    style={isOpModeFocused ? focusStyle : null}
-                >
-                    <option value="pointer">Pointer</option>
-                    <option value="clicker">Clicker</option>
-                    <option value="gesturemouse">Gesture Mouse</option>
-                    <option value="tvremote">TV Remote</option>
-                </select>
+              <label htmlFor="op-mode" className="block text-lg text-gray-900">
+                Select your operation mode below:
+              </label>
+              <select
+                id="op-mode"
+                value={operationMode}
+                onChange={(e) => setOperationMode(e.target.value)}
+                onFocus={() => setIsOpModeFocused(true)}
+                onBlur={() => setIsOpModeFocused(false)}
+                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm focus:border-customColor focus:ring-customColor`}
+                style={isOpModeFocused ? focusStyle : null}
+              >
+                <option value="pointer">Pointer</option>
+                <option value="clicker">Clicker</option>
+                <option value="gesture_mouse">Gesture Mouse</option>
+                <option value="tv_remote">TV Remote</option>
+              </select>
             </div>
 
 
@@ -306,13 +355,13 @@ const RegisterInterface = ({ user }) => {
               When you click <strong>Save</strong>, your browser will ask if you want to allow access to the device. Allow access in order to register the interface.
             </p>
             <div className="mt-6 flex justify-end">
-                <button
+              <button
                 type="button"
                 onClick={handleSave}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
+              >
                 Save
-                </button>
+              </button>
             </div>
           </div>
         </div>
