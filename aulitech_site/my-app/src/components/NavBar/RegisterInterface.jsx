@@ -220,6 +220,8 @@ const RegisterInterface = ({ user }) => {
 
         // Update the document in Firebase
         //await setDoc(doc(userRef, selectedDeviceData, 'connection'), tempdata);
+
+        console.log('firebaseMap: ', firebaseMap);
         
         await Promise.all([
           updateDoc(docRef, {
@@ -343,6 +345,7 @@ const RegisterInterface = ({ user }) => {
                 className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm focus:border-customColor focus:ring-customColor`}
                 style={isOpModeFocused ? focusStyle : null}
               >
+                <option value="">Select an operation mode</option>
                 <option value="pointer">Pointer</option>
                 <option value="clicker">Clicker</option>
                 <option value="gesture_mouse">Gesture Mouse</option>

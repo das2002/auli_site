@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { db } from "../../firebase";
-import { collection, getDocs, query } from 'firebase/firestore';
+import { collection,doc, getDocs, query, updateDoc } from 'firebase/firestore';
 import USBDeviceList from './USBDeviceList.jsx';
 import { auth } from "../../firebase"
 import * as clickerDefault from './cato_schemas/clicker.json';
@@ -58,23 +58,68 @@ const InputSlider = ({ value, onChange, min, max, sliderTitle, sliderDescription
 
 
 const Dropdown = ({ value, onChange, title, description, options }) => {
+  const formattedOptions = options.map((option) =>
+    typeof option === 'object' ? option : { value: option, label: option.toString() }
+  );
   return (
-    <div>
-      <label htmlFor="dropdown" style={{ fontSize: '20px' }}>
+    <div style={{ marginBottom: '20px' }}>
+      <label htmlFor="dropdown" style={{ fontSize: '16px', marginRight: '10px' }}>
         {title}
       </label>
-      <select id="dropdown" value={value} onChange={onChange}>
-        {options.map((option) => (
+      <select id="dropdown" value={value} onChange={onChange} style={styles.selectStyle}>
+        {formattedOptions.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
         ))}
       </select>
-      <p>{description}</p>
     </div>
   );
 };
 
+const sliderContainerStyle = {
+  padding: '20px',
+  margin: '10px 0',
+  borderRadius: '8px',
+  backgroundColor: '#f5f5f5', // Light grey background
+  boxShadow: '0 2px 4px rgba(0,0,0,0.1)' // Subtle shadow for depth
+};
+
+const titleStyle = {
+  color: '#333', // Darker text for better readability
+  textAlign: 'center',
+  marginBottom: '20px'
+};
+
+const descriptionStyle = {
+  fontSize: '14px',
+  color: '#666', // Lighter text for the description
+  marginBottom: '10px'
+};
+
+const styles = {
+  dropdownContainer: {
+    marginBottom: '20px',
+    fontFamily: 'Arial, sans-serif',
+  },
+  labelStyle: {
+    fontSize: '18px',
+    fontWeight: 'bold',
+    display: 'block',
+    marginBottom: '10px',
+  },
+  selectStyle: {
+    padding: '10px 15px',
+    fontSize: '16px',
+    borderRadius: '5px',
+    border: '1px solid #ddd',
+    marginBottom: '10px',
+  },
+  descriptionStyle: {
+    fontSize: '14px',
+    color: '#666',
+  },
+};
 
 
 const DashedLine = () => {
@@ -114,6 +159,7 @@ const Devices = () => {
   const [userCatosList, setUserCatosList] = useState([]); // this is the list of all the nicknames of userCatos
 
   // once the user selects a nickname from the list of nicknames, we need to get the name of the device and the data associated with that device
+  const [selectedDocumentId, setSelectedDocumentId] = useState(''); // this is the document id of the device that is selected from the Select Device dropdown
   const [selectedDevice, setSelectedDevice] = useState(''); // this is the device that is selected from the Select Device dropdown
   const [selectedDeviceData, setSelectedDeviceData] = useState(null); // this is the data associated with the device that is selected
   const [interfaceOptions, setInterfaceOptions] = useState([]); // this is the list of all interface options associated with the selected device
@@ -196,6 +242,18 @@ const Devices = () => {
     }
   };
 
+  const getDocID = async (userId, index) => {
+    try {
+      const releasesRef = collection(db, 'users', userId, 'userCatos');
+      const querySnapshot = await getDocs(releasesRef);
+      const qd = querySnapshot.docs[index]._key.path.segments[8];
+      return qd;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      throw error;
+    }
+  }
+
   // once the user has selected a device, we need to get the data associated with that device
   useEffect(() => {
     console.log('selectedDevice: ', selectedDevice);
@@ -205,6 +263,9 @@ const Devices = () => {
         for (let i = 0; i < userDeviceData.length; i++) {
           if (userDeviceData[i].device_info.device_nickname === selectedDevice) {
             setSelectedDeviceData(userDeviceData[i]);
+            const docId = await getDocID(currentUserId, i);
+            console.log("docId: ", docId);
+            setSelectedDocumentId(docId);
             break;
           }
         }
@@ -252,7 +313,7 @@ const Devices = () => {
       setEditedDeviceConfig(deepCopyFetchedDeviceConfig);
       setIsConfigFetched(true);
     }
-  }, [fetchedDeviceConfig, isConfigFetched]);
+  }, [fetchedDeviceConfig]);
 
   useEffect(() => {
     console.log('interfaceOptions: ', interfaceOptions);
@@ -269,6 +330,7 @@ const Devices = () => {
   };
 
   // once the user has selected an interface, we need to get the data associated with that interface
+  // if the user has already gotten the interface data before, we don't want to get it again
   useEffect(() => {
     console.log('selectedInterface: ', selectedInterface);
     if (selectedInterface) {
@@ -285,7 +347,7 @@ const Devices = () => {
         }
       }
       getFetchedInterfaceData();
-    }
+    } 
   }, [selectedInterface]);
 
   // once we get the data associated with the interface, we need to get the config file associated with that interface
@@ -317,10 +379,22 @@ const Devices = () => {
           console.error('Error fetching data:', error);
         }
       }
+
+      const getEditedConnectionSpecificConfig = async () => {
+        try {
+          const deepCopyFetchedConnectionSpecificConfig = deepCopy(fetchedConnectionSpecificConfig);
+          setEditedConnectionSpecificConfig(deepCopyFetchedConnectionSpecificConfig);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      }
       getActiveOperationMode();
+
+      getEditedConnectionSpecificConfig();
     }
   }, [fetchedConnectionSpecificConfig]);
 
+  /*
   useEffect(() => {
     if (fetchedConnectionSpecificConfig && !isConnectionConfigFetched) {
       const deepCopyFetchedConnectionSpecificConfig = deepCopy(fetchedConnectionSpecificConfig);
@@ -328,7 +402,7 @@ const Devices = () => {
       setIsConnectionConfigFetched(true);
     }
   }, [fetchedConnectionSpecificConfig, isConnectionConfigFetched]);
-
+  */
   // at this point, we have the device config sections and the connection config sections
 
 
@@ -420,148 +494,140 @@ const Devices = () => {
   };
 
   const ConnectionSpecificSettings = () => {
+    let operationModeLabel;
+    if (activeOperationMode === 'gesture_mouse') {
+      operationModeLabel = 'Gesture Mouse';
+    } else if (activeOperationMode === 'clicker') {
+      operationModeLabel = 'Clicker';
+    } else if (activeOperationMode === 'tv_remote') {
+      operationModeLabel = 'TV Remote';
+    } else if (activeOperationMode === 'pointer') {
+      operationModeLabel = 'Pointer';
+    }
     return (
-      <div style={{ display: 'flex', flexDirection: 'row' }}>
-        <div>
-          <h2 style={{ fontSize: '20px' }}>Operation Mode</h2>
-          {selectedDeviceData != null && <input value={activeOperationMode}
-            style={{ borderColor: 'black', borderWidth: 1, paddingLeft: '15px', marginLeft: '15px', marginRight: '15px' }} className="e-input" type="text" placeholder="Operation Mode" readOnly={true} />}
-          <br></br>
-          <br></br>
+      <div style={{ maxWidth: '600px', margin: 'auto' }}>
+        <h1 style={titleStyle}>Interface Settings</h1>
+        <div style={sliderContainerStyle}>
+          <div style={{ marginBottom:'20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <h2 style={{ fontSize: '16px', marginRight: '10px' }}>Operation Mode</h2>
+            {selectedDeviceData != null && <input value={operationModeLabel} style={{ borderColor: 'black', borderWidth: 1 }} type="text" placeholder="Operation Mode" readOnly={true} />}
+          </div>
+          <InputSlider
+            sliderLabel={'screenSizeHeight'}
+            value={editedConnectionSpecificConfig.screen_size.value.height.value}
+            onChange={(e) => handleConnectionConfigChange(['screen_size', 'value', 'height', 'value'])(e.target.value)}
+            min={600}
+            max={4320}
+            sliderTitle={"Screen Size - Height"}
+            sliderDescription={"height of interface screen"}
+          />
+
+          <InputSlider
+            sliderLabel={'screenSizeWidth'}
+            value={editedConnectionSpecificConfig.screen_size.value.width.value}
+            onChange={(e) => handleConnectionConfigChange(['screen_size', 'value', 'width', 'value'])(e.target.value)}
+            min={800}
+            max={8192}
+            sliderTitle={"Screen Size - Width"}
+            sliderDescription={"width of interface screen"}
+          />
         </div>
-
-        <InputSlider
-          sliderLabel={'screenSizeHeight'}
-          value={editedConnectionSpecificConfig.screen_size.value.height.value}
-          onChange={(e) => handleConnectionConfigChange(['screen_size', 'value', 'height', 'value'])(e.target.value)}
-          min={600}
-          max={4320}
-          sliderTitle={"Screen Size - Height"}
-          sliderDescription={"height of interface screen"}
-        />
-
-        <InputSlider
-          sliderLabel={'screenSizeWidth'}
-          value={editedConnectionSpecificConfig.screen_size.value.width.value}
-          onChange={(e) => handleConnectionConfigChange(['screen_size', 'value', 'width', 'value'])(e.target.value)}
-          min={800}
-          max={8192}
-          sliderTitle={"Screen Size - Width"}
-          sliderDescription={"width of interface screen"}
-        />
       </div>
     )
-  }
+  };
 
 
   const MouseOptions = () => {
-    //const currentOperationMode = editedConnectionSpecificConfig.operation_mode;
-
     return (
-      <div style={{ display: 'flex', flexDirection: 'row' }}>
-        <InputSlider
-          sliderLabel={'mouseIdleThreshold'}
-          value={editedConnectionSpecificConfig.mouse.value.idle_threshold.value}
-          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'idle_threshold', 'value'])(parseInt(e.target.value))}
-          min={5}
-          max={12}
-          sliderTitle="Mouse Idle Threshold"
-          sliderDescription="Value of move speed below which is considered idle. Causes mouse exit; High value: easier to idle out; Low value: mouse stays active."
-        />
-        <InputSlider
-          sliderLabel={'minMouseRuntime'}
-          value={editedConnectionSpecificConfig.mouse.value.min_run_cycles.value}
-          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'min_run_cycles', 'value'])(parseInt(e.target.value))}
-          min={0}
-          max={100}
-          sliderTitle="Minimum Mouse Runtime"
-          sliderDescription="Minimum time (in .01 second increments) that mouse will always run before checking idle conditions for exit"
-        />
-        <InputSlider
-          sliderLabel={'mouseIdleDuration'}
-          value={editedConnectionSpecificConfig.mouse.value.idle_duration.value}
-          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'idle_duration', 'value'])(parseInt(e.target.value))}
-          min={30}
-          max={150}
-          sliderTitle="Idle Timeout Cycles"
-          sliderDescription="Amount of idle time (in .01 second increments) required to trigger mouse exit"
-        />
-        <InputSlider
-          sliderLabel={'mouseDwellDuration'}
-          value={editedConnectionSpecificConfig.mouse.value.dwell_duration.value}
-          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'dwell_duration'])(parseInt(e.target.value))}
-          min={20}
-          max={100}
-          sliderTitle="Dwell Trigger Cycles"
-          sliderDescription="Amount of idle time (in .01 second increments) needed to trigger action in dwell_click"
-        />
-        <Dropdown
-          value={editedConnectionSpecificConfig.mouse.value.dwell_repeat.value}
-          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'dwell_repeat', 'value'])(parseBool(e.target.value))}
-          title="Dwell Repeat Clicks"
-          description="Continued idle causes multiple clicks"
-          options={[true, false]}
-        />
-        <InputSlider
-          sliderLabel={'mouseScaleX'}
-          value={editedConnectionSpecificConfig.mouse.value.scale_x.value}
-          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'scale_x', 'value'])(e.target.value)}
-          min={0.1}
-          max={4.0}
-          sliderTitle="Horizontal Movement Scale Factor"
-          sliderDescription="Mouse sensitivity to horizontal movement"
-        />
-        <InputSlider
-          sliderLabel={'mouseScaleY'}
-          value={editedConnectionSpecificConfig.mouse.value.scale_y.value}
-          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'scale_y', 'value'])(e.target.value)}
-          min={0.1}
-          max={4.0}
-          sliderTitle="Vertical Movement Scale Factor"
-          sliderDescription="Mouse sensitivity to vertical movement"
-        />
-        <InputSlider
-          sliderLabel={'mouseShakeSize'}
-          value={editedConnectionSpecificConfig.mouse.value.shake_size.value}
-          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'scale_y', 'value'])(e.target.value)}
-          min={0}
-          max={20}
-          sliderTitle="Shake Size"
-          sliderDescription="size of cursor movement for gesturer indicator"
-        />
-        <InputSlider
-          sliderLabel={'mouseNumberShakes'}
-          value={editedConnectionSpecificConfig.mouse.value.num_shake.value}
-          onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'num_shake', 'value'])(e.target.value)}
-          min={1}
-          max={4}
-          sliderTitle="Number of Shakes"
-          sliderDescription="Number of times to repeat gesture ready indicator"
-        />
+      <div style={{ maxWidth: '600px', margin: 'auto' }}>
+        <h1 style={titleStyle}>Mouse Settings</h1>
+        <div style={sliderContainerStyle}>
+          <p style={descriptionStyle}>Adjust your mouse settings below:</p>
+          <InputSlider
+            sliderLabel={'mouseIdleThreshold'}
+            value={editedConnectionSpecificConfig.mouse.value.idle_threshold.value}
+            onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'idle_threshold', 'value'])(parseInt(e.target.value))}
+            min={5}
+            max={12}
+            sliderTitle="Mouse Idle Threshold"
+            sliderDescription="Value of move speed below which is considered idle. Causes mouse exit; High value: easier to idle out; Low value: mouse stays active."
+          />
+          <InputSlider
+            sliderLabel={'minMouseRuntime'}
+            value={editedConnectionSpecificConfig.mouse.value.min_run_cycles.value}
+            onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'min_run_cycles', 'value'])(parseInt(e.target.value))}
+            min={0}
+            max={100}
+            sliderTitle="Minimum Mouse Runtime"
+            sliderDescription="Minimum time (in .01 second increments) that mouse will always run before checking idle conditions for exit"
+          />
+          <InputSlider
+            sliderLabel={'mouseIdleDuration'}
+            value={editedConnectionSpecificConfig.mouse.value.idle_duration.value}
+            onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'idle_duration', 'value'])(parseInt(e.target.value))}
+            min={30}
+            max={150}
+            sliderTitle="Idle Timeout Cycles"
+            sliderDescription="Amount of idle time (in .01 second increments) required to trigger mouse exit"
+          />
+          <InputSlider
+            sliderLabel={'mouseDwellDuration'}
+            value={editedConnectionSpecificConfig.mouse.value.dwell_duration.value}
+            onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'dwell_duration'])(parseInt(e.target.value))}
+            min={20}
+            max={100}
+            sliderTitle="Dwell Trigger Cycles"
+            sliderDescription="Amount of idle time (in .01 second increments) needed to trigger action in dwell_click"
+          />
+          <Dropdown
+            value={editedConnectionSpecificConfig.mouse.value.dwell_repeat.value}
+            onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'dwell_repeat', 'value'])(parseBool(e.target.value))}
+            title="Dwell Repeat Clicks"
+            description="Continued idle causes multiple clicks"
+            options={[true, false]}
+          />
+          <InputSlider
+            sliderLabel={'mouseScaleX'}
+            value={editedConnectionSpecificConfig.mouse.value.scale_x.value}
+            onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'scale_x', 'value'])(e.target.value)}
+            min={0.1}
+            max={4.0}
+            sliderTitle="Horizontal Movement Scale Factor"
+            sliderDescription="Mouse sensitivity to horizontal movement"
+          />
+          <InputSlider
+            sliderLabel={'mouseScaleY'}
+            value={editedConnectionSpecificConfig.mouse.value.scale_y.value}
+            onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'scale_y', 'value'])(e.target.value)}
+            min={0.1}
+            max={4.0}
+            sliderTitle="Vertical Movement Scale Factor"
+            sliderDescription="Mouse sensitivity to vertical movement"
+          />
+          <InputSlider
+            sliderLabel={'mouseShakeSize'}
+            value={editedConnectionSpecificConfig.mouse.value.shake_size.value}
+            onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'scale_y', 'value'])(e.target.value)}
+            min={0}
+            max={20}
+            sliderTitle="Shake Size"
+            sliderDescription="size of cursor movement for gesturer indicator"
+          />
+          <InputSlider
+            sliderLabel={'mouseNumberShakes'}
+            value={editedConnectionSpecificConfig.mouse.value.num_shake.value}
+            onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'num_shake', 'value'])(e.target.value)}
+            min={1}
+            max={4}
+            sliderTitle="Number of Shakes"
+            sliderDescription="Number of times to repeat gesture ready indicator"
+          />
+        </div>
       </div>
     )
   };
 
   const ClickerOptions = () => {
-    const sliderContainerStyle = {
-      padding: '20px',
-      margin: '10px 0',
-      borderRadius: '8px',
-      backgroundColor: '#f5f5f5', // Light grey background
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)' // Subtle shadow for depth
-    };
-
-    const titleStyle = {
-      color: '#333', // Darker text for better readability
-      textAlign: 'center',
-      marginBottom: '20px'
-    };
-
-    const descriptionStyle = {
-      fontSize: '14px',
-      color: '#666', // Lighter text for the description
-      marginBottom: '10px'
-    };
     return (
       <div style={{ maxWidth: '600px', margin: 'auto' }}>
         <h1 style={titleStyle}>Clicker Settings</h1>
@@ -611,22 +677,134 @@ const Devices = () => {
   const TVRemoteOptions = () => {
     return (
       // give a title for the TV Remote Options
-      <div>
-        <h1> TV Remote Options </h1>
-        <Dropdown
-          value={editedConnectionSpecificConfig.value.await_actions.value}
-          onChange={(e) => handleConnectionConfigChange(['tv_remote', 'value', 'await_actions', 'value'])(parseBool(e.target.value))}
-          title="Await Actions"
-          description="wait for previous action to end before reading a new gesture"
-          options={[true, false]}
-        />
+      <div style={{ maxWidth: '600px', margin: 'auto' }}>
+        <h1 style={titleStyle}> TV Remote Options </h1>
+        <div style={sliderContainerStyle}>
+          <Dropdown
+            value={editedConnectionSpecificConfig.tv_remote.value.await_actions.value}
+            onChange={(e) => handleConnectionConfigChange(['tv_remote', 'value', 'await_actions', 'value'])(parseBool(e.target.value))}
+            title="Await Actions"
+            description="wait for previous action to end before reading a new gesture"
+            options={[true, false]}
+          />
+        </div>
       </div>
+
     );
   };
 
   const handleNameChange = (value) => {
     console.log(value);
     setDeviceName(value);
+    const deepCopyEditedDeviceConfig = deepCopy(editedDeviceConfig);
+    deepCopyEditedDeviceConfig.name.value = value;
+    setEditedDeviceConfig(deepCopyEditedDeviceConfig);
+  }
+
+  const handleSave = async () => {
+    console.log('Saving...');
+    console.log("activeOperationMode: ", activeOperationMode);
+    console.log("selectedInterface: ", selectedInterface);
+    console.log('editedConnectionSpecificConfig: ', editedConnectionSpecificConfig);
+
+    // only want to save if editedDeviceConfig is different from fetchedDeviceConfig
+    const checkIfEditedDeviceConfigIsDifferent = () => {
+      const editedDeviceConfigString = JSON.stringify(editedDeviceConfig);
+      const fetchedDeviceConfigString = JSON.stringify(fetchedDeviceConfig);
+      if (editedDeviceConfigString === fetchedDeviceConfigString) {
+        return false;
+      } else {
+        return true;
+      }
+    };
+
+    const checkIfEditedConnectionSpecificConfigIsDifferent = () => {
+      const editedConnectionSpecificConfigString = JSON.stringify(editedConnectionSpecificConfig);
+      const fetchedConnectionSpecificConfigString = JSON.stringify(fetchedConnectionSpecificConfig);
+      if (editedConnectionSpecificConfigString === fetchedConnectionSpecificConfigString) {
+        return false;
+      } else {
+        return true;
+      }
+    };
+
+    let deviceConfigDifferent = checkIfEditedDeviceConfigIsDifferent();
+    let connectionConfigDifferent = checkIfEditedConnectionSpecificConfigIsDifferent();
+    let eitherDifferent = deviceConfigDifferent || connectionConfigDifferent;
+
+    try {
+      const currentUserId = getCurrentUserId();
+      console.log("currentUserId: ", currentUserId);
+      console.log("selectedDocumentId: ", selectedDocumentId);
+      const getConnections = async () => {
+        const colRef = collection(db, 'users');
+        console.log("colRef: ", colRef);
+        const userRef = collection(colRef, currentUserId, "userCatos");
+        console.log("userRef: ", userRef);
+        const docRef = doc(userRef, selectedDocumentId);
+        
+        console.log("docRef: ", docRef);
+        console.log("selectedDocumentId: ", selectedDocumentId);
+        const globalConfig = JSON.stringify(editedDeviceConfig);
+        
+        let copySelectedDeviceData = null;
+        if (eitherDifferent) {
+          copySelectedDeviceData = deepCopy(selectedDeviceData);
+        }
+
+        //just update the fields within selectedDeviceData
+        if (deviceConfigDifferent) {
+          copySelectedDeviceData.device_info.global_config = globalConfig;
+          copySelectedDeviceData.device_info.device_nickname = deviceName;
+        }
+
+        if (connectionConfigDifferent) {
+          for (let i = 0; i < copySelectedDeviceData.connection.length; i++) {
+            if (copySelectedDeviceData.connection[i].device_type === selectedInterface) {
+              copySelectedDeviceData.connection[i].configjson = JSON.stringify(editedConnectionSpecificConfig);
+              break;
+            }
+          }
+        }
+        
+        if (copySelectedDeviceData != null) {
+          console.log("copySelectedDeviceData: ", copySelectedDeviceData);
+          await updateDoc(docRef, copySelectedDeviceData);
+        }
+      }
+
+      //now we want to download the combined config file
+      const getCombinedConfig = async () => {
+        let combinedConfig = {};
+        
+        // we want to add every field from the editedDeviceConfig to the combinedConfig
+        for (const [key, value] of Object.entries(editedDeviceConfig)) {
+          combinedConfig[key] = value;
+        }
+
+        // we want to add every field from the editedConnectionSpecificConfig to the combinedConfig
+        for (const [key, value] of Object.entries(editedConnectionSpecificConfig)) {
+          combinedConfig[key] = value;
+        }
+
+        console.log("combinedConfig: ", combinedConfig);
+
+        // we want to download the combinedConfig as a JSON file
+        const element = document.createElement("a");
+        const file = new Blob([JSON.stringify(combinedConfig)], { type: 'text/plain' });
+        element.href = URL.createObjectURL(file);
+        element.download = "config.json";
+        document.body.appendChild(element); // Required for this to work in FireFox
+        element.click();
+        // remove the element
+        document.body.removeChild(element);
+      }
+      await getConnections();
+      await getCombinedConfig();
+      window.location.reload();
+    } catch {
+      console.error('Error saving data');
+    }
   }
 
   return (
@@ -674,12 +852,12 @@ const Devices = () => {
           <form>
             <label>
               Name:
-              {selectedDeviceData != null && (
+              {selectedDeviceData != null && editedDeviceConfig != null && (
                 <input
-                  value={selectedDeviceData.device_info.device_nickname}
+                  value={editedDeviceConfig.name.value}
                   style={{ borderColor: 'black', borderWidth: 1, marginLeft: '15px', marginRight: '15px' }}
                   type="text"
-                //onChange={(event) => handleNameChange(event.target.value)}
+                  onChange={(event) => handleNameChange(event.target.value)}
                 />
               )}
             </label>
@@ -722,6 +900,7 @@ const Devices = () => {
           <DashedLine />
 
           {editedConnectionSpecificConfig && ConnectionSpecificSettings()}
+          <DashedLine />
 
           {activeOperationMode === 'gesture_mouse' && editedConnectionSpecificConfig && MouseOptions()}
           {activeOperationMode === 'clicker' && editedConnectionSpecificConfig && ClickerOptions()}
@@ -731,8 +910,8 @@ const Devices = () => {
 
         </div>
       </div>
-      {selectedSetting && (
-        <button style={saveButtonStyle}>Save</button>
+      {editedConnectionSpecificConfig && (
+        <button style={saveButtonStyle} onClick={handleSave}>Save</button>
       )}
     </div>
 
