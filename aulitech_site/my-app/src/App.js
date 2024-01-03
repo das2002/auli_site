@@ -197,8 +197,6 @@ function App() {
             <Route path="/record-gestures" element={<ConfigureGestures classNames={classNames} user={user}/>}/>
             <Route path="/record" element={ <RecordGestures/> } />
             <Route path="/sign-out" element={<SignOutAccount/>}/>
-            <Route path="/sign-in" element={<SignIn/>}/>
-            <Route path="/sign-up" element={<SignUp/>}/>
             <Route path="/record-gestures" element={<RecordGestures />} />
             <Route path="/updates" element={<Updates />} />
             <Route path="/devices" element={<Devices />} />

@@ -10,7 +10,7 @@ const SignOutAccount = () => {
   const userSignOut = () => {
     signOut(auth).then(() => {
       console.log('signed out successfully');
-      navigate('/sign-in')
+      navigate('/')
     })
     .catch((error) => {
       console.log("userSignOut error:", error)
