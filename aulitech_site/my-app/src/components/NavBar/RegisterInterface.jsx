@@ -130,14 +130,6 @@ const RegisterInterface = ({ user }) => {
         const userRef = collection(colRef, userId, "userCatos");
         const docRef = doc(userRef, selectedDeviceData);
 
-        // console.log('my user ref', userRef);
-
-        //const querySnapshot =  await getDocs(userRef);
-
-        // console.log('my query snapshot', querySnapshot.docs);
-        // const data = querySnapshot.docs.map((doc) => doc.data());
-
-
         let tempdata = null;
 
         //iterate through userCatosList and find the one that matches the selected device
@@ -148,110 +140,86 @@ const RegisterInterface = ({ user }) => {
           }
         }
         // console.log('temp old', tempdata);
-        let combinedData = {}
+        let connectionData = {}
 
         console.log('tempdata', tempdata);
 
         //iterate through connectionSpecificDefault and add the fields to combinedData
         for (const [key, value] of Object.entries(connectionSpecificDefault)) {
-          combinedData[key] = value;
+          connectionData[key] = value;
         }
 
-        console.log('combinedData', combinedData);
+        connectionData.connection_name.value = interfaceName;
+
+        console.log('combinedData', connectionData);
 
         if (operationMode == 'clicker') {
           //bindings and clicker
           //lowkey will hardcode picking out which atoms its easier
-          combinedData = {
-            ...combinedData,
+          connectionData = {
+            ...connectionData,
             ...clickerDefault,
             ...bindingsDefault,
           };
-          combinedData.operation_mode.value = 'clicker'
+          connectionData.operation_mode.value = 'clicker'
 
-        }
-        else if (operationMode == 'gesture_mouse') {
-          combinedData = {
-            ...combinedData,
+        } else if (operationMode == 'gesture_mouse') {
+          connectionData = {
+            ...connectionData,
             ...mouseDefault,
             ...gestureDefault,
             ...bindingsDefault,
           };
-          combinedData.operation_mode.value = 'gesture_mouse'
+          connectionData.operation_mode.value = 'gesture_mouse'
 
-        }
-
-        else if (operationMode == 'tv_remote') {
-          combinedData = {
-            ...combinedData,
+        } else if (operationMode == 'tv_remote') {
+          connectionData = {
+            ...connectionData,
             ...tvRemoteDefault,
             ...gestureDefault,
             ...bindingsDefault,
           };
-          combinedData.operation_mode.value = 'tv_remote'
-        }
-
-        else if (operationMode == 'pointer') {
-          combinedData = {
-            ...combinedData,
+          connectionData.operation_mode.value = 'tv_remote'
+        } else if (operationMode == 'pointer') {
+          connectionData = {
+            ...connectionData,
             ...mouseDefault,
             ...bindingsDefault,
           };
-          combinedData.operation_mode.value = 'pointer'
-        }
-        else {
-          combinedData = null;
+          connectionData.operation_mode.value = 'pointer'
+        } else {
+          connectionData = null;
         }
 
-        console.log(combinedData);
+        console.log(connectionData);
 
-        const stringCombinedData = JSON.stringify(combinedData);
+        const stringCombinedData = JSON.stringify(connectionData);
+
+        let mode = {};
+
+        mode[operationMode] = stringCombinedData;
+        //mode['name'] = interfaceName;
 
         const firebaseMap = {
+          name: interfaceName,
           bt_id: bluetoothId,
-          configjson: stringCombinedData,
-          device_type: interfaceName,
-          operation_mode: operationMode,
-          // Add other fields as needed
-        };
-        // Add the new connection to the existing connections array
-        //tempdata.connection = tempdata.connection || [];
-        //tempdata.connection.push(firebaseMap);
-
-        // Update the document in Firebase
-        //await setDoc(doc(userRef, selectedDeviceData, 'connection'), tempdata);
-
+          mode
+        }
         console.log('firebaseMap: ', firebaseMap);
-        
+
         await Promise.all([
           updateDoc(docRef, {
-            connection: arrayUnion(firebaseMap)
+            connections: arrayUnion(firebaseMap)
           }),
-        ])
-
-        /*
-                docRef.update({
-          connection: FieldValue.arrayUnion(firebaseMap),
-        })
-          .then(() => {
-            console.log("Document successfully updated!");
-          })
-          .catch((error) => {
-            console.error("Error updating document: ", error);
-          });
-        */
+        ]);
 
         console.log("Interface registered successfully");
 
-        //setUserCatosList([]);
 
-      }
+      };
       await getConnections();
-
       window.location.reload();
-
-    }
-    catch (error) {
+    } catch (error) {
       console.log("add interface doc to usersCato connections error: ", error);
     }
   };

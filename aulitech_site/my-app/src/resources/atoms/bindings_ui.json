@@ -1,0 +1,64 @@
+{
+    "commands": {
+        "button_action": [
+            {
+                "label" : "action",
+                "description" : "what type of action to take",
+                "value" : "tap",
+                "options": [
+                    "tap",
+                    "double_tap",
+                    "press",
+                    "release",
+                    "toggle",
+                    "hold_until_idle",
+                    "hold_until_sig_motion"
+                ]
+            },
+            {
+                "label" : "actor",
+                "description" : "Which device Cato emulates -- 0 --> Mouse, 1 --> Keyboard",
+                "value" : "tap",
+                "options": [
+                    0,
+                    1
+                ]
+            },
+            {
+                "label" : "button",
+                "description" : "which key to press",
+                "value": 0,
+                "range": {
+                    "min": 0,
+                    "max": 255
+                }
+            }
+        ],
+        "quick_sleep": [],
+        "noop": [],
+        "pointer_sleep": [],
+        "quick_calibrate": [],
+        "dwell_click": [
+            {
+                "label" : "button",
+                "value" : 0,
+                "description" : "key to press on user dwell",
+                "range": {
+                    "min": 0,
+                    "max": 255
+                }
+            },
+            {
+                "label" : "cancel_ths",
+                "value" : 80,
+                "description" : "speed of tilt required for dwell exit",
+                "range": {
+                    "min": 20,
+                    "max": 180
+                }
+            }
+        ],
+        "_scroll": [],
+        "_scroll_lr": []
+    }
+}

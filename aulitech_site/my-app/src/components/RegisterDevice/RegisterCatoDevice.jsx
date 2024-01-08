@@ -10,172 +10,163 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-import { db } from "../../firebase";
+import { db, auth } from "../../firebase";
+import * as newDeviceConfig from '../../resources/templates/new_device_config.json';
 
-async function requestDeviceAccess() {
-  try {
-    const device = await navigator.usb.requestDevice({filters: []});
-    console.log("access granted to :", device);
-  } catch (error) {
-    console.log("access denied to device: ", error);
+
+const deepCopy = (obj) => {
+  return JSON.parse(JSON.stringify(obj));
+};
+
+const getCurrentUserId = async () => {
+  const currentUser = auth.currentUser;
+  if (currentUser) {
+    return currentUser.uid;
+  } else {
+    return null;
   }
 }
 
 const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
-  // console.log('user',user);
+  const [enteredName, setEnteredName] = useState(""); // [enteredName, setEnteredName
   const [parsedJson, setParsedJson] = useState({}); // [parsedJson, setParsedJson
+  //const [newConfig, setNewConfig] = useState({}); // [newConfig, setNewConfig
   const [deviceName, setDeviceName] = useState("");
   const [errMessage, setErrMessage] = useState(false);
   const [hwUid, setHwUid] = useState('');
 
+  console.log('user', user);
+  console.log('devices', devices);
+
+  const checkIfNameTaken = async () => {
+    for (let i = 0; i < devices.length; i++) {
+      if (devices[i].data.device_info.device_nickname === enteredName) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  const downloadSequence = async () => {
+    if (enteredName === "") {
+      return;
+    } 
+    const nameTaken = await checkIfNameTaken();
+    console.log("nameTaken", nameTaken);
+    if (nameTaken) {
+      setErrMessage(true);
+      return;
+    } 
+    setDeviceName(enteredName);
+    const retrievedJson = await getJsonData();
+    console.log("retrievedJson", retrievedJson);
+    if (retrievedJson == null) {
+      return;
+    }
+    let newConfig = deepCopy(newDeviceConfig);
+
+    newConfig["global_info"]["HW_UID"]["value"] = retrievedJson["global_info"]["HW_UID"]["value"];
+    newConfig.global_info.name.value = enteredName;
+    const deviceAdded = addDeviceDoc(newConfig);
+    if (!deviceAdded) {
+      return;
+    }
+    deleteInitializeDoc();
+    downloadNewConfig(newConfig);
+    navigate("/");
+  };
+
 
   const navigate = useNavigate();
 
-
-  const getJsonData = async () => {
+  //go into resources/templates and find new_device_config.json
+  const downloadNewConfig = async (newDeviceConfig) => {
     try {
-
-      if (window.showDirectoryPicker) {
-        try {
-          // request the user to pick a directory
-          const dirHandle = await window.showDirectoryPicker({
-            id: "AULI_CATO",
-            mode: "readwrite",
-          });
-
-          // attempt to find the config.json file in the directory
-          for await (const entry of dirHandle.values()) {
-            if (entry.kind === "file" && entry.name === "config.json") {
-              // found the file, read it
-              const file = await entry.getFile();
-              const jsonDataText = await file.text();
-              let parsedJson = JSON.parse(jsonDataText);
-              parsedJson.name.value = deviceName;
-              let globalConfig = parsedJson;
-              if (globalConfig['operation_mode'] != null) {
-                delete globalConfig['operation_mode'];
-              }
-              if (globalConfig['screen_size'] != null) {
-                delete globalConfig['screen_size'];
-              }
-              if (globalConfig['mouse'] != null) {
-                delete globalConfig['mouse'];
-              }
-              if (globalConfig['clicker'] != null) {
-                delete globalConfig['clicker'];
-              }
-              if (globalConfig['tv_remote'] != null) {
-                delete globalConfig['tv_remote'];
-              }
-              if (globalConfig['pointer'] != null) {
-                delete globalConfig['pointer'];
-              }
-              if (globalConfig['bindings'] != null) {
-                delete globalConfig['bindings'];
-              }
-              if (globalConfig['turbo_rate'] != null) {
-                delete globalConfig['turbo_rate'];
-              }
-              console.log("i parsed this and deleted opmode configs", globalConfig);
-              
-              setParsedJson(parsedJson);
-              //setHwUid(parsedJson.HW_UID.value);
-              //console.log("hwUid", hwUid);
-              addDeviceDoc(parsedJson, globalConfig);
-              deleteInitializeDoc();
-
-              // create a sample file
-              const fileName = "config.json";
-              const fileData = JSON.stringify(parsedJson);
-              const fileHandle = await dirHandle.getFileHandle(fileName, {
-                create: true,
-              });
-              const writable = await fileHandle.createWritable();
-              await writable.write(fileData);
-              await writable.close();
-
-              // create a blob object from the file
-              const blob = new Blob([fileData], { type: "application/json" });
-
-              // create a URL for the blob
-              const url = URL.createObjectURL(blob);
-
-              // create a link element
-              const link = document.createElement("a");
-              link.href = url;
-              link.download = fileName;
-
-              // simulate a click on the link to download the file
-              link.click();
-
-              // remove the link from the DOM
-              link.remove();
-
-              return;              
-            }
-          }
-        } catch (error) {
-          console.log("get config.json error:", error);
-        }
-      } else {
-        console.log("file system access not supported");
-      }
+      const blob = new Blob([JSON.stringify(newDeviceConfig)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "config.json";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } catch (error) {
-      console.log("get config.json error:", error);
-    }
-
-    const getName = () => {
-      return parsedJson.name.value;
+      console.log("download new config error: ", error);
     }
   };
 
-  useEffect(() => {
-    console.log("parsedJson", parsedJson);
-    if (parsedJson && Object.keys(parsedJson).length > 0) {
-      setHwUid(parsedJson.HW_UID.value);
-    }
-  }, [parsedJson]);
-
-
-
-  function changeConfigDevName(jsonData) {
+  const getJsonData = async () => {
     try {
-      jsonData.name.value = deviceName;
-      console.log(jsonData.name.value)
+      if (window.showDirectoryPicker) {
+        const dirHandle = await window.showDirectoryPicker();
+  
+        const iterateDirectory = async (dirHandle) => {
+          for await (const entry of dirHandle.values()) {
+            if (entry.kind === "file" && entry.name === "config.json") {
+              console.log("found config.json");
+              const file = await entry.getFile();
+              const jsonDataText = await file.text();
+              const retrievedJson = JSON.parse(jsonDataText);
+              setParsedJson(retrievedJson);
+              setHwUid(retrievedJson.global_info.HW_UID.value);
+              return retrievedJson;
+            } else if (entry.kind === "directory") {
+              const found = await iterateDirectory(entry);
+              if (found != null) {
+                return found;
+              }
+            }
+          }
+          return null;
+        };
+  
+        const found = await iterateDirectory(dirHandle);
+        if (!found) {
+          console.log("config.json file not found");
+          return null;
+        }
+        return found;
+      } else {
+        console.log("showDirectoryPicker is not supported in this browser");
+        return null;
+      }
     } catch (error) {
-      console.log("changeConfigDevName error: ", error);
+      console.log("Error:", error);
+      return null;
     }
-  }
+  };
 
-  const addDeviceDoc = (parsedJson, globalConfig) => {
+  const addDeviceDoc = async (newDeviceConfig) => {
     try {
       const storeDevice = async () => {
         try {
-          // let parsedJson = JSON.parse(jsonData);      
-          const newData = JSON.stringify(parsedJson)
-          const globalData = JSON.stringify(globalConfig)
-
+          const newData = JSON.stringify(newDeviceConfig);
+          const hwUid = newDeviceConfig.global_info.HW_UID.value;
+          const deviceName = newDeviceConfig.global_info.name.value;
           const colRef = collection(db, "users");
           await addDoc(collection(colRef, user.uid, "userCatos"), {
             device_info: {
-              HW_UID: parsedJson.HW_UID.value,
+              global_config: newData,
               device_nickname: deviceName,
-              global_config: globalData,
+              hw_uid: hwUid,
             },
-            connection:[],
-            // current_config: newData,
+            connections: []
           });
           handleRenderDevices();
         } catch (error) {
           console.log("store another device error: ", error);
+          return false;
         }
       };
       storeDevice();
+      return true;
     } catch (error) {
       console.log("add device doc to usersCato error: ", error);
+      return false;
     }
-    navigate("/");
-  };
+  }
 
   const deleteInitializeDoc = async () => {
     try {
@@ -201,17 +192,6 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       console.log("delete initialize doc, userCatos: ", error);
     }
   };
-
-  // const DirHandleExists = () => {
-  //   devices.forEach((device) => {
-  //     if(device.data.devicename === deviceName) {
-  //       setErrMessage(true);
-  //       return (
-  //         <p>Name already exists</p>
-  //       )
-  //     }
-  //   })
-  // }
 
   return (
     <div className="flex min-h-full flex-col">
@@ -243,8 +223,8 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
             <div className="w-full mt-5 sm:max-w-xs">
               <input
                 type="text"
-                value={deviceName}
-                onChange={(e) => setDeviceName(e.target.value)}
+                value={enteredName}
+                onChange={(e) => setEnteredName(e.target.value)}
                 className="block w-full rounded-md border-0 outline-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
                 placeholder="my-cato"
               />
@@ -260,8 +240,8 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
           <div className="mt-6 flex items-center justify-end">
             <div className="mt-4 sm:mt-0">
               <button
-                disabled={deviceName === "" ? true : false}
-                onClick={getJsonData}
+                disabled={enteredName === "" ? true : false}
+                onClick={downloadSequence}
                 className="inline-flex rounded-full items-center bg-blue-500 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-300"
               >
                 Save
