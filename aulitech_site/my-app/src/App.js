@@ -16,7 +16,7 @@ import Dashboard from './components/Dashboard/Dashboard';
 import CatoSettings from './components/CatoSettings/CatoSettings';
 import RegisterCatoDevice from './components/RegisterDevice/RegisterCatoDevice';
 import { db } from "./firebase";
-import { collection, query, getDocs, where } from "firebase/firestore";
+import { collection, query, getDocs, where, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import RecordGestures from './components/RecordGests/RecordGestures';
 import UserSettings from './components/NavBar/UserSettings';
 // import RecordGestures from './components/RecordGestures';
@@ -26,6 +26,7 @@ import PracticeMode from './components/PracticeMode/Practice';
 import RegisterInterface from './components/NavBar/RegisterInterface';
 
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+
 
 
 function App() {
@@ -64,11 +65,24 @@ function App() {
     const listen = onAuthStateChanged(auth, async(user) => {
       if(user) {
         setUser(user);
+  
+        // Check and update user document in Firestore
+        const userRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userRef);
+        if (!userDoc.exists()) {
+          // Create a new document if it doesn't exist
+          await setDoc(userRef, {
+            email: user.email,
+            displayname: user.displayName || 'Anonymous',
+            uid: user.uid
+          });
+        }
+  
+        // Fetching other user-related data
         const colRef = collection(db, "users");
-
         const queryCol = query(collection(colRef, user.uid, "userCatos"));
         const colSnap = await getDocs(queryCol);
-
+  
         const queryNew = query(
           collection(colRef, user.uid, "userCatos"),
           where("initialize", "==", "initializeUserCatosSubcollection")
