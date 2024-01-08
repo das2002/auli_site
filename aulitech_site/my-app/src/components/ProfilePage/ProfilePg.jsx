@@ -6,11 +6,10 @@ import SignOutAccount from "../GoogleAuth/SignOutAccount";
 import StoreProfileData from "../CloudFirestore/StoreProfileData";
 
 const ProfilePg = ({ user }) => {
-  const [first, setFirst] = useState("");
-  const [last, setLast] = useState("");
+  let [displayname, setName] = useState("");
   const [data, setData] = useState(null);
   const [save, setSave] = useState(false);
-  // const [email, setEmail] = useState("")
+  let [email, setEmail] = useState("")
 
   /* Display the users current data from their usr document in the DB*/
   useEffect(() => {
@@ -37,24 +36,32 @@ const ProfilePg = ({ user }) => {
 
   /* Cancel button resets local variables holding user input */
   const handleCancel = () => {
-    setFirst("");
-    setLast("");
+    setName("");
+    setEmail("");
   };
 
   /* Save button that send the changes made to the DB and retriggers the useEffect */
   const handleSaveInfo = async () => {
     try {
-      /* Update user document in DB */
-      StoreProfileData(user, first, last);
-
+      /* Check if displayname is provided and update it */
+      if (displayname) {
+        await StoreProfileData(user, displayname);
+      }
+  
+      /* Check if email is provided and update it */
+      if (email) {
+        await StoreProfileData(user, '', email);
+      }
+  
       /* Retrigger useEffect and reset local variables */
       setSave(!save);
-      setFirst("");
-      setLast("");
+      setName("");
+      setEmail("");
     } catch (err) {
-      console.log("send to store profile data: ", err);
+      console.log("Error updating profile data: ", err);
     }
   };
+  
 
 // --------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -84,49 +91,31 @@ const ProfilePg = ({ user }) => {
                 <div className="space-y-12">
                   <div className="border-b border-gray-200 pb-10">
                     <div className="mt-10 grid grid-cols-1 gap-x-10 gap-y-12 sm:grid-cols-6">
-                      <div className="sm:col-span-3">
+
+                      {/* Display Name */}
+                      <div className="sm:col-span-4">
                         <label
                           htmlFor="first-name"
                           className="block text-lg font-medium leading-6 text-gray-900"
                         >
-                          First name
+                          Display Name
                         </label>
-                        <div className="mt-2">
+                        <div className="sm:col-span-4">
                           <input
                             type="text"
                             name="first-name"
                             id="first-name"
                             autoComplete="given-name"
-                            onChange={(e) => setFirst(e.target.value)}
-                            value={first}
-                            placeholder={data === null ? null : data.firstname}
+                            onChange={(e) => setName(e.target.value)}
+                            value={displayname}
+                            placeholder={data === null ? null : data.displayname}
                             className="block w-full rounded-md outline-0 border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
                           />
                         </div>
                       </div>
 
-                      <div className="sm:col-span-3">
-                        <label
-                          htmlFor="last-name"
-                          className="block text-lg font-medium leading-6 text-gray-900"
-                        >
-                          Last name
-                        </label>
-                        <div className="mt-2">
-                          <input
-                            type="text"
-                            name="last-name"
-                            id="last-name"
-                            autoComplete="family-name"
-                            onChange={(e) => setLast(e.target.value)}
-                            value={last}
-                            placeholder={data === null ? null : data.lastname}
-                            className="block w-full rounded-md outline-0 border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
-                          />
-                        </div>
-                      </div>
-
-                      {/* <div className="sm:col-span-4">
+                      {/* Email */}
+                      <div className="sm:col-span-4">
                         <label
                           htmlFor="email"
                           className="block text-lg font-medium leading-6 text-gray-900"
@@ -139,11 +128,13 @@ const ProfilePg = ({ user }) => {
                             name="email"
                             type="email"
                             autoComplete="email"
+                            onChange={(e) => setEmail(e.target.value)}
+                            value={email}
                             placeholder={data === null ? null : data.email}
                             className="block w-full outline-0 border-0 rounded-md border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
                           />
                         </div>
-                      </div> */}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -157,7 +148,7 @@ const ProfilePg = ({ user }) => {
                   </button>
                   <button
                     type="submit"
-                    disabled={first === "" && last === "" ? true : false}
+                    disabled={displayname === "" ? true : false}
                     onClick={handleSaveInfo}
                     className="rounded-full bg-gray-900 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-500"
                   >
