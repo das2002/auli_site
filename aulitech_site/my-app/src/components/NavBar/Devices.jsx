@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { db } from "../../firebase";
-import { collection,doc, getDocs, query, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, query, updateDoc } from 'firebase/firestore';
 import USBDeviceList from './USBDeviceList.jsx';
 import { auth } from "../../firebase"
 import * as clickerDefault from './cato_schemas/clicker.json';
@@ -36,34 +36,84 @@ const deepCopy = (obj) => {
   return JSON.parse(JSON.stringify(obj));
 };
 
-const InputSlider = ({ value, onChange, min, max, sliderTitle, sliderDescription, sliderLabel }) => {
+const InputSlider = ({ value, onChange, min, max, sliderTitle, unit, sliderDescription, sliderLabel }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
   return (
     <div style={{ marginBottom: '20px' }}>
-      <label htmlFor={sliderLabel}>{`${sliderTitle} (${value}px)`}</label>
-      <input
-        type="range"
-        id={sliderLabel}
-        value={value}
-        onChange={onChange}
-        min={min}
-        max={max}
-        aria-valuemin={min}
-        aria-valuemax={max}
-        aria-valuenow={value}
-        aria-label={sliderDescription}  // Providing an accessible name for the range input
-      />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+
+        <label htmlFor={sliderLabel}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        >{`${sliderTitle} (${value} ${unit})`}</label>
+        <input
+          type="range"
+          id={sliderLabel}
+          value={value}
+          onChange={onChange}
+          min={min}
+          max={max}
+          aria-valuemin={min}
+          aria-valuemax={max}
+          aria-valuenow={value}
+          aria-label={sliderDescription}  // Providing an accessible name for the range input
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        />
+        {isHovered && 
+        <div className="tooltip"
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            backgroundColor: '#333',
+            color: '#fff',
+            padding: '5px',
+            borderRadius: '4px',
+            fontSize: '14px',
+          }}
+        >
+          {sliderDescription}
+        </div>
+        }
+      </div>
     </div>
   );
 };
+
+
 
 
 const Dropdown = ({ value, onChange, title, description, options }) => {
   const formattedOptions = options.map((option) =>
     typeof option === 'object' ? option : { value: option, label: option.toString() }
   );
+
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+
+
   return (
     <div style={{ marginBottom: '20px' }}>
-      <label htmlFor="dropdown" style={{ fontSize: '16px', marginRight: '10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+
+      <label onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} htmlFor="dropdown" style={{ fontSize: '16px', marginRight: '10px' }}>
         {title}
       </label>
       <select id="dropdown" value={value} onChange={onChange} style={styles.selectStyle}>
@@ -73,6 +123,23 @@ const Dropdown = ({ value, onChange, title, description, options }) => {
           </option>
         ))}
       </select>
+      {isHovered &&
+        <div className="tooltip"
+          style={{
+            position: 'absolute',
+            top: '100%',
+            left: 0,
+            backgroundColor: '#333',
+            color: '#fff',
+            padding: '5px',
+            borderRadius: '4px',
+            fontSize: '14px',
+          }}
+        >
+          {description}
+        </div>
+      }
+      </div>
     </div>
   );
 };
@@ -295,7 +362,7 @@ const Devices = () => {
         const interfaceOptions = [];
         if (selectedDeviceData) {
           for (let i = 0; i < selectedDeviceData.connections.length; i++) {
-            interfaceOptions.push(selectedDeviceData.connections[i].device_type);
+            interfaceOptions.push(selectedDeviceData.connections[i].name);
           }
         }
         setInterfaceOptions(interfaceOptions);
@@ -308,6 +375,7 @@ const Devices = () => {
   }, [selectedDeviceData]);
 
   useEffect(() => {
+    console.log('fetchedDeviceConfig: ', fetchedDeviceConfig)
     if (fetchedDeviceConfig && !isConfigFetched) {
       const deepCopyFetchedDeviceConfig = deepCopy(fetchedDeviceConfig);
       setEditedDeviceConfig(deepCopyFetchedDeviceConfig);
@@ -336,9 +404,9 @@ const Devices = () => {
     if (selectedInterface) {
       const getFetchedInterfaceData = async () => {
         try {
-          for (let i = 0; i < selectedDeviceData.connection.length; i++) {
-            if (selectedDeviceData.connection[i].device_type === selectedInterface) {
-              setFetchedInterfaceData(selectedDeviceData.connection[i]);
+          for (let i = 0; i < selectedDeviceData.connections.length; i++) {
+            if (selectedDeviceData.connections[i].name === selectedInterface) {
+              setFetchedInterfaceData(selectedDeviceData.connections[i]);
               break;
             }
           }
@@ -347,7 +415,7 @@ const Devices = () => {
         }
       }
       getFetchedInterfaceData();
-    } 
+    }
   }, [selectedInterface]);
 
   // once we get the data associated with the interface, we need to get the config file associated with that interface
@@ -356,7 +424,10 @@ const Devices = () => {
     if (fetchedInterfaceData) {
       const getConnectionSpecificConfig = async () => {
         try {
-          const fetchedConnectionSpecificConfigString = await fetchedInterfaceData.configjson;
+          let fetchedConnectionSpecificConfigString = "";
+          let mode = fetchedInterfaceData.mode;
+          let operatingMode = Object.keys(mode)[0];
+          fetchedConnectionSpecificConfigString = await mode[operatingMode];
           const jsonObject = JSON.parse(fetchedConnectionSpecificConfigString);
           setFetchedConnectionSpecificConfig(jsonObject);
         } catch (error) {
@@ -508,7 +579,7 @@ const Devices = () => {
       <div style={{ maxWidth: '600px', margin: 'auto' }}>
         <h1 style={titleStyle}>Interface Settings</h1>
         <div style={sliderContainerStyle}>
-          <div style={{ marginBottom:'20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <h2 style={{ fontSize: '16px', marginRight: '10px' }}>Operation Mode</h2>
             {selectedDeviceData != null && <input value={operationModeLabel} style={{ borderColor: 'black', borderWidth: 1 }} type="text" placeholder="Operation Mode" readOnly={true} />}
           </div>
@@ -519,6 +590,7 @@ const Devices = () => {
             min={600}
             max={4320}
             sliderTitle={"Screen Size - Height"}
+            unit={"px"}
             sliderDescription={"height of interface screen"}
           />
 
@@ -529,6 +601,7 @@ const Devices = () => {
             min={800}
             max={8192}
             sliderTitle={"Screen Size - Width"}
+            unit={"px"}
             sliderDescription={"width of interface screen"}
           />
         </div>
@@ -550,6 +623,7 @@ const Devices = () => {
             min={5}
             max={12}
             sliderTitle="Mouse Idle Threshold"
+            unit={""}
             sliderDescription="Value of move speed below which is considered idle. Causes mouse exit; High value: easier to idle out; Low value: mouse stays active."
           />
           <InputSlider
@@ -559,6 +633,7 @@ const Devices = () => {
             min={0}
             max={100}
             sliderTitle="Minimum Mouse Runtime"
+            unit={"cs"}
             sliderDescription="Minimum time (in .01 second increments) that mouse will always run before checking idle conditions for exit"
           />
           <InputSlider
@@ -567,15 +642,17 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'idle_duration', 'value'])(parseInt(e.target.value))}
             min={30}
             max={150}
+            unit={"cs"}
             sliderTitle="Idle Timeout Cycles"
             sliderDescription="Amount of idle time (in .01 second increments) required to trigger mouse exit"
           />
           <InputSlider
             sliderLabel={'mouseDwellDuration'}
             value={editedConnectionSpecificConfig.mouse.value.dwell_duration.value}
-            onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'dwell_duration'])(parseInt(e.target.value))}
+            onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'dwell_duration', 'value'])(parseInt(e.target.value))}
             min={20}
             max={100}
+            unit={"cs"}
             sliderTitle="Dwell Trigger Cycles"
             sliderDescription="Amount of idle time (in .01 second increments) needed to trigger action in dwell_click"
           />
@@ -592,6 +669,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'scale_x', 'value'])(e.target.value)}
             min={0.1}
             max={4.0}
+            unit={"x"}
             sliderTitle="Horizontal Movement Scale Factor"
             sliderDescription="Mouse sensitivity to horizontal movement"
           />
@@ -601,15 +679,17 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'scale_y', 'value'])(e.target.value)}
             min={0.1}
             max={4.0}
+            unit={"x"}
             sliderTitle="Vertical Movement Scale Factor"
             sliderDescription="Mouse sensitivity to vertical movement"
           />
           <InputSlider
             sliderLabel={'mouseShakeSize'}
             value={editedConnectionSpecificConfig.mouse.value.shake_size.value}
-            onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'scale_y', 'value'])(e.target.value)}
+            onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'shake_size', 'value'])(e.target.value)}
             min={0}
             max={20}
+            unit={"px"}
             sliderTitle="Shake Size"
             sliderDescription="size of cursor movement for gesturer indicator"
           />
@@ -620,6 +700,7 @@ const Devices = () => {
             min={1}
             max={4}
             sliderTitle="Number of Shakes"
+            unit={"shakes"}
             sliderDescription="Number of times to repeat gesture ready indicator"
           />
         </div>
@@ -638,6 +719,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['clicker', 'value', 'max_click_spacing', 'value'])(parseFloat(e.target.value))}
             min={0.1}
             max={1.0}
+            unit={"s"}
             sliderTitle={"Max Click Spacing"}
             sliderDescription={"Time (seconds) to await next tap before dispatching counted result"}
             sliderLabel={"clickerMaxClickSpacing"}
@@ -647,6 +729,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['clicker', 'value', 'tap_ths', 'value'])(parseFloat(e.target.value))}
             min={0}
             max={31}
+            unit={"level"}
             sliderTitle={"Tap Threshold"}
             sliderDescription={"Level of impact needed to trigger a click. Lower -> more Sensitive to impact"}
             sliderLabel={"clickerTapThreshold"}
@@ -656,6 +739,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['clicker', 'value', 'quiet', 'value'])(parseInt(e.target.value))}
             min={0}
             max={3}
+            unit={"level"}
             sliderTitle={"Quiet"}
             sliderDescription={"Amount of quiet required after a click"}
             sliderLabel={"clickerQuiet"}
@@ -665,6 +749,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['clicker', 'value', 'shock', 'value'])(parseInt(e.target.value))}
             min={0}
             max={3}
+            unit={"s"}
             sliderTitle={"Shock"}
             sliderDescription={"Max duration of over threshold event"}
             sliderLabel={"clickerShock"}
@@ -742,15 +827,16 @@ const Devices = () => {
         const userRef = collection(colRef, currentUserId, "userCatos");
         console.log("userRef: ", userRef);
         const docRef = doc(userRef, selectedDocumentId);
-        
+
         console.log("docRef: ", docRef);
         console.log("selectedDocumentId: ", selectedDocumentId);
         const globalConfig = JSON.stringify(editedDeviceConfig);
-        
+
         let copySelectedDeviceData = null;
         if (eitherDifferent) {
           copySelectedDeviceData = deepCopy(selectedDeviceData);
         }
+        console.log("copySelectedDeviceData: ", copySelectedDeviceData);
 
         //just update the fields within selectedDeviceData
         if (deviceConfigDifferent) {
@@ -759,14 +845,14 @@ const Devices = () => {
         }
 
         if (connectionConfigDifferent) {
-          for (let i = 0; i < copySelectedDeviceData.connection.length; i++) {
-            if (copySelectedDeviceData.connection[i].device_type === selectedInterface) {
-              copySelectedDeviceData.connection[i].configjson = JSON.stringify(editedConnectionSpecificConfig);
+          for (let i = 0; i < copySelectedDeviceData.connections.length; i++) {
+            if (copySelectedDeviceData.connections[i].name === selectedInterface) {
+              copySelectedDeviceData.connections[i].mode[activeOperationMode] = JSON.stringify(editedConnectionSpecificConfig);
               break;
             }
           }
         }
-        
+
         if (copySelectedDeviceData != null) {
           console.log("copySelectedDeviceData: ", copySelectedDeviceData);
           await updateDoc(docRef, copySelectedDeviceData);
@@ -776,16 +862,14 @@ const Devices = () => {
       //now we want to download the combined config file
       const getCombinedConfig = async () => {
         let combinedConfig = {};
-        
+
         // we want to add every field from the editedDeviceConfig to the combinedConfig
         for (const [key, value] of Object.entries(editedDeviceConfig)) {
           combinedConfig[key] = value;
         }
 
-        // we want to add every field from the editedConnectionSpecificConfig to the combinedConfig
-        for (const [key, value] of Object.entries(editedConnectionSpecificConfig)) {
-          combinedConfig[key] = value;
-        }
+        // we want the values in the editedConnectionSpecificConfig to be the first item in the combinedConfig
+        combinedConfig["connections"].unshift(editedConnectionSpecificConfig);
 
         console.log("combinedConfig: ", combinedConfig);
 
@@ -854,7 +938,7 @@ const Devices = () => {
               Name:
               {selectedDeviceData != null && editedDeviceConfig != null && (
                 <input
-                  value={editedDeviceConfig.name.value}
+                  value={editedDeviceConfig.global_info.name.value}
                   style={{ borderColor: 'black', borderWidth: 1, marginLeft: '15px', marginRight: '15px' }}
                   type="text"
                   onChange={(event) => handleNameChange(event.target.value)}
@@ -869,7 +953,7 @@ const Devices = () => {
 
           <h2 style={{ fontSize: '20px' }}> Hardware UID </h2>
           {/* value to be read in from config  */}
-          {selectedDeviceData != null && <input value={selectedDeviceData.device_info.HW_UID}
+          {selectedDeviceData != null && <input value={selectedDeviceData.device_info.hw_uid}
             style={{ borderColor: 'black', borderWidth: 1, paddingLeft: '15px', marginLeft: '15px', marginRight: '15px' }} className="e-input" type="text" placeholder="UID Here" readOnly={true} />}
           <br></br>
           <br></br>
