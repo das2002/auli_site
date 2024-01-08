@@ -36,7 +36,7 @@ const deepCopy = (obj) => {
   return JSON.parse(JSON.stringify(obj));
 };
 
-const InputSlider = ({ value, onChange, min, max, sliderTitle, unit, sliderDescription, sliderLabel }) => {
+const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, sliderDescription, sliderLabel }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseEnter = () => {
@@ -62,6 +62,7 @@ const InputSlider = ({ value, onChange, min, max, sliderTitle, unit, sliderDescr
           onChange={onChange}
           min={min}
           max={max}
+          step={step}
           aria-valuemin={min}
           aria-valuemax={max}
           aria-valuenow={value}
@@ -590,6 +591,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['screen_size', 'value', 'height', 'value'])(e.target.value)}
             min={600}
             max={4320}
+            step = {1}
             sliderTitle={"Screen Size - Height"}
             unit={"px"}
             sliderDescription={"height of interface screen"}
@@ -601,6 +603,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['screen_size', 'value', 'width', 'value'])(e.target.value)}
             min={800}
             max={8192}
+            step = {1}
             sliderTitle={"Screen Size - Width"}
             unit={"px"}
             sliderDescription={"width of interface screen"}
@@ -623,6 +626,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'idle_threshold', 'value'])(parseInt(e.target.value))}
             min={5}
             max={12}
+            step={1}
             sliderTitle="Mouse Idle Threshold"
             unit={""}
             sliderDescription="Value of move speed below which is considered idle. Causes mouse exit; High value: easier to idle out; Low value: mouse stays active."
@@ -633,6 +637,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'min_run_cycles', 'value'])(parseInt(e.target.value))}
             min={0}
             max={100}
+            step={1}
             sliderTitle="Minimum Mouse Runtime"
             unit={"cs"}
             sliderDescription="Minimum time (in .01 second increments) that mouse will always run before checking idle conditions for exit"
@@ -643,6 +648,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'idle_duration', 'value'])(parseInt(e.target.value))}
             min={30}
             max={150}
+            step={1}
             unit={"cs"}
             sliderTitle="Idle Timeout Cycles"
             sliderDescription="Amount of idle time (in .01 second increments) required to trigger mouse exit"
@@ -653,6 +659,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'dwell_duration', 'value'])(parseInt(e.target.value))}
             min={20}
             max={100}
+            step={1}
             unit={"cs"}
             sliderTitle="Dwell Trigger Cycles"
             sliderDescription="Amount of idle time (in .01 second increments) needed to trigger action in dwell_click"
@@ -670,6 +677,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'scale_x', 'value'])(e.target.value)}
             min={0.1}
             max={4.0}
+            step={0.1}
             unit={"x"}
             sliderTitle="Horizontal Movement Scale Factor"
             sliderDescription="Mouse sensitivity to horizontal movement"
@@ -680,6 +688,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'scale_y', 'value'])(e.target.value)}
             min={0.1}
             max={4.0}
+            step={0.1}
             unit={"x"}
             sliderTitle="Vertical Movement Scale Factor"
             sliderDescription="Mouse sensitivity to vertical movement"
@@ -690,6 +699,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'shake_size', 'value'])(e.target.value)}
             min={0}
             max={20}
+            step={1}
             unit={"px"}
             sliderTitle="Shake Size"
             sliderDescription="size of cursor movement for gesturer indicator"
@@ -700,6 +710,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['mouse', 'value', 'num_shake', 'value'])(e.target.value)}
             min={1}
             max={4}
+            step={1}
             sliderTitle="Number of Shakes"
             unit={"shakes"}
             sliderDescription="Number of times to repeat gesture ready indicator"
@@ -720,6 +731,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['clicker', 'value', 'max_click_spacing', 'value'])(parseFloat(e.target.value))}
             min={0.1}
             max={1.0}
+            step={0.1}
             unit={"s"}
             sliderTitle={"Max Click Spacing"}
             sliderDescription={"Time (seconds) to await next tap before dispatching counted result"}
@@ -730,6 +742,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['clicker', 'value', 'tap_ths', 'value'])(parseFloat(e.target.value))}
             min={0}
             max={31}
+            step={1}
             unit={"level"}
             sliderTitle={"Tap Threshold"}
             sliderDescription={"Level of impact needed to trigger a click. Lower -> more Sensitive to impact"}
@@ -740,6 +753,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['clicker', 'value', 'quiet', 'value'])(parseInt(e.target.value))}
             min={0}
             max={3}
+            step={1}
             unit={"level"}
             sliderTitle={"Quiet"}
             sliderDescription={"Amount of quiet required after a click"}
@@ -750,6 +764,7 @@ const Devices = () => {
             onChange={(e) => handleConnectionConfigChange(['clicker', 'value', 'shock', 'value'])(parseInt(e.target.value))}
             min={0}
             max={3}
+            step={1}
             unit={"s"}
             sliderTitle={"Shock"}
             sliderDescription={"Max duration of over threshold event"}
@@ -778,6 +793,51 @@ const Devices = () => {
 
     );
   };
+
+  const GestureOptions = () => {
+    return (
+      <div style={{ maxWidth: '600px', margin: 'auto' }}>
+        <h1 style={titleStyle}>Gesture Settings</h1>
+        <div style={sliderContainerStyle}>
+          <p style={descriptionStyle}>Adjust your gesture collection settings below:</p>
+          <InputSlider
+            sliderLabel={'gestureConfidenceThreshold'}
+            value={editedConnectionSpecificConfig.gesture.value.confidence_threshold.value}
+            onChange={(e) => handleConnectionConfigChange(['gesture', 'value', 'confidence_threshold', 'value'])(parseFloat(e.target.value))}
+            min={0.55}
+            max={0.90}
+            step={0.01}
+            sliderTitle="Gesture Confidence Threshold"
+            unit={""}
+            sliderDescription="Threshold of gesture confidence probability [0, 1], for Cato to accept gesture and execute command. Low value -> few dry-fires, more frequent misinterpretation. High value -> frequent dry-fires, rare misinterpretation"
+          />
+          <InputSlider
+            sliderLabel={'gestureTimeout'}
+            value={editedConnectionSpecificConfig.gesture.value.timeout.value}
+            onChange={(e) => handleConnectionConfigChange(['gesture', 'value', 'timeout', 'value'])(parseFloat(e.target.value))}
+            min={0.1}
+            max={3.0}
+            step={0.05}
+            sliderTitle="Gesture Timeout Window Length"
+            unit={"s"}
+            sliderDescription="Maximum Time (seconds) to Wait for Gesture Start before exiting recognition window"
+          />
+          <InputSlider
+            sliderLabel={'gestureCollectionTimeout'}
+            value={editedConnectionSpecificConfig.gesture.value.gc_timeout.value}
+            onChange={(e) => handleConnectionConfigChange(['gesture', 'value', 'gc_timeout', 'value'])(parseFloat(e.target.value))}
+            min={5}
+            max={30}
+            step={1}
+            sliderTitle="Gesture Collection Wait Period"
+            unit={"s"}
+            sliderDescription="Time to wait before beginning gesture collection over bluetooth"
+          />
+          
+        </div>
+      </div>
+    )
+  }
 
   const handleNameChange = (value) => {
     console.log(value);
@@ -987,9 +1047,19 @@ const Devices = () => {
           {editedConnectionSpecificConfig && ConnectionSpecificSettings()}
           <DashedLine />
 
-          {activeOperationMode === 'gesture_mouse' && editedConnectionSpecificConfig && MouseOptions()}
+          {activeOperationMode === 'gesture_mouse' && editedConnectionSpecificConfig &&
+            <>
+             {MouseOptions()}
+             {GestureOptions()}
+             </>
+          }
           {activeOperationMode === 'clicker' && editedConnectionSpecificConfig && ClickerOptions()}
-          {activeOperationMode === 'tv_remote' && editedConnectionSpecificConfig && TVRemoteOptions()}
+          {activeOperationMode === 'tv_remote' && editedConnectionSpecificConfig &&
+            <>
+              {TVRemoteOptions()}
+              {GestureOptions()}
+            </>
+          }
           {activeOperationMode === 'pointer' && editedConnectionSpecificConfig && MouseOptions()}
 
 
