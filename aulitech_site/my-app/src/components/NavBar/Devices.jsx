@@ -294,8 +294,8 @@ const Devices = () => {
       try {
         const interfaceOptions = [];
         if (selectedDeviceData) {
-          for (let i = 0; i < selectedDeviceData.connection.length; i++) {
-            interfaceOptions.push(selectedDeviceData.connection[i].device_type);
+          for (let i = 0; i < selectedDeviceData.connections.length; i++) {
+            interfaceOptions.push(selectedDeviceData.connections[i].device_type);
           }
         }
         setInterfaceOptions(interfaceOptions);

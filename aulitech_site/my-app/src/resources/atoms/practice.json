@@ -1,0 +1,36 @@
+{
+    "practice": {
+        "label": "Practice Mode",
+        "description": "Settings for practice mode",
+        "access": "rw",
+        "value": {
+            "dense": {
+                "label": "Format Condensed",
+                "description": "true: type outputs in a single line; false: type outputs as a table",
+                "access": "rw",
+                "value": true,
+                "options": [true, false]
+            },
+            "num_infers": {
+                "label": "Maximum number of Displayed Inferences",
+                "description": "Number of relevant inferences displayed per gesture",
+                "access": "rw",
+                "value": 6,
+                "range" : {
+                    "min" : 1,
+                    "max" : 6
+                }
+            },
+            "cutoff": {
+                "label": "Certainty Cutoff",
+                "description": "Level of certainty below which gesture will not be displayed",
+                "access": "rw",
+                "value": 0.5,
+                "range" : {
+                    "min" : 0.0,
+                    "max" : 1.0
+                }
+            }
+        }
+    }
+}

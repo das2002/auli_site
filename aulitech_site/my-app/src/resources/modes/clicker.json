@@ -1,0 +1,17 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "bindings": {
+        "type": "object"
+      },
+      "clicker": {
+        "type": "object"
+      }
+    },
+    "required": [
+      "bindings",
+      "clicker"
+    ]
+  }
+  
