@@ -209,13 +209,14 @@ const getDeviceData = async (currentUserId) => {
   try {
     const releasesRef = collection(db, 'users', currentUserId, 'userCatos');
     const querySnapshot = await getDocs(releasesRef);
-    const data = querySnapshot.docs.map((doc) => doc.data());
+    const filteredDocs = querySnapshot.docs.filter(doc => doc.id !== "defaultDoc"); // filter out placeholder docs
+    const data = filteredDocs.map((doc) => doc.data()); 
     return data;
   } catch (error) {
     console.error('Error fetching data:', error);
     throw error;
   }
-}
+};
 
 const Devices = () => {
 
