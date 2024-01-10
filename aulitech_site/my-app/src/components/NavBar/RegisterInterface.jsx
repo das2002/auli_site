@@ -289,12 +289,16 @@ const RegisterInterface = ({ user }) => {
                 border: '2px solid #B49837'
               }}>
               <option> Select A Device Here </option>
-              {userCatosList.length > 0 && userCatosList.map((userCato, index) => (
-                <option key={index} value={userCato.device_info.device_nickname}>
-                  {userCato.device_info.device_nickname}
-                </option>
-              ))}
+              {userCatosList.length > 0 && userCatosList
+                .filter(userCato => userCato.device_info && userCato.device_info.device_nickname) // Filtering out items without device_nickname
+                .map((userCato, index) => (
+                  <option key={index} value={userCato.device_info.device_nickname}>
+                    {userCato.device_info.device_nickname}
+                  </option>
+                ))}
             </select>
+
+
 
             <h3 className="text-xl font-semibold leading-6 text-gray-900">
               Name your Interface

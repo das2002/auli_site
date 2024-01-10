@@ -96,14 +96,16 @@ function App() {
           });
         } else {
           colSnap.forEach((doc) => {
-            configData.push({
-              id: doc.id,
-              data: doc.data(),
-              // jsondata: JSON.parse(doc.data().configjson),
-              // keysinfo: Object.keys(JSON.parse(doc.data().configjson)),
-              // valuesinfo: Object.values(JSON.parse(doc.data().configjson)),
-              current: false,
-            });
+            if (doc.id != 'defaultDoc') { // userCatos table is initialised with placeholder defaultDoc, don't display this 
+              configData.push({
+                id: doc.id,
+                data: doc.data(),
+                // jsondata: JSON.parse(doc.data().configjson),
+                // keysinfo: Object.keys(JSON.parse(doc.data().configjson)),
+                // valuesinfo: Object.values(JSON.parse(doc.data().configjson)),
+                current: false,
+              });
+            }
           });
         }
         setDevices(configData);
@@ -203,6 +205,7 @@ function App() {
         <div className="px-4 sm:px-6 lg:px-8">
           <Routes>
             <Route exact path="/" element={<Dashboard classNames={classNames} user={user} devices={devices} />}/>
+            {console.log(devices)}
             {/* <Route path="/dashboard" element={<Dashboard classNames={classNames} user={user} devices={devices}/>}/> */}
             <Route path="/profile" element={<ProfilePg user={user}/>}/>
             <Route path="/cato-settings" element={<CatoSettings classNames={classNames} user={user} devices={devices} currIndex={currIndex}/>}/>
