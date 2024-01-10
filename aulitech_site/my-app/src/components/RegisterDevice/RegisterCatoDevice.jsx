@@ -151,7 +151,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     try {
       const storeDevice = async () => {
         try {
-          //let parsedJson = JSON.parse(jsonData);      
+          // let parsedJson = JSON.parse(jsonData);      
           const newData = JSON.stringify(parsedJson)
           const globalData = JSON.stringify(globalConfig)
 
