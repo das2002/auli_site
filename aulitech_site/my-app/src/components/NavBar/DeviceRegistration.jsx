@@ -47,12 +47,12 @@ const DeviceRegistration = () => {
         
         const deviceInfo = snapshot.data().device_info;
         const orientationInfo = deviceInfo?.orientation;
-        
+        //snapshot.data().device_info.device_nickname
         return (
             <div>
                 <p>hw_uid: {deviceInfo?.hw_uid}</p>
-                <p>sleep: {deviceInfo?.sleep?.timeout}</p>
-                <p>Orientation:</p>
+                <p>sleep: {deviceInfo?.sleep}</p>
+                <p>orientation: </p>
                 {orientationInfo && (
                     <ul>
                         {Object.entries(orientationInfo).map(([key, orientation]) => (
@@ -71,7 +71,6 @@ const DeviceRegistration = () => {
             </div>
         );
     };
-      
 
     return (
         <div className="device-registration">
