@@ -86,14 +86,14 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
         type: "application/json",
       });
       const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "config.json";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+  
+      // Use the File System Access API functions here
+      const fileHandle = await getNewFileHandle();
+      await writeURLToFile(fileHandle, url);
+  
+      console.log("New config successfully saved.");
     } catch (error) {
-      console.log("download new config error: ", error);
+      console.error("Download new config error:", error);
     }
   };
 
