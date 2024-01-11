@@ -47,6 +47,7 @@ const DeviceRegistration = () => {
     
         const deviceInfo = snapshot.data().device_info;
         const connectionInfo = snapshot.data().connections;
+
         if (connectionInfo && connectionInfo.length > 0) { // check if there's at least one connection
             const currentMode = connectionInfo[0].current_mode;
             return (
@@ -68,6 +69,7 @@ const DeviceRegistration = () => {
         
         const deviceInfo = snapshot.data().device_info;
         const orientationInfo = deviceInfo?.orientation;
+        const calibrationInfo = deviceInfo?.calibration; 
         //snapshot.data().device_info.device_nickname
         return (
             <div>
@@ -88,7 +90,17 @@ const DeviceRegistration = () => {
                         ))}
                     </ul>
                 )}
-                <p>calibration: {JSON.stringify(deviceInfo?.calibration)}</p>
+            <p>calibration:</p>
+            {calibrationInfo && (
+                <ul>
+                    <li>
+                        auto_samples: {calibrationInfo.auto_samples}
+                    </li>
+                    <li>
+                        auto_threshold: {calibrationInfo.auto_threshold}
+                    </li>
+                </ul>
+            )}
             </div>
         );
     };
