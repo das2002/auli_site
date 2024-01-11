@@ -42,6 +42,27 @@ const DeviceRegistration = () => {
         }
     };
 
+    const ConnectionsSection = ({ snapshot }) => {
+        if (!snapshot) return null;
+    
+        const deviceInfo = snapshot.data().device_info;
+        const connectionInfo = snapshot.data().connections;
+        if (connectionInfo && connectionInfo.length > 0) { // check if there's at least one connection
+            const currentMode = connectionInfo[0].current_mode;
+            return (
+                <div>
+                    <p>Connection: {currentMode}</p>
+                </div>
+            );
+        } else {
+            return (
+                <div>
+                    <p>No connections available</p>
+                </div>
+            );
+        }
+    };
+
     const GlobalInfoSection = ({ snapshot }) => {
         if (!snapshot) return null;
         
@@ -101,6 +122,7 @@ const DeviceRegistration = () => {
                 <button className="text-xl font-bold py-4 px-8 rounded bg-blue-700 hover:bg-blue-900 text-white">
                     Connections
                 </button>
+                {docSnap && <ConnectionsSection snapshot={docSnap} />}
             </div>
             <div className="border-t border-line border-gray-400 my-4" />
         </div>
