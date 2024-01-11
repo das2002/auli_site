@@ -79,49 +79,58 @@ function App() {
     }
   };
   
-  const submitEmailLogin = async (email, password) => {
+  const submitEmailLogin = async (email, password, setErrorMessage) => {
     const auth = getAuth();
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
-        console.log("Logged in", user)
+        console.log("Logged in", user);
         toggleLoginPopup(); // close the login popup
       })
       .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(errorCode, "Error during account login:", errorMessage);
+        console.log("Error during account login:", error.message);
+        setErrorMessage("Incorrect email or password. Please try again."); // Set custom error message
       });
-
   };
+  
 
-  const createEmailAccount = async (email, displayname, password) => {
+  const createEmailAccount = async (email, displayname, password, setErrorMessage) => {
     const auth = getAuth();
+  
+    // Regex for password validation
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{12,24}$/;
+  
+    if (!passwordRegex.test(password)) {
+      setErrorMessage("Password must be 12-24 characters long and include at least one letter, one number, and one special character.");
+      return;
+    }
+  
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed up 
         const user = userCredential.user;
         user.displayName = displayname;
-        user.email = email
-        console.log("Signed up", user)
-        toggleSignupPopup() // close the signup popup once signed up 
+        user.email = email;
+        console.log("Signed up", user);
+        toggleSignupPopup(); // close the signup popup once signed up 
       })
       .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(errorCode, "Error during account creation:", errorMessage);
+        console.log("Error during account creation:", error.message);
+        setErrorMessage(error.message); // Set Firebase error message
       });
-  }
+  };
+  
   
   // email and password flow login/signup
   const EmailLoginForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-  
+    const [errorMessage, setErrorMessage] = useState(''); 
+    
     const handleSubmit = (e) => {
       e.preventDefault();
-      submitEmailLogin(email, password);
+      submitEmailLogin(email, password, setErrorMessage);
     };
   
     return (
@@ -142,14 +151,29 @@ function App() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+        {errorMessage && (
+        <div className="text-red-600 text-sm mt-1 mb-1">
+          {errorMessage}
+        </div>
+      )}
+
         <div className="flex items-end justify-between gap-10">
-          <button className="flex items-center justify-center text-white bg-accent hover:opacity-70 px-12 rounded-full h-12 login-button">
+          <button className="flex items-center justify-center text-white bg-accent hover:opacity-70 px-12 rounded-full h-12 decision-button">
             Log In
           </button>
-          <p className="text-right mb-0" onClick={handleLoginToSignup}>
-            Don't have an account? <span style={{ color: 'blue', cursor: 'pointer' }}>Sign up</span>
+          <p className="text-right mb-1">
+            Don't have an account? {' '}
+            <button 
+              onClick={handleLoginToSignup} 
+              style={{ color: 'blue', cursor: 'pointer' }}
+              className="text-blue-600 hover:text-blue-800 focus:outline-none focus:underline"
+            >
+              Sign up
+            </button>
           </p>
         </div>
+
+
 
       </form>
     );
@@ -158,11 +182,11 @@ function App() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [displayname, setName] = useState('');
-
+    const [errorMessage, setErrorMessage] = useState(''); 
   
     const handleSubmit = (e) => {
       e.preventDefault();
-      createEmailAccount(email, displayname, password);
+      createEmailAccount(email, displayname, password, setErrorMessage);
     };
   
     return (
@@ -191,15 +215,27 @@ function App() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <div className="flex items-end justify-between gap-10">
-          <button className="flex items-center justify-center text-white bg-accent hover:opacity-70 px-12 rounded-full h-12 login-button">
+          {errorMessage && (
+          <div className="text-red-600 text-sm mt-2 mb-2">
+            {errorMessage}
+          </div>
+          )}
+
+                <div className="flex items-end justify-between gap-10">
+          <button className="flex items-center justify-center text-white bg-accent hover:opacity-70 px-12 rounded-full h-12 decision-button">
             Sign Up
           </button>
-          <p className="text-right mb-0" onClick={handleSignupToLogin}>
-            Already have an account? <span style={{ color: 'blue', cursor: 'pointer' }}>Log in</span>
+          <p className="text-right mb-1">
+            Already have an account? {' '}
+            <button 
+              onClick={handleSignupToLogin} 
+              style={{ color: 'blue', cursor: 'pointer' }}
+              className="text-blue-600 hover:text-blue-800 focus:outline-none focus:underline"
+            >
+              Log in
+            </button>
           </p>
         </div>
-
       </form>
     );
   };
@@ -371,7 +407,7 @@ function App() {
             <Route path="/sign-out" element={<SignOutAccount/>}/>
             <Route path="/record-gestures" element={<RecordGestures />} />
             <Route path="/updates" element={<Updates />} />
-            <Route path="/" element={<Devices />} />
+            <Route path="/devices/:deviceName" element={<Devices  devices={devices}/>} />
             <Route path="/practice" element= {<PracticeMode />} />
           </Routes>
         </div>

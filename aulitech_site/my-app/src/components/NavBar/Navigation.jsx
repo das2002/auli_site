@@ -1,20 +1,21 @@
 
 
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useEffect} from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import AccordianElement from "./Accordian";
 import Logo from "../Elements/Logo"
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import RegisterInterface from './RegisterInterface';
-
+import { collection, query, where, getDocs, setDoc, addDoc, getFirestore, doc } from 'firebase/firestore';
 
 <Router>
   <Routes>
     <Route path="/register-interface" element={<RegisterInterface />} />
   </Routes>
 </Router>
+
 
 const Navigation = ({
   user,
@@ -24,7 +25,6 @@ const Navigation = ({
   handleCurr
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const UserIcon = () => {
     return (
       <svg
@@ -60,30 +60,6 @@ const Navigation = ({
       </>
     );
   };
-
-  const UserSettingsRoute = () => {
-    return (
-      <>
-        <div className="-mx-6">
-          <NavLink
-            to="/user-settings"
-            className={({ isActive }) =>
-              classNames(
-                isActive
-                  ? "bg-gray-800 text-white"
-                  : "text-gray-400 hover:text-white hover:bg-gray-800",
-                "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
-              )
-            }
-          >
-            {/* icon here*/}
-            <p>User Settings</p>
-          </NavLink>
-        </div>
-      </>
-    );
-  };
-  
 
   const RecordGesturesRoute = () => {
     return (
@@ -137,26 +113,90 @@ const Navigation = ({
     );
   };
 
+  const [isDevicesMenuOpen, setIsDevicesMenuOpen] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState(null);
+
+  const toggleDevicesMenu = () => {
+    setIsDevicesMenuOpen(!isDevicesMenuOpen);
+  };
+  
+  const selectDevice = (deviceName) => {
+    setSelectedDevice(deviceName);
+  };
+  
+  const DevicesList = () => {
+    const navigate = useNavigate();
+
+    const handleClick = (deviceName) => {
+      navigate(`/devices/${deviceName}`);
+    };
+
+
+    const totalDuration = 350; // Total duration for all items to appear
+    const itemDuration = totalDuration / (devices.length + 1); // Duration per item, +1 for NavLink
+  
+    return (
+      <div className="absolute w-56 mt-0 space-y-1 overflow-hidden cursor-pointer">
+        {devices.map((device, index) => (
+          <div 
+            key={index}
+            onClick={() => handleClick(device.data.device_info.device_nickname)}
+            className="flex items-center justify-center px-6 py-3 text-lg font-semibold rounded-xl text-gray-400 hover:text-white hover:bg-gray-800 cursor-pointer opacity-0"
+            style={{ 
+              animation: `fadeIn 100ms ease-out forwards ${index * itemDuration}ms`
+            }}
+          >
+            {device.data.device_info.device_nickname}
+          </div>
+        ))}
+  
+        <NavLink
+          to="/register-cato-device"
+          className="flex items-center justify-center px-6 py-3 text-lg font-semibold rounded-xl text-gray-400 hover:text-white hover:bg-gray-800 cursor-pointer opacity-0"
+          style={{ 
+            animation: `fadeIn 100ms ease-out forwards ${devices.length * itemDuration}ms`
+          }}
+        >
+          <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="w-7 h-7"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 6v12m6-6H6"
+              />
+            </svg>
+        </NavLink>
+      </div>
+    );
+  };
+
+            
   const DevicesRoute = () => {
     return (
       <>
-        <div className="-mx-6">
-          <NavLink
-            to="/devices" //updates
-            className={({ isActive }) =>
-              classNames(
-                isActive
-                  ? "bg-gray-800 text-white"
-                  : "text-gray-400 hover:text-white hover:bg-gray-800",
-                "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
-              )
-            }
+        <div className="-mx-6 transition-transform duration-50 select-none">
+          <div
+            className="group flex items-center transition-all duration-200 overflow-x-hidden gap-x-4 px-6 py-3 text-lg leading-6 font-semibold text-gray-400 hover:text-white hover:bg-gray-800"
+            onClick={toggleDevicesMenu}
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6l8 4v8l-8 4-8-4V10l8-4z"></path>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
+                     className={"w-6 h-6 transition-transform duration-300 transform " + (isDevicesMenuOpen ? "rotate-90" : "")}>
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
             </svg>
-            <p>Devices</p>
-          </NavLink>
+            Devices
+          </div>
+          {/* {console.log(devices[0].data.device_info.device_nickname)} */}
+          {isDevicesMenuOpen && (
+            <div className="pl-8 pt-2 space-y-2">
+              <DevicesList/>
+            </div>
+          )}
         </div>
       </>
     );
@@ -182,77 +222,6 @@ const Navigation = ({
       </div>
     );
   };
-  
-
-  const RegisterNewRoute = () => {
-    return (
-      <div className="-mx-6">
-        <NavLink
-          to="/register-cato-device"
-          className={({ isActive }) =>
-            classNames(
-              isActive
-                ? "bg-gray-800 text-white"
-                : "text-gray-400 hover:text-white hover:bg-gray-800",
-              "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
-            )
-          }
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-6 h-6"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 6v12m6-6H6"
-            />
-          </svg>
-
-          <p>Register Device</p>
-          
-          </NavLink>
-      </div>
-    );
-  };
-
-  const RegisterInterfaceRoute = () => {
-    return (
-      <div className="-mx-6">
-        <NavLink
-          to="/register-interface"
-          className={({ isActive }) =>
-            classNames(
-              isActive
-                ? "bg-gray-800 text-white"
-                : "text-gray-400 hover:text-white hover:bg-gray-800",
-              "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
-            )
-          }
-        >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 h-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 6v12m6-6H6" // Plus icon
-              />
-            </svg>
-            <p>Register Interface</p>
-          </NavLink>
-        </div>
-    );
-  };
 
   const PracticeRoute = () => {
     return (
@@ -274,43 +243,6 @@ const Navigation = ({
             </svg>
 
             <p>Practice Mode</p>
-          </NavLink>
-        </div>
-      </>
-    );
-  };
-
-  const DashRoute = () => {
-    return (
-      <>
-        <div className="-mx-6 ">
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
-              classNames(
-                isActive
-                  ? "bg-gray-800 text-white"
-                  : "text-gray-400 hover:text-white hover:bg-gray-800",
-                "group flex gap-x-4 px-6 py-3 text-xl leading-6 font-semibold"
-              )
-            }
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 h-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
-              />
-            </svg>
-
-            <p>Dashboard</p>
           </NavLink>
         </div>
       </>
@@ -381,7 +313,7 @@ const Navigation = ({
                     <Logo height={16} marginY={5} marginX={10}/>
                     <nav className="flex flex-1 flex-col">
                       <div role="list" className="flex flex-1 flex-col gap-y-7">
-                        <DashRoute />
+                        {/* <DashRoute /> */}
                         <UpdatesRoute />
                         <DevicesRoute />
                         <PracticeRoute />
@@ -389,7 +321,6 @@ const Navigation = ({
                         <RecordGesturesRoute />
                         {/* We need to add a line to divide between these sections */}
                         
-                        <RegisterNewRoute />
                         <ProfileRoute />
                       </div>
                     </nav>
@@ -403,23 +334,28 @@ const Navigation = ({
         {/* Static sidebar for desktop */}
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
     {/* Sidebar component, swap this element with another sidebar if you like */}
-    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6">
-        <Logo height={16} marginY={5} marginX={10}/>
-        <nav className="flex flex-1 flex-col">
-            <div role="list" className="flex flex-1 flex-col gap-y-7">
-                <DashRoute />
-                <DevicesRoute />
-                <PracticeRoute />
-                <UpdateRoute/>
-                <RecordGesturesRoute />
-                {/* We need to add a line to divide between these sections */}
-                <div className="border-t border-gray-700"></div>
-                <RegisterNewRoute />
-                <RegisterInterfaceRoute /> 
-                <ProfileRoute />
-            </div>
-        </nav>
+    <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 transition-all duration-500">
+      <Logo height={16} marginY={5} marginX={10}/>
+      <nav className="flex flex-1 flex-col gap-y-7">
+        <div role="list" className="flex align-top flex-col gap-y-0">
+          <DevicesRoute />
+          
+          {/* Extra space with transition */}
+          
+          <div className={`transition-all duration-300`} style={{ height: isDevicesMenuOpen ? (devices.length + 1) * 52 : 0 }}></div>
+
+        </div>
+        <div role="list" className="flex align-top flex-col gap-y-7">
+          {/* Routes that will move */}
+          <PracticeRoute />
+          <UpdateRoute/>
+          <RecordGesturesRoute />
+        </div>
+        <ProfileRoute />
+      </nav>
     </div>
+
+
 </div>
 
 
