@@ -24,6 +24,8 @@ import Updates from './components/UpdatePage/Updates';
 import Devices from './components/NavBar/Devices';
 import PracticeMode from './components/PracticeMode/Practice';
 import RegisterInterface from './components/NavBar/RegisterInterface';
+import DeviceRegistration from './components/NavBar/DeviceRegistration'; 
+
 
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
@@ -189,6 +191,7 @@ function App() {
         </div>
       );
     } else {
+      // if (typeof devices === 'undefined' || devices.length === 0) {
       if(typeof devices === 'undefined' || devices === []) {
         return (
           <>
@@ -211,6 +214,7 @@ function App() {
             <Route path="/cato-settings" element={<CatoSettings classNames={classNames} user={user} devices={devices} currIndex={currIndex}/>}/>
             <Route path="/register-cato-device" element={<RegisterCatoDevice user={user} devices={devices} handleRenderDevices={handleRenderDevices} classNames={classNames}/>}/>
             <Route path="/register-interface" element={<RegisterInterface user={user} />}/>
+            <Route path="/device-registration" element={<DeviceRegistration />} />
             <Route path="/record-gestures" element={<ConfigureGestures classNames={classNames} user={user}/>}/>
             <Route path="/record" element={ <RecordGestures/> } />
             <Route path="/sign-out" element={<SignOutAccount/>}/>

@@ -1,5 +1,3 @@
-
-
 import React, { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
@@ -8,13 +6,7 @@ import AccordianElement from "./Accordian";
 import Logo from "../Elements/Logo"
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import RegisterInterface from './RegisterInterface';
-
-
-<Router>
-  <Routes>
-    <Route path="/register-interface" element={<RegisterInterface />} />
-  </Routes>
-</Router>
+import DeviceRegistration from './DeviceRegistration'; 
 
 const Navigation = ({
   user,
@@ -76,7 +68,6 @@ const Navigation = ({
               )
             }
           >
-            {/* icon here*/}
             <p>User Settings</p>
           </NavLink>
         </div>
@@ -176,8 +167,7 @@ const Navigation = ({
             )
           }
         >
-          {/* Icon here (optional) */}
-          <p>Updates</p>
+        <p>Updates</p>
         </NavLink>
       </div>
     );
@@ -245,12 +235,32 @@ const Navigation = ({
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                d="M12 6v12m6-6H6" // Plus icon
+                d="M12 6v12m6-6H6"
               />
             </svg>
             <p>Register Interface</p>
           </NavLink>
         </div>
+    );
+  };
+
+  const DeviceRegistrationRoute = () => {
+    return (
+      <div className="-mx-6">
+        <NavLink
+          to="/deviceregistration"
+          className={({ isActive }) =>
+            classNames(
+              isActive
+                ? "bg-gray-800 text-white"
+                : "text-gray-400 hover:text-white hover:bg-gray-800",
+              "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
+            )
+          }
+        >
+          <p>Device Registration</p>
+        </NavLink>
+      </div>
     );
   };
 
@@ -320,6 +330,7 @@ const Navigation = ({
   // -----------------------------------------------------------------------
 
   return (
+    
     <>
       
       <div>
@@ -376,7 +387,6 @@ const Navigation = ({
                     </div>
                   </Transition.Child>
 
-                  {/* Sidebar component, swap this element with another sidebar if you like */}
                   <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6">
                     <Logo height={16} marginY={5} marginX={10}/>
                     <nav className="flex flex-1 flex-col">
@@ -387,7 +397,7 @@ const Navigation = ({
                         <PracticeRoute />
                         <UpdateRoute/>
                         <RecordGesturesRoute />
-                        {/* We need to add a line to divide between these sections */}
+                        <DeviceRegistrationRoute />
                         
                         <RegisterNewRoute />
                         <ProfileRoute />
@@ -400,9 +410,7 @@ const Navigation = ({
           </Dialog>
         </Transition.Root>
 
-        {/* Static sidebar for desktop */}
         <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-    {/* Sidebar component, swap this element with another sidebar if you like */}
     <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6">
         <Logo height={16} marginY={5} marginX={10}/>
         <nav className="flex flex-1 flex-col">
@@ -412,6 +420,7 @@ const Navigation = ({
                 <PracticeRoute />
                 <UpdateRoute/>
                 <RecordGesturesRoute />
+                <DeviceRegistrationRoute />
                 {/* We need to add a line to divide between these sections */}
                 <div className="border-t border-gray-700"></div>
                 <RegisterNewRoute />
