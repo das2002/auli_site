@@ -46,26 +46,37 @@ const DeviceRegistration = () => {
         if (!snapshot) return null;
         
         const deviceInfo = snapshot.data().device_info;
-        const orientationInfo = deviceInfo?.orientation;
+        console.log(deviceInfo);
+        const globalConfig = JSON.parse(deviceInfo["global_config"])["global_info"];
+        console.log(globalConfig);
+        const orientationInfo = globalConfig["orientation"];
+        console.log(orientationInfo);
+
         //snapshot.data().device_info.device_nickname
         return (
             <div>
-                <p>hw_uid: {deviceInfo?.hw_uid}</p>
-                <p>sleep: {deviceInfo?.sleep}</p>
+                <p>hw_uid: {globalConfig?.HW_UID.value}</p>
+                <p>sleep: {globalConfig?.sleep}</p>
                 <p>orientation: </p>
                 {orientationInfo && (
                     <ul>
-                        {Object.entries(orientationInfo).map(([key, orientation]) => (
-                            <li key={key}>
-                                {key}: {orientation.value}
-                                <ul>
-                                    {orientation.options.map((option, index) => (
-                                        <li key={index}>{option}</li>
-                                    ))}
-                                </ul>
-                            </li>
-                        ))}
-                    </ul>
+                    {Object.entries(orientationInfo).map(([key, info]) => (
+                      <li key={key}>
+                        <label htmlFor={key}>{info.label}</label>
+                        <select
+                          id={key}
+                          value={info.value}
+                          onChange={(e) => handleOrientationChange(key, e.target.value)}
+                        >
+                          {info.options.map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      </li>
+                    ))}
+                  </ul>
                 )}
                 <p>calibration: {JSON.stringify(deviceInfo?.calibration)}</p>
             </div>
