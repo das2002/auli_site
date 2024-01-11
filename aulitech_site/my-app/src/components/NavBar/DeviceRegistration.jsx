@@ -1,12 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
-import { doc, getDoc, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 
 const DeviceRegistration = () => {
     const [deviceName, setDeviceName] = useState('Loading...');
     const [docSnap, setDocSnap] = useState(null);
-    const docId = "VscD0ZIA3b5uqdK1Kxdl"; //change this so it adjusts to users later
+    const docId = "VscD0ZIA3b5uqdK1Kxdl"; //hardcoded
+    const [orientationInfo, setOrientationInfo] = useState({});
 
+    const [showSleepDropdown, setShowSleepDropdown] = useState(false);
+    const [sleepMin, setSleepMin] = useState(null);
+    const [sleepMax, setSleepMax] = useState(null);
+
+    const handleOrientationChange = (key, newValue) => {
+        setOrientationInfo(prev => ({
+            ...prev,
+            [key]: {
+                ...prev[key],
+                value: newValue
+            }
+        }));
+    };
+    
     useEffect(() => {
         const fetchDeviceInfo = async () => {
             const docRef = doc(db, "users/NX4mlsPNKKTBjcVtHRKDuctB7xT2/userCatos", docId);
@@ -15,6 +30,10 @@ const DeviceRegistration = () => {
                 if (snapshot.exists()) {
                     setDocSnap(snapshot);
                     setDeviceName(snapshot.data().device_info.device_nickname);
+
+                    const sleepInfo = JSON.parse(snapshot.data().device_info.global_config).global_info.sleep;
+                    setSleepMin(sleepInfo?.value?.timeout?.range?.min);
+                    setSleepMax(sleepInfo?.value?.timeout?.range?.max);
                 } else {
                     console.log("No such document!");
                     setDeviceName(''); 
@@ -26,6 +45,7 @@ const DeviceRegistration = () => {
         };
 
         fetchDeviceInfo();
+
     }, [docId]);
 
     const handleDeviceNameChange = (e) => {
@@ -44,11 +64,9 @@ const DeviceRegistration = () => {
 
     const ConnectionsSection = ({ snapshot }) => {
         if (!snapshot) return null;
-    
-        const deviceInfo = snapshot.data().device_info;
         const connectionInfo = snapshot.data().connections;
 
-        if (connectionInfo && connectionInfo.length > 0) { // check if there's at least one connection
+        if (connectionInfo && connectionInfo.length > 0) { //check for at least one connection
             const currentMode = connectionInfo[0].current_mode;
             return (
                 <div>
@@ -66,55 +84,81 @@ const DeviceRegistration = () => {
 
     const GlobalInfoSection = ({ snapshot }) => {
         if (!snapshot) return null;
-        
-        const deviceInfo = snapshot.data().device_info;
-        console.log(deviceInfo);
-        const globalConfig = JSON.parse(deviceInfo["global_config"])["global_info"];
-        console.log(globalConfig);
-        const orientationInfo = globalConfig["orientation"];
-        console.log(orientationInfo);
 
-        //snapshot.data().device_info.device_nickname
+        const deviceInfo = snapshot.data().device_info;
+        const globalConfig = JSON.parse(deviceInfo["global_config"])["global_info"];
+
+        const orientationInfo = globalConfig["orientation"]["value"];
+        const calibrationInfo = globalConfig["calibration"];
+        const sleepInfo = globalConfig["sleep"]
+
+        const handleSleepMinChange = (e) => {
+            setSleepMin(e.target.value);
+            //firebase logic
+        };
+    
+        const handleSleepMaxChange = (e) => {
+            setSleepMax(e.target.value);
+            //firebase logic
+        };
+    
+        const toggleSleepDropdown = () => {
+            setShowSleepDropdown(!showSleepDropdown);
+        };
+
         return (
             <div>
+                {/* HW_UID ----------------- */}
                 <p>hw_uid: {globalConfig?.HW_UID.value}</p>
-                <p>sleep: {globalConfig?.sleep}</p>
+                <div className="border-t border-dotted border-gray-400 my-2" />
+
+                {/* sleep ----------------- */}
+                <p>sleep: {sleepInfo?.value?.timeout.value}</p>
+                <p>sleepMin: {sleepInfo?.value?.timeout.range.min}</p>
+                <p>sleepMax: {sleepInfo?.value?.timeout.range.max}</p>
+                <div className="border-t border-dotted border-gray-400 my-2" />
+
+                {/* orientation ----------------- */}
                 <p>orientation: </p>
                 {orientationInfo && (
                     <ul>
-                    {Object.entries(orientationInfo).map(([key, info]) => (
-                      <li key={key}>
+                    {Object.entries(orientationInfo || {}).map(([key, info]) => (
+                    <li key={key}>
                         <label htmlFor={key}>{info.label}</label>
                         <select
-                          id={key}
-                          value={info.value}
-                          onChange={(e) => handleOrientationChange(key, e.target.value)}
+                        id={key}
+                        value={info.value}
+                        onChange={(e) => handleOrientationChange(key, e.target.value)}
                         >
-                          {info.options.map((option) => (
+                        {info.options?.map((option) => (
                             <option key={option} value={option}>
-                              {option}
+                            {option}
                             </option>
-                          ))}
+                        ))}
                         </select>
-                      </li>
+                    </li>
                     ))}
-                  </ul>
-                )}
-            <p>calibration:</p>
-            {calibrationInfo && (
-                <ul>
-                    <li>
-                        auto_samples: {calibrationInfo.auto_samples}
-                    </li>
-                    <li>
-                        auto_threshold: {calibrationInfo.auto_threshold}
-                    </li>
                 </ul>
-            )}
+                )}
+                <div className="border-t border-dotted border-gray-400 my-2" />
+
+                {/* calibration ----------------- */}
+                <p>calibration:</p>
+                {calibrationInfo && (
+                    <ul>
+                        <li>
+                            auto_samples: {calibrationInfo.value.auto_samples.value}
+                        </li>
+                        <li>
+                            auto_threshold: {calibrationInfo.value.auto_threshold.value}
+                        </li>
+                    </ul>
+                )}
             </div>
         );
     };
 
+    //button UI:
     return (
         <div className="device-registration">
             <h1 className="text-3xl font-bold mb-6">Device Registration</h1>
