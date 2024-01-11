@@ -5,7 +5,7 @@ import { doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 const DeviceRegistration = () => {
     const [deviceName, setDeviceName] = useState('Loading...');
     const [docSnap, setDocSnap] = useState(null);
-    const docId = "VscD0ZIA3b5uqdK1Kxdl"; //hardcoded
+    const docId = "VscD0ZIA3b5uqdK1Kxdl"; //hardcoded!!
     const [orientationInfo, setOrientationInfo] = useState({});
 
     const [showSleepDropdown, setShowSleepDropdown] = useState(false);
@@ -65,12 +65,13 @@ const DeviceRegistration = () => {
     const ConnectionsSection = ({ snapshot }) => {
         if (!snapshot) return null;
         const connectionInfo = snapshot.data().connections;
-
-        if (connectionInfo && connectionInfo.length > 0) { //check for at least one connection
-            const currentMode = connectionInfo[0].current_mode;
+    
+        if (connectionInfo && connectionInfo.length > 0) {
             return (
                 <div>
-                    <p>Connection: {currentMode}</p>
+                    {connectionInfo.map((connection, index) => (
+                        <p key={index}>Connection: {connection.current_mode}</p>
+                    ))}
                 </div>
             );
         } else {
@@ -80,7 +81,7 @@ const DeviceRegistration = () => {
                 </div>
             );
         }
-    };
+    };    
 
     const GlobalInfoSection = ({ snapshot }) => {
         if (!snapshot) return null;
@@ -122,23 +123,23 @@ const DeviceRegistration = () => {
                 <p>orientation: </p>
                 {orientationInfo && (
                     <ul>
-                    {Object.entries(orientationInfo || {}).map(([key, info]) => (
-                    <li key={key}>
-                        <label htmlFor={key}>{info.label}</label>
-                        <select
-                        id={key}
-                        value={info.value}
-                        onChange={(e) => handleOrientationChange(key, e.target.value)}
-                        >
-                        {info.options?.map((option) => (
-                            <option key={option} value={option}>
-                            {option}
-                            </option>
+                        {Object.entries(orientationInfo || {}).map(([key, info]) => (
+                            <li key={key}>
+                                <span>{info.label}: </span>
+                                <select
+                                    id={key}
+                                    value={info.value}
+                                    onChange={(e) => handleOrientationChange(key, e.target.value)}
+                                >
+                                    {info.options?.map((option) => (
+                                        <option key={option} value={option}>
+                                            {option}
+                                        </option>
+                                    ))}
+                                </select>
+                            </li>
                         ))}
-                        </select>
-                    </li>
-                    ))}
-                </ul>
+                    </ul>
                 )}
                 <div className="border-t border-dotted border-gray-400 my-2" />
 
