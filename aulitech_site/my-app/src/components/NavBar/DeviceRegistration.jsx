@@ -115,7 +115,8 @@ const DeviceRegistration = () => {
     useEffect(() => {
         const fetchOperationModes = async () => {
             try {
-                const docRef = doc(db, "your_collection_path", "your_document_id");
+                //this path name is wrong
+                const docRef = doc(db, "users/NX4mlsPNKKTBjcVtHRKDuctB7xT2/userCatos", "VscD0ZIA3b5uqdK1Kxdl");
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
