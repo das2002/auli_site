@@ -167,7 +167,7 @@ const RegisterInterface = ({ user }) => {
             // ...connectionData,
             ...clickerDefault,
             ...bindingsDefault,
-            operationMode: operationMode,
+            operationMode: 'clicker',
           };
           // connectionData.operation_mode.value = 'clicker'
 
@@ -177,7 +177,7 @@ const RegisterInterface = ({ user }) => {
             ...mouseDefault,
             ...gestureDefault,
             ...bindingsDefault,
-            operationMode: operationMode,
+            operationMode: 'gesture_mouse',
           };
           // connectionData.operation_mode.value = 'gesture_mouse'
 
@@ -187,7 +187,7 @@ const RegisterInterface = ({ user }) => {
             ...tvRemoteDefault,
             ...gestureDefault,
             ...bindingsDefault,
-            operationMode: operationMode,
+            operationMode: 'tv_remote',
           };
           // connectionData.operation_mode.value = 'tv_remote'
         // } else if (operationMode == 'pointer') {
@@ -195,14 +195,14 @@ const RegisterInterface = ({ user }) => {
             // ...connectionData,
             ...mouseDefault,
             ...bindingsDefault,
-            operationMode: operationMode,
+            operationMode: 'pointer',
           };
 
           practiceData = {
             ...gestureDefault, 
             ...bindingsDefault, 
             ...practiceDefault,
-            operationMode: operationMode,
+            operationMode: 'clicker',
           }
           // connectionData.operation_mode.value = 'pointer'
         // } else {
