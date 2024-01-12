@@ -1,22 +1,151 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { db } from '../../firebase';
 import { doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { InputSlider } from './Devices'
 import Dropdown from './Devices';
 
+const CommonSettingsSection = ({ commonSettings, setCommonSettings, onSave, isButtonClicked, saveButtonStyle }) => {
+    const handleChange = (keyPath, value) => {
+        setCommonSettings(prevSettings => {
+            let updatedSettings = { ...prevSettings };
+            let current = updatedSettings;
+            keyPath.slice(0, -1).forEach(k => {
+                current[k] = { ...current[k] };
+                current = current[k];
+            });
+            current[keyPath[keyPath.length - 1]] = value;
+            return updatedSettings;
+        });
+    };
+
+    const renderSetting = (keyPath, setting) => {
+        if (setting.value && typeof setting.value === 'object' && !Array.isArray(setting.value)) {
+            return (
+                <>
+                    <label>{setting.label}: </label>
+                    {Object.entries(setting.value).map(([key, nestedSetting]) =>
+                        renderSetting([...keyPath, key], nestedSetting)
+                    )}
+                    
+                </>
+                
+            );
+        } else if (setting.range) {
+            return (
+                
+                <InputSlider
+                    value={setting.value}
+                    onChange={(e) => handleChange(keyPath, parseFloat(e.target.value))}
+                    min={setting.range.min}
+                    max={setting.range.max}
+                    step={setting.step || 1}
+                    sliderTitle={setting.label || keyPath.slice(-1)[0]}
+                    unit={""}
+                    sliderDescription={setting.description}
+                    sliderLabel={keyPath.join('_')}
+                />
+                
+            );
+        } else if (setting.options) {
+            return (
+                <Dropdown
+                    value={setting.value}
+                    onChange={(e) => handleChange(keyPath, e.target.value)}
+                    title={setting.label}
+                    description={setting.description}
+                    options={setting.options}
+                />
+            );
+        } else {
+            return (
+                <div>
+                    <label>{setting.label || keyPath.slice(-1)[0]}: </label>
+                    <input 
+                        type="text" 
+                        value={setting.value} 
+                        onChange={(e) => handleChange(keyPath, e.target.value)}
+                    />
+                </div>
+            );
+        }
+    };
+
+    return (
+        <div className="flex items-start gap-x-4 mb-4">
+            <button className="text-xl font-bold py-4 px-8 rounded bg-blue-700 hover:bg-blue-900 text-white">
+                Common Settings
+            </button>
+            <div>
+                {Object.entries(commonSettings).map(([key, setting]) => (
+                    <div key={key}>
+                        {renderSetting([key], setting)}
+                    </div>
+                ))}
+                <button onClick={onSave} style={saveButtonStyle}>
+                    Save Common Settings
+                </button>
+            </div>
+        </div>
+    );
+};
+
 const DeviceRegistration = () => {
     const [deviceName, setDeviceName] = useState('Loading...');
     const [docSnap, setDocSnap] = useState(null);
+    const [commonSettings, setCommonSettings] = useState({});
+    const [connections, setConnections] = useState([]);
+
     const docId = "VscD0ZIA3b5uqdK1Kxdl"; //hardcoded!!
     const [setOrientationInfo] = useState({});
 
-    const [autoSamples, setAutoSamples] = useState(null);
-    const [autoThreshold, setAutoThreshold] = useState(null);
+    const [autoSamples, setAutoSamples] = useState(0); 
+    const [autoThreshold, setAutoThreshold] = useState(0); 
 
     const [sleepMin, setSleepMin] = useState(null);
     const [sleepMax, setSleepMax] = useState(null);
 
+    const sleepMinRef = useRef(null);
+    const sleepMaxRef = useRef(null);
+
     const [isButtonClicked, setIsButtonClicked] = useState(false);
+    const [operationModeOptions, setOperationModeOptions] = useState([]);
+
+    const [activeOperationMode, setActiveOperationMode] = useState('');
+
+    useEffect(() => {
+        const fetchOperationModes = async () => {
+            try {
+                const docRef = doc(db, "your_collection_path", "your_document_id");
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    const operationModes = docSnap.data().operation_mode.options;
+                    setOperationModeOptions(operationModes);
+                } else {
+                    console.log("No such document!");
+                }
+            } catch (error) {
+                console.error("Error fetching operation modes: ", error);
+            }
+        };
+
+        fetchOperationModes();
+    }, []);
+
+
+    const handleSaveCommonSettings = async () => {
+        setIsButtonClicked(true);
+        try {
+            await updateDoc(doc(db, "users/NX4mlsPNKKTBjcVtHRKDuctB7xT2/userCatos", docId), {
+                commonSettings: commonSettings
+            });
+            console.log("Common settings updated");
+        } catch (error) {
+            console.error("Error updating common settings: ", error);
+        }
+        setTimeout(() => setIsButtonClicked(false), 500);
+    };
+    
 
     const saveButtonStyle = {
         backgroundColor: isButtonClicked ? '#B8860B' : '#DAA520',
@@ -41,7 +170,8 @@ const DeviceRegistration = () => {
     
     useEffect(() => {
         const fetchDeviceInfo = async () => {
-            const docRef = doc(db, "users/NX4mlsPNKKTBjcVtHRKDuctB7xT2/userCatos", docId);
+            
+            const docRef = doc(db, "users/NX4mlsPNKKTBjcVtHRKDuctB7xT2/userCatos", docId); //hardcoded
             try {
                 const snapshot = await getDoc(docRef);
                 if (snapshot.exists()) {
@@ -55,6 +185,23 @@ const DeviceRegistration = () => {
                     const sleepInfo = globalConfig.sleep;
                     setSleepMin(sleepInfo?.value?.timeout?.range?.min);
                     setSleepMax(sleepInfo?.value?.timeout?.range?.max);
+
+                    sleepMinRef.current = sleepInfo?.value?.timeout?.range?.min;
+                    sleepMaxRef.current = sleepInfo?.value?.timeout?.range?.max;
+
+                    const connections = snapshot.data().connections || [];
+                    const extractedCommonSettings = connections.map(conn => JSON.parse(conn.connection_config || '{}'));
+                    setCommonSettings(extractedCommonSettings.length > 0 ? extractedCommonSettings[0] : {});
+
+                    const fetchedConnections = snapshot.data().connections.map(conn => {
+                        const config = JSON.parse(conn.connection_config);
+                        return {
+                            id: conn.bt_id, // or other unique identifiers
+                            config: config,
+                        };
+                    });
+                    setConnections(fetchedConnections);
+
                 } else {
                     console.log("No such document!");
                     setDeviceName(''); 
@@ -69,102 +216,89 @@ const DeviceRegistration = () => {
     }, [docId]);
     
 
+    const handleConnectionChange = (id, key, value) => {
+        setConnections(connections.map(conn => {
+            if (conn.id === id) {
+                return {
+                    ...conn,
+                    config: {
+                        ...conn.config,
+                        [key]: {
+                            ...conn.config[key],
+                            value: value
+                        }
+                    }
+                };
+            }
+            return conn;
+        }));
+    };
+
+    const handleSaveConnections = async () => {
+        const updatedConnections = connections.map(conn => ({
+            ...conn,
+            connection_config: JSON.stringify(conn.config)
+        }));
+
+        try {
+            await updateDoc(doc(db, "users/NX4mlsPNKKTBjcVtHRKDuctB7xT2/userCatos", docId), {
+                connections: updatedConnections
+            });
+            console.log("Connections updated");
+        } catch (error) {
+            console.error("Error updating connections: ", error);
+        }
+    };
+
     const handleDeviceNameChange = (e) => {
         setDeviceName(e.target.value);
     };
 
     const handleDelete = async () => {
-        const docRef = doc(db, "users/NX4mlsPNKKTBjcVtHRKDuctB7xT2/userCatos", docId);
+        const docRef = doc(db, "users/NX4mlsPNKKTBjcVtHRKDuctB7xT2/userCatos", docId); //hardcoded
         try {
             await deleteDoc(docRef);
             console.log("Document successfully deleted!");
         } catch (error) {
             console.error("Error removing document: ", error);
         }
-    };
+    }; 
 
-    const ConnectionAccordion = ({ connections }) => {
-        const [selectedModes, setSelectedModes] = useState({}); 
-        const [connectionSettings, setConnectionSettings] = useState({}); //each connection settings
+    const ConnectionAccordion = ({ connections, activeOperationMode, setActiveOperationMode }) => {
+        const operationModeOptions = ["gesture_mouse", "tv_remote", "pointer", "clicker", "practice"]; //hardcoded
     
-        const handleModeChange = (connectionId, mode) => {
-            setSelectedModes(prev => ({ ...prev, [connectionId]: mode }));
+        const handleOperationModeChange = (e) => {
+            setActiveOperationMode(e.target.value);
         };
-    
-        const handleCommonSettingsChange = (connectionId, settings) => {
-            //common settings
-        };
-    
-        const handleModeSpecificSettingsChange = (connectionId, mode, settings) => {
-            //mode-specific settings
-        };
-    
-        const handleSave = (connectionId) => {
-            console.log("Saving settings for Connection:", connectionId, connectionSettings[connectionId]);
-        };
-    
-        useEffect(() => {
-            const initialSettings = connections.reduce((acc, connection) => {
-                acc[connection.id] = {
-                    common: connection.common_settings,
-                    modeSpecific: connection.mode_specific_settings[connection.current_mode]
-                };
-                return acc;
-            }, {});
-            setConnectionSettings(initialSettings);
-        }, [connections]);
     
         return (
-            <>
-                {connections.map((connection, index) => (
-                    <div key={connection.id} className="connection">
-                        <h3>Connection {index + 1}</h3>
-                        {/* common settings section */}
-                        <div>
-                            {/* render common settings here */}
-                            {/* <input type="text" value={connectionSettings[connection.id].common.someSetting} onChange={...} /> */}
-                        </div>
-    
-                        {/* dropdown for operation mode */}
-                        <select value={selectedModes[connection.id] || connection.current_mode} onChange={(e) => handleModeChange(connection.id, e.target.value)}>
-                            {connection.modes.map(mode => (
-                                <option key={mode} value={mode}>{mode}</option>
-                            ))}
-                        </select>
-    
-                        {/* settings with active operation mode */}
-                        <div>
-                            {/* render mode-specific settings here */}
-                            {/* <input type="text" value={connectionSettings[connection.id].modeSpecific.someSetting} onChange={...} /> */}
-                        </div>
-
-                        <button onClick={() => handleSave(connection.id)}>Save</button>
-                    </div>
-                ))}
-            </>
-        );
-    };    
-
-    const ConnectionsSection = ({ snapshot }) => {
-        if (!snapshot) return <p>Loading connections...</p>;
-    
-        const connectionData = snapshot.data();
-        if (!connectionData || !connectionData.connections) {
-            return <p>No connections data available</p>;
-        }
-    
-        const connectionInfo = connectionData.connections;
-    
-        return connectionInfo.length > 0 ? (
-            <div>
-                {connectionInfo.map((connection, index) => (
-                    <p key={index}>Connection: {connection.current_mode}</p>
-                ))}
+            <div className="flex items-start gap-x-4 mb-4">
+                <button className="text-xl font-bold py-4 px-8 rounded bg-blue-700 hover:bg-blue-900 text-white">
+                    Connections
+                </button>
+                <div>
+                    {connections.map((connection) => (
+                        <p key={connection.id}>{connection.current_mode}</p>
+                    ))}
+                </div>
+                {/* active operation mode dropdown */}
+                <div>
+                    <label htmlFor="operationModeDropdown">Active Operation Mode: </label>
+                    <select 
+                        id="operationModeDropdown" 
+                        value={activeOperationMode} 
+                        onChange={handleOperationModeChange}
+                    >
+                        <option value="">Select Mode</option>
+                        {operationModeOptions.map((mode, index) => (
+                            <option key={index} value={mode}>{mode}</option>
+                        ))}
+                    </select>
+                </div>
             </div>
-        ) : (
-            <p>No connections available</p>
         );
     };
+    
 
     const GlobalInfoSection = ({ snapshot }) => {
         if (!snapshot) return null;
@@ -174,9 +308,6 @@ const DeviceRegistration = () => {
 
         const orientationInfo = globalConfig["orientation"]["value"];
         const sleepInfo = globalConfig["sleep"]
-
-        // const [autoSamples, setAutoSamples] = useState(globalConfig["calibration"].value.auto_samples.value);
-        // const [autoThreshold, setAutoThreshold] = useState(globalConfig["calibration"].value.auto_threshold.value);
 
         const handleSave = async () => {
             setIsButtonClicked(true);
@@ -218,9 +349,6 @@ const DeviceRegistration = () => {
                     sliderDescription="Minimum sleep value"
                     sliderLabel="sleepMinSlider"
                 />
-                
-                {/* <p>sleepMin: </p>
-                <input type="number" value={sleepMin} onChange={(e) => setSleepMin(e.target.value)} /> */}
 
                 <InputSlider
                     value={sleepMax}
@@ -233,9 +361,6 @@ const DeviceRegistration = () => {
                     sliderDescription="Maximum sleep value"
                     sliderLabel="sleepMaxSlider"
                 />
-                
-                {/* <p>sleepMax: </p>
-                <input type="number" value={sleepMax} onChange={(e) => setSleepMax(e.target.value)} /> */}
 
                 <div className="border-t border-dotted border-gray-400 my-2" />
 
@@ -263,15 +388,39 @@ const DeviceRegistration = () => {
                 )}
                 <div className="border-t border-dotted border-gray-400 my-2" />
 
-                
-
                 {/* Calibration */}
-                <p>auto_samples:</p>
+
+                {/* auto samples */}
+                <InputSlider
+                    value={autoSamples}
+                    onChange={(e) => setAutoSamples(parseFloat(e.target.value))}
+                    min={0} 
+                    max={200} 
+                    step={1} 
+                    sliderTitle="Auto Samples"
+                    unit="" 
+                    sliderDescription="Number of samples for auto calibration"
+                    sliderLabel="autoSamplesSlider"
+                />
+
+                {/* auto threshold */}
+                <InputSlider
+                    value={autoThreshold}
+                    onChange={(e) => setAutoThreshold(parseFloat(e.target.value))}
+                    min={0} 
+                    max={5} 
+                    step={0.1}
+                    sliderTitle="Auto Threshold"
+                    unit=""
+                    sliderDescription="Threshold value for auto calibration"
+                    sliderLabel="autoThresholdSlider"
+                />
+
+                {/* <p>auto_samples:</p>
                 <input type="number" value={autoSamples} onChange={(e) => setAutoSamples(e.target.value)} />
                 <p>auto_threshold:</p>
-                <input type="number" value={autoThreshold} onChange={(e) => setAutoThreshold(e.target.value)} />
-
-                {/* Save button */}
+                <input type="number" value={autoThreshold} onChange={(e) => setAutoThreshold(e.target.value)} /> */}
+                
                 <p></p>
                 <button onClick={handleSave} style={saveButtonStyle}>
                     Save Global Info
@@ -306,13 +455,26 @@ const DeviceRegistration = () => {
                 {docSnap && <GlobalInfoSection snapshot={docSnap} />}
             </div>
             <div className="border-t border-line border-gray-400 my-4" />
-            <div>
-                <button className="text-xl font-bold py-4 px-8 rounded bg-blue-700 hover:bg-blue-900 text-white">
-                    Connections
-                </button>
-                {docSnap && <ConnectionsSection snapshot={docSnap} />}
-            </div>
+
+            {/* connections! */}
+            {connections && (
+                <ConnectionAccordion 
+                    connections={connections} 
+                    activeOperationMode={activeOperationMode} 
+                    setActiveOperationMode={setActiveOperationMode} 
+                />
+            )}
+
             <div className="border-t border-line border-gray-400 my-4" />
+            <CommonSettingsSection 
+                commonSettings={commonSettings} 
+                setCommonSettings={setCommonSettings} 
+                onSave={handleSaveCommonSettings}
+                isButtonClicked={isButtonClicked}
+                saveButtonStyle={saveButtonStyle}
+            />
+
+
         </div>
     );
 };
