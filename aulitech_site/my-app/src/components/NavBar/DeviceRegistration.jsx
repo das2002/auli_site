@@ -6,11 +6,26 @@ const DeviceRegistration = () => {
     const [deviceName, setDeviceName] = useState('Loading...');
     const [docSnap, setDocSnap] = useState(null);
     const docId = "VscD0ZIA3b5uqdK1Kxdl"; //hardcoded!!
-    const [orientationInfo, setOrientationInfo] = useState({});
+    const [setOrientationInfo] = useState({});
 
-    const [showSleepDropdown, setShowSleepDropdown] = useState(false);
+    const [autoSamples, setAutoSamples] = useState(null);
+    const [autoThreshold, setAutoThreshold] = useState(null);
+
     const [sleepMin, setSleepMin] = useState(null);
     const [sleepMax, setSleepMax] = useState(null);
+
+    const [isButtonClicked, setIsButtonClicked] = useState(false);
+
+    const saveButtonStyle = {
+        backgroundColor: isButtonClicked ? '#B8860B' : '#DAA520',
+        color: 'white',
+        padding: '5px 10px',
+        border: 'none',
+        borderRadius: '5px',
+        cursor: 'pointer',
+        fontSize: '16px',
+        margin: '10px 0'
+    };
 
     const handleOrientationChange = (key, newValue) => {
         setOrientationInfo(prev => ({
@@ -30,8 +45,12 @@ const DeviceRegistration = () => {
                 if (snapshot.exists()) {
                     setDocSnap(snapshot);
                     setDeviceName(snapshot.data().device_info.device_nickname);
-
-                    const sleepInfo = JSON.parse(snapshot.data().device_info.global_config).global_info.sleep;
+    
+                    const globalConfig = JSON.parse(snapshot.data().device_info.global_config).global_info;
+                    setAutoSamples(globalConfig.calibration.value.auto_samples.value);
+                    setAutoThreshold(globalConfig.calibration.value.auto_threshold.value);
+    
+                    const sleepInfo = globalConfig.sleep;
                     setSleepMin(sleepInfo?.value?.timeout?.range?.min);
                     setSleepMax(sleepInfo?.value?.timeout?.range?.max);
                 } else {
@@ -43,10 +62,10 @@ const DeviceRegistration = () => {
                 setDeviceName(''); 
             }
         };
-
+    
         fetchDeviceInfo();
-
     }, [docId]);
+    
 
     const handleDeviceNameChange = (e) => {
         setDeviceName(e.target.value);
@@ -71,11 +90,11 @@ const DeviceRegistration = () => {
         };
     
         const handleCommonSettingsChange = (connectionId, settings) => {
-            // Update logic for common settings
+            //common settings
         };
     
         const handleModeSpecificSettingsChange = (connectionId, mode, settings) => {
-            // Update logic for mode-specific settings
+            //mode-specific settings
         };
     
         const handleSave = (connectionId) => {
@@ -98,23 +117,23 @@ const DeviceRegistration = () => {
                 {connections.map((connection, index) => (
                     <div key={connection.id} className="connection">
                         <h3>Connection {index + 1}</h3>
-                        {/* Common settings section */}
+                        {/* common settings section */}
                         <div>
-                            {/* Render common settings here */}
-                            {/* Example: <input type="text" value={connectionSettings[connection.id].common.someSetting} onChange={...} /> */}
+                            {/* render common settings here */}
+                            {/* <input type="text" value={connectionSettings[connection.id].common.someSetting} onChange={...} /> */}
                         </div>
     
-                        {/* Dropdown to select the Active Operation Mode */}
+                        {/* dropdown for operation mode */}
                         <select value={selectedModes[connection.id] || connection.current_mode} onChange={(e) => handleModeChange(connection.id, e.target.value)}>
                             {connection.modes.map(mode => (
                                 <option key={mode} value={mode}>{mode}</option>
                             ))}
                         </select>
     
-                        {/* Settings associated with the active operation mode */}
+                        {/* settings with active operation mode */}
                         <div>
-                            {/* Render mode-specific settings here */}
-                            {/* Example: <input type="text" value={connectionSettings[connection.id].modeSpecific.someSetting} onChange={...} /> */}
+                            {/* render mode-specific settings here */}
+                            {/* <input type="text" value={connectionSettings[connection.id].modeSpecific.someSetting} onChange={...} /> */}
                         </div>
 
                         <button onClick={() => handleSave(connection.id)}>Save</button>
@@ -149,40 +168,33 @@ const DeviceRegistration = () => {
         if (!snapshot) return null;
 
         const deviceInfo = snapshot.data().device_info;
-        const globalConfig = JSON.parse(deviceInfo["global_config"])["global_info"];
+        let globalConfig = JSON.parse(deviceInfo["global_config"])["global_info"];
 
         const orientationInfo = globalConfig["orientation"]["value"];
-        const calibrationInfo = globalConfig["calibration"];
         const sleepInfo = globalConfig["sleep"]
 
-        const handleSleepMinChange = (e) => {
-            setSleepMin(e.target.value);
-            //firebase logic
-        };
-    
-        const handleSleepMaxChange = (e) => {
-            setSleepMax(e.target.value);
-            //firebase logic
-        };
+        // const [autoSamples, setAutoSamples] = useState(globalConfig["calibration"].value.auto_samples.value);
+        // const [autoThreshold, setAutoThreshold] = useState(globalConfig["calibration"].value.auto_threshold.value);
 
         const handleSave = async () => {
-            const updatedGlobalConfig = { ...JSON.parse(snapshot.data().device_info.global_config) };
-            updatedGlobalConfig.global_info.sleep.value.timeout.range.min = sleepMin;
-            updatedGlobalConfig.global_info.sleep.value.timeout.range.max = sleepMax;
+            setIsButtonClicked(true);
+
+            globalConfig.sleep.value.timeout.range.min = sleepMin;
+            globalConfig.sleep.value.timeout.range.max = sleepMax;
+            globalConfig.calibration.value.auto_samples.value = autoSamples;
+            globalConfig.calibration.value.auto_threshold.value = autoThreshold;
     
             try {
                 await updateDoc(doc(db, "users/NX4mlsPNKKTBjcVtHRKDuctB7xT2/userCatos", docId), {
-                    "device_info.global_config": JSON.stringify(updatedGlobalConfig)
+                    "device_info.global_config": JSON.stringify({ "global_info": globalConfig })
                 });
                 console.log("Global config updated");
             } catch (error) {
                 console.error("Error updating global config: ", error);
             }
-        };    
-    
-        // const toggleSleepDropdown = () => {
-        //     setShowSleepDropdown(!showSleepDropdown);
-        // };
+            setTimeout(() => setIsButtonClicked(false), 500);
+
+        };
 
         return (
             <div>
@@ -194,11 +206,10 @@ const DeviceRegistration = () => {
                 <p>sleep: {sleepInfo?.value?.timeout.value}</p>
                 
                 <p>sleepMin: </p>
-                <input type="number" value={sleepMin} onChange={handleSleepMinChange} />
+                <input type="number" value={sleepMin} onChange={(e) => setSleepMin(e.target.value)} />
+                
                 <p>sleepMax: </p>
-                <input type="number" value={sleepMax} onChange={handleSleepMaxChange} />
-
-                <button onClick={handleSave}>Save</button>
+                <input type="number" value={sleepMax} onChange={(e) => setSleepMax(e.target.value)} />
 
                 <div className="border-t border-dotted border-gray-400 my-2" />
 
@@ -226,18 +237,19 @@ const DeviceRegistration = () => {
                 )}
                 <div className="border-t border-dotted border-gray-400 my-2" />
 
-                {/* calibration ----------------- */}
-                <p>calibration:</p>
-                {calibrationInfo && (
-                    <ul>
-                        <li>
-                            auto_samples: {calibrationInfo.value.auto_samples.value}
-                        </li>
-                        <li>
-                            auto_threshold: {calibrationInfo.value.auto_threshold.value}
-                        </li>
-                    </ul>
-                )}
+                
+
+                {/* Calibration */}
+                <p>auto_samples:</p>
+                <input type="number" value={autoSamples} onChange={(e) => setAutoSamples(e.target.value)} />
+                <p>auto_threshold:</p>
+                <input type="number" value={autoThreshold} onChange={(e) => setAutoThreshold(e.target.value)} />
+
+                {/* Save button */}
+                <p></p>
+                <button onClick={handleSave} style={saveButtonStyle}>
+                    Save Global Info
+                </button>
             </div>
         );
     };
