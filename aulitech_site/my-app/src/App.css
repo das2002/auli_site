@@ -14,8 +14,8 @@
   align-items: center;
 }
 .login-button {
-  background-color: rgb(82, 140, 159);
-  color: white;
+  background-color: #fcdd6d;
+  color: black;
 }
 .popup-header {
   display: flex;
@@ -83,6 +83,7 @@
   transform: translate(-50%, -50%);
   background-color: white;
   padding: 20px;
+  padding-bottom: 0px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1000;
@@ -94,7 +95,7 @@
 }
 
 .login-container h1 {
-  font-size: 68px;
+  font-size: 38px;
   margin: 0;
   padding: 0;
 }
@@ -111,3 +112,55 @@
 .App-link {
   color: #61dafb;
 }
+
+/* Backdrop for non-google auth email/password entry popup */
+.email-login-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+/* Content container for the email login */
+.email-login-content {
+  position: relative; 
+  background-color: #fff;
+  padding: 1.5rem;
+  padding-bottom: 1rem;
+  border-radius: 0.3rem;
+  width: auto;
+  max-width: 500px;
+  z-index: 1051;
+}
+
+/* Style for all input fields within the .email-login-content */
+.email-login-content input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.3rem;
+  box-sizing: border-box; /* ensures padding doesn't add to the width */
+}
+
+/* Style for the submit button within the .email-login-content */
+/* .email-login-content button[type="submit"] {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 1rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 0.3rem;
+  cursor: pointer;
+} */
+
+
+
+
