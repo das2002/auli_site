@@ -198,7 +198,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       <header className="shrink-0 bg-transparent">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between">
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight py-1">
-            Register new device
+            Register New Device
           </h2>
         </div>
       </header>
