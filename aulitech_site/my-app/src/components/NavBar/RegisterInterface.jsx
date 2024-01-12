@@ -8,8 +8,11 @@ import * as tvRemoteDefault from './cato_schemas/tv_remote.json';
 import * as bindingsDefault from './cato_schemas/bindings.json';
 import * as practiceDefault from './cato_schemas/practice.json';
 import * as connectionSpecificDefault from './cato_schemas/connection_specific.json';
+import * as operationDefault from './cato_schemas/operation.json';
 
-
+const deepCopy = (obj) => {
+  return JSON.parse(JSON.stringify(obj));
+};
 
 const RegisterInterface = ({ user }) => {
   const [interfaceName, setInterfaceName] = useState("");
@@ -163,47 +166,73 @@ const RegisterInterface = ({ user }) => {
         // if (operationMode == 'clicker') {
           //bindings and clicker
           //lowkey will hardcode picking out which atoms its easier
+          let clickerOperation = deepCopy(operationDefault);
+          clickerOperation.operation_mode.value = 'clicker';
           clickerData = {
             // ...connectionData,
+            ...clickerOperation,
             ...clickerDefault,
             ...bindingsDefault,
-            operationMode: 'clicker',
           };
+          if (clickerData.default) {
+            delete clickerData.default;
+          }
           // connectionData.operation_mode.value = 'clicker'
 
         // } else if (operationMode == 'gesture_mouse') {
+          let gestureMouseOperation = deepCopy(operationDefault);
+          gestureMouseOperation.operation_mode.value = 'gesture_mouse';
           gestureMouseData = {
             // ...connectionData,
+            ...gestureMouseOperation,
             ...mouseDefault,
             ...gestureDefault,
-            ...bindingsDefault,
-            operationMode: 'gesture_mouse',
+            ...bindingsDefault          
           };
+          if (gestureMouseData.default) {
+            delete gestureMouseData.default;
+          }
           // connectionData.operation_mode.value = 'gesture_mouse'
 
         // } else if (operationMode == 'tv_remote') {
+          let tvRemoteOperation = deepCopy(operationDefault);
+          tvRemoteOperation.operation_mode.value = 'tv_remote';
           tvRemoteData = {
             // ...connectionData,
+            ...tvRemoteOperation,
             ...tvRemoteDefault,
             ...gestureDefault,
             ...bindingsDefault,
-            operationMode: 'tv_remote',
           };
+          if (tvRemoteData.default) {
+            delete tvRemoteData.default;
+          }
           // connectionData.operation_mode.value = 'tv_remote'
         // } else if (operationMode == 'pointer') {
+          let pointerOperation = deepCopy(operationDefault);
+          pointerOperation.operation_mode.value = 'pointer';
           pointerData = {
             // ...connectionData,
+            ...pointerOperation,
             ...mouseDefault,
             ...bindingsDefault,
-            operationMode: 'pointer',
           };
+          if (pointerData.default) {
+            delete pointerData.default;
+          }
 
+          let practiceOperation = deepCopy(operationDefault);
+          practiceOperation.operation_mode.value = 'practice';
           practiceData = {
+            ...practiceOperation,
             ...gestureDefault, 
             ...bindingsDefault, 
             ...practiceDefault,
-            operationMode: 'clicker',
           }
+          if (practiceData.default) {
+            delete practiceData.default;
+          }
+          
           // connectionData.operation_mode.value = 'pointer'
         // } else {
         // }
