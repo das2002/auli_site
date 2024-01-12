@@ -88,8 +88,15 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       const url = URL.createObjectURL(blob);
   
       // Use the File System Access API functions here
-      const fileHandle = await getNewFileHandle();
-      await writeURLToFile(fileHandle, url);
+      const handle = await window.showSaveFilePicker({ suggestedName: "config.json" })
+      const writable = await handle.createWritable();
+
+      await writable.write(JSON.stringify(newDeviceConfig));
+      await writable.close();
+
+      // await writeURLToFile(fileHandle, url);
+
+      console.log("handle", handle);
   
       console.log("New config successfully saved.");
     } catch (error) {
@@ -109,6 +116,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
               const file = await entry.getFile();
               const jsonDataText = await file.text();
               const retrievedJson = JSON.parse(jsonDataText);
+              console.log(retrievedJson);
               setParsedJson(retrievedJson);
               setHwUid(retrievedJson.global_info.HW_UID.value);
               return retrievedJson;
