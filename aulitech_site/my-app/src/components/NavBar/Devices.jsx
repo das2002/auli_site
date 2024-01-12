@@ -36,7 +36,7 @@ const deepCopy = (obj) => {
   return JSON.parse(JSON.stringify(obj));
 };
 
-const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, sliderDescription, sliderLabel }) => {
+export const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, sliderDescription, sliderLabel }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseEnter = () => {

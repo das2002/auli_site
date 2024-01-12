@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../firebase';
 import { doc, getDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { InputSlider } from './Devices'
+import Dropdown from './Devices';
 
 const DeviceRegistration = () => {
     const [deviceName, setDeviceName] = useState('Loading...');
@@ -203,13 +205,37 @@ const DeviceRegistration = () => {
                 <div className="border-t border-dotted border-gray-400 my-2" />
 
                 {/* sleep ----------------- */}
-                <p>sleep: {sleepInfo?.value?.timeout.value}</p>
+                <p>Sleep: {sleepInfo?.value?.timeout.value}</p>
+
+                <InputSlider
+                    value={sleepMin}
+                    onChange={(e) => setSleepMin(e.target.value)}
+                    min={0}
+                    max={2000}
+                    step={1}
+                    sliderTitle="Sleep Min"
+                    unit="units"
+                    sliderDescription="Minimum sleep value"
+                    sliderLabel="sleepMinSlider"
+                />
                 
-                <p>sleepMin: </p>
-                <input type="number" value={sleepMin} onChange={(e) => setSleepMin(e.target.value)} />
+                {/* <p>sleepMin: </p>
+                <input type="number" value={sleepMin} onChange={(e) => setSleepMin(e.target.value)} /> */}
+
+                <InputSlider
+                    value={sleepMax}
+                    onChange={(e) => setSleepMax(e.target.value)}
+                    min={0} 
+                    max={2000} 
+                    step={1}
+                    sliderTitle="Sleep Max"
+                    unit="units" 
+                    sliderDescription="Maximum sleep value"
+                    sliderLabel="sleepMaxSlider"
+                />
                 
-                <p>sleepMax: </p>
-                <input type="number" value={sleepMax} onChange={(e) => setSleepMax(e.target.value)} />
+                {/* <p>sleepMax: </p>
+                <input type="number" value={sleepMax} onChange={(e) => setSleepMax(e.target.value)} /> */}
 
                 <div className="border-t border-dotted border-gray-400 my-2" />
 
