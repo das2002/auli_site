@@ -7,10 +7,9 @@ import Dropdown from './Devices';
 const CommonSettingsSection = ({ commonSettings, setCommonSettings, onSave, isButtonClicked, saveButtonStyle }) => {
     const handleChange = (keyPath, value) => {
         setCommonSettings(prevSettings => {
-            let updatedSettings = { ...prevSettings };
+            let updatedSettings = JSON.parse(JSON.stringify(prevSettings)); // Deep copy
             let current = updatedSettings;
             keyPath.slice(0, -1).forEach(k => {
-                current[k] = { ...current[k] };
                 current = current[k];
             });
             current[keyPath[keyPath.length - 1]] = value;
@@ -96,7 +95,9 @@ const DeviceRegistration = () => {
     const [connections, setConnections] = useState([]);
 
     const docId = "VscD0ZIA3b5uqdK1Kxdl"; //hardcoded!!
-    const [setOrientationInfo] = useState({});
+
+    const [orientationInfo, setOrientationInfo] = useState({});
+    // const [setOrientationInfo] = useState({});
 
     const [autoSamples, setAutoSamples] = useState(0); 
     const [autoThreshold, setAutoThreshold] = useState(0); 
@@ -111,6 +112,8 @@ const DeviceRegistration = () => {
     const [operationModeOptions, setOperationModeOptions] = useState([]);
 
     const [activeOperationMode, setActiveOperationMode] = useState('');
+
+    
 
     useEffect(() => {
         const fetchOperationModes = async () => {
@@ -136,6 +139,7 @@ const DeviceRegistration = () => {
 
     const handleSaveCommonSettings = async () => {
         setIsButtonClicked(true);
+        console.log("Saving Common Settings:", commonSettings); // Debug log
         try {
             await updateDoc(doc(db, "users/NX4mlsPNKKTBjcVtHRKDuctB7xT2/userCatos", docId), {
                 commonSettings: commonSettings
@@ -146,7 +150,6 @@ const DeviceRegistration = () => {
         }
         setTimeout(() => setIsButtonClicked(false), 500);
     };
-    
 
     const saveButtonStyle = {
         backgroundColor: isButtonClicked ? '#B8860B' : '#DAA520',
