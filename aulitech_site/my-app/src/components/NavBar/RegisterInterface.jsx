@@ -6,6 +6,7 @@ import * as mouseDefault from './cato_schemas/mouse.json';
 import * as gestureDefault from './cato_schemas/gesture.json';
 import * as tvRemoteDefault from './cato_schemas/tv_remote.json';
 import * as bindingsDefault from './cato_schemas/bindings.json';
+import * as practiceDefault from './cato_schemas/practice.json';
 import * as connectionSpecificDefault from './cato_schemas/connection_specific.json';
 
 
@@ -145,59 +146,71 @@ const RegisterInterface = ({ user }) => {
         let pointerData = {}
         let tvRemoteData = {}
         let gestureMouseData = {}
-
-        console.log('tempdata', tempdata);
+        let practiceData = {}
 
         //iterate through connectionSpecificDefault and add the fields to combinedData
         for (const [key, value] of Object.entries(connectionSpecificDefault)) {
           connectionData[key] = value;
         }
 
-        connectionData.connection_name.value = interfaceName;
-        connectionData.operation_mode.value = operationMode;
+        // connectionData.connection_name.value = interfaceName;
+        // connectionData.operation_mode.value = operationMode;
 
-        console.log('combinedData', connectionData);
+        console.log('connection Data', connectionData);
+
+        delete connectionData.default;
 
         // if (operationMode == 'clicker') {
           //bindings and clicker
           //lowkey will hardcode picking out which atoms its easier
           clickerData = {
-            ...connectionData,
+            // ...connectionData,
             ...clickerDefault,
             ...bindingsDefault,
+            operationMode: operationMode,
           };
           // connectionData.operation_mode.value = 'clicker'
 
         // } else if (operationMode == 'gesture_mouse') {
           gestureMouseData = {
-            ...connectionData,
+            // ...connectionData,
             ...mouseDefault,
             ...gestureDefault,
             ...bindingsDefault,
+            operationMode: operationMode,
           };
           // connectionData.operation_mode.value = 'gesture_mouse'
 
         // } else if (operationMode == 'tv_remote') {
           tvRemoteData = {
-            ...connectionData,
+            // ...connectionData,
             ...tvRemoteDefault,
             ...gestureDefault,
             ...bindingsDefault,
+            operationMode: operationMode,
           };
           // connectionData.operation_mode.value = 'tv_remote'
         // } else if (operationMode == 'pointer') {
           pointerData = {
-            ...connectionData,
+            // ...connectionData,
             ...mouseDefault,
             ...bindingsDefault,
+            operationMode: operationMode,
           };
+
+          practiceData = {
+            ...gestureDefault, 
+            ...bindingsDefault, 
+            ...practiceDefault,
+            operationMode: operationMode,
+          }
           // connectionData.operation_mode.value = 'pointer'
         // } else {
         // }
 
-        console.log(connectionData);
+        // console.log(connectionData);
 
-        const stringCombinedData = JSON.stringify(connectionData);
+        // const stringCombinedData = JSON.stringify(connectionData);
 
         let mode = {};
 
@@ -205,13 +218,15 @@ const RegisterInterface = ({ user }) => {
         mode["pointer"] = JSON.stringify(pointerData);
         mode["gesture_mouse"] = JSON.stringify(gestureMouseData);
         mode["tv_remote"] = JSON.stringify(tvRemoteData);
+        mode["practice"] = JSON.stringify(practiceData);
 
         //mode['name'] = interfaceName;
 
         const firebaseMap = {
           name: interfaceName,
           bt_id: bluetoothId,
-          current_mode: operationMode,
+          // current_mode: operationMode,
+          connection_config: JSON.stringify(connectionData),
           mode
         }
         console.log('firebaseMap: ', firebaseMap);
