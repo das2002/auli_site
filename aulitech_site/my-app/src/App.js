@@ -408,6 +408,7 @@ function App() {
             <Route path="/record-gestures" element={<RecordGestures />} />
             <Route path="/updates" element={<Updates />} />
             <Route path="/devices/:deviceName" element={<Devices  devices={devices}/>} />
+            <Route path= "/devices/:deviceName/register-interface" element={<RegisterInterface user={user} devices={devices}/>} />
             <Route path="/practice" element= {<PracticeMode />} />
           </Routes>
         </div>
