@@ -15,7 +15,7 @@ export default function Dashboard({
   user,
   devices,
 }) {
-
+  
   return (
     <div className="flex min-h-full flex-col">
       <header className="flex justify-between bg-transparent border-b border-gray-200">

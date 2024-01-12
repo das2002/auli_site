@@ -1,4 +1,10 @@
 {
+    "connection_name": {
+        "label": "Connection Name",
+        "description": "Nickname for this connection",
+        "access": "rw",
+        "value": "Default Connection"
+    },
     "operation_mode" : {
         "label" : "Mode",
         "description" : "a name defining the operation mode of Cato",

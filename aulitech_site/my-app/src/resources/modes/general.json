@@ -1,0 +1,27 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "mouse": {
+        "type": "object"
+      },
+      "gesture": {
+        "type": "object"
+      },
+      "tv_remote": {
+        "type": "object"
+      },
+      "clicker": {
+        "type": "object"
+      },
+      "bindings": {
+        "type": "object"
+      },
+      "practice": {
+        "type": "object"
+      }
+    },
+    "required": [
+        "bindings"
+    ]
+  }

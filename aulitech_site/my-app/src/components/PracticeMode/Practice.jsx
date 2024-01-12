@@ -48,8 +48,8 @@ const ConnectionInstructions = ({ onNext }) => {
                             let globalConfig = deepCopy(parsedJson);
                             setParsedJson(parsedJson);
                             console.log(parsedJson);
-                            setPreviousMode(parsedJson['operation_mode']['value']);
-                            globalConfig['operation_mode']['value'] = 'practice';
+                            setPreviousMode(parsedJson['connections'][0]['operation_mode']['value']);
+                            globalConfig['connections'][0]['operation_mode']['value'] = 'practice';
 
 
                             // create a practice mode file
@@ -76,12 +76,15 @@ const ConnectionInstructions = ({ onNext }) => {
                     }
                 } catch (error) {
                     console.log(error);
+                    return;
                 }
             } else {
                 console.log("window.showDirectoryPicker is not supported");
+                return;
             }
         } catch (error) {
             console.log(error);
+            return;
         }
     }
 

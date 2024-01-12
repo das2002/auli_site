@@ -1,0 +1,25 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "common" : {
+        "type" : "object"
+      },
+      "gesture": {
+        "type": "object"
+      },
+      "tv_remote": {
+        "type": "object"
+      },
+      "bindings": {
+        "type": "null"
+      }
+    },
+    "required": [
+      "gesture",
+      "tv_remote",
+      "bindings"
+    ]
+  }
+  
+  

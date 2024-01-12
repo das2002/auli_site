@@ -150,7 +150,7 @@ const ProfilePg = ({ user }) => {
                     type="submit"
                     disabled={displayname === "" ? true : false}
                     onClick={handleSaveInfo}
-                    className="rounded-full bg-gray-900 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-500"
+                    className="decision-button hover:opacity-70 rounded-full bg-gray-900 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed"
                   >
                     Save
                   </button>

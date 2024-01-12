@@ -1,0 +1,148 @@
+{
+    "global_info": {
+        "name": {
+            "label": "Device Name",
+            "description": "a user-settable string for assigning the name of the Cato device",
+            "note": "Name defaults to 'Cato_<HW_UID>' at boot, but is not set if name is defined here",
+            "access": "rw",
+            "value": ""
+        },
+        "HW_UID": {
+            "label": "Hardware Unique Identity",
+            "description": "Unique hex code for identifying different devices",
+            "access": "r",
+            "value": ""
+        },
+        "sleep": {
+            "label": "Sleep",
+            "description": "Controls for Entering Sleep",
+            "access": "rw",
+            "value": {
+                "timeout": {
+                    "label": "Timeout",
+                    "description": "Number of consecutive low-movement seconds before Cato sleeps",
+                    "access": "rw",
+                    "value": 600,
+                    "range": {
+                        "min": 10,
+                        "max": 1200
+                    }
+                },
+                "threshold": {
+                    "label": "Sleep Threshold",
+                    "description": "Movement level below which Cato starts counting towards sleep",
+                    "access": "rw",
+                    "value": 5.0,
+                    "range": {
+                        "min": 2.0,
+                        "max": 10.0
+                    }
+                }
+            }
+        },
+        "orientation": {
+            "label": "Orientation",
+            "description": "parameters describing usage orientation for Cato",
+            "access": "rw",
+            "note": "default orientation is on the right side of the glasses, with the circular battery compartment facing OUT (and usb port forward)",
+            "value": {
+                "front": {
+                    "label": "front",
+                    "description": "",
+                    "access": "rw",
+                    "value": "-y",
+                    "options": [
+                        "+x",
+                        "-x",
+                        "+y",
+                        "-y",
+                        "+z",
+                        "-z"
+                    ]
+                },
+                "bottom": {
+                    "label": "bottom",
+                    "description": "",
+                    "access": "rw",
+                    "value": "+x",
+                    "options": [
+                        "+x",
+                        "-x",
+                        "+y",
+                        "-y",
+                        "+z",
+                        "-z"
+                    ]
+                },
+                "left": {
+                    "label": "left",
+                    "description": "",
+                    "access": "rw",
+                    "value": "+z",
+                    "options": [
+                        "+x",
+                        "-x",
+                        "+y",
+                        "-y",
+                        "+z",
+                        "-z"
+                    ]
+                }
+            }
+        },
+        "calibration": {
+            "label": "Calibration (including automatic) Parameters",
+            "description": "structure containing both current calibration (trim) values and preferences for auto calibration",
+            "access": "rw",
+            "value": {
+                "drift": {
+                    "label": "drift",
+                    "description": "x, y, z gyroscope drift per-cycle - used as trim adjustments",
+                    "access": "r",
+                    "value": [
+                        0,
+                        0,
+                        0
+                    ]
+                },
+                "auto_threshold": {
+                    "label": "Auto-Calibration Threshold",
+                    "description": "movement required (as a scale of mouse>idle_threshold) to fail automatic calibration for gyro drift",
+                    "access": "rw",
+                    "value": 0.6,
+                    "range": {
+                        "min": 0.2,
+                        "max": 1.0
+                    }
+                },
+                "auto_samples": {
+                    "label": "Auto-Calibration Samples Taken",
+                    "description": "number of samples to wait (at below auto_threshold) required to trigger auto recalibratoion",
+                    "access": "rw",
+                    "value": 100
+                }
+            }
+        },
+        "battery": {
+            "label": "Battery",
+            "description": "DEV TOOL: analog pin values of high and low battery charge [low, high]",
+            "access": "r",
+            "value": {
+                "low": {
+                    "label": "Low",
+                    "description": "Value of analog pin indicating discharged battery. Typ. ~23000",
+                    "access": "r",
+                    "value": 22800
+                },
+                "high": {
+                    "label": "High",
+                    "description": "Value of analog pin indicating charged battery. Typ. ~30000",
+                    "access": "r",
+                    "value": 27500
+                }
+            }
+        }
+    },
+    "connections": [
+    ]
+}

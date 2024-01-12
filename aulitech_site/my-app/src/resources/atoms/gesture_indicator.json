@@ -1,0 +1,28 @@
+{
+    "gesture_indicator": {
+        "label": "Gesture Indicator",
+        "description": "cursor indication settings for gesture input readiness",
+        "value": {
+            "shake_size": {
+                "label": "Shake Size",
+                "description": "size of cursor movement for gesturer indicator",
+                "access": "rw",
+                "value": 6,
+                "range": {
+                    "min": 0,
+                    "max": 20
+                }
+            },
+            "num_shake": {
+                "label": "Number of Shakes",
+                "description": "Number of times to repeat gesture ready indicator",
+                "access": "rw",
+                "value": 3,
+                "range": {
+                    "min": 0,
+                    "max": 4
+                }
+            }
+        }
+    }
+}

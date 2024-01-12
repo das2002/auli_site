@@ -130,14 +130,6 @@ const RegisterInterface = ({ user }) => {
         const userRef = collection(colRef, userId, "userCatos");
         const docRef = doc(userRef, selectedDeviceData);
 
-        // console.log('my user ref', userRef);
-
-        //const querySnapshot =  await getDocs(userRef);
-
-        // console.log('my query snapshot', querySnapshot.docs);
-        // const data = querySnapshot.docs.map((doc) => doc.data());
-
-
         let tempdata = null;
 
         //iterate through userCatosList and find the one that matches the selected device
@@ -148,110 +140,95 @@ const RegisterInterface = ({ user }) => {
           }
         }
         // console.log('temp old', tempdata);
-        let combinedData = {}
+        let connectionData = {}
+        let clickerData = {}
+        let pointerData = {}
+        let tvRemoteData = {}
+        let gestureMouseData = {}
 
         console.log('tempdata', tempdata);
 
         //iterate through connectionSpecificDefault and add the fields to combinedData
         for (const [key, value] of Object.entries(connectionSpecificDefault)) {
-          combinedData[key] = value;
+          connectionData[key] = value;
         }
 
-        console.log('combinedData', combinedData);
+        connectionData.connection_name.value = interfaceName;
+        connectionData.operation_mode.value = operationMode;
 
-        if (operationMode == 'clicker') {
+        console.log('combinedData', connectionData);
+
+        // if (operationMode == 'clicker') {
           //bindings and clicker
           //lowkey will hardcode picking out which atoms its easier
-          combinedData = {
-            ...combinedData,
+          clickerData = {
+            ...connectionData,
             ...clickerDefault,
             ...bindingsDefault,
           };
-          combinedData.operation_mode.value = 'clicker'
+          // connectionData.operation_mode.value = 'clicker'
 
-        }
-        else if (operationMode == 'gesture_mouse') {
-          combinedData = {
-            ...combinedData,
+        // } else if (operationMode == 'gesture_mouse') {
+          gestureMouseData = {
+            ...connectionData,
             ...mouseDefault,
             ...gestureDefault,
             ...bindingsDefault,
           };
-          combinedData.operation_mode.value = 'gesture_mouse'
+          // connectionData.operation_mode.value = 'gesture_mouse'
 
-        }
-
-        else if (operationMode == 'tv_remote') {
-          combinedData = {
-            ...combinedData,
+        // } else if (operationMode == 'tv_remote') {
+          tvRemoteData = {
+            ...connectionData,
             ...tvRemoteDefault,
             ...gestureDefault,
             ...bindingsDefault,
           };
-          combinedData.operation_mode.value = 'tv_remote'
-        }
-
-        else if (operationMode == 'pointer') {
-          combinedData = {
-            ...combinedData,
+          // connectionData.operation_mode.value = 'tv_remote'
+        // } else if (operationMode == 'pointer') {
+          pointerData = {
+            ...connectionData,
             ...mouseDefault,
             ...bindingsDefault,
           };
-          combinedData.operation_mode.value = 'pointer'
-        }
-        else {
-          combinedData = null;
-        }
+          // connectionData.operation_mode.value = 'pointer'
+        // } else {
+        // }
 
-        console.log(combinedData);
+        console.log(connectionData);
 
-        const stringCombinedData = JSON.stringify(combinedData);
+        const stringCombinedData = JSON.stringify(connectionData);
+
+        let mode = {};
+
+        mode["clicker"] = JSON.stringify(clickerData);
+        mode["pointer"] = JSON.stringify(pointerData);
+        mode["gesture_mouse"] = JSON.stringify(gestureMouseData);
+        mode["tv_remote"] = JSON.stringify(tvRemoteData);
+
+        //mode['name'] = interfaceName;
 
         const firebaseMap = {
+          name: interfaceName,
           bt_id: bluetoothId,
-          configjson: stringCombinedData,
-          device_type: interfaceName,
-          operation_mode: operationMode,
-          // Add other fields as needed
-        };
-        // Add the new connection to the existing connections array
-        //tempdata.connection = tempdata.connection || [];
-        //tempdata.connection.push(firebaseMap);
-
-        // Update the document in Firebase
-        //await setDoc(doc(userRef, selectedDeviceData, 'connection'), tempdata);
-
+          current_mode: operationMode,
+          mode
+        }
         console.log('firebaseMap: ', firebaseMap);
-        
+
         await Promise.all([
           updateDoc(docRef, {
-            connection: arrayUnion(firebaseMap)
+            connections: arrayUnion(firebaseMap)
           }),
-        ])
-
-        /*
-                docRef.update({
-          connection: FieldValue.arrayUnion(firebaseMap),
-        })
-          .then(() => {
-            console.log("Document successfully updated!");
-          })
-          .catch((error) => {
-            console.error("Error updating document: ", error);
-          });
-        */
+        ]);
 
         console.log("Interface registered successfully");
 
-        //setUserCatosList([]);
 
-      }
+      };
       await getConnections();
-
       window.location.reload();
-
-    }
-    catch (error) {
+    } catch (error) {
       console.log("add interface doc to usersCato connections error: ", error);
     }
   };
@@ -289,12 +266,16 @@ const RegisterInterface = ({ user }) => {
                 border: '2px solid #B49837'
               }}>
               <option> Select A Device Here </option>
-              {userCatosList.length > 0 && userCatosList.map((userCato, index) => (
-                <option key={index} value={userCato.device_info.device_nickname}>
-                  {userCato.device_info.device_nickname}
-                </option>
-              ))}
+              {userCatosList.length > 0 && userCatosList
+                .filter(userCato => userCato.device_info && userCato.device_info.device_nickname) // Filtering out items without device_nickname
+                .map((userCato, index) => (
+                  <option key={index} value={userCato.device_info.device_nickname}>
+                    {userCato.device_info.device_nickname}
+                  </option>
+                ))}
             </select>
+
+
 
             <h3 className="text-xl font-semibold leading-6 text-gray-900">
               Name your Interface
