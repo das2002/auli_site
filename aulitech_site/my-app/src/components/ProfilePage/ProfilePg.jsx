@@ -74,9 +74,6 @@ const ProfilePg = ({ user }) => {
               My Account
             </h2>
           </div>
-          <div className="flex items-center justify-end gap-x-6">
-            <SignOutAccount />
-          </div>
         </header>
 
         <div className="px-4 sm:px-6 lg:px-8 ">

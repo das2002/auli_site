@@ -89,6 +89,52 @@
   z-index: 1000;
 }
 
+.signout-modal {
+  position: fixed; 
+  top: 50%;
+  left: 50%;
+  width: 25vw;
+  height: 25vh;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 0px;
+  border-radius: 10px 10px 10px 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000; 
+}
+.signout-modal-content {
+
+  position: relative; 
+  width:100%;
+  height: 80%;
+  background-color: #fff;
+  border-radius: 10px 10px 10px 10px;
+  width: auto;
+  max-width: 500px;
+  z-index: 1051;
+}
+
+.priority-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999; /* Just below the popup */
+}
+.button-container {
+  position: absolute;
+  bottom: 0;
+  right:0;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding-bottom: 1rem;
+  padding-right: 1rem;
+}
+
 .popup-title {
   font-size: 20px; 
   font-weight: bold; 
@@ -149,12 +195,48 @@
   box-sizing: border-box; /* ensures padding doesn't add to the width */
 }
 
+/* Animations */
 @keyframes fadeIn {
   to {
     opacity: 1;
     transform: translate(0);
   }
 }
+@keyframes slideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 250ms ease-out forwards;
+}
+
+.animate-slideDown {
+  animation: slideDown 250ms ease-in forwards;
+}
+.disable-pointer-events {
+  pointer-events: none;
+}
+
+
+
 
 
 

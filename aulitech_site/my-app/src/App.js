@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import { onAuthStateChanged, getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "./firebase";
-import { BrowserRouter, Route, Routes, Link } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { FcGoogle } from "react-icons/fc";
 
 import ProfilePg from './components/ProfilePage/ProfilePg';
@@ -28,6 +28,8 @@ function App() {
   const [devices, setDevices] = useState([]);
   const [currIndex, setCurrIndex] = useState(-1);
   const [renderDevices, setRenderDevices] = useState(false);
+
+  const [defaultRedirect, setDefaultRedirect] = useState("")
   
   // triggers email login/signup flow 
   const [isEmailLoginOpen, setIsEmailLoginOpen] = useState(false);
@@ -240,66 +242,59 @@ function App() {
     );
   };
   
-  useEffect(() => {
-    let configData = [];
-
-    const listen = onAuthStateChanged(auth, async(user) => {
-      if(user) {
-        setUser(user);
   
-        // Check and update user document in Firestore
+  useEffect(() => {
+    async function handleUserAuth() {
+        const userListener = onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                await ensureUserDocumentExists(user);
+                const configData = await fetchUserCatos(user);
+                if (configData && configData.length > 0) {
+                  const firstDevice = configData[0];
+                  setDefaultRedirect(`/devices/${firstDevice.data.device_info.device_nickname}`)
+                }
+                else {
+                  setDefaultRedirect(`/register-cato-device`)
+                }
+                
+                setUser(user);
+                setDevices(configData);
+            } else {
+                setUser(null);
+            }
+        });
+
+        // Cleanup function to unsubscribe from the listener
+        return () => userListener();
+    }
+
+    async function ensureUserDocumentExists(user) {
         const userRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userRef);
         if (!userDoc.exists()) {
-          // Create a new document if it doesn't exist
-          await setDoc(userRef, {
-            email: user.email,
-            displayname: user.displayName || 'Anonymous',
-            uid: user.uid
-          });
+            await setDoc(userRef, {
+                email: user.email,
+                displayname: user.displayName || 'Anonymous',
+                uid: user.uid
+            });
         }
-  
-        // Fetching other user-related data
-        const colRef = collection(db, "users");
-        const queryCol = query(collection(colRef, user.uid, "userCatos"));
-        const colSnap = await getDocs(queryCol);
-  
-        const queryNew = query(
-          collection(colRef, user.uid, "userCatos"),
-          where("initialize", "==", "initializeUserCatosSubcollection")
-        );
-        const newSnap = await getDocs(queryNew);
+    }
 
-        if (newSnap.docs.length !== 0) {
-          console.log(newSnap.docs.length);
-          newSnap.forEach((doc) => {
-            console.log(doc.data());
-          });
-        } else {
-          colSnap.forEach((doc) => {
-            if (doc.id != 'defaultDoc') { // userCatos table is initialised with placeholder defaultDoc, don't display this 
-              configData.push({
+    async function fetchUserCatos(user) {
+        const colRef = collection(db, "users", user.uid, "userCatos");
+        const querySnapshot = await getDocs(colRef);
+        return querySnapshot.docs
+            .filter(doc => doc.id !== 'defaultDoc') // Exclude 'defaultDoc'
+            .map(doc => ({
                 id: doc.id,
                 data: doc.data(),
-                // jsondata: JSON.parse(doc.data().configjson),
-                // keysinfo: Object.keys(JSON.parse(doc.data().configjson)),
-                // valuesinfo: Object.values(JSON.parse(doc.data().configjson)),
                 current: false,
-              });
-            }
-          });
-        }
-        setDevices(configData);
-        console.log(configData);
-      } else {
-        setUser(null);
-      }
-    });
-    // return removes listener
-    return () => {
-      listen();
+            }));
     }
-  }, [renderDevices]);
+
+    handleUserAuth();
+}, [renderDevices]);
+
 
   function classNames(...classes) {
     return classes.filter(Boolean).join(' ')
@@ -307,17 +302,6 @@ function App() {
 
   const handleRenderDevices = (num) => {
     setRenderDevices(renderDevices + num);
-  }
-
-  const handleCurr = (index, state) => {
-    devices.forEach((dev, i) => {
-      if (index === i) {
-        devices[index].current = state;
-        if(state) {
-          setCurrIndex(index);
-        }
-      }
-    })
   }
 
   const OnRenderDisplays = () => {
@@ -391,7 +375,7 @@ function App() {
       } else {
         return (
           <>
-      <Navigation user={user} classNames={classNames} devices={devices} currIndex={currIndex} handleCurr={handleCurr}/>
+      <Navigation user={user} classNames={classNames} devices={devices} currIndex={currIndex}/>
       <main className="py-10 lg:pl-72">
         <div className="px-4 sm:px-6 lg:px-8">
           <Routes>
@@ -400,6 +384,7 @@ function App() {
             {/* <Route path="/dashboard" element={<Dashboard classNames={classNames} user={user} devices={devices}/>}/> */}
             <Route path="/profile" element={<ProfilePg user={user}/>}/>
             <Route path="/cato-settings" element={<CatoSettings classNames={classNames} user={user} devices={devices} currIndex={currIndex}/>}/>
+            <Route path="/" element={<Navigate replace to={defaultRedirect} />} />
             <Route path="/register-cato-device" element={<RegisterCatoDevice user={user} devices={devices} handleRenderDevices={handleRenderDevices} classNames={classNames}/>}/>
             <Route path="/register-interface" element={<RegisterInterface user={user} />}/>
             <Route path="/record-gestures" element={<ConfigureGestures classNames={classNames} user={user}/>}/>
@@ -417,7 +402,7 @@ function App() {
       }
     }
   }
-
+  
   return (
     <div className="h-screen">
       {user === null && (

@@ -11,7 +11,6 @@ const Devices = ({devices}) => {
     return <div>Device not found</div>;
   }
 
-  console.log('Device:', thisDevice)
   return (
     <div>
       <h1>Device: {JSON.stringify(thisDevice)}</h1>

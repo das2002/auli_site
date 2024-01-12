@@ -22,7 +22,7 @@ const SignOutAccount = () => {
       <button 
         onClick={userSignOut}
         type="button"
-        className="decision-button hover:opacity-70 inline-flex rounded-full items-center bg-blue-500 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-200 disabled:cursor-not-allowed"
+        className="decision-button inline-flex rounded-full items-center bg-blue-500 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-200 disabled:cursor-not-allowed hover:opacity-70"
       >   
         Sign Out
       </button>
