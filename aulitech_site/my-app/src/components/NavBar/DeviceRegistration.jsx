@@ -62,26 +62,88 @@ const DeviceRegistration = () => {
         }
     };
 
-    const ConnectionsSection = ({ snapshot }) => {
-        if (!snapshot) return null;
-        const connectionInfo = snapshot.data().connections;
+    const ConnectionAccordion = ({ connections }) => {
+        const [selectedModes, setSelectedModes] = useState({}); 
+        const [connectionSettings, setConnectionSettings] = useState({}); //each connection settings
     
-        if (connectionInfo && connectionInfo.length > 0) {
-            return (
-                <div>
-                    {connectionInfo.map((connection, index) => (
-                        <p key={index}>Connection: {connection.current_mode}</p>
-                    ))}
-                </div>
-            );
-        } else {
-            return (
-                <div>
-                    <p>No connections available</p>
-                </div>
-            );
-        }
+        const handleModeChange = (connectionId, mode) => {
+            setSelectedModes(prev => ({ ...prev, [connectionId]: mode }));
+        };
+    
+        const handleCommonSettingsChange = (connectionId, settings) => {
+            // Update logic for common settings
+        };
+    
+        const handleModeSpecificSettingsChange = (connectionId, mode, settings) => {
+            // Update logic for mode-specific settings
+        };
+    
+        const handleSave = (connectionId) => {
+            console.log("Saving settings for Connection:", connectionId, connectionSettings[connectionId]);
+        };
+    
+        useEffect(() => {
+            const initialSettings = connections.reduce((acc, connection) => {
+                acc[connection.id] = {
+                    common: connection.common_settings,
+                    modeSpecific: connection.mode_specific_settings[connection.current_mode]
+                };
+                return acc;
+            }, {});
+            setConnectionSettings(initialSettings);
+        }, [connections]);
+    
+        return (
+            <>
+                {connections.map((connection, index) => (
+                    <div key={connection.id} className="connection">
+                        <h3>Connection {index + 1}</h3>
+                        {/* Common settings section */}
+                        <div>
+                            {/* Render common settings here */}
+                            {/* Example: <input type="text" value={connectionSettings[connection.id].common.someSetting} onChange={...} /> */}
+                        </div>
+    
+                        {/* Dropdown to select the Active Operation Mode */}
+                        <select value={selectedModes[connection.id] || connection.current_mode} onChange={(e) => handleModeChange(connection.id, e.target.value)}>
+                            {connection.modes.map(mode => (
+                                <option key={mode} value={mode}>{mode}</option>
+                            ))}
+                        </select>
+    
+                        {/* Settings associated with the active operation mode */}
+                        <div>
+                            {/* Render mode-specific settings here */}
+                            {/* Example: <input type="text" value={connectionSettings[connection.id].modeSpecific.someSetting} onChange={...} /> */}
+                        </div>
+
+                        <button onClick={() => handleSave(connection.id)}>Save</button>
+                    </div>
+                ))}
+            </>
+        );
     };    
+
+    const ConnectionsSection = ({ snapshot }) => {
+        if (!snapshot) return <p>Loading connections...</p>;
+    
+        const connectionData = snapshot.data();
+        if (!connectionData || !connectionData.connections) {
+            return <p>No connections data available</p>;
+        }
+    
+        const connectionInfo = connectionData.connections;
+    
+        return connectionInfo.length > 0 ? (
+            <div>
+                {connectionInfo.map((connection, index) => (
+                    <p key={index}>Connection: {connection.current_mode}</p>
+                ))}
+            </div>
+        ) : (
+            <p>No connections available</p>
+        );
+    };
 
     const GlobalInfoSection = ({ snapshot }) => {
         if (!snapshot) return null;
@@ -102,10 +164,25 @@ const DeviceRegistration = () => {
             setSleepMax(e.target.value);
             //firebase logic
         };
+
+        const handleSave = async () => {
+            const updatedGlobalConfig = { ...JSON.parse(snapshot.data().device_info.global_config) };
+            updatedGlobalConfig.global_info.sleep.value.timeout.range.min = sleepMin;
+            updatedGlobalConfig.global_info.sleep.value.timeout.range.max = sleepMax;
     
-        const toggleSleepDropdown = () => {
-            setShowSleepDropdown(!showSleepDropdown);
-        };
+            try {
+                await updateDoc(doc(db, "users/NX4mlsPNKKTBjcVtHRKDuctB7xT2/userCatos", docId), {
+                    "device_info.global_config": JSON.stringify(updatedGlobalConfig)
+                });
+                console.log("Global config updated");
+            } catch (error) {
+                console.error("Error updating global config: ", error);
+            }
+        };    
+    
+        // const toggleSleepDropdown = () => {
+        //     setShowSleepDropdown(!showSleepDropdown);
+        // };
 
         return (
             <div>
@@ -115,8 +192,14 @@ const DeviceRegistration = () => {
 
                 {/* sleep ----------------- */}
                 <p>sleep: {sleepInfo?.value?.timeout.value}</p>
-                <p>sleepMin: {sleepInfo?.value?.timeout.range.min}</p>
-                <p>sleepMax: {sleepInfo?.value?.timeout.range.max}</p>
+                
+                <p>sleepMin: </p>
+                <input type="number" value={sleepMin} onChange={handleSleepMinChange} />
+                <p>sleepMax: </p>
+                <input type="number" value={sleepMax} onChange={handleSleepMaxChange} />
+
+                <button onClick={handleSave}>Save</button>
+
                 <div className="border-t border-dotted border-gray-400 my-2" />
 
                 {/* orientation ----------------- */}
