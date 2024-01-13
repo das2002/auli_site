@@ -24,9 +24,9 @@ const RegisterInterface = ({ user, devices }) => {
   console.log('thisDevice', thisDevice);
 
   const [interfaceName, setInterfaceName] = useState("");
-  const [bluetoothId, setBluetoothId] = useState("");
+  //const [bluetoothId, setBluetoothId] = useState("");
   const [isInterfaceFocused, setIsInterfaceFocused] = useState(false);
-  const [isBluetoothFocused, setIsBluetoothFocused] = useState(false);
+  //const [isBluetoothFocused, setIsBluetoothFocused] = useState(false);
   const [isOpModeFocused, setIsOpModeFocused] = useState(false);
   const [operationMode, setOperationMode] = useState("");
   const [userCatosList, setUserCatosList] = useState([]); // this is the list of all the nicknames of userCatos
@@ -119,6 +119,11 @@ const RegisterInterface = ({ user, devices }) => {
         }
         if (currentConnections.includes(interfaceName)) {
           alert("Interface name already exists for this device");
+          return;
+        }
+
+        if (operationMode === "") {
+          alert("Please select an operation mode");
           return;
         }
 
@@ -217,8 +222,8 @@ const RegisterInterface = ({ user, devices }) => {
 
         const firebaseMap = {
           name: interfaceName,
-          bt_id: bluetoothId,
           connection_config: JSON.stringify(connectionData),
+          current_mode: operationMode,
           mode
         }
         console.log('firebaseMap: ', firebaseMap);
@@ -283,22 +288,7 @@ const RegisterInterface = ({ user, devices }) => {
               />
             </div>
 
-            <div className="mt-5">
-              <label htmlFor="bluetooth-id" className="block text-lg text-gray-900">
-                Enter the Bluetooth ID for your device:
-              </label>
-              <input
-                type="text"
-                id="bluetooth-id"
-                value={bluetoothId}
-                onChange={(e) => setBluetoothId(e.target.value)}
-                onFocus={() => setIsBluetoothFocused(true)}
-                onBlur={() => setIsBluetoothFocused(false)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm"
-                placeholder="sample-bluetooth-id"
-                style={isBluetoothFocused ? focusStyle : null}
-              />
-            </div>
+            
             <div className="mt-5">
               <label htmlFor="op-mode" className="block text-lg text-gray-900">
                 Select your operation mode below:
