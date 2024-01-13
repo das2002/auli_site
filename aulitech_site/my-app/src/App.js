@@ -433,8 +433,8 @@ function App() {
 
       {isLoginPopupOpen && (
         <div className="simple-popup">
-          <div class="flex items-start justify-between w-full px-3 py-3 border-b border-light-divider dark:border-dark-divider">
-          <h3 class="text-base font-medium text-light-text-primary dark:text-dark-text-primary pl-3">Log In</h3>
+          <div className="flex items-start justify-between w-full px-3 py-3 border-b border-light-divider dark:border-dark-divider">
+          <h3 className="text-base font-medium text-light-text-primary dark:text-dark-text-primary pl-3">Log In</h3>
             <button 
               type="button" 
               className="popup-close-button"
@@ -464,8 +464,8 @@ function App() {
 
       {isSignupPopupOpen && (
         <div className="simple-popup">
-          <div class="flex items-start justify-between w-full px-3 py-3 border-b border-light-divider dark:border-dark-divider">
-          <h3 class="text-base font-medium text-light-text-primary dark:text-dark-text-primary pl-3">Sign Up</h3>
+          <div className="flex items-start justify-between w-full px-3 py-3 border-b border-light-divider dark:border-dark-divider">
+          <h3 className="text-base font-medium text-light-text-primary dark:text-dark-text-primary pl-3">Sign Up</h3>
             <button 
               type="button" 
               className="popup-close-button"

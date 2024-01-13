@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import BindingsPanel from './Bindings';
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../../firebase';
 import debounce from 'lodash.debounce';
