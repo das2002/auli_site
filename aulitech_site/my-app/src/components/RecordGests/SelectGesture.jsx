@@ -10,9 +10,33 @@ import {
   deleteDoc
 } from "firebase/firestore";
 import { db } from "../../firebase";
+import { writeBatch } from "firebase/firestore";
 
-const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startRecording, deleteRecording }) => {
+
+const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startRecording, deleteSelectedRecordings }) => {
   const activeGesture = gestures.find(g => g.id === activeGestureId);
+  const [selectedRecordings, setSelectedRecordings] = useState([]);
+
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+  const handleDeleteAll = () => {
+    setShowDeleteConfirm(true);
+  };
+  
+  const toggleRecordingSelection = (recordingId) => {
+    setSelectedRecordings(prevSelected => {
+      if (prevSelected.includes(recordingId)) {
+        return prevSelected.filter(id => id !== recordingId); 
+      } else {
+        return [...prevSelected, recordingId]; 
+      }
+    });
+  };
+
+  const handleDeleteSelected = () => {
+    deleteSelectedRecordings(selectedRecordings);
+    setSelectedRecordings([]);
+  };
 
   return (
     <div className="flex">
@@ -36,6 +60,7 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
       </div>
       <div className="w-3/4 p-4 rounded-lg">
         {activeGesture ? (
+          <>
           <div className="border border-gray-200 p-4 rounded-md shadow-md">
             <div className="flex justify-between items-center mb-4">
               <div className="flex items-center">
@@ -56,32 +81,62 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
                 </button>
               </div>
               <div className="h-48 overflow-auto bg-white p-4 rounded shadow-md">
-                {gestures.find(g => g.id === activeGestureId)?.recordings.length > 0 ? (
-                  gestures.find(g => g.id === activeGestureId).recordings.map((recording, index) => (
-                    <div key={index} className="flex justify-between items-center p-2 hover:bg-gray-100">
+              {activeGesture.recordings.length > 0 ? (
+                <div>
+                  {activeGesture.recordings.map((recording, index) => (
+                    <div
+                      key={index}
+                      className={`flex justify-between items-center p-2 hover:bg-gray-100 ${selectedRecordings.includes(recording.docId) ? 'bg-blue-100' : ''}`}
+                      onClick={() => toggleRecordingSelection(recording.docId)}
+                    >
                       {recording.timestamp}
-                      <button
-                        className="rounded-md bg-gray-300 p-2 text-gray-700 hover:bg-gray-400"
-                        onClick={() => deleteRecording(recording.docId)}
-                      >
-                        <TrashIcon className="h-5 w-5" aria-hidden="true" />
-                      </button>
-
                     </div>
-                  ))
-                ) : (
-                  <div className="text-center text-gray-500">No recordings</div>
-                )}
-              </div>
-              </div>
-              
+                  ))}
+                  {/* {activeGesture.recordings.length > 0 && (
+                    <div className="flex justify-end mt-2">
+                      <button
+                        className="rounded-md bg-gray-300 p-2 hover:bg-gray-400 disabled:opacity-50"
+                        onClick={handleDeleteSelected}
+                        disabled={selectedRecordings.length === 0}
+                      >
+                        <TrashIcon className="h-6 w-6 text-black" aria-hidden="true" />
+                      </button>
+                    </div>
+                  )} */}
+                  
+                </div>
+                
+              ) : (
+                <div className="text-center text-gray-500">No recordings</div>
+                
+              )}
+
+
+            </div>
+            {activeGesture.recordings.length > 0 && (
+                    <div className="flex justify-end mt-2">
+                      <button
+                        className="rounded-md bg-gray-300 p-2 hover:bg-gray-400 disabled:opacity-50"
+                        onClick={handleDeleteSelected}
+                        disabled={selectedRecordings.length === 0}
+                      >
+                        <TrashIcon className="h-6 w-6 text-black" aria-hidden="true" />
+                      </button>
+                    </div>
+                  )}
+            
+          </div>
+          
+            
+          </>
         ) : (
           <div className="text-center text-gray-500">Please select a gesture to start recording.</div>
+          
         )}
       </div>
     </div>
-  );     
-};  
+  );
+};
 
 const SelectGesture = ({ user }) => {
   const [showPopup, setShowPopup] = useState(false);
@@ -116,6 +171,7 @@ const SelectGesture = ({ user }) => {
     setSelectedTimestamps(prev => ({ ...prev, [gestureName]: timestamp }));
   };
 
+  // change later
   const writeToFile = (fileName, data) => {
     console.log(`Writing to ${fileName}:`, data);
   };
@@ -128,44 +184,52 @@ const SelectGesture = ({ user }) => {
     }
   };
 
-  const GestureSelectionButtons = () => (
-    <div className="flex flex-col space-y-2">
-      {gestures.map((gesture) => (
-        <button
-          key={gesture.id}
-          className={`p-2 text-left ${activeGestureId === gesture.id ? 'bg-blue-500 text-white' : 'bg-blue-200'}`}
-          onClick={() => handleGestureSelect(gesture.id)}
-        >
-          {gesture.name}
-        </button>
-      ))}
-      <button
-        className="p-2 bg-green-200"
-        onClick={() => handleGestureSelect(null)}
-      >
-        +
-      </button>
-    </div>
-  );
-
-  const deleteRecording = async (recordingId) => {
-    if (!recordingId) return;
+  const deleteSelectedRecordings = async (selectedIds) => {
+    const batch = writeBatch(db);
   
-    const recordingDocRef = doc(db, "gesture-data", recordingId);
-    await deleteDoc(recordingDocRef);
+    selectedIds.forEach((id) => {
+      const ref = doc(db, "gesture-data", id);
+      batch.delete(ref);
+    });
   
-    setGestures((currentGestures) => {
-      return currentGestures.map((gesture) => {
+    await batch.commit();
+  
+    setGestures(currentGestures => {
+      return currentGestures.map(gesture => {
         if (gesture.id === activeGestureId) {
           return {
             ...gesture,
-            recordings: gesture.recordings.filter((recording) => recording.docId !== recordingId),
+            recordings: gesture.recordings.filter(recording => !selectedIds.includes(recording.docId)),
           };
         }
         return gesture;
       });
     });
-  };  
+  };
+  
+
+  const deleteRecordings = async (docIds) => {
+    const batch = db.batch(); 
+
+    docIds.forEach(docId => {
+      const recordingRef = doc(db, "gesture-data", docId);
+      batch.delete(recordingRef);
+    });
+
+    await batch.commit();
+
+    setGestures(currentGestures => {
+      return currentGestures.map(gesture => {
+        if (gesture.id === activeGestureId) {
+          return {
+            ...gesture,
+            recordings: gesture.recordings.filter(recording => !docIds.includes(recording.docId))
+          };
+        }
+        return gesture;
+      });
+    });
+  };
 
 
   const startRecording = (gesture) => {
@@ -174,10 +238,9 @@ const SelectGesture = ({ user }) => {
     setShowPopup(true);
     setIsRecording(true);
 
-    // simulate writing to gesture.cato to start recording!
+    // default placement
     writeToFile('gesture.cato', { gestureName: gesture.name, startTime: new Date() });
 
-    //countdown
     const countdownInterval = setInterval(() => {
       setCountdown((prevCount) => {
         if (prevCount === 1) {
@@ -200,13 +263,13 @@ const SelectGesture = ({ user }) => {
         const recordingData = { useruid: user.uid, gesture: selectedGesture.name, timestamp, duration };
         const docRef = await addDoc(gestureDataRef, recordingData); 
   
-        //update new recording
+        // update new recording
         setGestures(currentGestures => {
           return currentGestures.map(gesture => {
             if (gesture.name === selectedGesture.name) {
               const newRecording = {
                 timestamp: timestamp.toLocaleString(),
-                docId: docRef.id //firebase
+                docId: docRef.id
               };
               return {
                 ...gesture,
@@ -226,6 +289,7 @@ const SelectGesture = ({ user }) => {
     setIsRecording(false);
     setCountdown(10);
 
+    // default coding - ignore
     writeToFile('log.txt', { gestureName: selectedGesture.name, duration, timestamp });
 
   };  
@@ -259,13 +323,14 @@ const SelectGesture = ({ user }) => {
   return (
     <div className="">
       <div className="border-b border-gray-200 pb-10">
-        <GestureGrid
-          activeGestureId={activeGestureId}
-          gestures={gestures}
-          handleGestureSelect={handleGestureSelect}
-          startRecording={startRecording}
-          deleteRecording={deleteRecording}
-        />
+      <GestureGrid
+        activeGestureId={activeGestureId}
+        gestures={gestures}
+        handleGestureSelect={handleGestureSelect}
+        startRecording={startRecording}
+        deleteSelectedRecordings={deleteSelectedRecordings}
+      />
+
       </div>
       {showPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">

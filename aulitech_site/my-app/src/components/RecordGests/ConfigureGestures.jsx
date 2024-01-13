@@ -58,12 +58,12 @@ const ConfigureGestures = ({ classNames, user }) => {
             Record Gestures
           </h2>
         </div>
-        <button
+        {/* <button
           type={"button"}
           onClick={reset}
         >
           Reset Connection
-        </button>
+        </button> */}
       </header>
 
       <div className="mx-auto w-full max-w-7xl grow lg:flex xl:px-2 h-full mt-10 px-4 sm:px-6 lg:px-8">
