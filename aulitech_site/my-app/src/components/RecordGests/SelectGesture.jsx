@@ -22,6 +22,10 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
   const handleDeleteAll = () => {
     setShowDeleteConfirm(true);
   };
+
+  const closeDeleteConfirm = () => {
+    setShowDeleteConfirm(false);
+  };
   
   const toggleRecordingSelection = (recordingId) => {
     setSelectedRecordings(prevSelected => {
@@ -38,13 +42,45 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
     setSelectedRecordings([]);
   };
 
+  const handleDeleteAllRecordings = () => {
+    const allRecordingIds = activeGesture.recordings.map(recording => recording.docId);
+    deleteSelectedRecordings(allRecordingIds);
+    closeDeleteConfirm();  
+  };
+
+  
+
   return (
     <div className="flex">
-      <div className="w-1/4 p-4 space-y-4 bg-gray-700 rounded">
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center">
+            <p className="text-lg font-medium text-center mb-4">
+              Are you sure you want to delete all recordings?
+            </p>
+            <div className="flex space-x-4">
+              <button 
+                className="rounded-md bg-red-500 p-3 text-white hover:bg-red-700" 
+                onClick
+                  ={handleDeleteAllRecordings}
+                >
+                Yes
+              </button>
+          <button 
+            className="rounded-md bg-gray-300 p-3 hover:bg-gray-400"
+            onClick={closeDeleteConfirm}
+          >
+          No
+        </button>
+      </div>
+      </div>
+      </div>
+      )}
+      <div className="w-1/4 p-4 space-y-4 bg-gray-200 rounded">
         {gestures.map((gesture) => (
           <div key={gesture.id} className="flex justify-between items-center">
             <button
-              className={`flex-1 text-left p-2 rounded-md transition-colors duration-150 ease-in-out ${activeGestureId === gesture.id ? 'bg-blue-400 text-black' : 'bg-blue-200 hover:bg-blue-200'}`}
+              className={`flex-1 text-left p-2 rounded-md transition-colors duration-150 ease-in-out ${activeGestureId === gesture.id ? 'bg-yellow-300 text-black' : 'bg-gray-900 text-white hover:bg-gray-800'}`}
               onClick={() => handleGestureSelect(gesture.id)}
             >
               {gesture.name}
@@ -52,7 +88,7 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
           </div>
         ))}
         <button
-          className="w-full text-left p-2 bg-blue-200 rounded-md hover:bg-blue-300" 
+          className="w-full text-left p-2 bg-gray-900 text-white rounded-md hover:bg-gray-800" 
           onClick={() => handleGestureSelect(null)}
         >
           +
@@ -114,17 +150,27 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
 
             </div>
             {activeGesture.recordings.length > 0 && (
-                    <div className="flex justify-end mt-2">
-                      <button
-                        className="rounded-md bg-gray-300 p-2 hover:bg-gray-400 disabled:opacity-50"
-                        onClick={handleDeleteSelected}
-                        disabled={selectedRecordings.length === 0}
-                      >
-                        <TrashIcon className="h-6 w-6 text-black" aria-hidden="true" />
-                      </button>
-                    </div>
-                  )}
-            
+              <div className="flex justify-between mt-2">
+                {/* delete all button */}
+                <button
+                  className="rounded-md bg-gray-300 p-2 hover:bg-gray-400 disabled:opacity-50"
+                  onClick={handleDeleteAll}
+                >
+                  Delete All
+                </button>
+
+                <div className="flex-grow"></div>
+
+                {/* trashcan icon */}
+                <button
+                  className="rounded-md bg-gray-300 p-2 hover:bg-gray-400 disabled:opacity-50"
+                  onClick={handleDeleteSelected}
+                  disabled={selectedRecordings.length === 0}
+                >
+                  <TrashIcon className="h-6 w-6 text-black" aria-hidden="true" />
+                </button>
+              </div>
+            )}
           </div>
           
             
@@ -200,30 +246,6 @@ const SelectGesture = ({ user }) => {
           return {
             ...gesture,
             recordings: gesture.recordings.filter(recording => !selectedIds.includes(recording.docId)),
-          };
-        }
-        return gesture;
-      });
-    });
-  };
-  
-
-  const deleteRecordings = async (docIds) => {
-    const batch = db.batch(); 
-
-    docIds.forEach(docId => {
-      const recordingRef = doc(db, "gesture-data", docId);
-      batch.delete(recordingRef);
-    });
-
-    await batch.commit();
-
-    setGestures(currentGestures => {
-      return currentGestures.map(gesture => {
-        if (gesture.id === activeGestureId) {
-          return {
-            ...gesture,
-            recordings: gesture.recordings.filter(recording => !docIds.includes(recording.docId))
           };
         }
         return gesture;
@@ -310,7 +332,7 @@ const SelectGesture = ({ user }) => {
         const timestampString = doc.data().timestamp.toDate().toLocaleString();
         const recording = {
           timestamp: timestampString,
-          docId: doc.id  // store FB document id
+          docId: doc.id  
         };
         if (!updatedGestures[gestureIndex].recordings.find(r => r.timestamp === timestampString)) {
           updatedGestures[gestureIndex].recordings.push(recording);
