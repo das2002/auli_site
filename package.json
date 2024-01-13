@@ -4,6 +4,7 @@
   },
   "dependencies": {
     "firebase": "^10.7.1",
+    "lodash.debounce": "^4.0.8",
     "react-rangeslider": "^2.2.0"
   }
 }
