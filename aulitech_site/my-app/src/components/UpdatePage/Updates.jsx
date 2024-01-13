@@ -76,7 +76,6 @@ const Updates = () => {
           currentHeight += measuredHeights[i];
           itemsToShow.push(releases[i]);
       }
-      console.log(itemsToShow)
 
       // add 'latest' to most recent
       if (itemsToShow && itemsToShow.length > 0){
@@ -89,7 +88,6 @@ const Updates = () => {
   const [buttonState, setButtonState] = useState('fixed');
   const [displayedReleaseCount, setDisplayedReleaseCount] = useState(3);
   const loadMoreReleases = () => {
-    console.log("button", buttonState)
     // Calculate the new count, ensuring it doesn't exceed the total number of releases
     const newCount = Math.min(displayedReleaseCount + 3, releases.length);
     setDisplayedReleaseCount(newCount);
@@ -144,7 +142,6 @@ const Updates = () => {
           ))}
       </div>
 
-      {console.log(visibleItems)}
       {/* Actual container */}
       <div ref={containerRef} className='release-container'>
         {visibleItems.map(item => (

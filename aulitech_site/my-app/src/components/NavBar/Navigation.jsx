@@ -32,9 +32,9 @@ const RecordGesturesRoute = () => {
           }
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
-            <circle cx="12" cy="12" r="8" stroke-width="2" />
+            <circle cx="12" cy="12" r="8" strokeWidth="2" />
             <circle cx="12" cy="12" r="4" fill="currentColor" />
-            <rect x="2" y="2" width="20" height="20" rx="10" stroke-width="2" />
+            <rect x="2" y="2" width="20" height="20" rx="10" strokeWidth="2" />
           </svg>
           <p>Record Gestures</p>
         </NavLink>
@@ -59,8 +59,8 @@ const UpdateRoute = () => {
             )
           }
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
           <p>Updates</p>
         </NavLink>
@@ -85,8 +85,8 @@ const PracticeRoute = () => {
             )
           }
         >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
-           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 2C6.48 2 2 6.48 2 12c0 3.866 2.964 7.017 6.75 7.017 1.657 0 3.22-.61 4.406-1.717l3.844 3.844a.6.6 0 00.848 0l1.5-1.5a.6.6 0 000-.848l-3.844-3.844A7.963 7.963 0 0019.017 12C19.017 6.48 14.537 2 9.017 2zm0 4a4 4 0 100 8 4 4 0 000-8z"></path>
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
+           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 2C6.48 2 2 6.48 2 12c0 3.866 2.964 7.017 6.75 7.017 1.657 0 3.22-.61 4.406-1.717l3.844 3.844a.6.6 0 00.848 0l1.5-1.5a.6.6 0 000-.848l-3.844-3.844A7.963 7.963 0 0019.017 12C19.017 6.48 14.537 2 9.017 2zm0 4a4 4 0 100 8 4 4 0 000-8z"></path>
           </svg>
 
           <p>Practice Mode</p>
@@ -204,7 +204,7 @@ const DevicesRoute = () => {
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
                    className={"w-6 h-6 transition-transform duration-300 transform " + (isDevicesMenuOpen ? "rotate-90" : "")}>
-            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
           </svg>
           Devices
         </div>
@@ -308,12 +308,12 @@ const ProfileRoute = React.memo(() => {
   return (
     <div className="-mx-6 mt-auto">
       {['opening', 'opened', 'closing'].includes(menuState) && (
-        <div className="gap-x-4">
+        <div className="gap-x-4 z-30">
           <button
             id='signoutbutton'
             onClick={toggleSignOutModal}
             onAnimationEnd={() => {setIsAnimating(false)}}
-            className={`group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold w-full text-gray-400 hover:text-white hover:bg-gray-800 button ${getAnimationClass(1)}`}
+            className={`group z-30 flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold w-full text-gray-400 hover:text-white hover:bg-gray-800 button ${getAnimationClass(1)}`}
           >
             <svg 
                 xmlns="http://www.w3.org/2000/svg" 
@@ -335,7 +335,7 @@ const ProfileRoute = React.memo(() => {
             id='settingsbutton'
             to="/profile"
             className={({ isActive }) =>
-              `settingsbutton group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold ${isActive ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'} ${getAnimationClass(2)}`
+              `settingsbutton z-40 group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold ${isActive ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-white hover:bg-gray-800'} ${getAnimationClass(2)}`
             }
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -346,7 +346,7 @@ const ProfileRoute = React.memo(() => {
         </div>
       )}
       <div
-        className="group flex items-center select-none transition-all duration-200 overflow-x-hidden gap-x-4 px-6 py-3 text-lg leading-6 font-semibold text-gray-400 hover:text-white hover:bg-gray-800"
+        className="group z-50 flex items-center select-none transition-all duration-200 overflow-x-hidden gap-x-4 px-6 py-3 text-lg leading-6 font-semibold text-gray-400 hover:text-white hover:bg-gray-800"
         onClick={toggleMenu}
       >
         <svg
@@ -363,7 +363,7 @@ const ProfileRoute = React.memo(() => {
               d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"
             />
           </svg>
-        <p className="max-w-xs truncate">{user !== null ? user.email : null}</p>
+        <p className="max-w-xs truncate z-50">{user !== null ? user.email : null}</p>
       </div>
     </div>
   );

@@ -8,8 +8,8 @@
             "command": "button_action",
             "args": [
                 0,
-                "",
-                0
+                "tap",
+                1
             ]
         }
     ]
