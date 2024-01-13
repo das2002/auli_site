@@ -376,8 +376,9 @@ function App() {
         return (
           <>
       <Navigation user={user} classNames={classNames} devices={devices} currIndex={currIndex}/>
-      <main className="py-10 lg:pl-72">
-        <div className="px-4 sm:px-6 lg:px-8">
+      {/* This should be the only main tag */}
+      <main id='main' className="py-10 lg:pl-72">
+        <div className="px-4 sm:px-6 lg:px-8" >
           <Routes>
             {/* <Route exact path="/" element={<Dashboard classNames={classNames} user={user} devices={devices} />}/>
             {console.log(devices)} */}

@@ -53,7 +53,7 @@ const ConfigureGestures = ({ classNames, user }) => {
   return (
     <div className="flex min-h-full flex-col">
       <header className="shrink-0 bg-transparent border-b border-gray-200">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between ">
+        <div className="flex h-16 max-w-7xl items-center justify-between ">
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight py-1">
             Record Gestures
           </h2>

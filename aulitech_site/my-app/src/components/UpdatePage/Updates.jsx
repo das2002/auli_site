@@ -1,38 +1,47 @@
-import React, { useState, useEffect } from 'react';
-import { db } from "../../firebase";
-import { collection, getDocs } from 'firebase/firestore';
-import LoadingIndicator from './LoadingIndicator';
+import React, { useState, useEffect, useLayoutEffect, useRef} from 'react';
+import ReactDOM from 'react-dom'
+import {marked} from 'marked';
+import DOMPurify from 'dompurify';
+import './Updates.css'; 
+
+// sanitises markdown 
+const createMarkup = (markdown) => {
+  const rawMarkup = marked.parse(markdown);
+  return { __html: DOMPurify.sanitize(rawMarkup) };
+};
+
+const FormattedUpdate = ({ release, index, id }) => {
+  const isLatest = index === 0; // Check if it's the first release
+  const tagName = isLatest ? `${release.tag_name} (latest)` : release.tag_name;
+
+  return (
+    <div key={index} id={id} className={'mt-2 mb-12'}>
+      <div className='text-2xl font-bold mb-2.5'>Firmware Version {release.tag_name}</div>
+      <div className="text-lg font-bold">What's New:</div>
+      <div className = 'markdown' dangerouslySetInnerHTML={createMarkup(release.body)} />
+      <div style={{ marginTop: '.7rem' }}>
+        <a href={release.zipball_url} 
+          target="_blank" 
+          className="decision-button px-3 py-2 rounded-lg cursor-pointer text-lg"
+          style={{ border: 'none' }}>
+          Download Update
+        </a>
+      </div>
+    </div>
+  );
+};
 
 const Updates = () => {
-  // gets latest release from firestore 
-  const [latestRelease, setLatestRelease] = useState(null);
-
+  // download releases from github 
+  const [releases, setReleases] = useState([]);
   useEffect(() => {
     const fetchReleases = async () => {
-      const releasesRef = collection(db, 'software');
-
       try {
-        setTimeout(async () => {
-          const querySnapshot = await getDocs(releasesRef);
-          let mostRecentRelease = null;
-          let mostRecentDate = new Date(0);  
-  
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const releasesData = data.releases;
+        const response = await fetch('https://api.github.com/repos/aulitech/Cato/releases');
+        const data = await response.json();
 
-            // assumes timestamp is a firestore Timestamp object 
-            const releaseDate = releasesData.timestamp.toDate(); 
-  
-            if (releaseDate > mostRecentDate) {
-              mostRecentDate = releaseDate;
-              mostRecentRelease = releasesData; // entire release JSON 
-              mostRecentRelease.id = doc.id; // firebase ID 
-            }
-          });
-  
-          setLatestRelease(mostRecentRelease);
-        }, 500); // 3000 milliseconds delay (3 seconds)  
+
+        setReleases(data);
       } catch (error) {
         console.error('Error fetching releases:', error);
       }
@@ -41,78 +50,120 @@ const Updates = () => {
     fetchReleases();
   }, []);
 
+  const containerRef = useRef(null);
+  const [measuredHeights, setMeasuredHeights] = useState([]);
+  const [visibleItems, setVisibleItems] = useState([]);
 
-  const containerStyle = {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'flex-start',
-    justifyContent: 'flex-start',
-    maxHeight: '100vh', // Max height is the full viewport height
-    overflow: 'auto', // Adds scrolling inside the container if content overflows
-    margin: '0 auto',
-    marginTop: '23vh', // 243/1029 = 23% down from top 
-    padding: '0px', // 481 - 419px from left 
-    boxSizing: 'border-box', 
-    maxWidth: '1100px', 
-    fontFamily: 'Arial, sans-serif', 
+  // measure items in a hidden div
+  useLayoutEffect(() => {
+    const heights = releases.map((item, index) => {
+        const el = document.getElementById(`hidden-item-${index}`);
+        return el ? el.clientHeight : 0;
+    });
+    setMeasuredHeights(heights);
+}, [releases]);
+
+  // calculate which items to show
+  useEffect(() => {
+      if (!containerRef.current) return;
+
+      let availableHeight = containerRef.current.clientHeight;
+      let currentHeight = 0;
+      let itemsToShow = [];
+
+      for (let i = 0; i < measuredHeights.length; i++) {
+          if (currentHeight + measuredHeights[i] > availableHeight) break;
+          currentHeight += measuredHeights[i];
+          itemsToShow.push(releases[i]);
+      }
+      console.log(itemsToShow)
+
+      // add 'latest' to most recent
+      if (itemsToShow && itemsToShow.length > 0){
+        itemsToShow[0].tag_name += ' (latest)'
+      }
+      setVisibleItems(itemsToShow);
+  }, [measuredHeights]);
+
+  // fixes load more button to the bottom until we load more releases 
+  const [buttonState, setButtonState] = useState('fixed');
+  const [displayedReleaseCount, setDisplayedReleaseCount] = useState(3);
+  const loadMoreReleases = () => {
+    console.log("button", buttonState)
+    // Calculate the new count, ensuring it doesn't exceed the total number of releases
+    const newCount = Math.min(displayedReleaseCount + 3, releases.length);
+    setDisplayedReleaseCount(newCount);
+    setButtonState('float');
+    if (newCount === releases.length) {
+      setButtonState('hidden'); // Hide the button if all releases are displayed
+    }
   };
 
-  const headerStyle = {
-    fontSize: '36px',
-    fontWeight: 'bold',
-    marginBottom: '0px',
-    marginTop: '0px',
-  };
+  useEffect(() => {
+    const visible = releases.slice(0, displayedReleaseCount);
+    setVisibleItems(visible);
+  }, [displayedReleaseCount, releases]);
 
-  const subHeaderStyle = {
-    fontSize: '24px',
-    fontWeight: 'bold',
-    marginBottom: '10px',
-  };
-
-  const listStyle = {
-    marginBottom: '20px',
-    marginLeft: '18px',
-    listStyleType: 'disc'
-  };
-
-  const buttonStyle = {
-    backgroundColor: '#AA9358', 
-    color: 'black',
-    padding: '10px 20px',
-    marginTop: '5vh',
-    border: 'none',
-    borderRadius: '5px',
-    cursor: 'pointer',
-    fontSize: '16px',
-  };
-
-  // while query is running on db 
-  // if (!latestRelease) {
-  //   return <LoadingIndicator style={headerStyle} />;
-  // }
+  const buttonStyle  = (buttonState) => {
+    switch(buttonState){
+      case 'fixed':
+        return ({ position: 'sticky', bottom: '10px', left: '50%', transform: 'translateX(-50%)', border: 'none' })
+        break; 
+      case 'float':
+        return ({ position: 'sticky', bottom: '10px', left: '50%', transform: 'translateX(-50%)', border: 'none' })
+        break; 
+      case 'hidden':
+        return ({visibility: 'hidden'})
+        break; 
+    }
+  }
 
   return (
-    <div style={containerStyle}>
-      {!latestRelease ? (
-        <LoadingIndicator style={headerStyle} />
-      ) : (
-        <>
-          <div style={headerStyle}>Updates</div>
-          <div style={subHeaderStyle}>Firmware Version {latestRelease.tag}</div>
-          <div>
-            <p>What's new in this version:</p>
-            <ul style={listStyle}>
-              <li>This version includes a new gesture collection interface, with improved data pipeline and an improved interface for accessibility.</li>
-              <li>Device settings page now includes an advanced setting page to allow more finer grain control over settings.</li>
-            </ul>
+    <div id='basecontainer' className='base-container'>
+      <div className="ml-90">
+        <header className="shrink-0 bg-transparent border-b border-gray-200">
+          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
+            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+              Updates
+            </h2>
           </div>
-      <a href={latestRelease.zip} style={buttonStyle} target="_blank" rel="noopener noreferrer">Download Update</a>
-        </>
+        </header>
+      </div>
+
+      {/* Hidden div for measuring */}
+      <div style={{ 
+          position: 'fixed', 
+          left: '-9999px', 
+          width: '1000px', // or an appropriate width that matches your items
+          overflow: 'hidden'
+        }} 
+        className='release-container'
+      >
+          {releases.map((release, index) => (
+              <FormattedUpdate key={index} release={release} index={index} id={`hidden-item-${index}`} />
+          ))}
+      </div>
+
+      {console.log(visibleItems)}
+      {/* Actual container */}
+      <div ref={containerRef} className='release-container'>
+        {visibleItems.map(item => (
+            <FormattedUpdate key={item.key} release={item} />
+        ))}
+      </div>
+ 
+      {buttonState !== 'hidden' && (
+        <div className="text-center my-4" style={{ width: '100%', position: 'relative' }}>
+          <button 
+            onClick={loadMoreReleases}
+            className="decision-button px-4 py-2 rounded-lg cursor-pointer text-lg"
+            style={buttonStyle(buttonState)}>
+            Show More
+          </button>
+        </div>
       )}
     </div>
   );
-
 };
 
 export default Updates;

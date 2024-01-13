@@ -473,17 +473,21 @@ const Navigation = ({
                     <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6">
                       <Logo height={16} marginY={5} marginX={10}/>
                       <nav className="flex flex-1 flex-col">
-                        <div role="list" className="flex flex-1 flex-col gap-y-7">
-                          {/* <DashRoute /> */}
-                          <UpdateRoute />
-                          <DevicesRoute/>
+                        <div role="list" className="flex align-top flex-col gap-y-7">
+                          <div role="list" className="flex align-top flex-col gap-y-0">
+                              <DevicesRoute />
+                              
+                              {/* Extra space with transition */}
+                              
+                              <div className={`transition-all duration-300`} style={{ height: isDevicesMenuOpen ? (devices.length + 1) * 52 : 0 }}></div>
+
+                          </div>
+                          {/* Routes that will move */}
                           <PracticeRoute />
                           <UpdateRoute/>
                           <RecordGesturesRoute />
-                          {/* We need to add a line to divide between these sections */}
-                          
-                          <ProfileRoute />
                         </div>
+                        <ProfileRoute/>
                       </nav>
                     </div>
                   </Dialog.Panel>
