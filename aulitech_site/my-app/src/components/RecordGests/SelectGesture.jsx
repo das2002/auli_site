@@ -76,11 +76,15 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
       </div>
       </div>
       )}
-      <div className="w-1/4 p-4 space-y-4 bg-gray-200 rounded">
+
+      {/* <div className="border border-gray-200 p-4 rounded-md shadow-md"> */}
+      {/* <div className="w-1/4 p-4 space-y-4 bg-gray-200 rounded"> */}
+      {/* <div className="w-1/4 p-4 space-y-4 border border-bg-gray-200 rounded-md shadow-md"> */}
+      <div className="w-1/4 p-4 space-y-4 border border-bg-gray-200 rounded-md shadow-lg">
         {gestures.map((gesture) => (
           <div key={gesture.id} className="flex justify-between items-center">
             <button
-              className={`flex-1 text-left p-2 rounded-md transition-colors duration-150 ease-in-out ${activeGestureId === gesture.id ? 'bg-yellow-300 text-black' : 'bg-gray-900 text-white hover:bg-gray-800'}`}
+              className={`flex-1 text-left p-2 rounded-md transition-colors duration-150 ease-in-out ${activeGestureId === gesture.id ? 'bg-yellow-300 text-black border border-yellow-600' : 'bg-gray-900 text-white hover:bg-gray-800'}`}
               onClick={() => handleGestureSelect(gesture.id)}
             >
               {gesture.name}
@@ -122,7 +126,7 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
                   {activeGesture.recordings.map((recording, index) => (
                     <div
                       key={index}
-                      className={`flex justify-between items-center p-2 hover:bg-gray-100 ${selectedRecordings.includes(recording.docId) ? 'bg-blue-100' : ''}`}
+                      className={`flex justify-between items-center p-2 hover:bg-gray-100 cursor-pointer ${selectedRecordings.includes(recording.docId) ? 'bg-blue-100' : ''}`}
                       onClick={() => toggleRecordingSelection(recording.docId)}
                     >
                       {recording.timestamp}
