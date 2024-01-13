@@ -7,7 +7,6 @@ import {
   getDocs,
   addDoc,
   doc,
-  deleteDoc
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import { writeBatch } from "firebase/firestore";
@@ -47,8 +46,6 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
     deleteSelectedRecordings(allRecordingIds);
     closeDeleteConfirm();  
   };
-
-  
 
   return (
     <div className="flex">
@@ -176,12 +173,9 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
               </div>
             )}
           </div>
-          
-            
           </>
         ) : (
           <div className="text-center text-gray-500">Please select a gesture to start recording.</div>
-          
         )}
       </div>
     </div>
@@ -192,13 +186,12 @@ const SelectGesture = ({ user }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [selectedGesture, setSelectedGesture] = useState(null);
   const [recordingStart, setRecordingStart] = useState(null);
-  const [selectedTimestamps, setSelectedTimestamps] = useState({});
+  const [setSelectedTimestamps] = useState({});
 
   const [isRecording, setIsRecording] = useState(false);
   const [countdown, setCountdown] = useState(10);
 
   const [activeGestureId, setActiveGestureId] = useState(null);
-
 
   const [gestures, setGestures] = useState([
     { id: 1, name: "Nod up", count: 0, recordings: [] },
@@ -216,10 +209,6 @@ const SelectGesture = ({ user }) => {
   useEffect(() => {
     getGestStats();
   }, []);
-
-  const selectTimestamp = (gestureName, timestamp) => {
-    setSelectedTimestamps(prev => ({ ...prev, [gestureName]: timestamp }));
-  };
 
   // change later
   const writeToFile = (fileName, data) => {
@@ -241,9 +230,8 @@ const SelectGesture = ({ user }) => {
       const ref = doc(db, "gesture-data", id);
       batch.delete(ref);
     });
-  
     await batch.commit();
-  
+
     setGestures(currentGestures => {
       return currentGestures.map(gesture => {
         if (gesture.id === activeGestureId) {
@@ -257,14 +245,13 @@ const SelectGesture = ({ user }) => {
     });
   };
 
-
   const startRecording = (gesture) => {
     setSelectedGesture(gesture);
     setRecordingStart(new Date());
     setShowPopup(true);
     setIsRecording(true);
 
-    // default placement
+    // default – change later
     writeToFile('gesture.cato', { gestureName: gesture.name, startTime: new Date() });
 
     const countdownInterval = setInterval(() => {
