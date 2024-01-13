@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { get, set } from "idb-keyval";
+
 import {
   collection,
   addDoc,
@@ -82,10 +83,6 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
   //go into resources/templates and find new_device_config.json
   const downloadNewConfig = async (newDeviceConfig) => {
     try {
-      const blob = new Blob([JSON.stringify(newDeviceConfig)], {
-        type: "application/json",
-      });
-      const url = URL.createObjectURL(blob);
   
       // Use the File System Access API functions here
       const handle = await window.showSaveFilePicker({ suggestedName: "config.json" })
@@ -93,10 +90,6 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
       await writable.write(JSON.stringify(newDeviceConfig));
       await writable.close();
-
-      // await writeURLToFile(fileHandle, url);
-
-      console.log("handle", handle);
   
       console.log("New config successfully saved.");
     } catch (error) {
@@ -105,6 +98,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
   };
 
   const getJsonData = async () => {
+
     try {
       if (window.showDirectoryPicker) {
         const dirHandle = await window.showDirectoryPicker();

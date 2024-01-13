@@ -22,7 +22,6 @@ const RegisterInterface = ({ user }) => {
   const [selectedDevice, setSelectedDevice] = useState(''); // this is the device that is selected from the Select Device dropdown
   const [selectedDeviceData, setSelectedDeviceData] = useState(null); // this is the data associated with the device that is selected
 
-
   if (!user) {
     console.log("No user available");
   }
@@ -32,6 +31,66 @@ const RegisterInterface = ({ user }) => {
   if (!userId) {
     console.log("No user ID available");
   }
+
+  const downloadNewConfig = async (newDeviceConfig) => {
+    try {
+  
+      // Use the File System Access API functions here
+      const handle = await window.showSaveFilePicker({ suggestedName: "config.json" })
+      const writable = await handle.createWritable();
+
+      await writable.write(JSON.stringify(newDeviceConfig));
+      await writable.close();
+  
+      console.log("New config successfully saved.");
+    } catch (error) {
+      console.error("Download new config error:", error);
+    }
+  };
+
+
+  const getJsonData = async () => {
+
+    try {
+      if (window.showDirectoryPicker) {
+        const dirHandle = await window.showDirectoryPicker();
+  
+        const iterateDirectory = async (dirHandle) => {
+          for await (const entry of dirHandle.values()) {
+            if (entry.kind === "file" && entry.name === "config.json") {
+              // console.log("found config.json");
+              const file = await entry.getFile();
+              const jsonDataText = await file.text();
+              const retrievedJson = JSON.parse(jsonDataText);
+              // console.log("JSON after parse line 65 check", retrievedJson);
+
+              return retrievedJson;
+
+            } else if (entry.kind === "directory") {
+              const found = await iterateDirectory(entry);
+              if (found != null) {
+                return found;
+              }
+            }
+          }
+          return null;
+        };
+  
+        const found = await iterateDirectory(dirHandle);
+        if (!found) {
+          console.log("config.json file not found");
+          return null;
+        }
+        return found;
+      } else {
+        console.log("showDirectoryPicker is not supported in this browser");
+        return null;
+      }
+    } catch (error) {
+      console.log("Error:", error);
+      return null;
+    }
+  };
 
 
   const handleDeviceSelection = async (event) => {
@@ -139,6 +198,10 @@ const RegisterInterface = ({ user }) => {
             break;
           }
         }
+
+        const jsonDATA = await getJsonData();
+
+        console.log('retrieved the data slay', jsonDATA);
         // console.log('temp old', tempdata);
         let connectionData = {}
         let clickerData = {}
@@ -158,55 +221,39 @@ const RegisterInterface = ({ user }) => {
 
         console.log('combinedData', connectionData);
 
-        // if (operationMode == 'clicker') {
-          //bindings and clicker
-          //lowkey will hardcode picking out which atoms its easier
           clickerData = {
             ...connectionData,
             ...clickerDefault,
             ...bindingsDefault,
           };
-          // connectionData.operation_mode.value = 'clicker'
 
-        // } else if (operationMode == 'gesture_mouse') {
           gestureMouseData = {
             ...connectionData,
             ...mouseDefault,
             ...gestureDefault,
             ...bindingsDefault,
           };
-          // connectionData.operation_mode.value = 'gesture_mouse'
 
-        // } else if (operationMode == 'tv_remote') {
           tvRemoteData = {
             ...connectionData,
             ...tvRemoteDefault,
             ...gestureDefault,
             ...bindingsDefault,
           };
-          // connectionData.operation_mode.value = 'tv_remote'
-        // } else if (operationMode == 'pointer') {
+
           pointerData = {
             ...connectionData,
             ...mouseDefault,
             ...bindingsDefault,
           };
-          // connectionData.operation_mode.value = 'pointer'
-        // } else {
-        // }
 
         console.log(connectionData);
-
-        const stringCombinedData = JSON.stringify(connectionData);
-
         let mode = {};
 
         mode["clicker"] = JSON.stringify(clickerData);
         mode["pointer"] = JSON.stringify(pointerData);
         mode["gesture_mouse"] = JSON.stringify(gestureMouseData);
         mode["tv_remote"] = JSON.stringify(tvRemoteData);
-
-        //mode['name'] = interfaceName;
 
         const firebaseMap = {
           name: interfaceName,
@@ -227,7 +274,7 @@ const RegisterInterface = ({ user }) => {
 
       };
       await getConnections();
-      window.location.reload();
+      // window.location.reload();
     } catch (error) {
       console.log("add interface doc to usersCato connections error: ", error);
     }
