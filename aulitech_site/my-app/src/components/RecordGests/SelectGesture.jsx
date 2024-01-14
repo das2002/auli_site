@@ -11,7 +11,6 @@ import {
 import { db } from "../../firebase";
 import { writeBatch } from "firebase/firestore";
 
-
 const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startRecording, deleteSelectedRecordings }) => {
   const activeGesture = gestures.find(g => g.id === activeGestureId);
   const [selectedRecordings, setSelectedRecordings] = useState([]);
@@ -56,11 +55,9 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
               Are you sure you want to delete all recordings?
             </p>
             <div className="flex space-x-4">
-              <button 
-                className="rounded-md bg-red-500 p-3 text-white hover:bg-red-700" 
-                onClick
-                  ={handleDeleteAllRecordings}
-                >
+              <button className="rounded-md bg-red-500 p-3 text-white hover:bg-red-700" 
+                onClick={handleDeleteAllRecordings}
+              >
                 Yes
               </button>
           <button 
@@ -86,7 +83,7 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
             >
               {gesture.name}
             </button>
-          </div>
+          </div> 
         ))}
         <button
           className="w-full text-left p-2 bg-gray-900 text-white rounded-md hover:bg-gray-800" 
@@ -129,18 +126,6 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
                       {recording.timestamp}
                     </div>
                   ))}
-                  {/* {activeGesture.recordings.length > 0 && (
-                    <div className="flex justify-end mt-2">
-                      <button
-                        className="rounded-md bg-gray-300 p-2 hover:bg-gray-400 disabled:opacity-50"
-                        onClick={handleDeleteSelected}
-                        disabled={selectedRecordings.length === 0}
-                      >
-                        <TrashIcon className="h-6 w-6 text-black" aria-hidden="true" />
-                      </button>
-                    </div>
-                  )} */}
-                  
                 </div>
                 
               ) : (
@@ -186,12 +171,13 @@ const SelectGesture = ({ user }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [selectedGesture, setSelectedGesture] = useState(null);
   const [recordingStart, setRecordingStart] = useState(null);
-  const [setSelectedTimestamps] = useState({});
 
   const [isRecording, setIsRecording] = useState(false);
   const [countdown, setCountdown] = useState(10);
 
   const [activeGestureId, setActiveGestureId] = useState(null);
+
+  const [gestureData, setGestureData] = useState([]);
 
   const [gestures, setGestures] = useState([
     { id: 1, name: "Nod up", count: 0, recordings: [] },
@@ -210,10 +196,6 @@ const SelectGesture = ({ user }) => {
     getGestStats();
   }, []);
 
-  // change later
-  const writeToFile = (fileName, data) => {
-    console.log(`Writing to ${fileName}:`, data);
-  };
 
   const handleGestureSelect = (gestureId) => {
     const gesture = gestures.find(g => g.id === gestureId);
@@ -245,14 +227,17 @@ const SelectGesture = ({ user }) => {
     });
   };
 
+  const addGestureData = (newData) => {
+    setGestureData(prevData => [...prevData, newData]);
+  };
+
   const startRecording = (gesture) => {
+    setGestureData([]);
+
     setSelectedGesture(gesture);
     setRecordingStart(new Date());
     setShowPopup(true);
     setIsRecording(true);
-
-    // default – change later
-    writeToFile('gesture.cato', { gestureName: gesture.name, startTime: new Date() });
 
     const countdownInterval = setInterval(() => {
       setCountdown((prevCount) => {
@@ -271,12 +256,20 @@ const SelectGesture = ({ user }) => {
     setShowPopup(false);
   
     if (selectedGesture) {
+      const gestureDataString = JSON.stringify(gestureData);
+  
       try {
         const gestureDataRef = collection(db, "gesture-data");
-        const recordingData = { useruid: user.uid, gesture: selectedGesture.name, timestamp, duration };
-        const docRef = await addDoc(gestureDataRef, recordingData); 
+        const recordingData = {
+          useruid: user.uid,
+          gesture: selectedGesture.name,
+          timestamp,
+          duration,
+          gestureData,
+          log: gestureDataString 
+        };
+        const docRef = await addDoc(gestureDataRef, recordingData);
   
-        // update new recording
         setGestures(currentGestures => {
           return currentGestures.map(gesture => {
             if (gesture.name === selectedGesture.name) {
@@ -298,14 +291,11 @@ const SelectGesture = ({ user }) => {
         console.error("Error saving recording data:", error);
       }
     }
-
+  
     setIsRecording(false);
     setCountdown(10);
-
-    // default coding - ignore
-    writeToFile('log.txt', { gestureName: selectedGesture.name, duration, timestamp });
-
-  };  
+  };
+  
 
   const getGestStats = async () => {
     const dataRef = collection(db, "gesture-data");
