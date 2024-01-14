@@ -3,9 +3,25 @@ import BindingsPanel from './Bindings';
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../../firebase';
 import debounce from 'lodash.debounce';
-import { collection, getDocs, query, where, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where, updateDoc, doc } from 'firebase/firestore';
 import { set } from 'lodash';
-import Slider from 'react-rangeslider';
+import Slider from '@mui/material/Slider';
+import { styled } from '@mui/material/styles';
+
+const DarkYellowSlider = styled(Slider)(({ theme }) => ({
+  color: '#B8860B', 
+  '& .MuiSlider-thumb': {
+    '&:hover, &.Mui-focusVisible': {
+      boxShadow: `0px 0px 0px 8px ${theme.palette.mode === 'dark' ? 'rgb(218 165 32 / 16%)' : 'rgb(218 165 32 / 16%)'}`,
+    },
+    '&.Mui-active': {
+      boxShadow: `0px 0px 0px 14px ${theme.palette.mode === 'dark' ? 'rgb(218 165 32 / 16%)' : 'rgb(218 165 32 / 16%)'}`,
+    },
+  },
+  '& .MuiSlider-rail': {
+    opacity: 0.28,
+  },
+}));
 
 const HardwareUIDField = ({ hardwareUID }) => {
   return (
@@ -55,63 +71,43 @@ const deepCopy = (obj) => {
 };
 
 const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, sliderDescription, sliderLabel }) => {
-  const [localValue, setLocalValue] = useState(value);
-  const [isHovered, setIsHovered] = useState(false);
+  const [sliderValue, setSliderValue] = useState(value || 0);
 
   useEffect(() => {
-    setLocalValue(value);
+    setSliderValue(value || 0);
   }, [value]);
 
-  const handleMouseEnter = () => {
-    setIsHovered(true);
+  const handleSliderChange = (event, newValue) => {
+    setSliderValue(newValue);
   };
 
-  const handleMouseLeave = () => {
-    setIsHovered(false);
+  const handleSliderChangeCommitted = (event, newValue) => {
+    console.log('Final Value:', newValue);
+    if (onChange) {
+      onChange({ target: { value: newValue } }); 
+    }
   };
-
-  const debouncedOnChange = debounce(onChange, 200);
-
 
   return (
     <div style={{ marginBottom: '20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-
-        <label htmlFor={sliderLabel}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        >{`${sliderTitle} (${value} ${unit})`}</label>
-        <input
-          type="range"
-          id={sliderLabel}
-          value={localValue}
-          onChange={onChange}
-          min={min}
-          max={max}
-          step={step}
-          aria-valuemin={min}
-          aria-valuemax={max}
-          aria-valuenow={value}
-          aria-label={sliderDescription}  // Providing an accessible name for the range input
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-        />
-        {isHovered &&
-          <div className="tooltip"
-            style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              backgroundColor: '#333',
-              color: '#fff',
-              padding: '5px',
-              borderRadius: '4px',
-              fontSize: '14px',
-            }}
-          >
-            {sliderDescription}
-          </div>
-        }
+        <label htmlFor={sliderLabel}>{`${sliderTitle} (${sliderValue} ${unit})`}</label>
+        <div style={{ width: '30%' }}> 
+          <DarkYellowSlider
+            id={sliderLabel}
+            value={sliderValue}
+            onChange={handleSliderChange}
+            onChangeCommitted={handleSliderChangeCommitted}
+            aria-labelledby={sliderLabel}
+            valueLabelDisplay="auto"
+            step={step}
+            min={min}
+            max={max}
+          />
+        </div>
+      </div>
+      <div style={{ marginTop: '10px' }}>
+        {sliderDescription}
       </div>
     </div>
   );
@@ -333,8 +329,17 @@ const Devices = ({ devices }) => {
     };
 
     return (
-      <div style={sliderContainerStyle}>
-        <h1 style={titleStyle}>Device Settings</h1>
+      <div>
+      <div className="ml-90">
+        <header className="shrink-0 bg-transparent border-b border-gray-200">
+          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
+            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+              Device Settings
+            </h2>
+          </div>
+        </header>
+      </div>
+      
         <div style={sliderContainerStyle}>
           <HardwareUIDField hardwareUID={editedGlobalSettings["HW_UID"]["value"]} />
           <div style={sectionStyle}>
@@ -882,7 +887,6 @@ const Devices = ({ devices }) => {
         <div>
           <MouseOptions config={editedGestureMouseConfig} />
           <GestureOptions config={editedGestureMouseConfig} />
-          <BindingsPanel modeConfig={editedGestureMouseConfig} />
         </div>
       );
     }
@@ -894,7 +898,6 @@ const Devices = ({ devices }) => {
       return (
         <div>
           <ClickerOptions config={editedClickerConfig} />
-          <BindingsPanel modeConfig={editedClickerConfig} />
         </div>
       );
     }
@@ -907,7 +910,6 @@ const Devices = ({ devices }) => {
         <div>
           <TVRemoteOptions config={editedTVRemoteConfig} />
           <GestureOptions config={editedTVRemoteConfig} />
-          <BindingsPanel modeConfig={editedTVRemoteConfig} />
         </div>
       );
     };
@@ -919,7 +921,6 @@ const Devices = ({ devices }) => {
       return (
         <div>
           <MouseOptions config={editedPointerConfig} />
-          <BindingsPanel modeConfig={editedPointerConfig} />
         </div>
       );
     }
@@ -967,16 +968,56 @@ const Devices = ({ devices }) => {
     )
   }
 
+  const handleSave = async () => {
+    const userId = getCurrentUserId(); 
+    const userCatoDocId = thisDevice.id;
+  
+    const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
+  
+    try {
+      const globalConfigUpdate = {
+        "global_info": editedGlobalSettings
+      };
 
-
-
-  const handleSave = () => {
-    // Logic for handling the save action
-    // This function will be executed when the "Save" button is clicked
-    // Add your code here
+      const sleepUpdate = {
+        "sleep": {
+          "timeout": editedGlobalSettings.sleep.value.timeout.value,
+          "threshold": editedGlobalSettings.sleep.value.threshold.value
+        }
+      };
+  
+      const calibrationUpdate = {
+        "calibration": {
+          "auto_threshold": editedGlobalSettings.calibration.value.auto_threshold.value,
+          "auto_samples": editedGlobalSettings.calibration.value.auto_samples.value
+        }
+      };
+  
+      const orientationUpdate = {
+        "orientation": {
+          "front": editedGlobalSettings.orientation.value.front.value,
+          "bottom": editedGlobalSettings.orientation.value.bottom.value,
+          "left": editedGlobalSettings.orientation.value.left.value
+        }
+      };
+  
+      //firebase update
+      await updateDoc(userCatoDocRef, {
+        "device_info": {
+          "global_config": JSON.stringify(globalConfigUpdate),
+          ...sleepUpdate,
+          ...calibrationUpdate,
+          ...orientationUpdate
+        },
+        "connections": editedConnectionsSettings 
+      });
+  
+      console.log("Settings updated successfully");
+    } catch (error) {
+      console.error("Error updating settings: ", error);
+    }
   };
-
-
+  
 
 
   console.log('Device:', thisDevice)
@@ -991,7 +1032,7 @@ const Devices = ({ devices }) => {
       {/* Device details and logic */}
       <button onClick={handleRegisterInterface}
         style={{
-          backgroundColor: 'blue',
+          backgroundColor: '#8B0000', // Dark red color
           color: 'white',
           padding: '10px 20px',
           fontSize: '16px',
@@ -1003,7 +1044,7 @@ const Devices = ({ devices }) => {
       </button>
       <button onClick={handleSave}
         style={{
-          backgroundColor: 'green',
+          backgroundColor: '#B8860B', 
           color: 'white',
           padding: '10px 20px',
           fontSize: '16px',
