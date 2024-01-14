@@ -11,6 +11,7 @@ import {
 import { db } from "../../firebase";
 import { writeBatch } from "firebase/firestore";
 
+import { getStorage, ref, uploadBytes } from "firebase/storage";
 
 const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startRecording, deleteSelectedRecordings }) => {
   const activeGesture = gestures.find(g => g.id === activeGestureId);
@@ -24,6 +25,22 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
 
   const closeDeleteConfirm = () => {
     setShowDeleteConfirm(false);
+  };
+
+  const uploadFileToFirebase = async (file) => {
+    const storage = getStorage();
+    const storageRef = ref(storage, 'path/to/your/file/' + file.name); 
+
+    try {
+      await uploadBytes(storageRef, file);
+      console.log('File uploaded successfully');
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+  
+  const handleFileUpload = (file) => {
+    uploadFileToFirebase(file);
   };
   
   const toggleRecordingSelection = (recordingId) => {
@@ -56,11 +73,9 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
               Are you sure you want to delete all recordings?
             </p>
             <div className="flex space-x-4">
-              <button 
-                className="rounded-md bg-red-500 p-3 text-white hover:bg-red-700" 
-                onClick
-                  ={handleDeleteAllRecordings}
-                >
+              <button className="rounded-md bg-red-500 p-3 text-white hover:bg-red-700" 
+                onClick={handleDeleteAllRecordings}
+              >
                 Yes
               </button>
           <button 
@@ -77,6 +92,7 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
       {/* <div className="border border-gray-200 p-4 rounded-md shadow-md"> */}
       {/* <div className="w-1/4 p-4 space-y-4 bg-gray-200 rounded"> */}
       {/* <div className="w-1/4 p-4 space-y-4 border border-bg-gray-200 rounded-md shadow-md"> */}
+
       <div className="w-1/4 p-4 space-y-4 border border-bg-gray-200 rounded-md shadow-lg">
         {gestures.map((gesture) => (
           <div key={gesture.id} className="flex justify-between items-center">
@@ -86,7 +102,7 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
             >
               {gesture.name}
             </button>
-          </div>
+          </div> 
         ))}
         <button
           className="w-full text-left p-2 bg-gray-900 text-white rounded-md hover:bg-gray-800" 
@@ -129,27 +145,12 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
                       {recording.timestamp}
                     </div>
                   ))}
-                  {/* {activeGesture.recordings.length > 0 && (
-                    <div className="flex justify-end mt-2">
-                      <button
-                        className="rounded-md bg-gray-300 p-2 hover:bg-gray-400 disabled:opacity-50"
-                        onClick={handleDeleteSelected}
-                        disabled={selectedRecordings.length === 0}
-                      >
-                        <TrashIcon className="h-6 w-6 text-black" aria-hidden="true" />
-                      </button>
-                    </div>
-                  )} */}
-                  
                 </div>
-                
               ) : (
                 <div className="text-center text-gray-500">No recordings</div>
-                
               )}
-
-
             </div>
+
             {activeGesture.recordings.length > 0 && (
               <div className="flex justify-between mt-2">
                 {/* delete all button */}
@@ -186,12 +187,12 @@ const SelectGesture = ({ user }) => {
   const [showPopup, setShowPopup] = useState(false);
   const [selectedGesture, setSelectedGesture] = useState(null);
   const [recordingStart, setRecordingStart] = useState(null);
-  const [setSelectedTimestamps] = useState({});
 
   const [isRecording, setIsRecording] = useState(false);
   const [countdown, setCountdown] = useState(10);
 
   const [activeGestureId, setActiveGestureId] = useState(null);
+  const [gestureData, setGestureData] = useState([]);
 
   const [gestures, setGestures] = useState([
     { id: 1, name: "Nod up", count: 0, recordings: [] },
@@ -210,10 +211,6 @@ const SelectGesture = ({ user }) => {
     getGestStats();
   }, []);
 
-  // change later
-  const writeToFile = (fileName, data) => {
-    console.log(`Writing to ${fileName}:`, data);
-  };
 
   const handleGestureSelect = (gestureId) => {
     const gesture = gestures.find(g => g.id === gestureId);
@@ -245,14 +242,17 @@ const SelectGesture = ({ user }) => {
     });
   };
 
+  const addGestureData = (newData) => {
+    setGestureData(prevData => [...prevData, newData]);
+  };
+
   const startRecording = (gesture) => {
+    setGestureData([]);
+
     setSelectedGesture(gesture);
     setRecordingStart(new Date());
     setShowPopup(true);
     setIsRecording(true);
-
-    // default – change later
-    writeToFile('gesture.cato', { gestureName: gesture.name, startTime: new Date() });
 
     const countdownInterval = setInterval(() => {
       setCountdown((prevCount) => {
@@ -269,14 +269,22 @@ const SelectGesture = ({ user }) => {
     const duration = new Date() - recordingStart;
     const timestamp = new Date();
     setShowPopup(false);
-  
+
     if (selectedGesture) {
+      const gestureDataString = JSON.stringify(gestureData);
+  
       try {
         const gestureDataRef = collection(db, "gesture-data");
-        const recordingData = { useruid: user.uid, gesture: selectedGesture.name, timestamp, duration };
-        const docRef = await addDoc(gestureDataRef, recordingData); 
-  
-        // update new recording
+        const recordingData = {
+          useruid: user.uid,
+          gesture: selectedGesture.name,
+          timestamp,
+          duration,
+          gestureData,
+          log: gestureDataString 
+        };
+        const docRef = await addDoc(gestureDataRef, recordingData);
+
         setGestures(currentGestures => {
           return currentGestures.map(gesture => {
             if (gesture.name === selectedGesture.name) {
@@ -292,20 +300,14 @@ const SelectGesture = ({ user }) => {
             return gesture;
           });
         });
-  
         console.log("Recording saved for gesture:", selectedGesture.name);
       } catch (error) {
         console.error("Error saving recording data:", error);
       }
     }
-
     setIsRecording(false);
     setCountdown(10);
-
-    // default coding - ignore
-    writeToFile('log.txt', { gestureName: selectedGesture.name, duration, timestamp });
-
-  };  
+  };
 
   const getGestStats = async () => {
     const dataRef = collection(db, "gesture-data");
@@ -332,7 +334,7 @@ const SelectGesture = ({ user }) => {
     });
     setGestures(updatedGestures);
   };
-  
+
   return (
     <div className="">
       <div className="border-b border-gray-200 pb-10">
@@ -343,8 +345,8 @@ const SelectGesture = ({ user }) => {
         startRecording={startRecording}
         deleteSelectedRecordings={deleteSelectedRecordings}
       />
-
       </div>
+
       {showPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center justify-between" style={{ width: '50%', height: '50%' }}>
@@ -353,11 +355,10 @@ const SelectGesture = ({ user }) => {
             </p>
             <p className="text-lg font-medium">
               {isRecording ? `Recording ends in: ${countdown} seconds` : "Recording..."}
-            </p>
-            <button 
-              className="rounded-md bg-red-500 p-3 text-white hover:bg-red-700" 
+            </p> 
+            <button className="rounded-md bg-red-500 p-3 text-white hover:bg-red-700" 
               onClick={stopRecording}
-            >
+            > 
               Stop Recording
             </button>
           </div>
@@ -368,3 +369,4 @@ const SelectGesture = ({ user }) => {
 };
 
 export default SelectGesture;
+
