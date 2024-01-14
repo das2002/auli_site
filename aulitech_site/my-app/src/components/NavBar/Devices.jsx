@@ -882,6 +882,7 @@ const Devices = ({ devices }) => {
         <div>
           <MouseOptions config={editedGestureMouseConfig} />
           <GestureOptions config={editedGestureMouseConfig} />
+          <BindingsPanel modeConfig={editedGestureMouseConfig} />
         </div>
       );
     }
@@ -893,6 +894,7 @@ const Devices = ({ devices }) => {
       return (
         <div>
           <ClickerOptions config={editedClickerConfig} />
+          <BindingsPanel modeConfig={editedClickerConfig} />
         </div>
       );
     }
@@ -905,6 +907,7 @@ const Devices = ({ devices }) => {
         <div>
           <TVRemoteOptions config={editedTVRemoteConfig} />
           <GestureOptions config={editedTVRemoteConfig} />
+          <BindingsPanel modeConfig={editedTVRemoteConfig} />
         </div>
       );
     };
@@ -916,6 +919,7 @@ const Devices = ({ devices }) => {
       return (
         <div>
           <MouseOptions config={editedPointerConfig} />
+          <BindingsPanel modeConfig={editedPointerConfig} />
         </div>
       );
     }

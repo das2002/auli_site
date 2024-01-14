@@ -20,6 +20,7 @@ import PracticeMode from './components/PracticeMode/Practice';
 import RegisterInterface from './components/NavBar/RegisterInterface';
 
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import BindingsPanel from './components/NavBar/Bindings';
 
 
 
@@ -394,6 +395,7 @@ function App() {
             <Route path="/record-gestures" element={<RecordGestures />} />
             <Route path="/updates" element={<Updates />} />
             <Route path="/devices/:deviceName" element={<Devices  devices={devices}/>} />
+            <Route path='/devices/:deviceName/bindings' element={<BindingsPanel user={user} devices={devices} currIndex={currIndex} />} />
             <Route path= "/devices/:deviceName/register-interface" element={<RegisterInterface user={user} devices={devices}/>} />
             <Route path="/practice" element= {<PracticeMode />} />
           </Routes>

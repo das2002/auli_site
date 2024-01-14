@@ -2,7 +2,7 @@ import React, { useState, useEffect} from 'react';
 import {KeyOptions, getKeyOption} from './KeyOptions';
 
 // TODO: load from user defaults
-const getDefaultConfigForDevice = (device) => {
+const getInitialConfigForMode = (modeConfig) => {
     const defaultConfig = [
         { gesture: 'None', command: 'noop', setting1: '', setting2: '' , setting3: ''},
         { gesture: 'Nod Up', command: 'noop', setting1: '', setting2: '' , setting3: ''},
@@ -12,6 +12,9 @@ const getDefaultConfigForDevice = (device) => {
         { gesture: 'Tilt Right', command: 'noop', setting1: '', setting2: '' , setting3: ''},
         { gesture: 'Tilt Left', command: 'noop', setting1: '', setting2: '' , setting3: ''},
     ];
+    if (modeConfig.bindings.value) {
+        return modeConfig.bindings.value;
+    }
     // Implement logic to return the default configuration for a given device
     // This could be fetching from a server, local storage, or a predefined object
     return defaultConfig;
@@ -73,13 +76,15 @@ function buttonMapping(button) {
 
 
 
-const BindingsPanel = ({connection, device}) => {
-    const [bindings, setBindings] = useState(getDefaultConfigForDevice(device));
-    const [savedBindings, setSavedBindings] = useState(getDefaultConfigForDevice(device));
+const BindingsPanel = ({modeConfig}) => {
+    console.log("modeConfig: ", modeConfig);
+    console.log("modeConfig bindings", modeConfig.bindings.value);
+    const [bindings, setBindings] = useState(getInitialConfigForMode(modeConfig));
+    const [savedBindings, setSavedBindings] = useState(getInitialConfigForMode(modeConfig));
     const [savedJSON, setSavedJSON] = useState('');
 
     const resetBindings = () => {
-        setBindings(getDefaultConfigForDevice(device));
+        setBindings(getInitialConfigForMode(modeConfig));
     };
 
     useEffect(() => {
@@ -321,22 +326,7 @@ const BindingsPanel = ({connection, device}) => {
           </table>
 
           {/* Button Container */}
-          <div className="flex justify-end mt-4">
-            <div className="flex space-x-6">
-                <button
-                    onClick={resetBindings}
-                    className="bg-gray-600 inline-flex rounded-full items-center px-2 py-1 text-lg font-semibold text-white disabled:bg-gray-200 disabled:cursor-not-allowed hover:opacity-70"
-                >
-                    Reset
-                </button>
-                <button
-                    onClick={saveBindings}
-                    className="decision-button bg-gray-600 inline-flex rounded-full items-center px-2 py-1 text-lg font-semibold text-white disabled:bg-gray-200 disabled:cursor-not-allowed hover:opacity-70"
-                >
-                    Save
-                </button>
-            </div>
-        </div>
+          
         </div>
       );
     };
