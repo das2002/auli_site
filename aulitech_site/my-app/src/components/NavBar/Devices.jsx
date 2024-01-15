@@ -23,6 +23,12 @@ const DarkYellowSlider = styled(Slider)(({ theme }) => ({
   },
 }));
 
+const sectionHeadingStyle = {
+  fontSize: '20px',
+  marginBottom: '10px',
+  fontWeight: 'bold', // Add the fontWeight property
+};
+
 const HardwareUIDField = ({ hardwareUID }) => {
   return (
     <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
@@ -763,7 +769,7 @@ const Devices = ({ devices }) => {
     const ClickerOptions = (config) => {
       return (
         <div style={{ maxWidth: '600px', margin: 'auto' }}>
-          <h1 style={titleStyle}>Clicker Settings</h1>
+          <h2 style={sectionHeadingStyle}>Clicker Settings</h2>
           <div style={sliderContainerStyle}>
             <p style={descriptionStyle}>Adjust your clicker settings below:</p>
             <InputSlider
@@ -887,6 +893,7 @@ const Devices = ({ devices }) => {
         <div>
           <MouseOptions config={editedGestureMouseConfig} />
           <GestureOptions config={editedGestureMouseConfig} />
+          <BindingsPanel config={editedGestureMouseConfig} />
         </div>
       );
     }
@@ -898,6 +905,7 @@ const Devices = ({ devices }) => {
       return (
         <div>
           <ClickerOptions config={editedClickerConfig} />
+          <BindingsPanel config={editedClickerConfig} />
         </div>
       );
     }
@@ -910,6 +918,7 @@ const Devices = ({ devices }) => {
         <div>
           <TVRemoteOptions config={editedTVRemoteConfig} />
           <GestureOptions config={editedTVRemoteConfig} />
+          <BindingsPanel config={editedGestureMouseConfig} />
         </div>
       );
     };
@@ -921,6 +930,7 @@ const Devices = ({ devices }) => {
       return (
         <div>
           <MouseOptions config={editedPointerConfig} />
+          <BindingsPanel config={editedPointerConfig} />
         </div>
       );
     }
@@ -944,7 +954,7 @@ const Devices = ({ devices }) => {
           {connection.name}
         </button>
         {isExpanded && (
-          <div >
+          <div>
             <Dropdown
               value={operationModeConversion(activeOperationMode)}
               onChange={(e) => handleOperationModeSelection(e.target.value)}

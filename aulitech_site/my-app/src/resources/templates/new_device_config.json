@@ -1,56 +1,466 @@
 {
+    "connections": [
+        {
+            "operation_mode": {
+                "value": "gesture_mouse",
+                "access": "rw",
+                "label": "Mode",
+                "description": "a name defining the operation mode of Cato",
+                "options": [
+                    "gesture_mouse",
+                    "tv_remote",
+                    "pointer",
+                    "clicker",
+                    "practice"
+                ]
+            },
+            "connection_name": {
+                "label": "Connection Name",
+                "access": "rw",
+                "value": "Default Connection",
+                "description": "Nickname for this connection"
+            },
+            "gesture": {
+                "label": "Gesture Parameters",
+                "access": "rw",
+                "value": {
+                    "key": {
+                        "value": [
+                            "None",
+                            "Nod Up",
+                            "Nod Down",
+                            "Nod Right",
+                            "Nod Left",
+                            "Tilt Right",
+                            "Tilt Left"
+                        ],
+                        "label": "Gesture Key",
+                        "access": "r",
+                        "note": "This determines text output of practice mode",
+                        "description": "Human-readable field describing Gesture model's names of gestures"
+                    },
+                    "idle_threshold": {
+                        "label": "Idle threshold",
+                        "access": "r",
+                        "value": 30,
+                        "description": "Value of move speed below which is considered idle - leading to mouse exit. Low number = more stillness to idle out of gesture recognition"
+                    },
+                    "confidence_threshold": {
+                        "value": 0.62,
+                        "label": "Confidence threshold",
+                        "access": "rw",
+                        "note": "Low value -> few dry-fires, more frequent misinterpretation. High value -> frequent dry-fires, rare misinterpretation",
+                        "description": "Threshold of gesture confidence probability [0, 1], for Cato to accept gesture and execute command",
+                        "range": {
+                            "max": 0.9,
+                            "min": 0.55
+                        }
+                    },
+                    "gc_timeout": {
+                        "value": 10,
+                        "label": "Gesture Collection Timeout",
+                        "access": "rw",
+                        "description": "Time to wait before beginning gesture collection over bluetooth",
+                        "range": {
+                            "max": 60,
+                            "min": 5
+                        }
+                    },
+                    "idle_cutoff": {
+                        "label": "Idle Cutoff",
+                        "access": "r",
+                        "value": 20,
+                        "description": "Number of consecutive idle samples leading to gesture cutoff"
+                    },
+                    "start_threshold": {
+                        "label": "Movement threshold",
+                        "access": "r",
+                        "value": 22.36,
+                        "description": "movement required to start capturing gesture. Startup threshold"
+                    },
+                    "timeout": {
+                        "value": 1.0,
+                        "label": "Timeout",
+                        "access": "rw",
+                        "description": "Maximum Time (seconds) to Wait for Gesture Start before exiting recognition window",
+                        "range": {
+                            "max": 3.0,
+                            "min": 0.1
+                        }
+                    },
+                    "turbo_rate": {
+                        "value": {
+                            "initial": {
+                                "label": "Initial Spacing",
+                                "access": "rw",
+                                "value": 1,
+                                "description": "Initial button-press spacing"
+                            },
+                            "decay_rate": {
+                                "value": 0.9,
+                                "label": "Decay Rate",
+                                "access": "rw",
+                                "description": "Rate (geometric) of time-between-press decay",
+                                "range": {
+                                    "max": 0.95,
+                                    "min": 0.65
+                                }
+                            },
+                            "minimum": {
+                                "label": "Minimum Spacing",
+                                "access": "rw",
+                                "value": 0.2,
+                                "description": "Minimum (fastest) button press spacings"
+                            }
+                        },
+                        "label": "Turbo Options",
+                        "access": "rw",
+                        "note": "TODO: not yet implemented with current button acctions",
+                        "description": "Options for 'Turbo' (repeated, accelerating button presses until cancelled)"
+                    },
+                    "length": {
+                        "label": "Length",
+                        "access": "r",
+                        "value": 200,
+                        "description": "Number of samples (max) in a gesture to be fed to Neuton"
+                    }
+                },
+                "description": "Settings for gesture collection and recognition cutoff tools"
+            },
+            "bindings": {
+                "value": [
+                    {
+                        "command": "noop",
+                        "args": []
+                    },
+                    {
+                        "command": "button_action",
+                        "args": [
+                            0,
+                            "double_tap",
+                            1
+                        ]
+                    },
+                    {
+                        "command": "button_action",
+                        "args": [
+                            0,
+                            "tap",
+                            1
+                        ]
+                    },
+                    {
+                        "command": "button_action",
+                        "args": [
+                            0,
+                            "tap",
+                            2
+                        ]
+                    },
+                    {
+                        "command": "button_action",
+                        "args": [
+                            0,
+                            "hold_until_idle",
+                            1
+                        ]
+                    },
+                    {
+                        "command": "quick_sleep",
+                        "args": []
+                    },
+                    {
+                        "command": "pointer_sleep",
+                        "args": []
+                    }
+                ]
+            },
+            "mouse": {
+                "label": "Mouse",
+                "access": "rw",
+                "value": {
+                    "scale_x": {
+                        "value": 0.5,
+                        "label": "Horizontal Movement Scale Factor",
+                        "access": "rw",
+                        "description": "Mouse sensitivity to horizontal movement",
+                        "range": {
+                            "max": 4.0,
+                            "min": 0.1
+                        }
+                    },
+                    "dwell_repeat": {
+                        "value": true,
+                        "label": "Dwell Repeat Clicks",
+                        "access": "rw",
+                        "description": "Continued idle causes multiple clicks",
+                        "options": [
+                            true,
+                            false
+                        ]
+                    },
+                    "idle_duration": {
+                        "value": 80,
+                        "label": "Idle timeout cycles",
+                        "access": "rw",
+                        "description": "Amount of idle time (in .01 second increments) required to trigger mouse exit",
+                        "range": {
+                            "max": 150,
+                            "min": 30
+                        }
+                    },
+                    "dwell_duration": {
+                        "value": 50,
+                        "label": "Dwell Trigger Cycles",
+                        "access": "rw",
+                        "description": "Amount of idle time (in .01 second increments) needed to trigger action in dwell_click",
+                        "range": {
+                            "max": 100,
+                            "min": 20
+                        }
+                    },
+                    "scale_y": {
+                        "value": 0.4,
+                        "label": "Vertical Movement Scale Factor",
+                        "access": "rw",
+                        "description": "Mouse sensitivity to vertical movement",
+                        "range": {
+                            "max": 4.0,
+                            "min": 0.1
+                        }
+                    },
+                    "shake_size": {
+                        "value": 6,
+                        "label": "Shake Size",
+                        "access": "rw",
+                        "description": "Size of cursor movement for gesture indicator",
+                        "range": {
+                            "max": 20,
+                            "min": 0
+                        }
+                    },
+                    "num_shake": {
+                        "value": 3,
+                        "label": "Number of Shakes",
+                        "access": "rw",
+                        "description": "Number of times to repeat gesture ready indicator",
+                        "range": {
+                            "max": 5,
+                            "min": 0
+                        }
+                    },
+                    "min_run_cycles": {
+                        "value": 0,
+                        "label": "Minimum Mouse Runtime",
+                        "access": "rw",
+                        "description": "Minimum time (in .01 second increments) that mouse will always run before checking idle conditions for exit",
+                        "range": {
+                            "max": 100,
+                            "min": 0
+                        }
+                    },
+                    "dynamic_mouse": {
+                        "value": {
+                            "output": {
+                                "label": "Output",
+                                "access": "rw",
+                                "value": {
+                                    "slow": {
+                                        "value": 0.5,
+                                        "label": "Slow",
+                                        "access": "rw",
+                                        "description": "Scale factor at (and below) slowest input speed",
+                                        "range": {
+                                            "max": 2.0,
+                                            "min": 0.1
+                                        }
+                                    },
+                                    "fast": {
+                                        "value": 1.5,
+                                        "label": "Fast",
+                                        "access": "rw",
+                                        "description": "Scale factor at (and above) fastest input speed",
+                                        "range": {
+                                            "max": 6.0,
+                                            "min": 1.0
+                                        }
+                                    }
+                                },
+                                "description": "Cursor speed output scaling. Slow input uses 'slow' setting. Fast input uses 'fast' setting. Intermediate movement is scaled linearly between."
+                            },
+                            "input": {
+                                "label": "Input",
+                                "access": "rw",
+                                "value": {
+                                    "slow": {
+                                        "value": 20.0,
+                                        "label": "Slow",
+                                        "access": "rw",
+                                        "description": "Rotation speed floor below which scale remains constant",
+                                        "range": {
+                                            "max": 400.0,
+                                            "min": 0.0
+                                        }
+                                    },
+                                    "fast": {
+                                        "value": 40.0,
+                                        "label": "Fast",
+                                        "access": "rw",
+                                        "description": "Rotation speed ceiling above which scale remains constant",
+                                        "range": {
+                                            "max": 500.0,
+                                            "min": 0.0
+                                        }
+                                    }
+                                },
+                                "description": "User movement conditions defining slow and fast head movement in degrees/second"
+                            }
+                        },
+                        "label": "Dynamic Mouse",
+                        "access": "rw",
+                        "note": "For both input and output, required that Fast > Slow.",
+                        "description": "Settings for dynamic mouse acceleration"
+                    },
+                    "idle_threshold": {
+                        "value": 5.0,
+                        "label": "Mouse Idle Threshold",
+                        "access": "rw",
+                        "description": "Value of move speed below which is considered idle. Causes mouse exit; High value: easier to idle out; Low value: mouse stays active.",
+                        "range": {
+                            "max": 12.0,
+                            "min": 5.0
+                        }
+                    }
+                },
+                "description": "Settings specific to mouse movement"
+            },
+            "screen_size": {
+                "label": "Screen Size",
+                "access": "rw",
+                "value": {
+                    "height": {
+                        "range": {
+                            "max": 4320,
+                            "min": 600
+                        },
+                        "access": "rw",
+                        "value": 1080,
+                        "description": "height in pixels"
+                    },
+                    "width": {
+                        "range": {
+                            "max": 8192,
+                            "min": 800
+                        },
+                        "access": "rw",
+                        "value": 1920,
+                        "description": "width in pixels"
+                    }
+                },
+                "description": "structure containing screen height and width in pixels"
+            }
+        }
+    ],
     "global_info": {
         "name": {
+            "value": "",
             "label": "Device Name",
-            "description": "a user-settable string for assigning the name of the Cato device",
-            "note": "Name defaults to 'Cato_<HW_UID>' at boot, but is not set if name is defined here",
             "access": "rw",
-            "value": ""
-        },
-        "HW_UID": {
-            "label": "Hardware Unique Identity",
-            "description": "Unique hex code for identifying different devices",
-            "access": "r",
-            "value": ""
+            "note": "Name defaults to 'Cato_<HW_UID>' at boot, but is not set if name is defined here",
+            "description": "a user-settable string for assigning the name of the Cato device"
         },
         "sleep": {
             "label": "Sleep",
-            "description": "Controls for Entering Sleep",
             "access": "rw",
             "value": {
                 "timeout": {
-                    "label": "Timeout",
-                    "description": "Number of consecutive low-movement seconds before Cato sleeps",
-                    "access": "rw",
                     "value": 600,
+                    "label": "Timeout",
+                    "access": "rw",
+                    "description": "Number of consecutive low-movement seconds before Cato sleeps",
                     "range": {
-                        "min": 10,
-                        "max": 1200
+                        "max": 1200,
+                        "min": 10
                     }
                 },
                 "threshold": {
-                    "label": "Sleep Threshold",
-                    "description": "Movement level below which Cato starts counting towards sleep",
-                    "access": "rw",
                     "value": 5.0,
+                    "label": "Sleep Threshold",
+                    "access": "rw",
+                    "description": "Movement level below which Cato starts counting towards sleep",
                     "range": {
-                        "min": 2.0,
-                        "max": 10.0
+                        "max": 10.0,
+                        "min": 2.0
                     }
                 }
-            }
+            },
+            "description": "Controls for Entering Sleep"
+        },
+        "calibration": {
+            "label": "Calibration (including automatic) Parameters",
+            "access": "rw",
+            "value": {
+                "drift": {
+                    "label": "drift",
+                    "access": "r",
+                    "value": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "description": "x, y, z gyroscope drift per-cycle - used as trim adjustments"
+                },
+                "auto_samples": {
+                    "label": "Auto-Calibration Samples Taken",
+                    "access": "rw",
+                    "value": 100,
+                    "description": "number of samples to wait (at below auto_threshold) required to trigger auto recalibratoion"
+                },
+                "auto_threshold": {
+                    "value": 3.0,
+                    "label": "Auto-Calibration Threshold",
+                    "access": "rw",
+                    "description": "movement required (as a scale of mouse>idle_threshold) to fail automatic calibration for gyro drift",
+                    "range": {
+                        "max": 5.0,
+                        "min": 0.6
+                    }
+                }
+            },
+            "description": "structure containing both current calibration (trim) values and preferences for auto calibration"
+        },
+        "HW_UID": {
+            "label": "Hardware Unique Identity",
+            "access": "r",
+            "value": "6a6a866c7d2c4c0c",
+            "description": "Unique hex code for identifying different devices"
+        },
+        "battery": {
+            "label": "Battery",
+            "access": "r",
+            "value": {
+                "high": {
+                    "label": "High",
+                    "access": "r",
+                    "value": 27500,
+                    "description": "Value of analog pin indicating charged battery. Typ. ~30000"
+                },
+                "low": {
+                    "label": "Low",
+                    "access": "r",
+                    "value": 22800,
+                    "description": "Value of analog pin indicating discharged battery. Typ. ~23000"
+                }
+            },
+            "description": "DEV TOOL: analog pin values of high and low battery charge [low, high]"
         },
         "orientation": {
-            "label": "Orientation",
-            "description": "parameters describing usage orientation for Cato",
-            "access": "rw",
-            "note": "default orientation is on the right side of the glasses, with the circular battery compartment facing OUT (and usb port forward)",
             "value": {
                 "front": {
-                    "label": "front",
-                    "description": "",
-                    "access": "rw",
                     "value": "-y",
+                    "label": "front",
+                    "access": "rw",
+                    "description": "",
                     "options": [
                         "+x",
                         "-x",
@@ -61,10 +471,10 @@
                     ]
                 },
                 "bottom": {
-                    "label": "bottom",
-                    "description": "",
-                    "access": "rw",
                     "value": "+x",
+                    "label": "bottom",
+                    "access": "rw",
+                    "description": "",
                     "options": [
                         "+x",
                         "-x",
@@ -75,10 +485,10 @@
                     ]
                 },
                 "left": {
-                    "label": "left",
-                    "description": "",
-                    "access": "rw",
                     "value": "+z",
+                    "label": "left",
+                    "access": "rw",
+                    "description": "",
                     "options": [
                         "+x",
                         "-x",
@@ -88,61 +498,11 @@
                         "-z"
                     ]
                 }
-            }
-        },
-        "calibration": {
-            "label": "Calibration (including automatic) Parameters",
-            "description": "structure containing both current calibration (trim) values and preferences for auto calibration",
+            },
+            "label": "Orientation",
             "access": "rw",
-            "value": {
-                "drift": {
-                    "label": "drift",
-                    "description": "x, y, z gyroscope drift per-cycle - used as trim adjustments",
-                    "access": "r",
-                    "value": [
-                        0,
-                        0,
-                        0
-                    ]
-                },
-                "auto_threshold": {
-                    "label": "Auto-Calibration Threshold",
-                    "description": "movement required (as a scale of mouse>idle_threshold) to fail automatic calibration for gyro drift",
-                    "access": "rw",
-                    "value": 0.6,
-                    "range": {
-                        "min": 0.2,
-                        "max": 1.0
-                    }
-                },
-                "auto_samples": {
-                    "label": "Auto-Calibration Samples Taken",
-                    "description": "number of samples to wait (at below auto_threshold) required to trigger auto recalibratoion",
-                    "access": "rw",
-                    "value": 100
-                }
-            }
-        },
-        "battery": {
-            "label": "Battery",
-            "description": "DEV TOOL: analog pin values of high and low battery charge [low, high]",
-            "access": "r",
-            "value": {
-                "low": {
-                    "label": "Low",
-                    "description": "Value of analog pin indicating discharged battery. Typ. ~23000",
-                    "access": "r",
-                    "value": 22800
-                },
-                "high": {
-                    "label": "High",
-                    "description": "Value of analog pin indicating charged battery. Typ. ~30000",
-                    "access": "r",
-                    "value": 27500
-                }
-            }
+            "note": "default orientation is on the right side of the glasses, with the circular battery compartment facing OUT (and usb port forward)",
+            "description": "parameters describing usage orientation for Cato"
         }
-    },
-    "connections": [
-    ]
+    }
 }

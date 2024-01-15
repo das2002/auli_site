@@ -1,8 +1,16 @@
 import React, { useState, useEffect} from 'react';
 import {KeyOptions, getKeyOption} from './KeyOptions';
 
+
+const sectionHeadingStyle = {
+    fontSize: '20px',
+    marginBottom: '10px',
+    fontWeight: 'bold', // Add the fontWeight property
+  };
+
 // TODO: load from user defaults
-const getInitialConfigForMode = (modeConfig) => {
+const getInitialBindingsForMode = (config) => {
+    console.log(config);
     const defaultConfig = [
         { gesture: 'None', command: 'noop', setting1: '', setting2: '' , setting3: ''},
         { gesture: 'Nod Up', command: 'noop', setting1: '', setting2: '' , setting3: ''},
@@ -12,11 +20,9 @@ const getInitialConfigForMode = (modeConfig) => {
         { gesture: 'Tilt Right', command: 'noop', setting1: '', setting2: '' , setting3: ''},
         { gesture: 'Tilt Left', command: 'noop', setting1: '', setting2: '' , setting3: ''},
     ];
-    if (modeConfig.bindings.value) {
-        return modeConfig.bindings.value;
+    if (config.bindings.value) {
+        return config.bindings.value;
     }
-    // Implement logic to return the default configuration for a given device
-    // This could be fetching from a server, local storage, or a predefined object
     return defaultConfig;
 };
 
@@ -76,22 +82,13 @@ function buttonMapping(button) {
 
 
 
-const BindingsPanel = ({modeConfig}) => {
-    console.log("modeConfig: ", modeConfig);
-    console.log("modeConfig bindings", modeConfig.bindings.value);
-    const [bindings, setBindings] = useState(getInitialConfigForMode(modeConfig));
-    const [savedBindings, setSavedBindings] = useState(getInitialConfigForMode(modeConfig));
-    const [savedJSON, setSavedJSON] = useState('');
+const BindingsPanel = ({config}) => {
+    console.log("config: ", config);
+    console.log("config bindings", config.bindings.value);
+    const [fetchedBindings, setFetchedBindings] = useState(getInitialBindingsForMode(config));
+    const [editedBindings, setEditedBindings] = useState(getInitialBindingsForMode(config));
 
-    const resetBindings = () => {
-        setBindings(getInitialConfigForMode(modeConfig));
-    };
-
-    useEffect(() => {
-        resetBindings();
-    }, []); // Empty dependency array ensures this runs only on mount
-
-
+    /*
     const saveBindings = () => {
         setSavedBindings(bindings);
         
@@ -123,11 +120,12 @@ const BindingsPanel = ({modeConfig}) => {
         console.log("Bindings saved:", JSON.stringify(bindingsToSave, null, 2));
         // Here you might send the bindings to a server or update some other state
     };
+    */
     
 
 
     const handleCommandChange = (index, value) => {
-        const updatedBindings = [...bindings];
+        const updatedBindings = [...editedBindings];
         const currentBinding = updatedBindings[index];
     
         // Set default settings only when the command changes for the first time
@@ -153,14 +151,14 @@ const BindingsPanel = ({modeConfig}) => {
         }
     
         updatedBindings[index].command = value;
-        setBindings(updatedBindings);
+        setEditedBindings(updatedBindings);
     };
     
     
     
   
     const handleSettingsChange = (index, settingNumber, value) => {
-        const updatedBindings = [...bindings];
+        const updatedBindings = [...editedBindings];
         const currentBinding = updatedBindings[index];
     
         if (currentBinding.command === 'button_action') {
@@ -173,25 +171,25 @@ const BindingsPanel = ({modeConfig}) => {
     
         // Update the setting that has been changed
         currentBinding[`setting${settingNumber}`] = value;
-        setBindings(updatedBindings);
+        setEditedBindings(updatedBindings);
     };
     
     
 
     return (
-        <div className='w-7/12 flex flex-col'>
-          <h3>Bindings Panel</h3>
+        <div className='w-16/12 flex flex-col'>
+          <h2 style= {sectionHeadingStyle}>Bindings Panel</h2>
           <table className='table-fixed'>
             <thead>
                 <tr>
                     <th className="w-2/12 p-2 border border-gray-200">Gesture</th>
                     <th className="w-2/12 p-2 border border-gray-200">Command</th>
-                    <th className="w-4/12 p-2 border border-gray-200">Settings</th>
-                    <th className="w-4/12 p-2 border border-gray-200">Description</th>
+                    <th className="w-6/12 p-2 border border-gray-200">Settings</th>
+                    <th className="w-6/12 p-2 border border-gray-200">Description</th>
                 </tr>
             </thead>
             <tbody>
-              {bindings.map((binding, index) => (
+              {editedBindings.map((binding, index) => (
                 
                 <tr key={index} className="max-h-16 h-16">
 
