@@ -174,6 +174,15 @@ const BindingsPanel = ({config}) => {
         setEditedBindings(updatedBindings);
     };
     
+    const gesturesList = [
+        'None',
+        'Nod Up',
+        'Nod Down',
+        'Nod Right',
+        'Nod Left',
+        'Tilt Right',
+        'Tilt Left'
+    ]
     
 
     return (
@@ -195,7 +204,7 @@ const BindingsPanel = ({config}) => {
 
                     {/* Gesture */}
                     <td className="bg-white px-3 py-4 border border-gray-200 text-gray-800 text-md">
-                        {binding.gesture}
+                        {gesturesList[index]}
                     </td>
 
                     {/* Command */}
@@ -227,7 +236,7 @@ const BindingsPanel = ({config}) => {
                                 {/* BUTTON */}
                                 <div className='w-full flex-0 flex flex-col items-center'>
                                     <th className="w-full px-4 text-center text-sm">Button</th>
-                                    <select className='w-5/6 py-1 text-sm'
+                                    <select className='w-full py-1 text-sm'
                                     value={binding.setting1}
                                     onChange={(e) => handleSettingsChange(index, 1, e.target.value)}
                                     >

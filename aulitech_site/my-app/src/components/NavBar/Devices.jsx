@@ -88,7 +88,7 @@ const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, slide
   };
 
   const handleSliderChangeCommitted = (event, newValue) => {
-    console.log('Final Value:', newValue);
+    //console.log('Final Value:', newValue);
     if (onChange) {
       onChange({ target: { value: newValue } }); 
     }
@@ -268,16 +268,6 @@ const Devices = ({ devices }) => {
   };
 
 
-  /*
-  const handleGlobalConfigChange = (keyList) => (value) => {
-    let currentConfig = editedGlobalSettings;
-    for (let i = 0; i < keyList.length - 1; i++) {
-      currentConfig = currentConfig[keyList[i]];
-    }
-    currentConfig[keyList[keyList.length - 1]] = value;
-  }
-  */
-
 
   // what should happen as soon as we get thisDevice
   useEffect(() => {
@@ -450,7 +440,7 @@ const Devices = ({ devices }) => {
 
 
   const AccordionList = ({ data }) => {
-    console.log('data:', data);
+    //console.log('data:', data);
     return (
       <div style={sliderContainerStyle}>
         <div style={accordionListStyle}>
@@ -515,7 +505,7 @@ const Devices = ({ devices }) => {
         const getGestureMouseConfig = async () => {
           let gestureMouseConfigString = connection["mode"]["gesture_mouse"]
           let gestureMouseConfig = (JSON.parse(gestureMouseConfigString));
-          console.log('gestureMouseConfig:', gestureMouseConfig)
+          //console.log('gestureMouseConfig:', gestureMouseConfig)
           setFetchedGestureMouseConfig(deepCopy(gestureMouseConfig));
           setEditedGestureMouseConfig(deepCopy(gestureMouseConfig));
         };
@@ -588,7 +578,7 @@ const Devices = ({ devices }) => {
     }
 
     const handleModeConfigChange = (keyList, mode) => {
-      console.log('mode:', mode);
+      //console.log('mode:', mode);
       return debounce((value) => {
         if (mode === "gesture_mouse") {
           const newEditedGestureMouseConfig = deepCopy(editedGestureMouseConfig);
@@ -660,7 +650,7 @@ const Devices = ({ devices }) => {
     };
 
     const MouseOptions = (config) => {
-      console.log(config);
+      //(config);
       return (
         <div style={{ maxWidth: '600px', margin: 'auto' }}>
           <h1 style={titleStyle}>Mouse Settings</h1>
@@ -986,41 +976,25 @@ const Devices = ({ devices }) => {
   
     try {
       const globalConfigUpdate = {
-        "global_info": editedGlobalSettings
+        "global_info": editedGlobalSettings,
       };
 
-      const sleepUpdate = {
-        "sleep": {
-          "timeout": editedGlobalSettings.sleep.value.timeout.value,
-          "threshold": editedGlobalSettings.sleep.value.threshold.value
-        }
-      };
-  
-      const calibrationUpdate = {
-        "calibration": {
-          "auto_threshold": editedGlobalSettings.calibration.value.auto_threshold.value,
-          "auto_samples": editedGlobalSettings.calibration.value.auto_samples.value
-        }
-      };
-  
-      const orientationUpdate = {
-        "orientation": {
-          "front": editedGlobalSettings.orientation.value.front.value,
-          "bottom": editedGlobalSettings.orientation.value.bottom.value,
-          "left": editedGlobalSettings.orientation.value.left.value
-        }
-      };
-  
+      // for each connection, update the connection_config
+      
+      console.log(connectionsList);
+
+      // iterate through the accordion list and update the connectionList connection-by-connection
+
+      console.log(editedConnectionsSettings);
+
+      
       //firebase update
       await updateDoc(userCatoDocRef, {
-        "device_info": {
-          "global_config": JSON.stringify(globalConfigUpdate),
-          ...sleepUpdate,
-          ...calibrationUpdate,
-          ...orientationUpdate
-        },
-        "connections": editedConnectionsSettings 
+        'device_info.global_config': JSON.stringify(globalConfigUpdate),
       });
+      
+
+      //TODO: write to user device
   
       console.log("Settings updated successfully");
     } catch (error) {
@@ -1030,7 +1004,7 @@ const Devices = ({ devices }) => {
   
 
 
-  console.log('Device:', thisDevice)
+  //console.log('Device:', thisDevice)
 
   if (!thisDevice) {
     return <div>Device not found</div>;
