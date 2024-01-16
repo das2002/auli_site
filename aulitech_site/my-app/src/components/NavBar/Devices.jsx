@@ -78,6 +78,7 @@ const deepCopy = (obj) => {
 
 const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, sliderDescription, sliderLabel }) => {
   const [sliderValue, setSliderValue] = useState(value || 0);
+  const [isLabelHovered, setIsLabelHovered] = useState(false);
 
   useEffect(() => {
     setSliderValue(value || 0);
@@ -88,16 +89,27 @@ const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, slide
   };
 
   const handleSliderChangeCommitted = (event, newValue) => {
-    //console.log('Final Value:', newValue);
     if (onChange) {
-      onChange({ target: { value: newValue } }); 
+      onChange({ target: { value: newValue } });
     }
   };
 
   return (
     <div style={{ marginBottom: '20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <label htmlFor={sliderLabel}>{`${sliderTitle} (${sliderValue} ${unit})`}</label>
+        <label 
+          htmlFor={sliderLabel} 
+          style={{ position: 'relative', display: 'block', cursor: 'pointer' }}
+          onMouseEnter={() => setIsLabelHovered(true)} 
+          onMouseLeave={() => setIsLabelHovered(false)}
+        >
+          {`${sliderTitle} (${sliderValue} ${unit})`}
+          {isLabelHovered && (
+            <div className="tooltip" style={hoverstyle}>
+              {sliderDescription}
+            </div>
+          )}
+        </label>
         <div style={{ width: '30%' }}> 
           <DarkYellowSlider
             id={sliderLabel}
@@ -112,13 +124,23 @@ const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, slide
           />
         </div>
       </div>
-      <div style={{ marginTop: '10px' }}>
-        {sliderDescription}
-      </div>
     </div>
   );
 };
 
+const hoverstyle = {
+  position: 'absolute',
+  backgroundColor: '#333',
+  color: 'white',
+  padding: '5px',
+  borderRadius: '4px',
+  fontSize: '12px',
+  top: '-25px',
+  right: '100%', 
+  transform: 'translateX(100%)', 
+  whiteSpace: 'nowrap',
+  zIndex: 2
+};
 
 const Dropdown = ({ value, onChange, title, description, options }) => {
   const formattedOptions = options.map((option) =>
@@ -425,7 +447,7 @@ const Devices = ({ devices }) => {
               step={0.01}
               sliderTitle={'Auto-Calibration Threshold'}
               unit={'x'}
-              sliderDescription={"movement required (as a scale of mouse>idle_threshold) to fail automatic calibration for gyro drift"}
+              sliderDescription={"Movement required (as a scale of mouse>idle_threshold) to fail automatic calibration for gyro drift"}
             ></InputSlider>
             <InputSlider
               sliderLabel={'calibrationSamples'}
@@ -436,7 +458,7 @@ const Devices = ({ devices }) => {
               step={1}
               sliderTitle={'Auto-Calibration Samples Taken'}
               unit={'samples'}
-              sliderDescription={"number of samples to wait (at below auto_threshold) required to trigger auto recalibratoion"}
+              sliderDescription={"Number of samples to wait (at below auto_threshold) required to trigger auto recalibratoion"}
             ></InputSlider>
           </div>
         </div>
