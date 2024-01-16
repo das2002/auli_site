@@ -4,11 +4,18 @@ import {KeyOptions, getKeyOption} from './KeyOptions';
 const deepCopy = (obj) => {
     return JSON.parse(JSON.stringify(obj));
 }
+
 const sectionHeadingStyle = {
     fontSize: '20px',
     marginBottom: '10px',
-    fontWeight: 'bold', // Add the fontWeight property
-  };
+    fontWeight: 'bold',
+    backgroundColor: '#fcdc6d', 
+    borderRadius: '10px', 
+    padding: '5px 15px', 
+    display: 'inline-block', 
+    boxShadow: '0px 2px 4px rgba(0,0,0,0.1)', 
+    width: 'fit-content',
+};
 
 // TODO: load from user defaults
 const getInitialBindingsForMode = (config) => {
@@ -82,13 +89,35 @@ function buttonMapping(button) {
     }
 }
 
-
-
 const BindingsPanel = ({config}) => {
+    const [collapsedSections, setCollapsedSections] = useState({});
 
     const [fetchedBindings, setFetchedBindings] = useState(getInitialBindingsForMode(config));
     const [editedBindings, setEditedBindings] = useState(getInitialBindingsForMode(config));
 
+    const toggleStyle = {
+        backgroundColor: collapsedSections['bindingsPanel'] ? '#1A202C' : '#fcdc6d',
+        color: collapsedSections['bindingsPanel'] ? '#FFFFFF' : '#000000',
+        borderRadius: '10px',
+        padding: '5px 15px',
+        display: 'inline-block',
+        boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+        fontSize: '20px',
+        fontWeight: 'bold',
+        border: 'none',
+        cursor: 'pointer',
+        outline: 'none',
+        width: 'fit-content',
+        marginBottom: '10px',
+    }
+
+    const toggleSection = (sectionKey) => {
+        setCollapsedSections((prevSections) => ({
+            ...prevSections,
+            [sectionKey]: !prevSections[sectionKey],
+        }));
+    };
+      
     /*
     const saveBindings = () => {
         setSavedBindings(bindings);
@@ -194,156 +223,164 @@ const BindingsPanel = ({config}) => {
 
     return (
         <div className='w-16/12 flex flex-col'>
-          <h2 style= {sectionHeadingStyle}>Bindings Panel</h2>
-          <table className='table-fixed'>
-            <thead>
-                <tr>
-                    <th className="w-2/12 p-2 border border-gray-200">Gesture</th>
-                    <th className="w-2/12 p-2 border border-gray-200">Command</th>
-                    <th className="w-6/12 p-2 border border-gray-200">Settings</th>
-                    <th className="w-6/12 p-2 border border-gray-200">Description</th>
-                </tr>
-            </thead>
-            <tbody>
-              {editedBindings.map((binding, index) => (
-                
-                <tr key={index} className="max-h-16 h-16">
+            <button
+                onClick={() => toggleSection('bindingsPanel')}
+                style={toggleStyle}
+            >Bindings Panel</button>
+            {!collapsedSections['bindingsPanel'] && (
+                <div>
 
-                    {/* Gesture */}
-                    <td className="bg-white px-3 py-4 border border-gray-200 text-gray-800 text-md">
-                        {gesturesList[index]}
-                    </td>
+                {/* <h2 style= {sectionHeadingStyle}>Bindings Panel</h2> */}
+                <table className='table-fixed'>
+                    <thead>
+                        <tr>
+                            <th className="w-2/12 p-2 border border-gray-200">Gesture</th>
+                            <th className="w-2/12 p-2 border border-gray-200">Command</th>
+                            <th className="w-6/12 p-2 border border-gray-200">Settings</th>
+                            <th className="w-6/12 p-2 border border-gray-200">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {editedBindings.map((binding, index) => (
+                        
+                        <tr key={index} className="max-h-16 h-16">
 
-                    {/* Command */}
-                    <td className="bg-white px-3 py-4 border border-gray-200 text-gray-800 text-md">
-                        <select
-                        value={binding.command}
-                        onChange={(e) => handleCommandChange(index, e.target.value)}
-                        >
-                            <option value="noop">None (noop)</option>
-                            <option value="quick_sleep">Quick Sleep</option>
-                            <option value="pointer_sleep">Pointer Sleep</option>
-                            <option value="quick_calibrate">Quick Calibrate</option>
-                            <option value="dwell_click">Dwell Click</option>
-                            <option value="_scroll">Vertical Scroll</option>
-                            <option value="_scroll_lr">Horizontal Scroll</option>
-                            <option value="button_action">Button Action</option>
-                        </select>
-                    </td>
-                
-                    {/* Settings */}
-                    <td className={
-                        'bg-grey-200 px-3 text-gray-800 text-md ' +
-                        (binding.command === 'dwell_click' || binding.command === 'button_action' 
-                            ? 'border border-gray-200' 
-                            : 'border-x border-gray-200')
-                    }>
-                        {binding.command === 'dwell_click'? (
-                            <div className="w-full h-full flex flex-row ">
-                                {/* BUTTON */}
-                                <div className='w-full flex-0 flex flex-col items-center'>
-                                    <th className="w-full px-4 text-center text-sm">Button</th>
-                                    <select className='w-full py-1 text-sm'
-                                    value={binding.setting1}
-                                    onChange={(e) => handleSettingsChange(index, 1, e.target.value)}
-                                    >
-                                        <option value={1}>Left Mouse Click</option>
-                                        <option value={2}>Right Mouse Click</option>
-                                    </select>
-                                </div>
-                            
-                                {/* CANCEL_THS */}
-                                <div className='w-full flex-0 flex flex-col items-center'>
-                                    <th className="w-full px-4 text-center text-sm">Cancel Speed</th>
-                                    <select className='w-5/6 py-1 text-sm'
-                                    value={binding.setting2}
-                                    onChange={(e) => handleSettingsChange(index, 2, e.target.value)}
-                                    >
-                                        <option value={1}>1</option>
-                                        <option value={2}>2</option>
-                                        <option value={3}>3</option>
-                                        <option value={4}>4</option>
-                                        <option value={5}>5</option>
-                                        <option value={6}>6</option>
-                                        <option value={7}>7</option>
-                                        <option value={8}>8</option>
-                                        <option value={9}>9</option>
-                                        <option value={10}>10</option>
-                                    </select>
-                                </div>
-                            </div>
-                        ) : <div className="w-full h-full" />}
-                        {binding.command === 'button_action'? (
-                            <div className="w-full h-full flex flex-row">
-                                {/* ACTOR */}
-                                <div className='w-full px-3 flex-0 flex flex-col items-center'>
-                                    <th className="w-full px-1 text-center text-sm">Actor</th>
-                                    <select className='w-5/6 py-1 text-sm'
-                                    value={binding.setting1}
-                                    onChange={(e) => handleSettingsChange(index, 1, e.target.value)}
-                                    >
-                                        <option selected="selected" value={0}>Mouse</option>
-                                        <option value={1}>Keyboard</option>
-                                    </select>
-                                </div>
+                            {/* Gesture */}
+                            <td className="bg-white px-3 py-4 border border-gray-200 text-gray-800 text-md">
+                                {gesturesList[index]}
+                            </td>
 
-                                {/* ACTION */}
-                                <div className='w-full px-3 flex-0 flex flex-col items-center'>
-                                    <th className="w-full px-1 text-center text-sm">Action</th>
-                                    <select className='w-5/6 py-1 text-sm'
-                                    value={binding.setting2}
-                                    onChange={(e) => handleSettingsChange(index, 2, e.target.value)}
-                                    >
-                                        <option value={'tap'}>Tap</option>
-                                        <option value={'double_tap'}>Double Tap</option>
-                                        <option value={'press'}>Press and Hold</option>
-                                        <option value={'release'}>Release</option>
-                                        <option value={'toggle'}>Toggle</option>
-                                        <option value={'hold_until_idle'}>Hold Until Idle</option>
-                                        <option value={'hold_until_sig_motion'}>Hold Until Significant Motion</option>=
-                                    </select>
-                                </div>
-                                {/* BUTTON */}
-                                {binding.setting1 === "1" ? (
-                                    <div className='px-3 w-full flex-0 flex flex-col items-center'>
-                                        <th className="w-full px-1 text-center text-sm">Button</th>
-                                        <select className='w-5/6 py-1 text-sm'
-                                                value={binding.setting3}
-                                                onChange={(e) => handleSettingsChange(index, 3, e.target.value)}>
-                                            <KeyOptions />
-                                        </select>
+                            {/* Command */}
+                            <td className="bg-white px-3 py-4 border border-gray-200 text-gray-800 text-md">
+                                <select
+                                value={binding.command}
+                                onChange={(e) => handleCommandChange(index, e.target.value)}
+                                >
+                                    <option value="noop">None (noop)</option>
+                                    <option value="quick_sleep">Quick Sleep</option>
+                                    <option value="pointer_sleep">Pointer Sleep</option>
+                                    <option value="quick_calibrate">Quick Calibrate</option>
+                                    <option value="dwell_click">Dwell Click</option>
+                                    <option value="_scroll">Vertical Scroll</option>
+                                    <option value="_scroll_lr">Horizontal Scroll</option>
+                                    <option value="button_action">Button Action</option>
+                                </select>
+                            </td>
+                        
+                            {/* Settings */}
+                            <td className={
+                                'bg-grey-200 px-3 text-gray-800 text-md ' +
+                                (binding.command === 'dwell_click' || binding.command === 'button_action' 
+                                    ? 'border border-gray-200' 
+                                    : 'border-x border-gray-200')
+                            }>
+                                {binding.command === 'dwell_click'? (
+                                    <div className="w-full h-full flex flex-row ">
+                                        {/* BUTTON */}
+                                        <div className='w-full flex-0 flex flex-col items-center'>
+                                            <th className="w-full px-4 text-center text-sm">Button</th>
+                                            <select className='w-full py-1 text-sm'
+                                            value={binding.setting1}
+                                            onChange={(e) => handleSettingsChange(index, 1, e.target.value)}
+                                            >
+                                                <option value={1}>Left Mouse Click</option>
+                                                <option value={2}>Right Mouse Click</option>
+                                            </select>
+                                        </div>
+                                    
+                                        {/* CANCEL_THS */}
+                                        <div className='w-full flex-0 flex flex-col items-center'>
+                                            <th className="w-full px-4 text-center text-sm">Cancel Speed</th>
+                                            <select className='w-5/6 py-1 text-sm'
+                                            value={binding.setting2}
+                                            onChange={(e) => handleSettingsChange(index, 2, e.target.value)}
+                                            >
+                                                <option value={1}>1</option>
+                                                <option value={2}>2</option>
+                                                <option value={3}>3</option>
+                                                <option value={4}>4</option>
+                                                <option value={5}>5</option>
+                                                <option value={6}>6</option>
+                                                <option value={7}>7</option>
+                                                <option value={8}>8</option>
+                                                <option value={9}>9</option>
+                                                <option value={10}>10</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                ) : (
-                                    <div className='px-3 w-full flex-0 flex flex-col items-center'>
-                                        <th className="w-full px-1 text-center text-sm">Button</th>
-                                        <select className='w-5/6 py-1 text-sm'
-                                                value={binding.setting3}
-                                                onChange={(e) => handleSettingsChange(index, 3, e.target.value)}>
-                                            <option value={1}>Left Mouse Click</option>
-                                            <option value={2}>Right Mouse Click</option>
-                                        </select>
+                                ) : <div className="w-full h-full" />}
+                                {binding.command === 'button_action'? (
+                                    <div className="w-full h-full flex flex-row">
+                                        {/* ACTOR */}
+                                        <div className='w-full px-3 flex-0 flex flex-col items-center'>
+                                            <th className="w-full px-1 text-center text-sm">Actor</th>
+                                            <select className='w-5/6 py-1 text-sm'
+                                            value={binding.setting1}
+                                            onChange={(e) => handleSettingsChange(index, 1, e.target.value)}
+                                            >
+                                                <option selected="selected" value={0}>Mouse</option>
+                                                <option value={1}>Keyboard</option>
+                                            </select>
+                                        </div>
+
+                                        {/* ACTION */}
+                                        <div className='w-full px-3 flex-0 flex flex-col items-center'>
+                                            <th className="w-full px-1 text-center text-sm">Action</th>
+                                            <select className='w-5/6 py-1 text-sm'
+                                            value={binding.setting2}
+                                            onChange={(e) => handleSettingsChange(index, 2, e.target.value)}
+                                            >
+                                                <option value={'tap'}>Tap</option>
+                                                <option value={'double_tap'}>Double Tap</option>
+                                                <option value={'press'}>Press and Hold</option>
+                                                <option value={'release'}>Release</option>
+                                                <option value={'toggle'}>Toggle</option>
+                                                <option value={'hold_until_idle'}>Hold Until Idle</option>
+                                                <option value={'hold_until_sig_motion'}>Hold Until Significant Motion</option>=
+                                            </select>
+                                        </div>
+                                        {/* BUTTON */}
+                                        {binding.setting1 === "1" ? (
+                                            <div className='px-3 w-full flex-0 flex flex-col items-center'>
+                                                <th className="w-full px-1 text-center text-sm">Button</th>
+                                                <select className='w-5/6 py-1 text-sm'
+                                                        value={binding.setting3}
+                                                        onChange={(e) => handleSettingsChange(index, 3, e.target.value)}>
+                                                    <KeyOptions />
+                                                </select>
+                                            </div>
+                                        ) : (
+                                            <div className='px-3 w-full flex-0 flex flex-col items-center'>
+                                                <th className="w-full px-1 text-center text-sm">Button</th>
+                                                <select className='w-5/6 py-1 text-sm'
+                                                        value={binding.setting3}
+                                                        onChange={(e) => handleSettingsChange(index, 3, e.target.value)}>
+                                                    <option value={1}>Left Mouse Click</option>
+                                                    <option value={2}>Right Mouse Click</option>
+                                                </select>
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                            </div>
-                        ) : <div className="w-full h-full" />}
-                    </td>
+                                ) : <div className="w-full h-full" />}
+                            </td>
 
-                    {/* Description Cell */}
-                    <td className="bg-white px-3 py-2 border border-gray-200 text-gray-800 text-sm overflow-hidden">
-                        <div className="max-h-16">
-                            {generateDescription(binding)}
-                        </div>
-                    </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                            {/* Description Cell */}
+                            <td className="bg-white px-3 py-2 border border-gray-200 text-gray-800 text-sm overflow-hidden">
+                                <div className="max-h-16">
+                                    {generateDescription(binding)}
+                                </div>
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
 
-          {/* Button Container */}
-          
+                {/* Button Container */}
+                
+                </div>
+            )}
         </div>
-      );
-    };
-    
+    );
+};    
 
 export default BindingsPanel;

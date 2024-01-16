@@ -23,11 +23,24 @@ const DarkYellowSlider = styled(Slider)(({ theme }) => ({
   },
 }));
 
+// change it back if needed:
+// const sectionHeadingStyle = {
+//   fontSize: '20px',
+//   marginBottom: '10px',
+//   fontWeight: 'bold', 
+// };
+
 const sectionHeadingStyle = {
   fontSize: '20px',
   marginBottom: '10px',
-  fontWeight: 'bold', // Add the fontWeight property
+  fontWeight: 'bold',
+  backgroundColor: '#fcdc6d', 
+  borderRadius: '10px', 
+  padding: '5px 15px', 
+  display: 'inline-block', 
+  boxShadow: '0px 2px 4px rgba(0,0,0,0.1)', 
 };
+
 
 const HardwareUIDField = ({ hardwareUID }) => {
   return (
@@ -162,9 +175,12 @@ const Dropdown = ({ value, onChange, title, description, options }) => {
     <div style={{ marginBottom: '20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 
-        <label onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} htmlFor="dropdown" style={{ fontSize: '16px', marginRight: '10px' }}>
-          {title}
-        </label>
+        {title && (
+          <label onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} htmlFor="dropdown" style={{ fontSize: '16px', marginRight: '10px' }}>
+            {title}
+          </label>
+        )}
+
         <select id="dropdown" value={value} onChange={onChange} style={styles.selectStyle}>
           {formattedOptions.map((option) => (
             <option key={option.value} value={option.value}>
@@ -191,14 +207,6 @@ const Dropdown = ({ value, onChange, title, description, options }) => {
       </div>
     </div>
   );
-};
-
-const sliderContainerStyle = {
-  padding: '20px',
-  margin: '10px 0',
-  borderRadius: '8px',
-  backgroundColor: '#f5f5f5', // Light grey background
-  boxShadow: '0 2px 4px rgba(0,0,0,0.1)' // Subtle shadow for depth
 };
 
 const titleStyle = {
@@ -471,6 +479,30 @@ const Devices = ({ devices }) => {
 
     const ConnectionAccordion = ({ connection }) => {
       const [isExpanded, setIsExpanded] = useState(false);
+      const [collapsedSections, setCollapsedSections] = useState({});
+      const toggleSection = (sectionKey) => {
+        setCollapsedSections((prevSections) => ({
+          ...prevSections,
+          [sectionKey]: !prevSections[sectionKey],
+        }));
+      };
+      
+      // const [collapsedSections, setCollapsedSections] = useState({
+      //   connectionSettings: false,
+      //   mouseSettings: false,
+      //   clickerSettings: false,
+      //   gestureSettings: false,
+      //   tvRemoteOptions: false,
+      // });
+    
+      // const toggleSection = (sectionKey) => {
+      //   setCollapsedSections((prevSections) => ({
+      //     ...prevSections,
+      //     [sectionKey]: !prevSections[sectionKey],
+      //   }));
+      // };
+
+
       const [fetchedConnectionConfig, setFetchedConnectionConfig] = useState(null);
       const [editedConnectionConfig, setEditedConnectionConfig] = useState(null);
       const [activeOperationMode, setActiveOperationMode] = useState(connection["current_mode"]);
@@ -670,45 +702,96 @@ const Devices = ({ devices }) => {
       */
 
       const ConnectionSpecificSettings = () => {
+        const [collapsedSections, setCollapsedSections] = useState({}); 
+      
+        const toggleSection = (sectionKey) => {
+          setCollapsedSections((prevSections) => ({
+            ...prevSections,
+            [sectionKey]: !prevSections[sectionKey],
+          }));
+        };
+      
         return (
-          <div style={{ maxWidth: '600px', margin: 'auto' }}>
-            <h1 style={titleStyle}>Connection Settings</h1>
-            <div style={sliderContainerStyle}>
-              <InputSlider
-                sliderLabel={'screenSizeHeight'}
-                value={editedConnectionConfig.screen_size.value.height.value}
-                onChange={(e) => handleConnectionConfigChange(['screen_size', 'value', 'height', 'value'])(e.target.value)}
-                min={600}
-                max={4320}
-                step={1}
-                sliderTitle={"Screen Size - Height"}
-                unit={"px"}
-                sliderDescription={"height of interface screen"}
-              />
+          <div style={{ maxWidth: '600px', margin: '0' }}>
+            <button
+              onClick={() => toggleSection('connectionSettings')}
+              style={{
+                backgroundColor: collapsedSections['connectionSettings'] ? '#1A202C' : '#fcdc6d',
+                color: collapsedSections['connectionSettings'] ? '#FFFFFF' : '#000000',
+                borderRadius: '10px', 
+                padding: '5px 15px', 
+                display: 'inline-block',
+                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+                fontSize: '20px',
+                fontWeight: 'bold',
+                border: 'none', 
+                cursor: 'pointer', 
+                outline: 'none', 
+                marginBottom: '10px', 
+              }}
+            >Connection Settings</button>
+            {!collapsedSections['connectionSettings'] && (
+              <div>
+                  <InputSlider
+                    sliderLabel={'screenSizeHeight'}
+                    value={editedConnectionConfig.screen_size.value.height.value}
+                    onChange={(e) => handleConnectionConfigChange(['screen_size', 'value', 'height', 'value'])(e.target.value)}
+                    min={600}
+                    max={4320}
+                    step={1}
+                    sliderTitle={"Screen Size - Height"}
+                    unit={"px"}
+                    sliderDescription={"Height of interface screen"}
+                  />
 
-              <InputSlider
-                sliderLabel={'screenSizeWidth'}
-                value={editedConnectionConfig.screen_size.value.width.value}
-                onChange={(e) => handleConnectionConfigChange(['screen_size', 'value', 'width', 'value'])(e.target.value)}
-                min={800}
-                max={8192}
-                step={1}
-                sliderTitle={"Screen Size - Width"}
-                unit={"px"}
-                sliderDescription={"width of interface screen"}
-              />
-            </div>
+                  <InputSlider
+                    sliderLabel={'screenSizeWidth'}
+                    value={editedConnectionConfig.screen_size.value.width.value}
+                    onChange={(e) => handleConnectionConfigChange(['screen_size', 'value', 'width', 'value'])(e.target.value)}
+                    min={800}
+                    max={8192}
+                    step={1}
+                    sliderTitle={"Screen Size - Width"}
+                    unit={"px"}
+                    sliderDescription={"Width of interface screen"}
+                  />
+                </div>
+            )}
           </div>
         );
       };
 
       const MouseOptions = (config) => {
-        //(config);
+        const [isCollapsed, setIsCollapsed] = useState(false);  
+      
+        const toggleCollapse = () => {
+          setIsCollapsed(!isCollapsed);
+        };
+      
         return (
-          <div style={{ maxWidth: '600px', margin: 'auto' }}>
-            <h1 style={titleStyle}>Mouse Settings</h1>
-            <div style={sliderContainerStyle}>
-              <p style={descriptionStyle}>Adjust your mouse settings below:</p>
+          <div style={{ maxWidth: '600px', margin: '0' }}>
+            <button
+              onClick={toggleCollapse}
+              style={{
+                backgroundColor: isCollapsed ? '#1A202C' : '#fcdc6d',  
+                color: isCollapsed ? '#FFFFFF' : '#000000',
+                borderRadius: '10px',
+                padding: '5px 15px',
+                display: 'inline-block',
+                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+                fontSize: '20px',
+                fontWeight: 'bold',
+                border: 'none',
+                cursor: 'pointer',
+                outline: 'none',
+                marginBottom: '10px',
+              }}
+            >Mouse Settings</button>
+            {!isCollapsed && (
+              <div>
+            {/* <h1 style={titleStyle}>Mouse Settings</h1> */}
+            {/* <div style={sliderContainerStyle}> */}
+              {/* <p style={descriptionStyle}>Adjust your mouse settings below:</p> */}
               <InputSlider
                 sliderLabel={'mouseIdleThreshold'}
                 value={config.config.mouse.value.idle_threshold.value}
@@ -791,7 +874,7 @@ const Devices = ({ devices }) => {
                 step={1}
                 unit={"px"}
                 sliderTitle="Shake Size"
-                sliderDescription="size of cursor movement for gesturer indicator"
+                sliderDescription="Size of cursor movement for gesturer indicator"
               />
               <InputSlider
                 sliderLabel={'mouseNumberShakes'}
@@ -805,116 +888,177 @@ const Devices = ({ devices }) => {
                 sliderDescription="Number of times to repeat gesture ready indicator"
               />
             </div>
-          </div>
-        )
-      };
-
-      const ClickerOptions = (config) => {
-        return (
-          <div style={{ maxWidth: '600px', margin: 'auto' }}>
-            <h2 style={sectionHeadingStyle}>Clicker Settings</h2>
-            <div style={sliderContainerStyle}>
-              <p style={descriptionStyle}>Adjust your clicker settings below:</p>
-              <InputSlider
-                value={config.config.clicker.value.max_click_spacing.value}
-                onChange={(e) => handleModeConfigChange(['clicker', 'value', 'max_click_spacing', 'value'], activeOperationMode)(parseFloat(e.target.value))}
-                min={0.1}
-                max={1.0}
-                step={0.1}
-                unit={"s"}
-                sliderTitle={"Max Click Spacing"}
-                sliderDescription={"Time (seconds) to await next tap before dispatching counted result"}
-                sliderLabel={"clickerMaxClickSpacing"}
-              />
-              <InputSlider
-                value={config.config.clicker.value.tap_ths.value}
-                onChange={(e) => handleModeConfigChange(['clicker', 'value', 'tap_ths', 'value'], activeOperationMode)(parseFloat(e.target.value))}
-                min={0}
-                max={31}
-                step={1}
-                unit={"level"}
-                sliderTitle={"Tap Threshold"}
-                sliderDescription={"Level of impact needed to trigger a click. Lower -> more Sensitive to impact"}
-                sliderLabel={"clickerTapThreshold"}
-              />
-              <InputSlider
-                value={config.config.clicker.value.quiet.value}
-                onChange={(e) => handleModeConfigChange(['clicker', 'value', 'quiet', 'value'], activeOperationMode)(parseInt(e.target.value))}
-                min={0}
-                max={3}
-                step={1}
-                unit={"level"}
-                sliderTitle={"Quiet"}
-                sliderDescription={"Amount of quiet required after a click"}
-                sliderLabel={"clickerQuiet"}
-              />
-              <InputSlider
-                value={config.config.clicker.value.shock.value}
-                onChange={(e) => handleModeConfigChange(['clicker', 'value', 'shock', 'value'], activeOperationMode)(parseInt(e.target.value))}
-                min={0}
-                max={3}
-                step={1}
-                unit={"s"}
-                sliderTitle={"Shock"}
-                sliderDescription={"Max duration of over threshold event"}
-                sliderLabel={"clickerShock"}
-              />
-            </div>
+            )}
           </div>
         );
       };
 
-      const GestureOptions = (config) => {
+      const ClickerOptions = (config) => {
+        const [collapsedSections, setCollapsedSections] = useState({ clickerSettings: false }); 
+      
+        const toggleSection = (sectionKey) => {
+          setCollapsedSections((prevSections) => ({
+            ...prevSections,
+            [sectionKey]: !prevSections[sectionKey],
+          }));
+        };
+      
         return (
-          <div style={{ maxWidth: '600px', margin: 'auto' }}>
-            <h1 style={titleStyle}>Gesture Settings</h1>
-            <div style={sliderContainerStyle}>
-              <p style={descriptionStyle}>Adjust your gesture collection settings below:</p>
-              <InputSlider
-                sliderLabel={'gestureConfidenceThreshold'}
-                value={config.config.gesture.value.confidence_threshold.value}
-                onChange={(e) => handleModeConfigChange(['gesture', 'value', 'confidence_threshold', 'value'], activeOperationMode)(parseFloat(e.target.value))}
-                min={0.55}
-                max={0.90}
-                step={0.01}
-                sliderTitle="Gesture Confidence Threshold"
-                unit={""}
-                sliderDescription="Threshold of gesture confidence probability [0, 1], for Cato to accept gesture and execute command. Low value -> few dry-fires, more frequent misinterpretation. High value -> frequent dry-fires, rare misinterpretation"
-              />
-              <InputSlider
-                sliderLabel={'gestureTimeout'}
-                value={config.config.gesture.value.timeout.value}
-                onChange={(e) => handleModeConfigChange(['gesture', 'value', 'timeout', 'value'], activeOperationMode)(parseFloat(e.target.value))}
-                min={0.1}
-                max={3.0}
-                step={0.05}
-                sliderTitle="Gesture Timeout Window Length"
-                unit={"s"}
-                sliderDescription="Maximum Time (seconds) to Wait for Gesture Start before exiting recognition window"
-              />
-              <InputSlider
-                sliderLabel={'gestureCollectionTimeout'}
-                value={config.config.gesture.value.gc_timeout.value}
-                onChange={(e) => handleModeConfigChange(['gesture', 'value', 'gc_timeout', 'value'], activeOperationMode)(parseFloat(e.target.value))}
-                min={5}
-                max={30}
-                step={1}
-                sliderTitle="Gesture Collection Wait Period"
-                unit={"s"}
-                sliderDescription="Time to wait before beginning gesture collection over bluetooth"
-              />
-
-            </div>
+          <div style={{ maxWidth: '600px', margin: '0' }}>
+            <button
+              onClick={() => toggleSection('clickerSettings')}
+              style={{
+                backgroundColor: collapsedSections['clickerSettings'] ? '#1A202C' : '#fcdc6d',
+                color: collapsedSections['clickerSettings'] ? '#FFFFFF' : '#000000',
+                borderRadius: '10px', 
+                padding: '5px 15px', 
+                display: 'inline-block',
+                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+                fontSize: '20px',
+                fontWeight: 'bold',
+                border: 'none', 
+                cursor: 'pointer', 
+                outline: 'none', 
+                marginBottom: '10px', 
+              }}
+            >
+              Clicker Settings
+            </button>
+            {!collapsedSections['clickerSettings'] && (
+              <div>
+                {/* <div style={sliderContainerStyle}> */}
+                  {/* <p style={descriptionStyle}>Adjust your clicker settings below:</p> */}
+                  <InputSlider
+                    value={config.config.clicker.value.max_click_spacing.value}
+                    onChange={(e) => handleModeConfigChange(['clicker', 'value', 'max_click_spacing', 'value'], activeOperationMode)(parseFloat(e.target.value))}
+                    min={0.1}
+                    max={1.0}
+                    step={0.1}
+                    unit={"s"}
+                    sliderTitle={"Max Click Spacing"}
+                    sliderDescription={"Time (seconds) to await next tap before dispatching counted result"}
+                    sliderLabel={"clickerMaxClickSpacing"}
+                  />
+                  <InputSlider
+                    value={config.config.clicker.value.tap_ths.value}
+                    onChange={(e) => handleModeConfigChange(['clicker', 'value', 'tap_ths', 'value'], activeOperationMode)(parseFloat(e.target.value))}
+                    min={0}
+                    max={31}
+                    step={1}
+                    unit={"level"}
+                    sliderTitle={"Tap Threshold"}
+                    sliderDescription={"Level of impact needed to trigger a click. Lower -> more Sensitive to impact"}
+                    sliderLabel={"clickerTapThreshold"}
+                  />
+                  <InputSlider
+                    value={config.config.clicker.value.quiet.value}
+                    onChange={(e) => handleModeConfigChange(['clicker', 'value', 'quiet', 'value'], activeOperationMode)(parseInt(e.target.value))}
+                    min={0}
+                    max={3}
+                    step={1}
+                    unit={"level"}
+                    sliderTitle={"Quiet"}
+                    sliderDescription={"Amount of quiet required after a click"}
+                    sliderLabel={"clickerQuiet"}
+                  />
+                  <InputSlider
+                    value={config.config.clicker.value.shock.value}
+                    onChange={(e) => handleModeConfigChange(['clicker', 'value', 'shock', 'value'], activeOperationMode)(parseInt(e.target.value))}
+                    min={0}
+                    max={3}
+                    step={1}
+                    unit={"s"}
+                    sliderTitle={"Shock"}
+                    sliderDescription={"Max duration of over threshold event"}
+                    sliderLabel={"clickerShock"}
+                  />
+                  
+                </div>
+            )}
           </div>
-        )
-      }
+        );
+      };
+
+      
+      const GestureOptions = (config) => {
+        const [isCollapsed, setIsCollapsed] = useState(false);  
+      
+        const toggleCollapse = () => {
+          setIsCollapsed(!isCollapsed);
+        };
+      
+        return (
+          <div style={{ maxWidth: '600px', margin: '0' }}>
+            <button
+              onClick={toggleCollapse}
+              style={{
+                backgroundColor: isCollapsed ? '#1A202C' : '#fcdc6d',  
+                color: isCollapsed ? '#FFFFFF' : '#000000',
+                borderRadius: '10px',
+                padding: '5px 15px',
+                display: 'inline-block',
+                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+                fontSize: '20px',
+                fontWeight: 'bold',
+                border: 'none',
+                cursor: 'pointer',
+                outline: 'none',
+                marginBottom: '10px',
+              }}
+            >
+              Gesture Settings
+            </button>
+            {!isCollapsed && (
+              <div>
+                {/* <div style={sliderContainerStyle}> */}
+                {/* <p style={descriptionStyle}>Adjust your gesture collection settings below:</p> */}
+                <InputSlider
+                  sliderLabel={'gestureConfidenceThreshold'}
+                  value={config.config.gesture.value.confidence_threshold.value}
+                  onChange={(e) => handleModeConfigChange(['gesture', 'value', 'confidence_threshold', 'value'], activeOperationMode)(parseFloat(e.target.value))}
+                  min={0.55}
+                  max={0.90}
+                  step={0.01}
+                  sliderTitle="Gesture Confidence Threshold"
+                  unit={""}
+                  sliderDescription="Threshold of gesture confidence probability [0, 1], for Cato to accept gesture and execute command. Low value -> few dry-fires, more frequent misinterpretation. High value -> frequent dry-fires, rare misinterpretation"
+                />
+                <InputSlider
+                  sliderLabel={'gestureTimeout'}
+                  value={config.config.gesture.value.timeout.value}
+                  onChange={(e) => handleModeConfigChange(['gesture', 'value', 'timeout', 'value'], activeOperationMode)(parseFloat(e.target.value))}
+                  min={0.1}
+                  max={3.0}
+                  step={0.05}
+                  sliderTitle="Gesture Timeout Window Length"
+                  unit={"s"}
+                  sliderDescription="Maximum Time (seconds) to Wait for Gesture Start before exiting recognition window"
+                />
+                <InputSlider
+                  sliderLabel={'gestureCollectionTimeout'}
+                  value={config.config.gesture.value.gc_timeout.value}
+                  onChange={(e) => handleModeConfigChange(['gesture', 'value', 'gc_timeout', 'value'], activeOperationMode)(parseFloat(e.target.value))}
+                  min={5}
+                  max={30}
+                  step={1}
+                  sliderTitle="Gesture Collection Wait Period"
+                  unit={"s"}
+                  sliderDescription="Time to wait before beginning gesture collection over bluetooth"
+                />
+
+              </div>
+            )}
+          </div>
+        );
+      };
 
       const TVRemoteOptions = (config) => {
         return (
           // give a title for the TV Remote Options
-          <div style={{ maxWidth: '600px', margin: 'auto' }}>
-            <h1 style={titleStyle}> TV Remote Options </h1>
-            <div style={sliderContainerStyle}>
+          <div style={{ maxWidth: '600px', margin: '0' }}>
+            <h2 style={sectionHeadingStyle}>TV Remote Options</h2>
+            {/* <h1 style={titleStyle}> TV Remote Options </h1> */}
+            {/* <div style={sliderContainerStyle}> */}
               <Dropdown
                 value={config.config.tv_remote.value.await_actions.value}
                 onChange={(e) => handleModeConfigChange(['tv_remote', 'value', 'await_actions', 'value'], activeOperationMode)(parseBool(e.target.value))}
@@ -923,7 +1067,7 @@ const Devices = ({ devices }) => {
                 options={[true, false]}
               />
             </div>
-          </div>
+          // </div>
 
         );
       };
@@ -934,21 +1078,40 @@ const Devices = ({ devices }) => {
         }
         return (
           <div>
+            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+
             <MouseOptions config={editedGestureMouseConfig} />
+            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+
             <GestureOptions config={editedGestureMouseConfig} />
+            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+
             <BindingsPanel config={editedGestureMouseConfig} />
+            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+
           </div>
         );
       }
 
       const ClickerSetting = () => {
+        const [collapsedSections, setCollapsedSections] = useState({}); 
+
         if (!fetchedClickerConfig) {
           return <div>Loading...</div>;
         }
         return (
           <div>
-            <ClickerOptions config={editedClickerConfig} />
+            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+            {/* <ClickerOptions config={editedClickerConfig} /> */}
+            <ClickerOptions
+              config={editedClickerConfig}
+              collapsedSections={collapsedSections}
+              setCollapsedSections={setCollapsedSections}
+            />
+            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
             <BindingsPanel config={editedClickerConfig}/>
+            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+
           </div>
         );
       }
@@ -959,25 +1122,38 @@ const Devices = ({ devices }) => {
         }
         return (
           <div>
+            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+
             <TVRemoteOptions config={editedTVRemoteConfig} />
+            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+
             <GestureOptions config={editedTVRemoteConfig} />
+            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+
             <BindingsPanel config={editedGestureMouseConfig}/>
           </div>
         );
       };
 
       const PointerSetting = () => {
+        //pointer setting
         if (!fetchedPointerConfig) {
           return <div>Loading...</div>;
         }
         return (
           <div>
+            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+
             <MouseOptions config={editedPointerConfig} />
+            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+
             <BindingsPanel config={editedPointerConfig}/>
+            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+
+            
           </div>
         );
       }
-
 
       return (
         <div style={{ marginBottom: '1rem' }}>
@@ -998,10 +1174,11 @@ const Devices = ({ devices }) => {
           </button>
           {isExpanded && (
             <div>
+              <h2 style={sectionHeadingStyle}>Operation Mode</h2>
               <Dropdown
                 value={operationModeConversion(activeOperationMode)}
                 onChange={(e) => handleOperationModeSelection(e.target.value)}
-                title="Operation Mode"
+                title=""
                 description="Select the operation mode"
                 options={[
                   "Gesture Mouse",
@@ -1023,7 +1200,9 @@ const Devices = ({ devices }) => {
     //console.log('data:', data);
     return (
       <div style={sliderContainerStyle}>
-        <div style={accordionListStyle}>
+        {/* @pratyush uncomment below if needed */}
+
+        <div style={accordionListStyle}> 
           {data.map((item, index) => (
             <div key={index}>
               <ConnectionAccordion connection={item}>
@@ -1141,11 +1320,13 @@ const Devices = ({ devices }) => {
           border: 'none',
           cursor: 'pointer',
         }}>
-        <span>+</span>
+        <span>Add Interface</span>
+
+        {/* <span>+</span> */}
       </button>
       <button onClick={handleSave}
         style={{
-          backgroundColor: '#B8860B', 
+          backgroundColor: '#B8860B', //B8860B
           color: 'white',
           padding: '10px 20px',
           fontSize: '16px',
