@@ -269,17 +269,17 @@ const styles = {
 };
 
 const DashedLine = () => {
-  const lineStyle = {
-    border: '1px dashed #000', // 1px width dashed line with black color
-    width: '100%', // Adjust the width as needed
-    height: 0,
-    marginTop: '10px', // Adjust the margin as needed
-  };
+  // const lineStyle = {
+  //   border: '1px dashed #000', 
+  //   width: '100%', 
+  //   height: 0,
+  //   marginTop: '10px', 
+  // };
 
   return (
-    <div style={lineStyle}>
-      {/* You can add content or leave it empty depending on your use case */}
-    </div>
+    <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+    // <div style={lineStyle}>
+    // </div>
   );
 };
 
@@ -362,6 +362,27 @@ const Devices = ({ devices }) => {
 
 
   const GlobalInfoSection = () => {
+    const [isSleepExpanded, setIsSleepExpanded] = useState(true);
+    const [isOrientationExpanded, setIsOrientationExpanded] = useState(true);
+    const [isCalibrationExpanded, setIsCalibrationExpanded] = useState(true);
+
+    const toggleSleepSection = () => {
+      setIsSleepExpanded(!isSleepExpanded);
+    };
+    const toggleOrientationSection = () => {
+      setIsOrientationExpanded(!isOrientationExpanded);
+    };
+    const toggleCalibrationSection = () => {
+      setIsCalibrationExpanded(!isCalibrationExpanded);
+    };
+
+    const sectionHeadingDynamicStyle = (isExpanded) => ({
+      ...sectionHeadingStyle,
+      backgroundColor: isExpanded ? '#fcdc6d' : '#1A202C',
+      color: isExpanded ? 'black' : 'white',
+      cursor: 'pointer', 
+    });
+
     if (!fetchedGlobalSettings) {
       return <div>Loading...</div>;
     }
@@ -369,36 +390,24 @@ const Devices = ({ devices }) => {
     console.log('editedGlobalSettings:', editedGlobalSettings);
 
     const sectionStyle = {
-      marginBottom: '10px',
-      padding: '10px',
-      border: '1px solid #ccc',
-      borderRadius: '5px',
+      // marginBottom: '10px',
+      // padding: '10px',
+      // border: '1px solid #ccc',
+      // borderRadius: '5px',
     };
 
-    // const sectionHeadingStyle = {
-    //   fontSize: '20px',
-    //   marginBottom: '10px',
-    //   fontWeight: 'bold',
-    // };
-    
     return (
       <div>
-      <div className="ml-90">
-        <header className="shrink-0 bg-transparent border-b border-gray-200">
-          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
-            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-              Device Settings
-            </h2>
-          </div>
-        </header>
-      </div>
-      
         <div style={sliderContainerStyle}>
           <HardwareUIDField hardwareUID={editedGlobalSettings["HW_UID"]["value"]} />
-          <div style={sectionStyle}>
-            <h2 style={sectionHeadingStyle}>
-              Sleep
-            </h2>
+          <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+  
+          {/* Sleep Section */}
+          <h2 style={sectionHeadingDynamicStyle(isSleepExpanded)} onClick={toggleSleepSection}>
+            Sleep
+          </h2>
+          {isSleepExpanded && (
+            <div>
             <InputSlider
               sliderLabel={'sleepTimeout'}
               value={editedGlobalSettings.sleep.value.timeout.value}
@@ -421,76 +430,92 @@ const Devices = ({ devices }) => {
               unit={'level'}
               sliderDescription={'Movement level below which Cato starts counting towards sleep'}
             />
-          </div>
+            </div>
+          // </div>
+          )}
+
+        <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+        <h2 style={sectionHeadingDynamicStyle(isOrientationExpanded)} onClick={toggleOrientationSection}>
+          Orientation
+        </h2>
+        {isOrientationExpanded && (
           <div style={sectionStyle}>
-            <h2 style={sectionHeadingStyle}>Orientation</h2>
-            <Dropdown
-              title={'Front'}
-              description={'Orientation of the device'}
-              value={editedGlobalSettings["orientation"]["value"]["front"]["value"]}
-              onChange={(e) => handleGlobalConfigChange(['orientation', 'value', 'front', 'value'])(e.target.value)}
-              options={[
-                "+x",
-                "-x",
-                "+y",
-                "-y",
-                "+z",
-                "-z"
-              ]}
-            />
-            <Dropdown
-              title={'Bottom'}
-              description={'Orientation of the device'}
-              value={editedGlobalSettings["orientation"]["value"]["bottom"]["value"]}
-              onChange={(e) => handleGlobalConfigChange(['orientation', 'value', 'bottom', 'value'])(e.target.value)}
-              options={[
-                "+x",
-                "-x",
-                "+y",
-                "-y",
-                "+z",
-                "-z"
-              ]}
-            />
-            <Dropdown
-              title={'Left'}
-              description={'Orientation of the device'}
-              value={editedGlobalSettings["orientation"]["value"]["left"]["value"]}
-              onChange={(e) => handleGlobalConfigChange(['orientation', 'value', 'left', 'value'])(e.target.value)}
-              options={[
-                "+x",
-                "-x",
-                "+y",
-                "-y",
-                "+z",
-                "-z"
-              ]}
-            />
+                <Dropdown
+                  title={'Front'}
+                  description={'Orientation of the device'}
+                  value={editedGlobalSettings["orientation"]["value"]["front"]["value"]}
+                  onChange={(e) => handleGlobalConfigChange(['orientation', 'value', 'front', 'value'])(e.target.value)}
+                  options={[
+                    "+x",
+                    "-x",
+                    "+y",
+                    "-y",
+                    "+z",
+                    "-z"
+                  ]}
+                />
+                <Dropdown
+                  title={'Bottom'}
+                  description={'Orientation of the device'}
+                  value={editedGlobalSettings["orientation"]["value"]["bottom"]["value"]}
+                  onChange={(e) => handleGlobalConfigChange(['orientation', 'value', 'bottom', 'value'])(e.target.value)}
+                  options={[
+                    "+x",
+                    "-x",
+                    "+y",
+                    "-y",
+                    "+z",
+                    "-z"
+                  ]}
+                />
+                <Dropdown
+                  title={'Left'}
+                  description={'Orientation of the device'}
+                  value={editedGlobalSettings["orientation"]["value"]["left"]["value"]}
+                  onChange={(e) => handleGlobalConfigChange(['orientation', 'value', 'left', 'value'])(e.target.value)}
+                  options={[
+                    "+x",
+                    "-x",
+                    "+y",
+                    "-y",
+                    "+z",
+                    "-z"
+                  ]}
+                />
           </div>
+          )}
+          
           <div style={sectionStyle}>
-            <h2 style={sectionHeadingStyle}>Calibration</h2>
-            <InputSlider
-              sliderLabel={'calibrationThreshold'}
-              value={editedGlobalSettings["calibration"]["value"]["auto_threshold"]["value"]}
-              onChange={(e) => handleGlobalConfigChange(['calibration', 'value', 'auto_threshold', 'value'])(parseFloat(e.target.value))}
-              min={0.2}
-              max={1.0}
-              step={0.01}
-              sliderTitle={'Auto-Calibration Threshold'}
-              unit={'x'}
-              sliderDescription={"Movement required (as a scale of mouse>idle_threshold) to fail automatic calibration for gyro drift"}
-            ></InputSlider>
-            <InputSlider
-              sliderLabel={'calibrationSamples'}
-              value={editedGlobalSettings["calibration"]["value"]["auto_samples"]["value"]}
-              onChange={(e) => handleGlobalConfigChange(['calibration', 'value', 'auto_samples', 'value'])(parseFloat(e.target.value))}
-              min={1}
-              max={300}
-              step={1}
-              sliderTitle={'Auto-Calibration Samples Taken'}
-              unit={'samples'}
-              sliderDescription={"Number of samples to wait (at below auto_threshold) required to trigger auto recalibratoion"}
-            ></InputSlider>
+          <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+            <h2 style={sectionHeadingDynamicStyle(isCalibrationExpanded)} onClick={toggleCalibrationSection}>
+              Calibration
+            </h2>
+              {isCalibrationExpanded && (
+              <div>
+                  <InputSlider
+                    sliderLabel={'calibrationThreshold'}
+                    value={editedGlobalSettings["calibration"]["value"]["auto_threshold"]["value"]}
+                    onChange={(e) => handleGlobalConfigChange(['calibration', 'value', 'auto_threshold', 'value'])(parseFloat(e.target.value))}
+                    min={0.2}
+                    max={1.0}
+                    step={0.01}
+                    sliderTitle={'Auto-Calibration Threshold'}
+                    unit={'x'}
+                    sliderDescription={"Movement required (as a scale of mouse>idle_threshold) to fail automatic calibration for gyro drift"}
+                  ></InputSlider>
+                  <InputSlider
+                    sliderLabel={'calibrationSamples'}
+                    value={editedGlobalSettings["calibration"]["value"]["auto_samples"]["value"]}
+                    onChange={(e) => handleGlobalConfigChange(['calibration', 'value', 'auto_samples', 'value'])(parseFloat(e.target.value))}
+                    min={1}
+                    max={300}
+                    step={1}
+                    sliderTitle={'Auto-Calibration Samples Taken'}
+                    unit={'samples'}
+                    sliderDescription={"Number of samples to wait (at below auto_threshold) required to trigger auto recalibratoion"}
+                  ></InputSlider>
+                  </div>
+              )}
           </div>
         </div>
       </div>
@@ -739,6 +764,7 @@ const Devices = ({ devices }) => {
             <button
               onClick={() => toggleSection('connectionSettings')}
               style={{
+                
                 backgroundColor: collapsedSections['connectionSettings'] ? '#1A202C' : '#fcdc6d',
                 color: collapsedSections['connectionSettings'] ? '#FFFFFF' : '#000000',
                 borderRadius: '10px', 
@@ -1246,10 +1272,10 @@ const Devices = ({ devices }) => {
 
   const accordionListStyle = {
     display: 'grid',
-    gap: '1rem',
-    borderBottom: '1px solid #ccc', // Add bottom border
+    // gap: '0 rem',
+    borderBottom: '1px solid #ccc',
     borderRadius: '4px',
-    padding: '1rem',
+    // padding: '1rem',
   };
   
   const sliderContainerStyle = {
@@ -1335,7 +1361,28 @@ const Devices = ({ devices }) => {
   }
   return (
     <div>
+      <div className="ml-90">
+        <header className="shrink-0 bg-transparent border-b border-gray-200">
+          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
+            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+              Device Settings
+            </h2>
+          </div>
+        </header>
+      </div>
+
       <GlobalInfoSection />
+
+      <div className="ml-90">
+        <header className="shrink-0 bg-transparent border-b border-gray-200">
+          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
+            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+              Interfaces
+            </h2>
+          </div>
+        </header>
+      </div>
+
       <AccordionList data={connectionsList} />
       {/* Device details and logic */}
       <button onClick={handleRegisterInterface}
