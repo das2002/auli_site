@@ -332,8 +332,14 @@ const SelectGesture = ({ user }) => {
         }
       }
     });
+  
+    //sort recordings
+    updatedGestures.forEach(gesture => {
+      gesture.recordings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    });
+  
     setGestures(updatedGestures);
-  };
+  };  
 
   return (
     <div className="">
