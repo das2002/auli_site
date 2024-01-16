@@ -42,11 +42,21 @@ const sectionHeadingStyle = {
 };
 
 const CheckboxOption = ({ checked, onChange, title, description }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
   return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-      <label style={{ fontSize: '16px' }}>
+    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+      <label 
+        onMouseEnter={() => setIsHovered(true)} 
+        onMouseLeave={() => setIsHovered(false)}
+        style={{ fontSize: '16px' }}
+      >
         {title}
-        <span style={{ display: 'block', marginTop: '5px' }}>{description}</span>
+        {isHovered && (
+          <div style={hoverstyle}>
+            {description}
+          </div>
+        )}
       </label>
       <input
         type="checkbox"
@@ -61,7 +71,6 @@ const CheckboxOption = ({ checked, onChange, title, description }) => {
     </div>
   );
 };
-
 
 const HardwareUIDField = ({ hardwareUID }) => {
   return (
@@ -889,14 +898,8 @@ const Devices = ({ devices }) => {
                 checked={config.config.mouse.value.dwell_repeat.value}
                 onChange={(e) => handleModeConfigChange(['mouse', 'value', 'dwell_repeat', 'value'], activeOperationMode)(e.target.checked)}
                 title="Dwell Repeat Clicks"
-              />
-              {/* <Dropdown
-                value={config.config.mouse.value.dwell_repeat.value}
-                onChange={(e) => handleModeConfigChange(['mouse', 'value', 'dwell_repeat', 'value'], activeOperationMode)(parseBool(e.target.value))}
-                title="Dwell Repeat Clicks"
                 description="Continued idle causes multiple clicks"
-                options={[true, false]}
-              /> */}
+              />
               <InputSlider
                 sliderLabel={'mouseScaleX'}
                 value={config.config.mouse.value.scale_x.value}
@@ -1113,11 +1116,11 @@ const Devices = ({ devices }) => {
             <h2 style={sectionHeadingStyle}>TV Remote Options</h2>
             {/* <h1 style={titleStyle}> TV Remote Options </h1> */}
             {/* <div style={sliderContainerStyle}> */}
-              <Dropdown
-                value={config.config.tv_remote.value.await_actions.value}
+              <CheckboxOption
+                checked={config.config.tv_remote.value.await_actions.value}
                 onChange={(e) => handleModeConfigChange(['tv_remote', 'value', 'await_actions', 'value'], activeOperationMode)(parseBool(e.target.value))}
                 title="Await Actions"
-                description="wait for previous action to end before reading a new gesture"
+                description="Wait for previous action to end before reading a new gesture"
                 options={[true, false]}
               />
             </div>
@@ -1377,17 +1380,17 @@ const Devices = ({ devices }) => {
         <header className="shrink-0 bg-transparent border-b border-gray-200">
           <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-              Interfaces
+              {/* Interfaces */}
+              Connections
             </h2>
           </div>
         </header>
       </div>
 
       <AccordionList data={connectionsList} />
-      {/* Device details and logic */}
       <button onClick={handleRegisterInterface}
         style={{
-          backgroundColor: '#8B0000', // Dark red color
+          backgroundColor: '#8B0000', //red
           color: 'white',
           padding: '10px 20px',
           fontSize: '16px',
@@ -1395,7 +1398,7 @@ const Devices = ({ devices }) => {
           border: 'none',
           cursor: 'pointer',
         }}>
-        <span>Add Interface</span>
+        <span>Add Connection</span>
 
         {/* <span>+</span> */}
       </button>
