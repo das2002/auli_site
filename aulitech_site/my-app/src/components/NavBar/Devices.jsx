@@ -41,6 +41,27 @@ const sectionHeadingStyle = {
   boxShadow: '0px 2px 4px rgba(0,0,0,0.1)', 
 };
 
+const CheckboxOption = ({ checked, onChange, title, description }) => {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+      <label style={{ fontSize: '16px' }}>
+        {title}
+        <span style={{ display: 'block', marginTop: '5px' }}>{description}</span>
+      </label>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        style={{
+          transform: 'scale(1.5)',
+          cursor: 'pointer',
+          accentColor: 'black'
+        }} 
+      />
+    </div>
+  );
+};
+
 
 const HardwareUIDField = ({ hardwareUID }) => {
   return (
@@ -108,7 +129,7 @@ const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, slide
   };
 
   return (
-    <div style={{ marginBottom: '20px' }}>
+    <div style={{ marginBottom: '10px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <label 
           htmlFor={sliderLabel} 
@@ -172,7 +193,7 @@ const Dropdown = ({ value, onChange, title, description, options }) => {
 
 
   return (
-    <div style={{ marginBottom: '20px' }}>
+    <div style={{ marginBottom: '0px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 
         {title && (
@@ -348,18 +369,18 @@ const Devices = ({ devices }) => {
     console.log('editedGlobalSettings:', editedGlobalSettings);
 
     const sectionStyle = {
-      marginBottom: '20px',
+      marginBottom: '10px',
       padding: '10px',
       border: '1px solid #ccc',
       borderRadius: '5px',
     };
 
-    const sectionHeadingStyle = {
-      fontSize: '20px',
-      marginBottom: '10px',
-      fontWeight: 'bold', // Add the fontWeight property
-    };
-
+    // const sectionHeadingStyle = {
+    //   fontSize: '20px',
+    //   marginBottom: '10px',
+    //   fontWeight: 'bold',
+    // };
+    
     return (
       <div>
       <div className="ml-90">
@@ -375,7 +396,9 @@ const Devices = ({ devices }) => {
         <div style={sliderContainerStyle}>
           <HardwareUIDField hardwareUID={editedGlobalSettings["HW_UID"]["value"]} />
           <div style={sectionStyle}>
-            <h2 style={sectionHeadingStyle}>Sleep</h2>
+            <h2 style={sectionHeadingStyle}>
+              Sleep
+            </h2>
             <InputSlider
               sliderLabel={'sleepTimeout'}
               value={editedGlobalSettings.sleep.value.timeout.value}
@@ -836,13 +859,18 @@ const Devices = ({ devices }) => {
                 sliderTitle="Dwell Trigger Cycles"
                 sliderDescription="Amount of idle time (in .01 second increments) needed to trigger action in dwell_click"
               />
-              <Dropdown
+              <CheckboxOption
+                checked={config.config.mouse.value.dwell_repeat.value}
+                onChange={(e) => handleModeConfigChange(['mouse', 'value', 'dwell_repeat', 'value'], activeOperationMode)(e.target.checked)}
+                title="Dwell Repeat Clicks"
+              />
+              {/* <Dropdown
                 value={config.config.mouse.value.dwell_repeat.value}
                 onChange={(e) => handleModeConfigChange(['mouse', 'value', 'dwell_repeat', 'value'], activeOperationMode)(parseBool(e.target.value))}
                 title="Dwell Repeat Clicks"
                 description="Continued idle causes multiple clicks"
                 options={[true, false]}
-              />
+              /> */}
               <InputSlider
                 sliderLabel={'mouseScaleX'}
                 value={config.config.mouse.value.scale_x.value}
