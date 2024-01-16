@@ -118,7 +118,7 @@ const RegisterInterface = ({ user, devices }) => {
           currentConnections.push(thisDevice.data.connections[i].name);
         }
         if (currentConnections.includes(interfaceName)) {
-          alert("Interface name already exists for this device");
+          alert("Connection name already exists for this device");
           return;
         }
 
@@ -234,14 +234,14 @@ const RegisterInterface = ({ user, devices }) => {
           }),
         ]);
 
-        console.log("Interface registered successfully");
+        console.log("Connection registered successfully");
 
 
       };
       await getConnections();
       window.location.reload();
     } catch (error) {
-      console.log("add interface doc to usersCato connections error: ", error);
+      console.log("add connection doc to usersCato connections error: ", error);
     }
   };
 
@@ -254,14 +254,14 @@ const RegisterInterface = ({ user, devices }) => {
       <header className="shrink-0 bg-transparent">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between">
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight py-1">
-            Register new interface for {deviceName}
+            Register new connection for {deviceName}
           </h2>
         </div>
       </header>
 
       <div className="border-b border-gray-200 pb-5">
         <p className="max-w-4xl text-lg text-gray-900">
-          To associate a new interface with {deviceName}, connect {deviceName} to your computer via cable.
+          To associate a new connection with {deviceName}, connect {deviceName} to your computer via cable.
         </p>
       </div>
 
@@ -269,11 +269,11 @@ const RegisterInterface = ({ user, devices }) => {
         <div className="bg-white shadow-lg border border-gray-200 rounded-lg p-5 mt-10">
           <div className="px-4 py-5 sm:p-6 lg:px-8">
             <h3 className="text-xl font-semibold leading-6 text-gray-900">
-              Name your Interface
+              Name your Connection
             </h3>
             <div className="mt-5">
               <label htmlFor="interface-name" className="block text-lg text-gray-900">
-                Enter a name for your interface below:
+                Enter a name for your connection below:
               </label>
               <input
                 type="text"
@@ -312,7 +312,7 @@ const RegisterInterface = ({ user, devices }) => {
 
 
             <p className="mt-5 text-lg text-gray-900">
-              When you click <strong>Save</strong>, your browser will ask if you want to allow access to the device. Allow access in order to register the interface.
+              When you click <strong>Save</strong>, your browser will ask if you want to allow access to the device. Allow access in order to register the connection.
             </p>
             <div className="mt-6 flex justify-end">
               <button

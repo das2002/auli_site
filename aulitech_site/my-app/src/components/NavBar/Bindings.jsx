@@ -1,7 +1,9 @@
 import React, { useState, useEffect} from 'react';
 import {KeyOptions, getKeyOption} from './KeyOptions';
 
-
+const deepCopy = (obj) => {
+    return JSON.parse(JSON.stringify(obj));
+}
 const sectionHeadingStyle = {
     fontSize: '20px',
     marginBottom: '10px',
@@ -83,8 +85,7 @@ function buttonMapping(button) {
 
 
 const BindingsPanel = ({config}) => {
-    console.log("config: ", config);
-    console.log("config bindings", config.bindings.value);
+
     const [fetchedBindings, setFetchedBindings] = useState(getInitialBindingsForMode(config));
     const [editedBindings, setEditedBindings] = useState(getInitialBindingsForMode(config));
 
@@ -121,6 +122,12 @@ const BindingsPanel = ({config}) => {
         // Here you might send the bindings to a server or update some other state
     };
     */
+
+    useEffect(() => {
+        console.log("Edited bindings changed:", editedBindings);
+        console.log(config);
+        config.bindings.value = deepCopy(editedBindings);
+    }, [editedBindings]);
     
 
 
