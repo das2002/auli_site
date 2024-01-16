@@ -251,13 +251,15 @@ const RegisterInterface = ({ user, devices }) => {
 
   return (
     <div className="flex min-h-full flex-col">
-      <header className="shrink-0 bg-transparent">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight py-1">
-            Register new interface for {deviceName}
-          </h2>
-        </div>
-      </header>
+      <div className="ml-90">
+        <header className="shrink-0 bg-transparent border-b border-gray-200">
+          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
+            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+              Register New Interface for {deviceName}
+            </h2>
+          </div>
+        </header>
+      </div>
 
       <div className="border-b border-gray-200 pb-5">
         <p className="max-w-4xl text-lg text-gray-900">
@@ -318,7 +320,7 @@ const RegisterInterface = ({ user, devices }) => {
               <button
                 type="button"
                 onClick={handleSave}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="decision-button inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Save
               </button>

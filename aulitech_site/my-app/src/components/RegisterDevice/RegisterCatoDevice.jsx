@@ -195,19 +195,20 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
   return (
     <div className="flex min-h-full flex-col">
-      <header className="shrink-0 bg-transparent">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between">
-          <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight py-1">
-            Register New Device
-          </h2>
+        <div className="ml-90">
+          <header className="shrink-0 bg-transparent border-b border-gray-200">
+            <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
+              <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                Register New Device
+              </h2>
+            </div>
+            <div className="border-b border-gray-200 pb-5">
+              <p className="max-w-4xl text-lg text-gray-900">
+                To register a new Cato device, connect it to your computer via cable.
+              </p>
+            </div>
+          </header>
         </div>
-      </header>
-
-      <div className="border-b border-gray-200 pb-5">
-        <p className="max-w-4xl text-lg text-gray-900">
-          To register a new Cato device, connect it to your computer via cable.
-        </p>
-      </div>
       <div className="px-4 sm:px-6 lg:px-8">
       <div className="bg-white shadow-lg border border-gray-200 rounded-lg p-5 mt-10">
         <div className="px-4 py-5 sm:p-6 lg:px-8">
@@ -242,7 +243,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
               <button
                 disabled={enteredName === "" ? true : false}
                 onClick={downloadSequence}
-                className="inline-flex rounded-full items-center bg-blue-500 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-300"
+                className="decision-button inline-flex rounded-full items-center bg-blue-500 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:opacity-70"
               >
                 Save
               </button>

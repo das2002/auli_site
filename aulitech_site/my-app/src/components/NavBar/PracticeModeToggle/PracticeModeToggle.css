@@ -1,0 +1,90 @@
+.toggle-switch {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: .5rem;
+    height: 50px; 
+}
+
+.active-device {
+    background-color: #333; /* Active device background */
+}
+
+.device-name {
+    color: #ddd; /* Text color */
+}
+
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 80px;
+    height: 22px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #555; /* Off state */
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 2px;
+    bottom: 2px;
+    top: 2px; 
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #fcdd6d; /* On state color */
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #666667;
+}
+
+input:checked + .slider:before {
+    transform: translateX(58px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 34px;
+}
+.box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.active-device .slider {
+    background-color: #2196F3; /* Active device slider color */
+}
+
+.practice-mode-text {
+    color: rgb(255, 255, 255);
+    font-size: 0.9rem;
+    margin-left: 10px;
+    display: block;
+}
