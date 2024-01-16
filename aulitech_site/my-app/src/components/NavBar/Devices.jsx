@@ -122,6 +122,20 @@ const deepCopy = (obj) => {
 const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, sliderDescription, sliderLabel }) => {
   const [sliderValue, setSliderValue] = useState(value || 0);
   const [isLabelHovered, setIsLabelHovered] = useState(false);
+  const [inputValue, setInputValue] = useState(value);
+
+  const handleInputChange = (event) => {
+    const newValue = event.target.value === '' ? '' : Number(event.target.value);
+    setInputValue(newValue); 
+  };
+
+  const handleInputCommit = (event) => {
+    let newValue = event.target.value === '' ? min : Number(event.target.value);
+    newValue = newValue < min ? min : newValue > max ? max : newValue;
+    setInputValue(newValue); 
+    setSliderValue(newValue); 
+    onChange({ target: { value: newValue } }); 
+  };
 
   useEffect(() => {
     setSliderValue(value || 0);
@@ -153,7 +167,9 @@ const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, slide
             </div>
           )}
         </label>
-        <div style={{ width: '30%' }}> 
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px',  width: '40%' }}>
+
+        {/* <div style={{ width: '30%' }}>  */}
           <DarkYellowSlider
             id={sliderLabel}
             value={sliderValue}
@@ -164,6 +180,16 @@ const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, slide
             step={step}
             min={min}
             max={max}
+          />
+          <input
+            type="number"
+            value={inputValue}
+            onChange={handleInputChange}
+            onBlur={handleInputCommit}
+            style={{ width: '60px', marginLeft: '20px'  }} 
+            min={min}
+            max={max}
+            step={step}
           />
         </div>
       </div>
@@ -533,6 +559,20 @@ const Devices = ({ devices }) => {
 
 
   const AccordionList = ({ data }) => {
+    const noConnectionsStyle = {
+      textAlign: 'center',
+      padding: '20px',
+      fontSize: '16px',
+      color: '#666',
+    };
+
+    if (data.length === 0) { //no connections display
+      return (
+        <div style={noConnectionsStyle}>
+          No connections yet. Add a connection to begin.
+        </div>
+      );
+    }
 
     const ConnectionAccordion = ({ connection }) => {
       const [isExpanded, setIsExpanded] = useState(false);
