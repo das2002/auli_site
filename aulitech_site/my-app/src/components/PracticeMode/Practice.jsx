@@ -29,6 +29,7 @@ const ConnectionInstructions = ({ onNext }) => {
       originalJson = deepCopy(parsedJson);
       console.log('originalJson', originalJson);
     }, [parsedJson]);
+
     const getJsonData = async () => {
         try {
             if (window.showDirectoryPicker) {
@@ -53,23 +54,25 @@ const ConnectionInstructions = ({ onNext }) => {
 
 
                             // create a practice mode file
-                            const fileName = "config.json";
-                            const fileData = JSON.stringify(globalConfig, null, 2);
-                            const newFileHandle = await dirHandle.getFileHandle(fileName, { create: true });
-                            const writable = await newFileHandle.createWritable();
-                            await writable.write(fileData);
-                            await writable.close();
+                            // const fileName = "config.json";
+                            // const fileData = JSON.stringify(globalConfig, null, 2);
+                            // const newFileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+                            // const writable = await newFileHandle.createWritable();
+                            // await writable.write(fileData);
+                            // await writable.close();
 
-                            const blob = new Blob([fileData], { type: 'application/json' });
-                            const url = URL.createObjectURL(blob);
-                            const link = document.createElement('a');
-                            link.href = url;
-                            link.download = fileName;
+                            // const blob = new Blob([fileData], { type: 'application/json' });
+                            // const url = URL.createObjectURL(blob);
+                            // const link = document.createElement('a');
+                            // link.href = url;
+                            // link.download = fileName;
 
-                            // this is a hack to fix the issue with downloading the file
-                            link.click();
+                            downloadNewConfig(globalConfig);
 
-                            link.remove();
+                            // // this is a hack to fix the issue with downloading the file
+                            // link.click();
+
+                            // link.remove();
 
                             return;
                         }
@@ -152,6 +155,20 @@ const BluetoothCheck = ({onCheck}) => {
     )
 };
 
+const downloadNewConfig = async (newDeviceConfig) => {
+    try {
+      const handle = await window.showSaveFilePicker({ suggestedName: "config.json" })
+      const writable = await handle.createWritable();
+  
+      await writable.write(JSON.stringify(newDeviceConfig));
+      await writable.close();
+  
+      console.log("New config successfully saved.");
+    } catch (error) {
+      console.error("Download new config error:", error);
+    }
+  };
+
 const PracticeMode = () => {
     const Navigate = useNavigate();
     const [isPracticing, setIsPracticing] = useState(false);
@@ -162,15 +179,17 @@ const PracticeMode = () => {
         if (isPracticing) {
             textareaRef.current.blur();
             // download the original config.json file
-            const fileName = "config.json";
-            const fileData = JSON.stringify(originalJson, null, 2);
-            const blob = new Blob([fileData], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = fileName;
-            link.click();
-            link.remove();
+            // const fileName = "config.json";
+            // const fileData = JSON.stringify(originalJson, null, 2);
+            // const blob = new Blob([fileData], { type: 'application/json' });
+            // const url = URL.createObjectURL(blob);
+            // const link = document.createElement('a');
+            // link.href = url;
+            // link.download = fileName;
+            // link.click();
+            // link.remove();
+
+            downloadNewConfig(originalJson);
             Navigate("/")
         } else {
             textareaRef.current.focus();

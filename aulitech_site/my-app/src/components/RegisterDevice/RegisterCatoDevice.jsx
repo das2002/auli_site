@@ -65,8 +65,8 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     }
     let newConfig = deepCopy(newDeviceConfig);
 
-    newConfig["global_info"]["HW_UID"]["value"] = retrievedJson["global_info"]["HW_UID"]["value"];
-    newConfig.global_info.name.value = enteredName;
+    newConfig["device_config"]["global_config"]["HW_UID"]["value"] = retrievedJson["device_config"]["global_config"]["HW_UID"]["value"];
+    newConfig.device_config.global_config.name.value = enteredName;
     const deviceAdded = addDeviceDoc(newConfig);
     if (!deviceAdded) {
       return;
@@ -79,21 +79,17 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
   const navigate = useNavigate();
 
-  //go into resources/templates and find new_device_config.json
   const downloadNewConfig = async (newDeviceConfig) => {
     try {
-      const blob = new Blob([JSON.stringify(newDeviceConfig)], {
-        type: "application/json",
-      });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "config.json";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const handle = await window.showSaveFilePicker({ suggestedName: "config.json" })
+      const writable = await handle.createWritable();
+
+      await writable.write(JSON.stringify(newDeviceConfig));
+      await writable.close();
+  
+      console.log("New config successfully saved.");
     } catch (error) {
-      console.log("download new config error: ", error);
+      console.error("Download new config error:", error);
     }
   };
 

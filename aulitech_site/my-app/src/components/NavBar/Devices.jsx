@@ -30,6 +30,21 @@ const DarkYellowSlider = styled(Slider)(({ theme }) => ({
 //   fontWeight: 'bold', 
 // };
 
+
+const downloadNewConfig = async (newDeviceConfig) => {
+  try {
+    const handle = await window.showSaveFilePicker({ suggestedName: "config.json" })
+    const writable = await handle.createWritable();
+
+    await writable.write(JSON.stringify(newDeviceConfig));
+    await writable.close();
+
+    console.log("New config successfully saved.");
+  } catch (error) {
+    console.error("Download new config error:", error);
+  }
+};
+
 const sectionHeadingStyle = {
   fontSize: '20px',
   marginBottom: '10px',
@@ -1378,20 +1393,8 @@ const Devices = ({ devices }) => {
      
     // download the device config
 
-    try {
-      const blob = new Blob([JSON.stringify(deviceConfig)], {
-        type: "application/json",
-      });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "config.json";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.log("download new config error: ", error);
-    }
+    downloadNewConfig(deviceConfig);
+    console.log("finished updating");
   };
   
 

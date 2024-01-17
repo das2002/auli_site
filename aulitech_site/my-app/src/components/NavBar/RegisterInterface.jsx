@@ -15,6 +15,63 @@ const deepCopy = (obj) => {
   return JSON.parse(JSON.stringify(obj));
 };
 
+const downloadNewConfig = async (newDeviceConfig) => {
+  try {
+    const handle = await window.showSaveFilePicker({ suggestedName: "config.json" })
+    const writable = await handle.createWritable();
+
+    await writable.write(JSON.stringify(newDeviceConfig));
+    await writable.close();
+
+    console.log("New config successfully saved.");
+  } catch (error) {
+    console.error("Download new config error:", error);
+  }
+};
+
+const getJsonData = async () => {
+
+  try {
+    if (window.showDirectoryPicker) {
+      const dirHandle = await window.showDirectoryPicker();
+
+      const iterateDirectory = async (dirHandle) => {
+        for await (const entry of dirHandle.values()) {
+          if (entry.kind === "file" && entry.name === "config.json") {
+            // console.log("found config.json");
+            const file = await entry.getFile();
+            const jsonDataText = await file.text();
+            const retrievedJson = JSON.parse(jsonDataText);
+            // console.log("JSON after parse line 65 check", retrievedJson);
+
+            return retrievedJson;
+
+          } else if (entry.kind === "directory") {
+            const found = await iterateDirectory(entry);
+            if (found != null) {
+              return found;
+            }
+          }
+        }
+        return null;
+      };
+
+      const found = await iterateDirectory(dirHandle);
+      if (!found) {
+        console.log("config.json file not found");
+        return null;
+      }
+      return found;
+    } else {
+      console.log("showDirectoryPicker is not supported in this browser");
+      return null;
+    }
+  } catch (error) {
+    console.log("Error:", error);
+    return null;
+  }
+};
+
 const RegisterInterface = ({ user, devices }) => {
   const { deviceName } = useParams();
   const navigate = useNavigate();
@@ -136,6 +193,8 @@ const RegisterInterface = ({ user, devices }) => {
         const docRef = doc(userRef, thisDevice.id);
         console.log('docRef', docRef);
 
+        const jsonDATA = await getJsonData();
+
         // console.log('temp old', tempdata);
         let connectionData = {}
         let clickerData = {}
@@ -180,7 +239,6 @@ const RegisterInterface = ({ user, devices }) => {
         let tvRemoteOperation = deepCopy(operationDefault);
         tvRemoteOperation.operation_mode.value = 'tv_remote';
         tvRemoteData = {
-          // ...connectionData,
           ...tvRemoteOperation,
           ...tvRemoteDefault,
           ...gestureDefault,
@@ -233,6 +291,9 @@ const RegisterInterface = ({ user, devices }) => {
             connections: arrayUnion(firebaseMap)
           }),
         ]);
+
+        jsonDATA.connections.push(JSON.stringify(firebaseMap));
+        downloadNewConfig(jsonDATA);
 
         console.log("Connection registered successfully");
 
