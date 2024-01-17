@@ -10,6 +10,8 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import { writeBatch } from "firebase/firestore";
+import { initGestureFile } from './initGestureFile';
+
 
 import { getStorage, ref, uploadBytes } from "firebase/storage";
 
@@ -246,24 +248,31 @@ const SelectGesture = ({ user }) => {
     setGestureData(prevData => [...prevData, newData]);
   };
 
-  const startRecording = (gesture) => {
-    setGestureData([]);
-
-    setSelectedGesture(gesture);
-    setRecordingStart(new Date());
-    setShowPopup(true);
-    setIsRecording(true);
-
-    const countdownInterval = setInterval(() => {
-      setCountdown((prevCount) => {
-        if (prevCount === 1) {
-          clearInterval(countdownInterval);
-          stopRecording();
-        }
-        return prevCount - 1;
-      });
-    }, 1000);
+  const startRecording = async (gesture) => {
+    try {
+      await initGestureFile(); //gesture file initialize
+      console.log("Gesture file initialization successful");
+  
+      setGestureData([]);
+      setSelectedGesture(gesture);
+      setRecordingStart(new Date());
+      setShowPopup(true);
+      setIsRecording(true);
+  
+      const countdownInterval = setInterval(() => {
+        setCountdown((prevCount) => {
+          if (prevCount === 1) {
+            clearInterval(countdownInterval);
+            stopRecording();
+          }
+          return prevCount - 1;
+        });
+      }, 1000);
+    } catch (error) {
+      console.error("Error in startRecording:", error);
+    }
   };
+  
 
   const stopRecording = async () => {
     const duration = new Date() - recordingStart;
