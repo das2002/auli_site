@@ -16,7 +16,7 @@ import { collection, query, getDocs, where, doc, getDoc, setDoc, serverTimestamp
 import RecordGestures from './components/RecordGests/RecordGestures';
 import Updates from './components/UpdatePage/Updates';
 import Devices from './components/NavBar/Devices';
-import PracticeMode from './components/PracticeMode/Practice';
+import Practice from './components/PracticeMode/Practice';
 import RegisterInterface from './components/NavBar/RegisterInterface';
 
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
@@ -397,8 +397,8 @@ function App() {
             <Route path="/devices/:deviceName" element={<Devices  devices={devices}/>} />
             <Route path='/devices/:deviceName/bindings' element={<BindingsPanel user={user} devices={devices} currIndex={currIndex} />} />
             <Route path= "/devices/:deviceName/register-interface" element={<RegisterInterface user={user} devices={devices}/>} />
-            <Route path="/practice" element= {<PracticeMode />} />
-          </Routes>
+            <Route path="/devices/:deviceName/practice" element={<Practice />} />
+            </Routes>
         </div>
       </main>
      </>
