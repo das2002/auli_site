@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { db, auth } from '../../firebase';
 import debounce from 'lodash.debounce';
-import { collection, getDocs, query, where, updateDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, query, where, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { set } from 'lodash';
 import Slider from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
@@ -420,10 +420,35 @@ const Devices = ({ devices }) => {
       // borderRadius: '5px',
     };
 
+    const handleDeviceDelete = async () => {
+      // delete the device from the database
+      if (thisDevice) {
+        const deviceRef = doc(db, 'users', getCurrentUserId(), 'userCatos', thisDevice.id);
+        try {
+          await deleteDoc(deviceRef);
+          console.log('device deleted');
+        } catch {
+          console.log('error deleting device');
+        }
+      }
+      setTimeout(() => {
+        navigate('/devices');
+        //refresh the page
+        window.location.reload();
+      }, 2000);
+    }
+
     return (
       <div>
         <div style={sliderContainerStyle}>
-          <HardwareUIDField hardwareUID={editedGlobalSettings["HW_UID"]["value"]} />
+          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+            <div>
+              <HardwareUIDField hardwareUID={editedGlobalSettings["HW_UID"]["value"]} />
+            </div>
+            <div>
+              <button onClick={handleDeviceDelete} style={{ backgroundColor: '#8B0000', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}>Delete Device</button>
+              </div>
+          </div>
           <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
 
           {/* Sleep Section */}
@@ -1591,23 +1616,65 @@ const Devices = ({ devices }) => {
         );
       }
 
+      const handleConnectionDeletion = async () => {
+        /*
+        const userId = getCurrentUserId();
+        const userCatoDocId = thisDevice.id;
+        const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
+
+        try {
+          await updateDoc(userCatoDocRef, {
+            'connections': arrayRemove(editedConnectionConfig),
+          });
+          console.log("Connection deleted successfully");
+        } catch (error) {
+          console.error("Error deleting connection: ", error);
+        }
+        */ 
+
+      }
+
       return (
         <div style={{ marginBottom: '1rem' }}>
-          <button
-            onClick={toggleIsExpanded}
-            style={{
-              backgroundColor: 'transparent',
-              border: 'none',
-              outline: 'none',
-              textAlign: 'left',
-              width: '100%',
-              padding: '10px',
-              fontSize: '16px',
-              cursor: 'pointer'
-            }}
-          >
-            {connection.name}
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center' , justifyContent: 'space-between'}}>
+            <div>
+              <button
+                onClick={toggleIsExpanded}
+                style={{
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  textAlign: 'left',
+                  width: '100%',
+                  padding: '10px',
+                  fontSize: '16px',
+                  cursor: 'pointer'
+                }}
+              >
+                {connection.name}
+              </button>
+            </div>
+            <div>
+              <button
+                onClick={handleConnectionDeletion}
+                style={{
+                  backgroundColor: '#8B0000',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '5px',
+                  outline: 'none',
+                  textAlign: 'left',
+                  width: '100%',
+                  padding: '10px',
+                  fontSize: '16px',
+                  cursor: 'pointer'
+                }}>
+                Delete Connection
+              </button>
+            </div>
+          </div>
+          
+
           {isExpanded && (
             <div>
               <h2 style={sectionHeadingStyle}>Operation Mode</h2>
