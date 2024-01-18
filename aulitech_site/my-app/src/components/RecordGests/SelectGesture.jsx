@@ -10,10 +10,13 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import { writeBatch } from "firebase/firestore";
-import { initGestureFile } from './initGestureFile';
+import { initGestureFile, checkForFlagFile } from './initGestureFile'; 
+import { uploadLogToFirebase } from './initGestureFile';
+import { get, set } from 'idb-keyval';
 
 
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { getStorage, ref as storageRef, uploadBytes } from "firebase/storage";
+
 
 const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startRecording, deleteSelectedRecordings }) => {
   const activeGesture = gestures.find(g => g.id === activeGestureId);
@@ -27,22 +30,6 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
 
   const closeDeleteConfirm = () => {
     setShowDeleteConfirm(false);
-  };
-
-  const uploadFileToFirebase = async (file) => {
-    const storage = getStorage();
-    const storageRef = ref(storage, 'path/to/your/file/' + file.name); 
-
-    try {
-      await uploadBytes(storageRef, file);
-      console.log('File uploaded successfully');
-    } catch (error) {
-      console.error('Error uploading file:', error);
-    }
-  };
-  
-  const handleFileUpload = (file) => {
-    uploadFileToFirebase(file);
   };
   
   const toggleRecordingSelection = (recordingId) => {
@@ -185,16 +172,36 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
   );
 };
 
+let directoryHandle = null;
+
 const SelectGesture = ({ user }) => {
+  const [directoryHandle, setDirectoryHandle] = useState(null);
+
   const [showPopup, setShowPopup] = useState(false);
   const [selectedGesture, setSelectedGesture] = useState(null);
   const [recordingStart, setRecordingStart] = useState(null);
+
+  const [flagFileFound, setFlagFileFound] = useState(false);
 
   const [isRecording, setIsRecording] = useState(false);
   const [countdown, setCountdown] = useState(10);
 
   const [activeGestureId, setActiveGestureId] = useState(null);
   const [gestureData, setGestureData] = useState([]);
+
+  const handleFlagFileDetected = async (gestureId) => {
+    try {
+      const fileHandle = await directoryHandle.getFileHandle('log.txt');
+      const file = await fileHandle.getFile();
+      const text = await file.text();
+      
+      //after getting log.txt, call uploadLogToFirebase
+      await uploadLogToFirebase(gestureId, text);
+      console.log("Log uploaded successfully for gesture ID:", gestureId);
+    } catch (error) {
+      console.error("Failed to upload log for gesture ID:", gestureId, error);
+    }
+  };
 
   const [gestures, setGestures] = useState([
     { id: 1, name: "Nod up", count: 0, recordings: [] },
@@ -209,9 +216,23 @@ const SelectGesture = ({ user }) => {
     // { id: 10, name: "Circle counterclockwise", count: 0, recordings: [] },
     ]);
 
-  useEffect(() => {
-    getGestStats();
-  }, []);
+    useEffect(() => {
+      const initDirectoryHandle = async () => {
+        try {
+          let dirHandle = await get('directoryHandle');
+          if (!dirHandle) {
+            dirHandle = await window.showDirectoryPicker();
+            await set('directoryHandle', dirHandle);
+          }
+          setDirectoryHandle(dirHandle);
+        } catch (error) {
+          console.error('Error initializing gesture file:', error);
+        }
+      };
+  
+      initDirectoryHandle();
+      getGestStats();
+    }, []);
 
 
   const handleGestureSelect = (gestureId) => {
@@ -249,9 +270,19 @@ const SelectGesture = ({ user }) => {
   };
 
   const startRecording = async (gesture) => {
+    
     try {
       await initGestureFile(); //gesture file initialize
       console.log("Gesture file initialization successful");
+      
+      
+      checkForFlagFile(async (flagExists) => {
+        if (flagExists && selectedGesture) {
+          await handleFlagFileDetected(selectedGesture.id);
+        }
+      });
+      console.log("Flag.txt found!")
+      
   
       setGestureData([]);
       setSelectedGesture(gesture);
@@ -273,50 +304,94 @@ const SelectGesture = ({ user }) => {
     }
   };
   
-
   const stopRecording = async () => {
+    if (!selectedGesture) {
+      console.error("No gesture selected.");
+      return;
+    }
+  
+    if (!directoryHandle) {
+      console.error("Directory handle is not initialized.");
+      return;
+    }
+  
     const duration = new Date() - recordingStart;
     const timestamp = new Date();
     setShowPopup(false);
-
-    if (selectedGesture) {
+  
+    try {
+      let fileExists = false;
+      let retries = 0;
+      const maxRetries = 5;
+  
+      while (!fileExists && retries < maxRetries) {
+        try {
+          await directoryHandle.getFileHandle('log.txt');
+          fileExists = true;
+        } catch {
+          //wait bf retrying
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          retries++;
+        }
+      }
+  
+      if (!fileExists) {
+        throw new Error('log.txt file not found after retries.');
+      }
+  
+      const fileHandle = await directoryHandle.getFileHandle('log.txt');
+      const file = await fileHandle.getFile();
+      const logText = await file.text();
+      const csvBlob = new Blob([logText], { type: 'text/csv' });
+  
+      // upload csv file to firebase
+      const storage = getStorage();
+      const csvStorageRef = storageRef(storage, `gestures/${selectedGesture.id}/${timestamp.toISOString()}.csv`);
+      await uploadBytes(csvStorageRef, csvBlob);
+      console.log('CSV file uploaded to Firebase Storage');
+  
+      // store csv file path in firestore
+      const csvPath = `gestures/${selectedGesture.id}/${timestamp.toISOString()}.csv`;
+  
       const gestureDataString = JSON.stringify(gestureData);
   
-      try {
-        const gestureDataRef = collection(db, "gesture-data");
-        const recordingData = {
-          useruid: user.uid,
-          gesture: selectedGesture.name,
-          timestamp,
-          duration,
-          gestureData,
-          log: gestureDataString 
-        };
-        const docRef = await addDoc(gestureDataRef, recordingData);
-
-        setGestures(currentGestures => {
-          return currentGestures.map(gesture => {
-            if (gesture.name === selectedGesture.name) {
-              const newRecording = {
-                timestamp: timestamp.toLocaleString(),
-                docId: docRef.id
-              };
-              return {
-                ...gesture,
-                recordings: [...gesture.recordings, newRecording]
-              };
-            }
-            return gesture;
-          });
-        });
-        console.log("Recording saved for gesture:", selectedGesture.name);
-      } catch (error) {
-        console.error("Error saving recording data:", error);
-      }
+      // add data document to firebase
+      const gestureDataRef = collection(db, "gesture-data");
+      const recordingData = {
+        useruid: user.uid,
+        gesture: selectedGesture.name,
+        timestamp,
+        duration,
+        gestureData,
+        log: logText,
+        csvPath
+      };
+      const docRef = await addDoc(gestureDataRef, recordingData);
+  
+      // update local state to view new recording
+      setGestures(currentGestures => currentGestures.map(g => {
+        if (g.id === selectedGesture.id) {
+          return {
+            ...g,
+            recordings: [...g.recordings, {
+              timestamp: timestamp.toLocaleString(),
+              docId: docRef.id
+            }]
+          };
+        }
+        return g;
+      }));
+  
+      console.log("Recording saved for gesture:", selectedGesture.name);
+    } catch (error) {
+      console.error("Error during recording stop process:", error);
     }
+  
     setIsRecording(false);
     setCountdown(10);
   };
+  
+  
 
   const getGestStats = async () => {
     const dataRef = collection(db, "gesture-data");
@@ -364,21 +439,21 @@ const SelectGesture = ({ user }) => {
 
       {showPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center justify-between" style={{ width: '50%', height: '50%' }}>
-            <p className="text-lg font-medium text-center">
-              <strong>Instructions:</strong> When the prompt for you to gesture shows up, perform the gesture as you would.
-            </p>
-            <p className="text-lg font-medium">
-              {isRecording ? `Recording ends in: ${countdown} seconds` : "Recording..."}
-            </p> 
-            <button className="rounded-md bg-red-500 p-3 text-white hover:bg-red-700" 
-              onClick={stopRecording}
-            > 
-              Stop Recording
-            </button>
-          </div>
+            <div className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center justify-between" style={{ width: '50%', height: '50%' }}>
+                <p className="text-lg font-medium text-center">
+                    <strong>Instructions:</strong> When the prompt for you to gesture shows up, perform the gesture as you would.
+                </p>
+                <p className="text-lg font-medium">
+                    {flagFileFound ? "Start recording NOW" : (isRecording ? `Recording ends in: ${countdown} seconds` : "Recording...")}
+                </p>
+                <button className="rounded-md bg-red-500 p-3 text-white hover:bg-red-700" 
+                    onClick={stopRecording}
+                >
+                    Stop Recording
+                </button>
+            </div>
         </div>
-      )}
+    )}
     </div>
   );
 };

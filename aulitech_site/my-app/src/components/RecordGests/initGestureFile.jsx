@@ -1,13 +1,14 @@
 import { get, set } from 'idb-keyval';
+import { doc, updateDoc } from "firebase/firestore"; 
+import { db } from "../../firebase";
+
+let directoryHandle = null;
 
 export async function initGestureFile() {
     console.log("initGestureFile called");
 
     try {
-        //check for an existing directory in IndexedDB
-        let directoryHandle = await get('directoryHandle');
-
-        //if no handle --> request & store it in IndexedDB
+        directoryHandle = await get('directoryHandle');
         if (!directoryHandle) {
             directoryHandle = await window.showDirectoryPicker();
             await set('directoryHandle', directoryHandle);
@@ -26,8 +27,43 @@ export async function initGestureFile() {
 
         const file = await fileHandle.getFile();
         //console debugging
-        console.log(`Confirmed: 'gesture.cato' file is created or exists with size ${file.size} bytes.`);
+        console.log(`Confirmed: 'gesture.cato' file is created. ${file.size} bytes.`);
+
     } catch (error) {
         console.error('Error initializing gesture file:', error);
     }
 }
+
+//check for flag.txt
+export async function checkForFlagFile(callback) {
+    try {
+        if (!directoryHandle) {
+            throw new Error('Directory handle not initialized');
+        }
+        //polling :(
+        const checkFileExistence = async () => {
+            try {
+                await directoryHandle.getFileHandle('flag.txt');
+                callback(true); //flagFileFound=true
+            } catch {
+                setTimeout(checkFileExistence, 1000);
+            }
+        };
+
+        checkFileExistence();
+    } catch (error) {
+        console.error('Error checking for flag file:', error);
+    }
+}
+
+export async function uploadLogToFirebase(gestureId, logText) {
+    const gestureRef = doc(db, "gesture-data", gestureId);
+    try {
+      await updateDoc(gestureRef, {
+        log: logText
+      });
+      console.log("Log updated successfully");
+    } catch (error) {
+      console.error("Error updating log:", error);
+    }
+  }
