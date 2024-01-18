@@ -6,7 +6,8 @@ import { collection, getDocs, query, where, updateDoc, doc } from 'firebase/fire
 import { set } from 'lodash';
 import Slider from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
-import {KeyOptions, getKeyOption} from './KeyOptions';
+import { KeyOptions, getKeyOption } from './KeyOptions';
+import { fetchAndCompareConfig, overwriteConfigFile } from './ReplaceConfig';
 
 
 const DarkYellowSlider = styled(Slider)(({ theme }) => ({
@@ -346,7 +347,7 @@ const Devices = ({ devices }) => {
       currentConfig[keyList[keyList.length - 1]] = value;
       setEditedGlobalSettings(newEditedGlobalSettings);
     }, 100);
-    
+
   };
 
 
@@ -1142,7 +1143,7 @@ const Devices = ({ devices }) => {
         );
       };
 
-      const BindingsPanel = ({config}) => {
+      const BindingsPanel = ({ config }) => {
 
         console.log(config);
 
@@ -1162,7 +1163,7 @@ const Devices = ({ devices }) => {
               return config.bindings.value;
             }
           }
-          
+
           return defaultConfig;
         };
 
@@ -1257,7 +1258,7 @@ const Devices = ({ devices }) => {
             }
           }
           updatedBindings[index].command = value;
-          
+
 
           switch (activeOperationMode) {
             case "gesture_mouse":
@@ -1281,7 +1282,7 @@ const Devices = ({ devices }) => {
               setEditedClickerConfig(newEditedClickerConfig);
               break;
           }
-          
+
         };
 
         const handleSettingsChange = (index, settingNumber, value) => {
@@ -1522,7 +1523,7 @@ const Devices = ({ devices }) => {
             <GestureOptions config={editedGestureMouseConfig} />
             <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
 
-            <BindingsPanel config={editedGestureMouseConfig} mode = {"gesture_mouse"} />
+            <BindingsPanel config={editedGestureMouseConfig} mode={"gesture_mouse"} />
             <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
 
           </div>
@@ -1566,7 +1567,7 @@ const Devices = ({ devices }) => {
             <GestureOptions config={editedTVRemoteConfig} />
             <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
 
-            <BindingsPanel config={editedGestureMouseConfig} mode = {"tv_remote"}/>
+            <BindingsPanel config={editedGestureMouseConfig} mode={"tv_remote"} />
           </div>
         );
       };
@@ -1583,7 +1584,7 @@ const Devices = ({ devices }) => {
             <MouseOptions config={editedPointerConfig} />
             <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
 
-            <BindingsPanel config={editedPointerConfig} mode = {"pointer"}/>
+            <BindingsPanel config={editedPointerConfig} mode={"pointer"} />
             <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
 
 
@@ -1669,11 +1670,28 @@ const Devices = ({ devices }) => {
   const handleSave = async () => {
     console.log(editedGlobalSettings);
     console.log(editedConnectionsSettings);
-    
+
+    const webAppHwUid = editedGlobalSettings["HW_UID"]["value"];
+
+    const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
+    console.log(webAppHwUid);
+    console.log(hwUidMatch);
+    // const configFile = await fetchConfigFileFromDevice();
+    // const configData = JSON.parse(configFile);
+    // const deviceHwUid = configData.global_info.HW_UID.value;
+
+    // const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
+    if (!hwUidMatch) {
+      console.error("HW_UID does not match with the connected device.");
+      return;
+    }
+
+
     const userId = getCurrentUserId();
     const userCatoDocId = thisDevice.id;
-
     const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
+
+    
 
     try {
       const globalConfigUpdate = {
@@ -1692,12 +1710,12 @@ const Devices = ({ devices }) => {
       console.error("Error updating settings: ", error);
     }
 
-    
+
     const deviceConfig = {
       "connections": [],
       "global_info": editedGlobalSettings,
-    }
-    
+    };
+
 
     for (let i = 0; i < editedConnectionsSettings.length; i++) {
       let connection = editedConnectionsSettings[i];
@@ -1709,7 +1727,7 @@ const Devices = ({ devices }) => {
       };
       deviceConfig["connections"].push(pushedConnection);
     };
-    
+
     try {
       const blob = new Blob([JSON.stringify(deviceConfig)], {
         type: "application/json",
@@ -1724,11 +1742,10 @@ const Devices = ({ devices }) => {
     } catch (error) {
       console.log("download new config error: ", error);
     }
-    
+
+    await overwriteConfigFile(deviceConfig);
+
   };
-
-
-
 
 
   if (!thisDevice) {
