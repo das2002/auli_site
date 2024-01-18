@@ -161,8 +161,10 @@ const BindingsPanel = ({config}) => {
 
 
     const handleCommandChange = (index, value) => {
-        const updatedBindings = [...editedBindings];
-        const currentBinding = updatedBindings[index];
+        console.log(index, value);
+        let updatedBindings = [...editedBindings];
+        let currentBinding = updatedBindings[index];
+
     
         // Set default settings only when the command changes for the first time
         if (currentBinding.command !== value) {
@@ -187,6 +189,7 @@ const BindingsPanel = ({config}) => {
         }
     
         updatedBindings[index].command = value;
+        console.log(updatedBindings);
         setEditedBindings(updatedBindings);
     };
     
