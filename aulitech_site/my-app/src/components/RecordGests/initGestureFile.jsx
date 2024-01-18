@@ -57,13 +57,17 @@ export async function checkForFlagFile(callback) {
 }
 
 export async function uploadLogToFirebase(gestureId, logText) {
+    // Assuming gestureId is the ID of the Firestore document you want to update
     const gestureRef = doc(db, "gesture-data", gestureId);
+  
     try {
       await updateDoc(gestureRef, {
-        log: logText
+        log: logText, // logText is the content from log.txt
+        // You can add more fields to update if necessary
       });
       console.log("Log updated successfully");
     } catch (error) {
       console.error("Error updating log:", error);
     }
   }
+  

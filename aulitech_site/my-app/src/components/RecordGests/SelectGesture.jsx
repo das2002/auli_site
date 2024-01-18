@@ -304,6 +304,7 @@ const SelectGesture = ({ user }) => {
     }
   };
   
+  //hereeeeeeee
   const stopRecording = async () => {
     if (!selectedGesture) {
       console.error("No gesture selected.");
@@ -320,41 +321,42 @@ const SelectGesture = ({ user }) => {
     setShowPopup(false);
   
     try {
-      let fileExists = false;
+      let fileHandle = null;
+      let logText = "";
       let retries = 0;
-      const maxRetries = 5;
+      const maxRetries = 50; // Adjust based on expected time for file system readiness
+      const retryDelay = 5000; // Adjust delay as needed (e.g., 3000 ms)
   
-      while (!fileExists && retries < maxRetries) {
+      // Wait until the file system is ready after reboot
+      while (!fileHandle && retries < maxRetries) {
         try {
-          await directoryHandle.getFileHandle('log.txt');
-          fileExists = true;
-        } catch {
-          //wait bf retrying
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          fileHandle = await directoryHandle.getFileHandle('log.txt', { create: false });
+          const file = await fileHandle.getFile();
+          logText = await file.text();
+
+          if (logText.trim()) {
+            // Call the function to update Firestore
+            await uploadLogToFirebase(selectedGesture.id, logText);
+            console.log("Log uploaded successfully to Firestore for gesture ID:", selectedGesture.id);
+            break; // If the file is read successfully, exit the loop
+          }
+        } catch (error) {
+          if (retries === maxRetries - 1) {
+            throw new Error('log.txt file not found after maximum retries.');
+          }
+          // Wait before retrying
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
           retries++;
         }
       }
-  
-      if (!fileExists) {
-        throw new Error('log.txt file not found after retries.');
+
+      if (!logText) {
+        throw new Error('log.txt file not found or is empty after retries.');
       }
-  
-      const fileHandle = await directoryHandle.getFileHandle('log.txt');
-      const file = await fileHandle.getFile();
-      const logText = await file.text();
-      const csvBlob = new Blob([logText], { type: 'text/csv' });
-  
-      // upload csv file to firebase
-      const storage = getStorage();
-      const csvStorageRef = storageRef(storage, `gestures/${selectedGesture.id}/${timestamp.toISOString()}.csv`);
-      await uploadBytes(csvStorageRef, csvBlob);
-      console.log('CSV file uploaded to Firebase Storage');
   
       // store csv file path in firestore
       const csvPath = `gestures/${selectedGesture.id}/${timestamp.toISOString()}.csv`;
-  
-      const gestureDataString = JSON.stringify(gestureData);
-  
+    
       // add data document to firebase
       const gestureDataRef = collection(db, "gesture-data");
       const recordingData = {
@@ -369,28 +371,29 @@ const SelectGesture = ({ user }) => {
       const docRef = await addDoc(gestureDataRef, recordingData);
   
       // update local state to view new recording
+      const newRecording = {
+        timestamp: timestamp.toLocaleString(),
+        docId: docRef.id,
+        // other properties you want to add
+      };
       setGestures(currentGestures => currentGestures.map(g => {
-        if (g.id === selectedGesture.id) {
-          return {
-            ...g,
-            recordings: [...g.recordings, {
-              timestamp: timestamp.toLocaleString(),
-              docId: docRef.id
-            }]
-          };
-        }
-        return g;
+          if (g.id === selectedGesture.id) {
+              return {
+                  ...g,
+                  recordings: [...g.recordings, newRecording]
+              };
+          }
+          return g;
       }));
-  
+
       console.log("Recording saved for gesture:", selectedGesture.name);
-    } catch (error) {
+  } catch (error) {
       console.error("Error during recording stop process:", error);
-    }
+  }
   
     setIsRecording(false);
     setCountdown(10);
   };
-  
   
 
   const getGestStats = async () => {
