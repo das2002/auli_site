@@ -71,3 +71,21 @@ export async function uploadLogToFirebase(gestureId, logText) {
     }
   }
   
+  export async function overwriteConfigFile(newConfig) {
+    try {
+        let directoryHandle = await get('directoryHandle');
+        if (!directoryHandle) {
+            throw new Error('Directory handle not found. Please select the directory again.');
+        }
+
+        // overwrite config.json
+        const fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+        const writable = await fileHandle.createWritable();
+        await writable.write(new Blob([JSON.stringify(newConfig)], { type: 'application/json' }));
+        await writable.close();
+
+        console.log('Config file overwritten successfully.');
+    } catch (error) {
+        console.error('Error overwriting config file:', error);
+    }
+}

@@ -51,17 +51,11 @@ export async function overwriteConfigFile(newConfig) {
         let directoryHandle = await get('configDirectoryHandle');
 
         if (!directoryHandle) {
-            directoryHandle = await window.showDirectoryPicker();
-            await set('configDirectoryHandle', directoryHandle);
+            return;
         }
 
-        const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
-        if (permissionStatus !== 'granted') {
-            throw new Error('Permission to access directory not granted.');
-        }
-
-        // create or overwrite config.json 
         const fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+
         const writable = await fileHandle.createWritable();
         await writable.write(new Blob([JSON.stringify(newConfig)], { type: 'application/json' }));
         await writable.close();
