@@ -20,6 +20,7 @@ import * as bindingsDefault from '../NavBar/cato_schemas/bindings.json';
 import * as practiceDefault from '../NavBar/cato_schemas/practice.json';
 import * as connectionSpecificDefault from '../NavBar/cato_schemas/connection_specific.json';
 import * as operationDefault from '../NavBar/cato_schemas/operation.json';
+import * as globalInfoDefault from '../../resources/templates/global_info_default.json';
 
 
 
@@ -69,7 +70,9 @@ const modeDefaultGenerator = (mode) => {
     practiceOperationDefault["value"] = "practice";
     let practiceData = {
       ...practiceOperationDefault,
-      ...practiceDefault
+      ...practiceDefault,
+      ...gestureDefault,
+      ...bindingsDefault
     };
     return practiceData;
   }
@@ -93,7 +96,6 @@ const getCurrentUserId = async () => {
 const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
   const [enteredName, setEnteredName] = useState(""); // [enteredName, setEnteredName
   const [parsedJson, setParsedJson] = useState({}); // [parsedJson, setParsedJson
-  //const [newConfig, setNewConfig] = useState({}); // [newConfig, setNewConfig
   const [deviceName, setDeviceName] = useState("");
   const [errMessage, setErrMessage] = useState(false);
   const [hwUid, setHwUid] = useState('');
@@ -120,6 +122,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
   }
 
   const downloadSequence = async () => {
+    const retrievedJson = await getJsonData();
     if (enteredName === "") {
       return;
     } 
@@ -136,15 +139,12 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       return;
     }
     setDeviceName(enteredName);
-    const retrievedJson = await getJsonData();
     console.log("retrievedJson", retrievedJson);
     if (retrievedJson == null) {
       return;
     }
-    let newConfig = deepCopy(newDeviceConfig);
     let connectionsArray = [];
-
-    newConfig["global_info"]["HW_UID"]["value"] = retrievedJson["global_info"]["HW_UID"]["value"];
+    let globalInfoData = deepCopy(globalInfoDefault);
 
     for (let i = 0; i < retrievedJson["connections"].length; i++) {
       console.log("connection", retrievedJson["connections"][i]);
@@ -227,8 +227,35 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
     }
 
-    newConfig.global_info.name.value = enteredName;
-    const deviceAdded = addDeviceDoc(newConfig, connectionsArray);
+    if (connectionsArray.length === 0) {
+      let connectionConfig = JSON.stringify(connectionSpecificDefault);
+      let current_mode = "practice";
+      let modeMap = {
+        pointer: JSON.stringify(modeDefaultGenerator("pointer")),
+        clicker: JSON.stringify(modeDefaultGenerator("clicker")),
+        gesture_mouse: JSON.stringify(modeDefaultGenerator("gesture_mouse")),
+        tv_remote: JSON.stringify(modeDefaultGenerator("tv_remote"))
+      };
+      let connectionName = "default";
+      let firebaseConnectionConfig = {
+        connection_config: connectionConfig,
+        mode: modeMap,
+        current_mode: current_mode,
+        name: connectionName,
+      };
+      connectionsArray.push(firebaseConnectionConfig);
+    }
+    console.log("connectionsArray", connectionsArray);
+
+    globalInfoData.global_info.name.value = enteredName;
+    globalInfoData.global_info.HW_UID.value = hwUid;
+
+    console.log("globalInfoData", globalInfoData);
+    if (globalInfoData["default"] != null) {
+      delete globalInfoData["default"];
+    }
+
+    const deviceAdded = addDeviceDoc(globalInfoData, connectionsArray);
     if (!deviceAdded) {
       return;
     }
@@ -299,23 +326,31 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     }
   };
 
-  const addDeviceDoc = async (newDeviceConfig, connectionsArray) => {
+  
+  const addDeviceDoc = async (globalInfoData, connectionsArray) => {
+    console.log(globalInfoData);
+    console.log(connectionsArray);
     try {
       const storeDevice = async () => {
         try {
-          const newData = JSON.stringify(newDeviceConfig);
-          const hwUid = newDeviceConfig.global_info.HW_UID.value;
-          const deviceName = newDeviceConfig.global_info.name.value;
+          let practiceData = modeDefaultGenerator("practice");
+          let practiceDataString = JSON.stringify(practiceData);
+          const newData = JSON.stringify(globalInfoData);
+          //const hwUid = newDeviceConfig.global_info.HW_UID.value;
+          //const deviceName = newDeviceConfig.global_info.name.value;
+          
           const colRef = collection(db, "users");
           await addDoc(collection(colRef, user.uid, "userCatos"), {
             device_info: {
               global_config: newData,
-              device_nickname: deviceName,
+              device_nickname: enteredName,
               hw_uid: hwUid,
+              practice_config: practiceDataString,
             },
             connections: connectionsArray,
           });
           handleRenderDevices();
+          
         } catch (error) {
           console.log("store another device error: ", error);
           return false;
@@ -328,6 +363,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       return false;
     }
   }
+  
 
   const deleteInitializeDoc = async () => {
     try {
