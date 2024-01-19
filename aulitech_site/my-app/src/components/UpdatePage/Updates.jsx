@@ -3,8 +3,6 @@ import ReactDOM from 'react-dom'
 import {marked} from 'marked';
 import DOMPurify from 'dompurify';
 import './Updates.css'; 
-import { applyUpdate } from './applyUpdates';
-import JSZip from 'jszip';
 
 // sanitises markdown 
 const createMarkup = (markdown) => {
@@ -22,57 +20,16 @@ const FormattedUpdate = ({ release, index, id }) => {
       <div className="text-lg font-bold">What's New:</div>
       <div className = 'markdown' dangerouslySetInnerHTML={createMarkup(release.body)} />
       <div style={{ marginTop: '.7rem' }}>
-        <button 
-          onClick={() => downloadAndUpdate(release.zipball_url)}
+        <a href={release.zipball_url} 
+          target="_blank" 
           className="decision-button px-3 py-2 rounded-lg cursor-pointer text-lg"
           style={{ border: 'none' }}>
-          Download and Apply Update
-        </button>
+          Download Update
+        </a>
       </div>
     </div>
   );
 };
-
-const downloadAndUpdate = async (zipUrl) => {
-  try {
-    const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
-    const response = await fetch(proxyUrl + zipUrl, {
-      headers: { 'Origin': window.location.origin }
-    });
-
-    if (!response.ok) throw new Error(`Network response was not ok: ${response.status}`);
-
-      // Convert the fetched file to a Blob
-      const zipBlob = await response.blob();
-
-      // Use the File System Access API to get a directory handle
-      const directoryHandle = await window.showDirectoryPicker();
-
-      // Use JSZip to read the blob
-      const zip = await JSZip.loadAsync(zipBlob);
-
-      // Iterate each file inside the zip
-      for (const fileName of Object.keys(zip.files)) {
-          if (fileName === 'config.json') {
-              // Skip config.json
-              continue;
-          }
-
-          const fileData = await zip.files[fileName].async('blob');
-
-          // Overwrite existing files
-          const fileHandle = await directoryHandle.getFileHandle(fileName, { create: true });
-          const writable = await fileHandle.createWritable();
-          await writable.write(fileData);
-          await writable.close();
-      }
-
-      console.log('Update applied successfully, except config.json');
-  } catch (error) {
-      console.error('Error downloading or applying update:', error);
-  }
-};
-
 
 const Updates = () => {
   // download releases from github 
