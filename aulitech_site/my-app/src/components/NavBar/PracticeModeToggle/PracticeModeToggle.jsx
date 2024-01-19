@@ -27,7 +27,7 @@ const PracticeModeToggle = ({ deviceName, isActive, onToggle }) => {
         <label className={`flex flex-col switch ${isPracticeMode ? 'active' : ''}`}>
           <input type="checkbox" checked={isPracticeMode} onChange={handleToggle} />
           <span className="slider round"></span>
-          <div className='text-white font-medium text-xs'>Practice Mode</div>
+          <div className='text-white font-medium text-xs'>Practice</div>
         </label>
       </div>
     </div>
