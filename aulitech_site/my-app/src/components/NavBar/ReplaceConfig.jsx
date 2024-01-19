@@ -21,6 +21,9 @@ export async function fetchAndCompareConfig(webAppHwUid) {
 
         // check if config.json exists
         const fileHandle = await directoryHandle.getFileHandle('config.json', { create: false });
+
+        //delete + create again
+
         
         const file = await fileHandle.getFile();
 
@@ -51,17 +54,63 @@ export async function overwriteConfigFile(newConfig) {
         let directoryHandle = await get('configDirectoryHandle');
 
         if (!directoryHandle) {
-            return;
+            directoryHandle = await window.showDirectoryPicker();
+            await set('configDirectoryHandle', directoryHandle);
         }
 
-        const fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+        const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
+        if (permissionStatus !== 'granted') {
+            throw new Error('Permission to access directory not granted.');
+        }
 
-        const writable = await fileHandle.createWritable();
-        await writable.write(new Blob([JSON.stringify(newConfig)], { type: 'application/json' }));
+        // Create a temporary file to write the new configuration
+        const tempFileHandle = await directoryHandle.getFileHandle('temp_config.json', { create: true });
+        let writable = await tempFileHandle.createWritable();
+        await writable.write(new Blob([JSON.stringify(newConfig, null, 2)], { type: 'application/json' }));
         await writable.close();
+
+        // Check if config.json exists and delete it
+        try {
+            await directoryHandle.removeEntry('config.json');
+        } catch (error) {
+            console.log('No existing config.json to delete:', error);
+        }
+
+        // Rename the temporary file to config.json
+        await directoryHandle.renameEntry('temp_config.json', 'config.json');
 
         console.log('Config file overwritten successfully.');
     } catch (error) {
         console.error('Error overwriting config file:', error);
+    }
+}
+
+
+export async function deleteConfigFileIfExists() {
+    try {
+        let directoryHandle = await get('configDirectoryHandle');
+
+        if (!directoryHandle) {
+            return false;
+        }
+
+        const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
+        if (permissionStatus !== 'granted') {
+            throw new Error('Permission to access directory not granted.');
+        }
+
+        // Check if config.json exists and delete it
+        try {
+            const fileHandle = await directoryHandle.getFileHandle('config.json', { create: false });
+            await directoryHandle.removeEntry('config.json');
+            console.log('Existing config file deleted successfully.');
+            return true;
+        } catch (error) {
+            console.log('No existing config file to delete:', error);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error in deleting config file:', error);
+        return false;
     }
 }

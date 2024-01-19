@@ -7,7 +7,7 @@ import { set } from 'lodash';
 import Slider from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
 import { KeyOptions, getKeyOption } from './KeyOptions';
-import { fetchAndCompareConfig, overwriteConfigFile } from './ReplaceConfig';
+import { fetchAndCompareConfig, overwriteConfigFile, deleteConfigFileIfExists } from './ReplaceConfig';
 
 
 const DarkYellowSlider = styled(Slider)(({ theme }) => ({
@@ -1753,12 +1753,9 @@ const Devices = ({ devices }) => {
       return;
     }
 
-
     const userId = getCurrentUserId();
     const userCatoDocId = thisDevice.id;
     const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
-
-    
 
     try {
       const globalConfigUpdate = {
@@ -1770,8 +1767,6 @@ const Devices = ({ devices }) => {
         'device_info.global_config': JSON.stringify(globalConfigUpdate),
         'connections': editedConnectionsSettings,
       });
-
-
       console.log("Settings updated successfully");
     } catch (error) {
       console.error("Error updating settings: ", error);
@@ -1795,7 +1790,7 @@ const Devices = ({ devices }) => {
       deviceConfig["connections"].push(pushedConnection);
     };
 
-    try {
+    try { //delete later
       const blob = new Blob([JSON.stringify(deviceConfig)], {
         type: "application/json",
       });
@@ -1809,9 +1804,7 @@ const Devices = ({ devices }) => {
     } catch (error) {
       console.log("download new config error: ", error);
     }
-
     await overwriteConfigFile(deviceConfig);
-
   };
 
 
