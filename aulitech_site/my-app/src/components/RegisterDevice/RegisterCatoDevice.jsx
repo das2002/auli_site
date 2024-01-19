@@ -12,6 +12,69 @@ import {
 import { useNavigate } from "react-router-dom";
 import { db, auth } from "../../firebase";
 import * as newDeviceConfig from '../../resources/templates/new_device_config.json';
+import * as clickerDefault from '../NavBar/cato_schemas/clicker.json';
+import * as mouseDefault from '../NavBar/cato_schemas/mouse.json';
+import * as gestureDefault from '../NavBar/cato_schemas/gesture.json';
+import * as tvRemoteDefault from '../NavBar/cato_schemas/tv_remote.json';
+import * as bindingsDefault from '../NavBar/cato_schemas/bindings.json';
+import * as practiceDefault from '../NavBar/cato_schemas/practice.json';
+import * as connectionSpecificDefault from '../NavBar/cato_schemas/connection_specific.json';
+import * as operationDefault from '../NavBar/cato_schemas/operation.json';
+
+
+
+const modeDefaultGenerator = (mode) => {
+  if (mode === "pointer") {
+    let pointerOperationDefault = deepCopy(operationDefault);
+    pointerOperationDefault["value"] = "pointer";
+    let pointerData = {
+      ...pointerOperationDefault,
+      ...mouseDefault,
+      ...bindingsDefault
+    };
+    return pointerData;
+  } else if (mode === "clicker") {
+    let clickerOperationDefault = deepCopy(operationDefault);
+    clickerOperationDefault["value"] = "clicker";
+    let clickerData = {
+      ...clickerOperationDefault,
+      ...clickerDefault,
+      ...bindingsDefault
+    };
+    return clickerData;
+  } else if (mode === "gesture_mouse") {
+    let gestureMouseOperationDefault = deepCopy(operationDefault);
+    gestureMouseOperationDefault["value"] = "gesture_mouse";
+    let gestureMouseData = {
+      ...gestureMouseOperationDefault,
+      ...mouseDefault,
+      ...bindingsDefault,
+      ...gestureDefault
+    };
+    return gestureMouseData;
+
+  } else if (mode === "tv_remote") {
+    let tvRemoteOperationDefault = deepCopy(operationDefault);
+    tvRemoteOperationDefault["value"] = "tv_remote";
+    let tvRemoteData = {
+      ...tvRemoteOperationDefault,
+      ...tvRemoteDefault,
+      ...bindingsDefault,
+      ...gestureDefault
+    };
+    return tvRemoteData;
+
+  } else if (mode === "practice") {
+    let practiceOperationDefault = deepCopy(operationDefault);
+    practiceOperationDefault["value"] = "practice";
+    let practiceData = {
+      ...practiceOperationDefault,
+      ...practiceDefault
+    };
+    return practiceData;
+  }
+
+}
 
 
 const deepCopy = (obj) => {
@@ -38,6 +101,15 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
   console.log('user', user);
   console.log('devices', devices);
 
+  const checkIfHardwareUidTaken = async () => {
+    for (let i = 0; i < devices.length; i++) {
+      if (devices[i].data.device_info.hw_uid === hwUid) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   const checkIfNameTaken = async () => {
     for (let i = 0; i < devices.length; i++) {
       if (devices[i].data.device_info.device_nickname === enteredName) {
@@ -57,6 +129,12 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       setErrMessage(true);
       return;
     } 
+    const hwUidTaken = await checkIfHardwareUidTaken();
+    console.log("hwUidTaken", hwUidTaken);
+    if (hwUidTaken) {
+      setErrMessage(true);
+      return;
+    }
     setDeviceName(enteredName);
     const retrievedJson = await getJsonData();
     console.log("retrievedJson", retrievedJson);
@@ -64,15 +142,98 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       return;
     }
     let newConfig = deepCopy(newDeviceConfig);
+    let connectionsArray = [];
 
     newConfig["global_info"]["HW_UID"]["value"] = retrievedJson["global_info"]["HW_UID"]["value"];
+
+    for (let i = 0; i < retrievedJson["connections"].length; i++) {
+      console.log("connection", retrievedJson["connections"][i]);
+      
+      let connection = retrievedJson["connections"][i];
+      if (connection["operation_mode"]["value"] === "practice") {
+        continue;
+      } else {
+        let currentOperationMode = connection["operation_mode"]["value"];
+        let currentConnectionConfig = {
+          connection_name: {...connection["connection_name"]},
+          screen_size: {...connection["screen_size"]},
+        };
+        let currentModeConfig = {};
+        let modeMap = {};
+        if (currentOperationMode == "pointer") {
+          currentModeConfig = {
+            ...currentModeConfig,
+            ...connection["operation_mode"],
+            ...connection["mouse"],
+            ...connection["bindings"]
+          }
+          modeMap = {
+            pointer: JSON.stringify(currentModeConfig),
+            clicker: JSON.stringify(modeDefaultGenerator("clicker")),
+            gesture_mouse: JSON.stringify(modeDefaultGenerator("gesture_mouse")),
+            tv_remote: JSON.stringify(modeDefaultGenerator("tv_remote"))
+          }
+
+        } else if (currentOperationMode == "tv_remote") {
+          currentModeConfig = {
+            ...currentModeConfig,
+            ...connection["operation_mode"],
+            ...connection["tv_remote"],
+            ...connection["bindings"],
+            ...connection["gesture"]
+          }
+          modeMap = {
+            pointer: JSON.stringify(modeDefaultGenerator("pointer")),
+            clicker: JSON.stringify(modeDefaultGenerator("clicker")),
+            gesture_mouse: JSON.stringify(modeDefaultGenerator("gesture_mouse")),
+            tv_remote: JSON.stringify(currentModeConfig)
+          }
+        } else if (currentOperationMode == "gesture_mouse") {
+          currentModeConfig = {
+            ...currentModeConfig,
+            ...connection["operation_mode"],
+            ...connection["mouse"],
+            ...connection["bindings"],
+            ...connection["gesture"]
+          }
+          modeMap = {
+            pointer: JSON.stringify(modeDefaultGenerator("pointer")),
+            clicker: JSON.stringify(modeDefaultGenerator("clicker")),
+            gesture_mouse: JSON.stringify(currentModeConfig),
+            tv_remote: JSON.stringify(modeDefaultGenerator("tv_remote"))
+          }
+        } else if (currentOperationMode == "clicker") {
+          currentModeConfig = {
+            ...currentModeConfig,
+            ...connection["operation_mode"],
+            ...connection["clicker"],
+            ...connection["bindings"]
+          }
+          modeMap = {
+            pointer: JSON.stringify(modeDefaultGenerator("pointer")),
+            clicker: JSON.stringify(currentModeConfig),
+            gesture_mouse: JSON.stringify(modeDefaultGenerator("gesture_mouse")),
+            tv_remote: JSON.stringify(modeDefaultGenerator("tv_remote"))
+          }
+        }
+        let firebaseConnectionConfig = {
+          connection_config: JSON.stringify(currentConnectionConfig),
+          mode: modeMap,
+          current_mode: currentOperationMode,
+          name: connection["connection_name"]["value"],
+        }
+        connectionsArray.push(firebaseConnectionConfig);
+      }
+
+    }
+
     newConfig.global_info.name.value = enteredName;
-    const deviceAdded = addDeviceDoc(newConfig);
+    const deviceAdded = addDeviceDoc(newConfig, connectionsArray);
     if (!deviceAdded) {
       return;
     }
     deleteInitializeDoc();
-    downloadNewConfig(newConfig);
+    //downloadNewConfig(newConfig);
     navigate("/");
   };
 
@@ -138,7 +299,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     }
   };
 
-  const addDeviceDoc = async (newDeviceConfig) => {
+  const addDeviceDoc = async (newDeviceConfig, connectionsArray) => {
     try {
       const storeDevice = async () => {
         try {
@@ -152,7 +313,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
               device_nickname: deviceName,
               hw_uid: hwUid,
             },
-            connections: []
+            connections: connectionsArray,
           });
           handleRenderDevices();
         } catch (error) {
