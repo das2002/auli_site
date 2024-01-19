@@ -19,7 +19,7 @@
     position: relative;
     display: inline-block;
     width: 60px; /* Reduced width */
-    height: 16px; /* Reduced height */
+    height: 20px; /* Reduced height */
 }
 
 /* Hide default HTML checkbox */
@@ -44,8 +44,8 @@
 .slider:before {
     position: absolute;
     content: "";
-    height: 12px; /* Reduced height */
-    width: 12px; /* Reduced width */
+    height: 16px; /* Reduced height */
+    width: 16px; /* Reduced width */
     left: 2px;
     bottom: 2px;
     top: 2px; 
