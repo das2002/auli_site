@@ -21,6 +21,9 @@ export async function fetchAndCompareConfig(webAppHwUid) {
 
         // check if config.json exists
         const fileHandle = await directoryHandle.getFileHandle('config.json', { create: false });
+
+        //delete + create again
+
         
         const file = await fileHandle.getFile();
 
@@ -51,13 +54,21 @@ export async function overwriteConfigFile(newConfig) {
         let directoryHandle = await get('configDirectoryHandle');
 
         if (!directoryHandle) {
-            return;
+            directoryHandle = await window.showDirectoryPicker();
+            await set('configDirectoryHandle', directoryHandle);
         }
 
-        const fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+        const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
+        if (permissionStatus !== 'granted') {
+            throw new Error('Permission to access directory not granted.');
+        }
 
-        const writable = await fileHandle.createWritable();
-        await writable.write(new Blob([JSON.stringify(newConfig)], { type: 'application/json' }));
+        // handle to the config.json file
+        const fileHandle = await directoryHandle.getFileHandle('config.json', { create: false });
+
+        // Create a writable stream to overwrite the existing config.json file
+        let writable = await fileHandle.createWritable();
+        await writable.write(new Blob([JSON.stringify(newConfig, null, 2)], { type: 'application/json' }));
         await writable.close();
 
         console.log('Config file overwritten successfully.');
