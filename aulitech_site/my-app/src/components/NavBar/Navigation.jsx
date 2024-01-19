@@ -5,122 +5,120 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link, NavLink } from "react-router-dom";
 import Logo from "../Elements/Logo"
 import SignOutAccount from "../GoogleAuth/SignOutAccount";
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { useNavigate, useRoutes, useLocation, BrowserRouter as Router, Route, Routes, Outlet } from 'react-router-dom';
 import RegisterInterface from './RegisterInterface';
-
-<Router>
-  <Routes>
-    <Route path="/register-interface" element={<RegisterInterface />} />
-  </Routes>
-</Router>
+import PracticeModeToggle from "./PracticeModeToggle/PracticeModeToggle";
+import Practice from "../PracticeMode/Practice";
+import { overwriteConfigFile } from '../NavBar/ReplaceConfig';
 
 // static nav buttons in navbar
 const RecordGesturesRoute = () => {
   const { classNames } = useContext(AppContext);
   return (
-    <>
-      <div className="-mx-6">
-        <NavLink
-          to="/record-gestures"
-          className={({ isActive }) =>
-            classNames(
-              isActive
-                ? "bg-gray-800 text-white"
-                : "text-gray-400 hover:text-white hover:bg-gray-800",
-              "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
-            )
-          }
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
-            <circle cx="12" cy="12" r="8" strokeWidth="2" />
-            <circle cx="12" cy="12" r="4" fill="currentColor" />
-            <rect x="2" y="2" width="20" height="20" rx="10" strokeWidth="2" />
-          </svg>
-          <p>Record Gestures</p>
-        </NavLink>
-      </div>
-    </>
+    <div className="-mx-6 transition-all duration-300">
+      <NavLink
+        to="/record-gestures"
+        className={({ isActive }) =>
+          classNames(
+            isActive
+              ? "bg-gray-700 text-white"
+              : "text-gray-400 hover:text-white hover:bg-gray-700",
+            "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
+          )
+        }
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
+          <circle cx="12" cy="12" r="8" strokeWidth="2" />
+          <circle cx="12" cy="12" r="4" fill="currentColor" />
+          <rect x="2" y="2" width="20" height="20" rx="10" strokeWidth="2" />
+        </svg>
+        <p>Record Gestures</p>
+      </NavLink>
+    </div>
   );
 };
 
 const UpdateRoute = () => {
   const { classNames } = useContext(AppContext);
   return (
-    <>
-      <div className="-mx-6">
-        <NavLink
-          to="/updates"
-          className={({ isActive }) =>
-            classNames(
-              isActive
-                ? "bg-gray-800 text-white"
-                : "text-gray-400 hover:text-white hover:bg-gray-800",
-              "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
-            )
-          }
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          <p>Updates</p>
-        </NavLink>
-      </div>
-    </>
+    <div className="-mx-6 transition-all duration-300">
+      <NavLink
+        to="/updates"
+        className={({ isActive }) =>
+          classNames(
+            isActive
+              ? "bg-gray-700 text-white"
+              : "text-gray-400 hover:text-white hover:bg-gray-700",
+            "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
+          )
+        }
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <p>Updates</p>
+      </NavLink>
+    </div>
   );
 };
 
-const PracticeRoute = () => {
-  const { classNames } = useContext(AppContext);
-  return (
-    <>
-      <div className="-mx-6">
-        <NavLink
-          to="/practice"
-          className={({ isActive }) =>
-            classNames(
-              isActive
-                ? "bg-gray-800 text-white"
-                : "text-gray-400 hover:text-white hover:bg-gray-800",
-              "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
-            )
-          }
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
-           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 2C6.48 2 2 6.48 2 12c0 3.866 2.964 7.017 6.75 7.017 1.657 0 3.22-.61 4.406-1.717l3.844 3.844a.6.6 0 00.848 0l1.5-1.5a.6.6 0 000-.848l-3.844-3.844A7.963 7.963 0 0019.017 12C19.017 6.48 14.537 2 9.017 2zm0 4a4 4 0 100 8 4 4 0 000-8z"></path>
-          </svg>
-
-          <p>Practice Mode</p>
-        </NavLink>
-      </div>
-    </>
-  );
-};
 
 const UserIcon = () => {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      fill="none"
-      viewBox="0 0 24 24"
-      strokeWidth={1.5}
-      stroke="currentColor"
-      className="w-6 h-6 text-white"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"
-      />
-    </svg>
+    <div className="fixed">
+      <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="w-6 h-6 text-white"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z"
+          />
+      </svg>
+    </div>
   );
 };
 
 // accordion menus 
 const DevicesList = React.memo(() => {
-  const { classNames, isDevicesMenuOpen, devices } = useContext(AppContext);
+  const { classNames, isDevicesMenuOpen, devices, savedConfig, isPracticeMode, setIsPracticeMode} = useContext(AppContext);
 
+  const location = useLocation();
+  const navigate = useNavigate();
+
+
+  const [isPracticeModeToggleOn, setIsPracticeModeToggleOn] = useState(false);
   const [animate, setAnimate] = useState(false);
 
+
+  const togglePracticeMode = async (index) => {
+    const devicePath = devices[index].data.device_info.device_nickname;
+  
+    if (!window.location.pathname.includes('practice')) {
+      // Navigate to the practice mode page for this device
+      console.log("device -> practice", window.location.pathname)
+      console.log("opractice", setIsPracticeMode)
+      navigate(`/devices/${devicePath}/practice`);
+
+    } else {
+      // Navigate back to the device's main page
+      console.log("practice -> device")
+      if (isPracticeMode && JSON.stringify(savedConfig) !== '{}'){ // overwrite config 
+        console.log(isPracticeMode, savedConfig)
+        overwriteConfigFile(savedConfig);
+      }
+      
+      navigate(`/devices/${devicePath}`);
+    }
+  
+    setIsPracticeModeToggleOn(!isPracticeModeToggleOn);
+  };
+  
   useEffect(() => {
     if (isDevicesMenuOpen) {
       setAnimate(true);
@@ -128,35 +126,43 @@ const DevicesList = React.memo(() => {
       setAnimate(false);
     }
   }, [isDevicesMenuOpen]);
-
   if (!isDevicesMenuOpen) return null;
 
+  // Function to check if the NavLink is active
+  const isNavLinkActive = (devicePath) => location.pathname.includes(`/devices/${devicePath}`);
 
   const totalDuration = 350; // Total duration for all items to appear
   const itemDuration = totalDuration / (devices.length + 1); // Duration per item, +1 for NavLink
 
   return (
     <>
-    <div className="absolute w-56 mt-0 space-y-1 overflow-hidden cursor-pointer">
-      {devices.map((device, index) => (
-        <NavLink 
-          key={index}
-          to={`/devices/${device.data.device_info.device_nickname}`}
-          className={({ isActive }) =>
-            classNames(
-              isActive
-                ? "bg-gray-800 text-white"
-                : "text-gray-400 hover:text-white hover:bg-gray-800",
-              "flex items-center justify-center px-6 py-3 text-lg font-semibold rounded-xl cursor-pointer opacity-0"
-            )
-          }
-          style={{ 
-            animation: `fadeIn 100ms ease-out forwards ${index * itemDuration}ms`
-          }}
-        >
-          {device.data.device_info.device_nickname}
-        </NavLink>
-      ))}
+      {devices.map((device, index) => {
+        const devicePath = device.data.device_info.device_nickname;
+        const isActive = isNavLinkActive(devicePath);
+
+        return (
+          <div className={`relative w-full mt-0 mr-12 space-y-1 align-center overflow-hidden cursor-pointer rounded-xl ${isActive ? 'bg-gray-700' : 'hover:bg-gray-700'}`}>
+            <div className='flex flex-row w-full align-center '>
+              <NavLink 
+                key={index}
+                to={`/devices/${devicePath}`}
+                className={() =>
+                  classNames(
+                    isActive ? "bg-gray-700 text-white" : "text-gray-400 hover:text-white hover:bg-gray-700",
+                    "flex items-center w-full overflow-hidden align-center px-6 py-3 text-lg font-semibold rounded-xl cursor-pointer opacity-0"
+                  )
+                }
+                style={{ 
+                  animation: `fadeIn 100ms ease-out forwards ${index * itemDuration}ms`
+                }}
+              >
+                {devicePath}
+              </NavLink>
+              {isActive && <PracticeModeToggle deviceName={devicePath} onToggle={() => togglePracticeMode(index)}/>} 
+            </div>
+          </div>
+        );
+      })}
 
       {/* Register Cato Device NavLink */}
       <NavLink
@@ -188,7 +194,7 @@ const DevicesList = React.memo(() => {
             />
         </svg>
       </NavLink>
-    </div>
+
     </>
   );
 });
@@ -197,7 +203,7 @@ const DevicesRoute = () => {
 
   return (
     <>
-      <div className="-mx-6 transition-transform duration-50 select-none">
+      <div className="-mx-6 relative transition-transform duration-50 select-none mt-36">
         <div
           className="group flex items-center transition-all duration-200 overflow-x-hidden gap-x-4 px-6 py-3 text-lg leading-6 font-semibold text-gray-400 hover:text-white hover:bg-gray-800"
           onClick={toggleDevicesMenu}
@@ -346,7 +352,7 @@ const ProfileRoute = React.memo(() => {
         </div>
       )}
       <div
-        className="group z-50 flex items-center select-none transition-all duration-200 overflow-x-hidden gap-x-4 px-6 py-3 text-lg leading-6 font-semibold text-gray-400 hover:text-white hover:bg-gray-800"
+        className="group z-50 flex items-center select-none transition-all duration-200 overflow-x-hidden gap-x-4 px-6 py-3 text-lg leading-6 font-semibold text-gray-400 hover:text-white hover:bg-gray-800 pr-3"
         onClick={toggleMenu}
       >
         <svg
@@ -369,7 +375,6 @@ const ProfileRoute = React.memo(() => {
   );
 });
 
-
 // main sidebar 
 const AppContext = createContext();
 const Navigation = ({
@@ -378,12 +383,32 @@ const Navigation = ({
   classNames,
   devices,
 }) => {
-
   // states for settings and devices accordions 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDevicesMenuOpen, setIsDevicesMenuOpen] = useState(false);
   const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false);
   const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
+  const [savedConfig, setSavedConfig] = useState({}); // must be accessible to Practice 
+  const [isPracticeMode, setIsPracticeMode] = useState(false);
+
+  console.log('should definitely be func', setIsPracticeMode);
+  // router 
+  <Router>
+    <Routes>
+      <Route path="/register-interface" element={<RegisterInterface />} />
+      <Route 
+        exact 
+        path="/devices/:deviceName/practice" 
+        element={
+          <Practice 
+          />
+        } 
+      />
+    </Routes>
+  </Router>
+
+
+
 
   const toggleDevicesMenu = () => {
     setIsDevicesMenuOpen(!isDevicesMenuOpen);
@@ -397,7 +422,6 @@ const Navigation = ({
     setIsSignOutModalOpen(!isSignOutModalOpen);
   };
 
-
   const contextValue = {
     user,
     currIndex,
@@ -407,9 +431,13 @@ const Navigation = ({
     isSettingsMenuOpen,
     sidebarOpen,
     isSignOutModalOpen,
+    savedConfig,
+    setSavedConfig,
+    isPracticeMode,
+    setIsPracticeMode,
     toggleDevicesMenu,
     toggleSettingsMenu,
-    toggleSignOutModal
+    toggleSignOutModal, 
   };
 
   return (
@@ -475,7 +503,7 @@ const Navigation = ({
                       <nav className="flex flex-1 flex-col">
                         <div role="list" className="flex align-top flex-col gap-y-7">
                           <div role="list" className="flex align-top flex-col gap-y-0">
-                              <DevicesRoute />
+                            <DevicesRoute/>
                               
                               {/* Extra space with transition */}
                               
@@ -483,7 +511,6 @@ const Navigation = ({
 
                           </div>
                           {/* Routes that will move */}
-                          <PracticeRoute />
                           <UpdateRoute/>
                           <RecordGesturesRoute />
                         </div>
@@ -498,27 +525,26 @@ const Navigation = ({
 
           {/* Static sidebar for desktop */}
           <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-      {/* Sidebar component, swap this element with another sidebar if you like */}
-      <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-gray-900 px-6 transition-all duration-500">
-        <Logo height={16} marginY={5} marginX={10}/>
-        <nav className="flex flex-1 flex-col gap-y-7">
-          <div role="list" className="flex align-top flex-col gap-y-0">
-            <DevicesRoute />
-            
-            {/* Extra space with transition */}
-            
-            <div className={`transition-all duration-300`} style={{ height: isDevicesMenuOpen ? (devices.length + 1) * 52 : 0 }}></div>
+          {/* Sidebar component, swap this element with another sidebar if you like */}
+          <div className="navbar">
+            <Logo height={16} marginY={5} marginX={10}/>
+            <nav className="flex flex-1 flex-col gap-y-7">
+              <div role="list" className="flex align-top flex-col gap-y-0">
+                <DevicesRoute/>
 
+                {/* Extra space with transition */}
+
+                {/* <div className={`transition-all duration-300`} style={{ height: isDevicesMenuOpen ? (devices.length + 1) * 52 : 0 }}></div> */}
+
+              </div>
+              <div role="list" className="flex align-top flex-col gap-y-7 transition-all duration-300">
+                {/* Routes that will move */}
+                <UpdateRoute/>
+                <RecordGesturesRoute />
+              </div>
+              <ProfileRoute />
+            </nav>
           </div>
-          <div role="list" className="flex align-top flex-col gap-y-7">
-            {/* Routes that will move */}
-            <PracticeRoute />
-            <UpdateRoute/>
-            <RecordGesturesRoute />
-          </div>
-          <ProfileRoute />
-        </nav>
-      </div>
 
 
   </div>
@@ -546,6 +572,8 @@ const Navigation = ({
     </>
   );
 }
+
+export { AppContext };
 
 export default Navigation;
 
