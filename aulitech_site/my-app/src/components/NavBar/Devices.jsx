@@ -350,6 +350,35 @@ const Devices = ({ devices }) => {
 
   };
 
+  const handleConnectionDeletion = async (connectionName) => {
+    if (!thisDevice || !connectionName) {
+      console.error("Device or connection name not provided");
+      return;
+    }
+  
+    try {
+      const userId = getCurrentUserId();
+      const userCatoDocRef = doc(db, "users", userId, "userCatos", thisDevice.id);
+  
+      //find connection to delete
+      const updatedConnections = editedConnectionsSettings.filter(conn => conn.name !== connectionName);
+  
+      //firebase
+      await updateDoc(userCatoDocRef, {
+        'connections': updatedConnections
+      });
+  
+      //local states
+      setEditedConnectionsSettings(updatedConnections);
+      setConnectionsList(updatedConnections);
+  
+      console.log("Connection deleted successfully");
+    } catch (error) {
+      console.error("Error deleting connection: ", error);
+    }
+  };
+  
+
 
 
   // what should happen as soon as we get thisDevice
@@ -589,7 +618,7 @@ const Devices = ({ devices }) => {
       );
     }
 
-    const ConnectionAccordion = ({ connection }) => {
+    const ConnectionAccordion = ({ connection, onDelete }) => {
       const [isExpanded, setIsExpanded] = useState(false);
       const [collapsedSections, setCollapsedSections] = useState({});
       const toggleSection = (sectionKey) => {
@@ -598,6 +627,8 @@ const Devices = ({ devices }) => {
           [sectionKey]: !prevSections[sectionKey],
         }));
       };
+
+      
 
       // const [collapsedSections, setCollapsedSections] = useState({
       //   connectionSettings: false,
@@ -630,6 +661,8 @@ const Devices = ({ devices }) => {
 
       const [fetchedClickerConfig, setFetchedClickerConfig] = useState(null);
       const [editedClickerConfig, setEditedClickerConfig] = useState(null);
+
+      
 
       useEffect(() => {
         if (connection) {
@@ -1617,7 +1650,7 @@ const Devices = ({ devices }) => {
         );
       }
 
-      const handleConnectionDeletion = async () => {
+      // const handleConnectionDeletion = async () => {
         /*
         const userId = getCurrentUserId();
         const userCatoDocId = thisDevice.id;
@@ -1633,6 +1666,14 @@ const Devices = ({ devices }) => {
         }
         */ 
 
+      // }
+      const handleDelete = async () => {
+        //delete connection
+        if (connection && connection.name) {
+          await onDelete(connection.name);
+        } else {
+          console.error("Invalid connection data");
+        }
       }
 
       return (
@@ -1657,7 +1698,8 @@ const Devices = ({ devices }) => {
             </div>
             <div>
               <button
-                onClick={handleConnectionDeletion}
+                // onClick={handleConnectionDeletion}
+                onClick={handleDelete}
                 style={{
                   backgroundColor: '#8B0000',
                   color: 'white',
@@ -1703,12 +1745,13 @@ const Devices = ({ devices }) => {
     }
     return (
       <div style={sliderContainerStyle}>
-        {/* @pratyush uncomment below if needed */}
-
         <div style={accordionListStyle}>
           {data.map((item, index) => (
             <div key={index}>
-              <ConnectionAccordion connection={item}>
+              <ConnectionAccordion 
+                connection={item}
+                onDelete={handleConnectionDeletion} //delete connections
+              >
                 {item.name}
               </ConnectionAccordion>
               {index !== data.length - 1 && <DashedLine style={{ marginBottom: '1rem' }} />}
@@ -1718,6 +1761,7 @@ const Devices = ({ devices }) => {
       </div>
     );
   };
+  
 
   const accordionListStyle = {
     display: 'grid',
@@ -1790,20 +1834,20 @@ const Devices = ({ devices }) => {
       deviceConfig["connections"].push(pushedConnection);
     };
 
-    try { //delete later
-      const blob = new Blob([JSON.stringify(deviceConfig)], {
-        type: "application/json",
-      });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "config.json";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.log("download new config error: ", error);
-    }
+    // try { //delete later
+    //   const blob = new Blob([JSON.stringify(deviceConfig)], {
+    //     type: "application/json",
+    //   });
+    //   const url = URL.createObjectURL(blob);
+    //   const link = document.createElement("a");
+    //   link.href = url;
+    //   link.download = "config.json";
+    //   document.body.appendChild(link);
+    //   link.click();
+    //   document.body.removeChild(link);
+    // } catch (error) {
+    //   console.log("download new config error: ", error);
+    // }
     await overwriteConfigFile(deviceConfig);
   };
 
