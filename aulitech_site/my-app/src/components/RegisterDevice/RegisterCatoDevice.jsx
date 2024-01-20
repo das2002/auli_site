@@ -103,14 +103,18 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
   console.log('user', user);
   console.log('devices', devices);
 
-  const checkIfHardwareUidTaken = async () => {
-    for (let i = 0; i < devices.length; i++) {
-      if (devices[i].data.device_info.hw_uid === hwUid) {
-        return true;
-      }
+  const checkIfHardwareUidTaken = async (hwUidToCheck) => {
+    try {
+      const colRef = collection(db, "users", user.uid, "userCatos");
+      const hwUidQuery = query(colRef, where("device_info.hw_uid", "==", hwUidToCheck));
+      const querySnapshot = await getDocs(hwUidQuery);
+      return !querySnapshot.empty; 
+    } catch (error) {
+      console.error("Error checking hw_uid in Firebase:", error);
+      return false; 
     }
-    return false;
-  }
+  };
+  
 
   const checkIfNameTaken = async () => {
     for (let i = 0; i < devices.length; i++) {
@@ -123,21 +127,35 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
   const downloadSequence = async () => {
     const retrievedJson = await getJsonData();
-    if (enteredName === "") {
-      return;
-    } 
-    const nameTaken = await checkIfNameTaken();
-    console.log("nameTaken", nameTaken);
-    if (nameTaken) {
-      setErrMessage(true);
-      return;
-    } 
-    const hwUidTaken = await checkIfHardwareUidTaken();
-    console.log("hwUidTaken", hwUidTaken);
-    if (hwUidTaken) {
-      setErrMessage(true);
+    if (!retrievedJson || enteredName === "") {
+      console.log("No data retrieved or no name entered");
       return;
     }
+  
+    const hwUidFromJson = retrievedJson.global_info.HW_UID.value;
+    console.log("Retrieved HW_UID:", hwUidFromJson); 
+
+    // console.log(retrievedJson)
+
+    // if (!hwUidFromJson) {
+    //   console.error("HW_UID is empty or not found in the JSON structure");
+    //   setErrMessage("HW_UID is empty or not found. Please provide a valid HW_UID.");
+    //   return;
+    // }
+  
+    const hwUidTaken = await checkIfHardwareUidTaken(hwUidFromJson);
+    console.log("HW_UID taken:", hwUidTaken); 
+    if (hwUidTaken) {
+      setErrMessage("A device with this HW_UID already exists");
+      return;
+    }
+
+    const nameTaken = await checkIfNameTaken();
+    if (nameTaken) {
+      setErrMessage("Name already taken");
+      return;
+    }
+  
     setDeviceName(enteredName);
     console.log("retrievedJson", retrievedJson);
     if (retrievedJson == null) {
@@ -248,14 +266,26 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     console.log("connectionsArray", connectionsArray);
 
     globalInfoData.global_info.name.value = enteredName;
-    globalInfoData.global_info.HW_UID.value = hwUid;
+    globalInfoData.global_info.HW_UID.value = hwUidFromJson;
 
     console.log("globalInfoData", globalInfoData);
     if (globalInfoData["default"] != null) {
       delete globalInfoData["default"];
     }
 
-    const deviceAdded = addDeviceDoc(globalInfoData, connectionsArray);
+    // const deviceAdded = addDeviceDoc(globalInfoData, connectionsArray);
+    const deviceAdded = await addDeviceDoc(globalInfoData, connectionsArray);
+    
+    console.log(enteredName);
+    console.log(encodeURIComponent(enteredName))
+
+    if (deviceAdded) {
+      navigate(`/devices/${encodeURIComponent(enteredName)}`); // Navigate to the new device's settings
+    } else {
+      console.error("Failed to add device.");
+    }
+
+    // const 
     if (!deviceAdded) {
       return;
     }
@@ -407,6 +437,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       </div>
       <div className="px-4 sm:px-6 lg:px-8">
       <div className="bg-white shadow-lg border border-gray-200 rounded-lg p-5 mt-10">
+        
         <div className="px-4 py-5 sm:p-6 lg:px-8">
           <div className="border-b border-gray-200 pb-10">
             <div className="border-b border-gray-200 pb-5">
@@ -446,6 +477,11 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
             </div>
           </div>
         </div>
+        {errMessage && (
+          <div className="text-red-500">
+            {errMessage}
+          </div>
+        )}
       </div>
       </div>
     </div>

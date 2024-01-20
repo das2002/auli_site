@@ -20,6 +20,10 @@ const RegisterInterface = ({ user, devices }) => {
   const navigate = useNavigate();
   console.log('user', user);
 
+  const handleCancel = () => {
+    navigate(`/devices/${deviceName}`); 
+  };
+
   const thisDevice = devices.find(device => device.data.device_info.device_nickname === deviceName);
   console.log('thisDevice', thisDevice);
 
@@ -105,6 +109,11 @@ const RegisterInterface = ({ user, devices }) => {
 
   const handleSave = async () => {
     console.log("Save button clicked"); //debug
+
+    if (interfaceName.trim() === "" || operationMode.trim() === "") {
+      alert("Please fill out all fields before saving.");
+      return;
+    }
 
     console.log('selected device', thisDevice.data.device_info.device_nickname);
 
@@ -239,7 +248,9 @@ const RegisterInterface = ({ user, devices }) => {
 
       };
       await getConnections();
+      navigate(`/devices/${deviceName}`); 
       window.location.reload();
+
     } catch (error) {
       console.log("add connection doc to usersCato connections error: ", error);
     }
@@ -315,6 +326,15 @@ const RegisterInterface = ({ user, devices }) => {
               When you click <strong>Save</strong>, your browser will ask if you want to allow access to the device. Allow access in order to register the connection.
             </p>
             <div className="mt-6 flex justify-end">
+              {/* cancel button */}
+              <button
+                type="button"
+                onClick={handleCancel}
+                className="mr-4 inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Cancel
+              </button>
+              {/* save button */}
               <button
                 type="button"
                 onClick={handleSave}
