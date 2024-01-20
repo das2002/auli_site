@@ -1827,9 +1827,13 @@ const Devices = ({ devices }) => {
       let connection = editedConnectionsSettings[i];
       let connectionConfig = JSON.parse(connection["connection_config"]);
       let currentModeConfig = JSON.parse(connection["mode"][connection["current_mode"]]);
+      
+      connectionConfig["connection_name"]["value"] = connection.name;
+
       let pushedConnection = {
         ...connectionConfig,
         ...currentModeConfig,
+        // "name": connection.name, //debug
       };
       deviceConfig["connections"].push(pushedConnection);
     };
