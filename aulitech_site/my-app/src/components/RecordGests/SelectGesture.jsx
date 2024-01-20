@@ -175,6 +175,59 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
 let directoryHandle = null;
 
 const SelectGesture = ({ user }) => {
+
+  //for gesture.cato file:
+  const [timestamp, setTimestamp] = useState('');
+  const [gestureName, setGestureName] = useState('');
+  const [numRecordings, setNumRecordings] = useState();
+  const [timeBetween, setTimeBetween] = useState();
+  const [timeToSituate, setTimeToSituate] = useState();
+  const [timeForUnplugging, setTimeForUnplugging] = useState();
+
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+  
+    // Check if the directory handle is initialized
+    if (!directoryHandle) {
+      console.error("Directory handle is not initialized.");
+      return;
+    }
+  
+    try {
+      await initGestureFile();
+  
+      const gestureCatoContent = [
+        `${timestamp}`,
+        `${gestureName}`,
+        `${numRecordings}`,
+        `${timeBetween}`,
+        `${timeToSituate}`,
+        `${timeForUnplugging}`,
+      ].join('\n');
+  
+      console.log("Content to be written:", gestureCatoContent);
+  
+      const fileHandle = await directoryHandle.getFileHandle('gesture.cato', { create: true });
+      const writable = await fileHandle.createWritable();
+  
+      await writable.write(gestureCatoContent);
+      await writable.close();
+  
+      // Debug: Read the file content back to confirm
+      const file = await fileHandle.getFile();
+      const text = await file.text();
+      console.log("File content after write:", text);
+  
+    } catch (error) {
+      console.error("Error in form submission:", error);
+    }
+  
+    setShowPopup(false);
+  };
+  
+  
+
+  //rest: -----------------------------------------------------------------------
   const [directoryHandle, setDirectoryHandle] = useState(null);
 
   const [showPopup, setShowPopup] = useState(false);
@@ -270,38 +323,17 @@ const SelectGesture = ({ user }) => {
   };
 
   const startRecording = async (gesture) => {
+
+    setShowPopup(true);
+    // Reset form fields to empty when opening the form
+    setTimestamp('');
+    setGestureName('');
+    setNumRecordings('');
+    setTimeBetween('');
+    setTimeToSituate('');
+    setTimeForUnplugging('');
     
-    try {
-      await initGestureFile(); //gesture file initialize
-      console.log("Gesture file initialization successful");
-      
-      
-      checkForFlagFile(async (flagExists) => {
-        if (flagExists && selectedGesture) {
-          await handleFlagFileDetected(selectedGesture.id);
-        }
-      });
-      console.log("Flag.txt found!")
-      
-  
-      setGestureData([]);
-      setSelectedGesture(gesture);
-      setRecordingStart(new Date());
-      setShowPopup(true);
-      setIsRecording(true);
-  
-      const countdownInterval = setInterval(() => {
-        setCountdown((prevCount) => {
-          if (prevCount === 1) {
-            clearInterval(countdownInterval);
-            stopRecording();
-          }
-          return prevCount - 1;
-        });
-      }, 1000);
-    } catch (error) {
-      console.error("Error in startRecording:", error);
-    }
+    
   };
   
   //hereeeeeeee
@@ -442,18 +474,54 @@ const SelectGesture = ({ user }) => {
 
       {showPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center justify-between" style={{ width: '50%', height: '50%' }}>
-                <p className="text-lg font-medium text-center">
-                    <strong>Instructions:</strong> When the prompt for you to gesture shows up, perform the gesture as you would.
-                </p>
-                <p className="text-lg font-medium">
+          <div className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center justify-between" style={{ width: '50%', maxHeight: '70%', overflowY: 'auto' }}>
+            <p className="text-lg font-medium text-center mb-2">
+              <strong>Instructions:</strong> Fill in the details to start recording.
+            </p>
+            <hr className="w-full mb-4" />
+            <form onSubmit={handleFormSubmit} className="w-full">
+            <div className="flex mb-2 justify-center items-center">
+                <label className="w-1/3 text-right mr-2 text-gray-600">Timestamp:</label>
+                <input className="w-1/6 p-2 border border-gray-300 rounded" type="text" value={timestamp} onChange={(e) => setTimestamp(e.target.value)} />
+              </div>
+
+              <div className="flex mb-2 justify-center items-center">
+                <label className="w-1/3 text-right mr-2 text-gray-600">Gesture Name:</label>
+                <input className="w-1/6 p-2 border border-gray-300 rounded" type="text" value={gestureName} onChange={(e) => setGestureName(e.target.value)} />
+              </div>
+
+              <div className="flex mb-2 justify-center items-center">
+                <label className="w-1/3 text-right mr-2 text-gray-600">Number of recordings:</label>
+                <input className="w-1/6 p-2 border border-gray-300 rounded" type="text" value={numRecordings} onChange={(e) => setNumRecordings(e.target.value)} />
+              </div>
+
+              <div className="flex mb-2 justify-center items-center">
+                <label className="w-1/3 text-right mr-2 text-gray-600">Time between recordings:</label>
+                <input className="w-1/6 p-2 border border-gray-300 rounded" type="text" value={timeBetween} onChange={(e) => setTimeBetween(e.target.value)} />
+              </div>
+
+              <div className="flex mb-2 justify-center items-center">
+                <label className="w-1/3 text-right mr-2 text-gray-600">Time to Situate Device:</label>
+                <input className="w-1/6 p-2 border border-gray-300 rounded" type="text" value={timeToSituate} onChange={(e) => setTimeToSituate(e.target.value)} />
+              </div>
+
+              <div className="flex mb-2 justify-center items-center">
+                <label className="w-1/3 text-right mr-2 text-gray-600">Time for Unplugging:</label>
+                <input className="w-1/6 p-2 border border-gray-300 rounded" type="text" value={timeForUnplugging} onChange={(e) => setTimeForUnplugging(e.target.value)} />
+              </div>
+
+              <button type="submit" className="mt-4 bg-blue-500 text-white p-2 rounded">
+                Submit
+              </button>
+              </form>
+                {/* <p className="text-lg font-medium">
                     {flagFileFound ? "Start recording NOW" : (isRecording ? `Recording ends in: ${countdown} seconds` : "Recording...")}
-                </p>
-                <button className="rounded-md bg-red-500 p-3 text-white hover:bg-red-700" 
+                </p> */}
+                {/* <button className="rounded-md bg-red-500 p-3 text-white hover:bg-red-700" 
                     onClick={stopRecording}
                 >
                     Stop Recording
-                </button>
+                </button> */}
             </div>
         </div>
     )}
@@ -462,4 +530,3 @@ const SelectGesture = ({ user }) => {
 };
 
 export default SelectGesture;
-
