@@ -96,22 +96,62 @@ const Practice = () => {
     const handleTextChange = (event) => {
         setPracticeText(event.target.value);
     };
+    const headerStyle = {
+        marginBottom: '10px', // Adjust this value as needed
+        // Other styles...
+    };
 
     return (
-        <div className="flex row items-center h-screen min-w-[70vw] p-5 bg-[#f0f0f0] gap-2.5 flex-wrap overflow-auto">
-            <button
-                onClick={togglePractice}
-                className="text-lg mb-2.5 fixed ml- font-bold bg-[rgb(252,220,109)] rounded-lg px-4 py-2 shadow-md text-black cursor-pointer"
-            >
-                {isPracticing ? 'Finish Practice' : 'Start Practice'}
-            </button>
-            <textarea
-                ref={textareaRef}
-                value={practiceText}
-                onChange={handleTextChange}
-                placeholder="Start typing..."
-                className="w-3/4 h-[300px] ml-60 bg-black text-white border border-gray-300 rounded p-2.5 text-base resize-none"
-            />
+
+        
+        <div>
+            {/* <div className="ml-90">
+                <header className="shrink-0 bg-transparent border-b border-gray-200">
+                    <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
+                        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                            Instructions
+                        </h2>
+                    </div>
+                </header>
+            </div>
+
+            <div className="ml-90">
+                <header className="shrink-0 bg-transparent border-b border-gray-200">
+                    <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
+                        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                            Practice Settings
+                        </h2>
+                    </div>
+                </header>
+            </div> */}
+
+
+            <div className="ml-90" style = {headerStyle}>
+                <header className="shrink-0 bg-transparent border-b border-gray-200">
+                    <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
+                        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                            Record
+                        </h2>
+                    </div>
+                </header>
+            </div>
+
+
+            <div className="flex row items-center h-screen min-w-[70vw] p-5 bg-[#f0f0f0] gap-2.5 flex-wrap overflow-auto">
+                <button
+                    onClick={togglePractice}
+                    className="text-lg mb-2.5 fixed ml- font-bold bg-[rgb(252,220,109)] rounded-lg px-4 py-2 shadow-md text-black cursor-pointer"
+                >
+                    {isPracticing ? 'Finish Practice' : 'Start Practice'}
+                </button>
+                <textarea
+                    ref={textareaRef}
+                    value={practiceText}
+                    onChange={handleTextChange}
+                    placeholder="Start typing..."
+                    className="w-3/4 h-[300px] ml-60 bg-black text-white border border-gray-300 rounded p-2.5 text-base resize-none"
+                />
+            </div>
         </div>
     );
 

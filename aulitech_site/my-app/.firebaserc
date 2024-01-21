@@ -1,7 +1,8 @@
 {
   "projects": {
     "default": "my-cato",
-    "testing": "my-cato"
+    "testing": "my-cato",
+    "new domain": "my-cato"
   },
   "targets": {},
   "etags": {}
