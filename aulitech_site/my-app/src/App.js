@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { onAuthStateChanged, getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { onAuthStateChanged, getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import { auth } from "./firebase";
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { FcGoogle } from "react-icons/fc";
@@ -43,6 +43,12 @@ function App() {
   const toggleLoginPopup = () => {
     setIsLoginPopupOpen(!isLoginPopupOpen);
   };
+
+  // switches login popup to signup popup 
+  const [isResetPasswordPopupOpen, setIsResetPasswordPopupOpen] = useState(false);
+  const toggleReset = () => {
+    setIsResetPasswordPopupOpen(!isResetPasswordPopupOpen);
+  };
   
   // switches login popup to signup popup 
   const [isSignupPopupOpen, setIsSignupPopupOpen] = useState(false);
@@ -69,6 +75,10 @@ function App() {
 
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+      prompt: "select_account",
+   });
+   
     try {
       const result = await signInWithPopup(auth, provider);
       const credential = GoogleAuthProvider.credentialFromResult(result);
@@ -164,16 +174,31 @@ function App() {
           <button className="flex items-center justify-center text-white bg-accent hover:opacity-70 px-12 rounded-full h-12 decision-button">
             Log In
           </button>
-          <p className="text-right mb-1">
-            Don't have an account? {' '}
-            <button 
-              onClick={handleLoginToSignup} 
-              style={{ color: 'blue', cursor: 'pointer' }}
-              className="text-blue-600 hover:text-blue-800 focus:outline-none focus:underline"
-            >
-              Sign up
-            </button>
-          </p>
+          <div className="flex flex-col h-full text-right mb-1">
+            <div>
+              Don't have an account? {' '}
+              <button 
+                onClick={handleLoginToSignup} 
+                style={{ color: 'blue', cursor: 'pointer' }}
+                className="text-blue-600 hover:text-blue-800 focus:outline-none focus:underline"
+                >
+                Sign up
+              </button>
+            </div>
+            <div>
+              Forgot password? {' '}
+              <button 
+                onClick={() => {
+                  toggleReset();
+                  toggleLoginPopup();
+                }}
+                style={{ color: 'blue', cursor: 'pointer' }}
+                className="text-blue-600 hover:text-blue-800 focus:outline-none focus:underline"
+                >
+                Reset now
+              </button>
+            </div>
+          </div>
         </div>
 
 
@@ -242,6 +267,39 @@ function App() {
       </form>
     );
   };
+
+  const PasswordResetRequestForm = () =>  {
+    const [email, setEmail] = useState('');
+    const [message, setMessage] = useState('');
+
+    const handleSubmit = async (event) => {
+      event.preventDefault();
+      const auth = getAuth();
+      sendPasswordResetEmail(auth, email)
+        .then(() => {
+          setMessage('Email Sent! Check your email for instructions on how to reset your password.');
+        })
+        .catch((error) => {
+          // Handle Errors here.
+          setMessage('Error: ' + error.message);
+        });
+    };
+
+    return (
+      <div className='z-50'>
+        <form onSubmit={handleSubmit}>
+          <label className='inline-block'>
+            Please enter your email address. You will receive an email with a link to reset your password. 
+            <input className='mt-3' placeholder="Enter Your Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          </label>
+          <button type="submit" className="flex items-center justify-center text-white bg-accent hover:opacity-70 px-12 rounded-full h-12 decision-button">
+            Send
+          </button>
+        </form>
+        {message && <p className='mt-2 text-red-500 font-light'>{message}</p>}
+      </div>
+    );
+  }
   
   
   useEffect(() => {
@@ -432,9 +490,41 @@ function App() {
       <BrowserRouter>
         <OnRenderDisplays/>
       </BrowserRouter>
+      {isResetPasswordPopupOpen && <div className="simple-popup z-50">
+          <div className="flex items-start justify-between w-full px-3 py-3 border-b border-light-divider dark:border-dark-divider">
+          <h3 className="text-base font-medium text-light-text-primary dark:text-dark-text-primary pl-3">Reset Password</h3>
+            <button 
+              type="button" 
+              className="popup-close-button"
+              onClick={() => {
+                toggleReset();
+                toggleLoginPopup();
+              }}
+            
+            >
+              <svg 
+                stroke="currentColor" 
+                fill="none" 
+                strokeWidth="2" 
+                viewBox="0 0 24 24" 
+                strokeLinecap="round" 
+                strokeLinejoin="round" 
+                className="w-6 h-6 rotate-45" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+            </button>
+          </div>
+
+          <div className="email-login-content flex flex-col items-center justify-center p-0 gap-0">
+            <PasswordResetRequestForm />
+          </div>
+        </div>}
 
       {isLoginPopupOpen && (
-        <div className="simple-popup">
+        <div className="simple-popup z-0">
           <div className="flex items-start justify-between w-full px-3 py-3 border-b border-light-divider dark:border-dark-divider">
           <h3 className="text-base font-medium text-light-text-primary dark:text-dark-text-primary pl-3">Log In</h3>
             <button 
