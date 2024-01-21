@@ -21,7 +21,7 @@ const RegisterInterface = ({ user, devices }) => {
   console.log('user', user);
 
   const handleCancel = () => {
-    navigate(`/devices/${deviceName}`); 
+    navigate(`/devices/${deviceName}`);
   };
 
   const thisDevice = devices.find(device => device.data.device_info.device_nickname === deviceName);
@@ -141,7 +141,7 @@ const RegisterInterface = ({ user, devices }) => {
         const userRef = collection(colRef, userId, "userCatos");
         console.log('userRef', userRef);
 
-        
+
         const docRef = doc(userRef, thisDevice.id);
         console.log('docRef', docRef);
 
@@ -248,7 +248,7 @@ const RegisterInterface = ({ user, devices }) => {
 
       };
       await getConnections();
-      navigate(`/devices/${deviceName}`); 
+      navigate(`/devices/${deviceName}`);
       window.location.reload();
 
     } catch (error) {
@@ -299,7 +299,7 @@ const RegisterInterface = ({ user, devices }) => {
               />
             </div>
 
-            
+
             <div className="mt-5">
               <label htmlFor="op-mode" className="block text-lg text-gray-900">
                 Select your operation mode below:

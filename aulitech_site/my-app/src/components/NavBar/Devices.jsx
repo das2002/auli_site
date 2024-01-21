@@ -355,29 +355,29 @@ const Devices = ({ devices }) => {
       console.error("Device or connection name not provided");
       return;
     }
-  
+
     try {
       const userId = getCurrentUserId();
       const userCatoDocRef = doc(db, "users", userId, "userCatos", thisDevice.id);
-  
+
       //find connection to delete
       const updatedConnections = editedConnectionsSettings.filter(conn => conn.name !== connectionName);
-  
+
       //firebase
       await updateDoc(userCatoDocRef, {
         'connections': updatedConnections
       });
-  
+
       //local states
       setEditedConnectionsSettings(updatedConnections);
       setConnectionsList(updatedConnections);
-  
+
       console.log("Connection deleted successfully");
     } catch (error) {
       console.error("Error deleting connection: ", error);
     }
   };
-  
+
 
 
 
@@ -471,13 +471,13 @@ const Devices = ({ devices }) => {
     return (
       <div>
         <div style={sliderContainerStyle}>
-          <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <HardwareUIDField hardwareUID={editedGlobalSettings["HW_UID"]["value"]} />
             </div>
             <div>
               <button onClick={handleDeviceDelete} style={{ backgroundColor: '#8B0000', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}>Delete Device</button>
-              </div>
+            </div>
           </div>
           <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
 
@@ -628,7 +628,7 @@ const Devices = ({ devices }) => {
         }));
       };
 
-      
+
 
       // const [collapsedSections, setCollapsedSections] = useState({
       //   connectionSettings: false,
@@ -662,7 +662,7 @@ const Devices = ({ devices }) => {
       const [fetchedClickerConfig, setFetchedClickerConfig] = useState(null);
       const [editedClickerConfig, setEditedClickerConfig] = useState(null);
 
-      
+
 
       useEffect(() => {
         if (connection) {
@@ -1651,20 +1651,20 @@ const Devices = ({ devices }) => {
       }
 
       // const handleConnectionDeletion = async () => {
-        /*
-        const userId = getCurrentUserId();
-        const userCatoDocId = thisDevice.id;
-        const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
+      /*
+      const userId = getCurrentUserId();
+      const userCatoDocId = thisDevice.id;
+      const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
 
-        try {
-          await updateDoc(userCatoDocRef, {
-            'connections': arrayRemove(editedConnectionConfig),
-          });
-          console.log("Connection deleted successfully");
-        } catch (error) {
-          console.error("Error deleting connection: ", error);
-        }
-        */ 
+      try {
+        await updateDoc(userCatoDocRef, {
+          'connections': arrayRemove(editedConnectionConfig),
+        });
+        console.log("Connection deleted successfully");
+      } catch (error) {
+        console.error("Error deleting connection: ", error);
+      }
+      */
 
       // }
       const handleDelete = async () => {
@@ -1678,7 +1678,7 @@ const Devices = ({ devices }) => {
 
       return (
         <div style={{ marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center' , justifyContent: 'space-between'}}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
               <button
                 onClick={toggleIsExpanded}
@@ -1716,7 +1716,7 @@ const Devices = ({ devices }) => {
               </button>
             </div>
           </div>
-          
+
 
           {isExpanded && (
             <div>
@@ -1748,7 +1748,7 @@ const Devices = ({ devices }) => {
         <div style={accordionListStyle}>
           {data.map((item, index) => (
             <div key={index}>
-              <ConnectionAccordion 
+              <ConnectionAccordion
                 connection={item}
                 onDelete={handleConnectionDeletion} //delete connections
               >
@@ -1761,7 +1761,7 @@ const Devices = ({ devices }) => {
       </div>
     );
   };
-  
+
 
   const accordionListStyle = {
     display: 'grid',
@@ -1827,7 +1827,7 @@ const Devices = ({ devices }) => {
       let connection = editedConnectionsSettings[i];
       let connectionConfig = JSON.parse(connection["connection_config"]);
       let currentModeConfig = JSON.parse(connection["mode"][connection["current_mode"]]);
-      
+
       connectionConfig["connection_name"]["value"] = connection.name;
 
       let pushedConnection = {
