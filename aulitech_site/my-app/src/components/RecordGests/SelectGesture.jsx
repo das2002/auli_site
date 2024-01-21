@@ -13,7 +13,7 @@ import { writeBatch } from "firebase/firestore";
 import { initGestureFile, checkForFlagFile } from './initGestureFile'; 
 import { uploadLogToFirebase } from './initGestureFile';
 import { get, set } from 'idb-keyval';
-
+import { checkDeviceConnection } from '../NavBar/ReplaceConfig';
 
 import { getStorage, ref as storageRef, uploadBytes } from "firebase/storage";
 
@@ -175,7 +175,6 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
 let directoryHandle = null;
 
 const SelectGesture = ({ user }) => {
-
   //for gesture.cato file:
   const [timestamp, setTimestamp] = useState('');
   const [gestureName, setGestureName] = useState('');
@@ -184,14 +183,19 @@ const SelectGesture = ({ user }) => {
   const [timeToSituate, setTimeToSituate] = useState();
   const [timeForUnplugging, setTimeForUnplugging] = useState();
 
+  const [errorMessage, setErrorMessage] = useState('');
+
   const handleFormSubmit = async (e) => {
     e.preventDefault();
   
-    // Check if the directory handle is initialized
-    if (!directoryHandle) {
-      console.error("Directory handle is not initialized.");
-      return;
+    // Check if all fields are filled out
+    if (!timestamp || !gestureName || !numRecordings || !timeBetween || !timeToSituate || !timeForUnplugging) {
+      setErrorMessage('Please fill out all fields.');
+      return; // Stop the function if any field is empty
     }
+
+    // Clear any existing error message when all fields are filled
+    setErrorMessage('');
   
     try {
       await initGestureFile();
@@ -288,7 +292,7 @@ const SelectGesture = ({ user }) => {
     }, []);
 
 
-  const handleGestureSelect = (gestureId) => {
+  const handleGestureSelect = async (gestureId) => {
     const gesture = gestures.find(g => g.id === gestureId);
     if (gesture) {
       setSelectedGesture(gesture);
@@ -460,6 +464,17 @@ const SelectGesture = ({ user }) => {
     setGestures(updatedGestures);
   };  
 
+  const closeModal = () => {
+    setShowPopup(false);
+  };
+
+  const handleBackdropClick = (event) => {
+    if (event.target === event.currentTarget) {
+      closeModal();
+    }
+  };
+
+
   return (
     <div className="">
       <div className="border-b border-gray-200 pb-10">
@@ -473,8 +488,27 @@ const SelectGesture = ({ user }) => {
       </div>
 
       {showPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div 
+        className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+        onClick={handleBackdropClick}
+        >
           <div className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center justify-between" style={{ width: '50%', maxHeight: '70%', overflowY: 'auto' }}>
+            
+            <button
+              className="absolute top-0 right-0 m-2 text-gray-600 hover:text-gray-900 bg-transparent border-none cursor-pointer"
+              onClick={() => setShowPopup(false)}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {errorMessage && (
+              <div className="text-center text-red-500 font-bold text-lg mb-2 w-full">
+                {errorMessage}
+              </div>
+            )}
+
             <p className="text-lg font-medium text-center mb-2">
               <strong>Instructions:</strong> Fill in the details to start recording.
             </p>
@@ -510,10 +544,12 @@ const SelectGesture = ({ user }) => {
                 <input className="w-1/6 p-2 border border-gray-300 rounded" type="text" value={timeForUnplugging} onChange={(e) => setTimeForUnplugging(e.target.value)} />
               </div>
 
-              <button type="submit" className="mt-4 bg-blue-500 text-white p-2 rounded">
-                Submit
-              </button>
-              </form>
+              <div className="flex justify-end items-center mt-4"> {/* This will align the button to the right */}
+                <button type="submit" className="bg-yellow-600 text-white py-2 px-4 rounded hover:bg-yellow-700 focus:outline-none focus:shadow-outline">
+                  Submit
+                </button>
+              </div>
+            </form>
                 {/* <p className="text-lg font-medium">
                     {flagFileFound ? "Start recording NOW" : (isRecording ? `Recording ends in: ${countdown} seconds` : "Recording...")}
                 </p> */}

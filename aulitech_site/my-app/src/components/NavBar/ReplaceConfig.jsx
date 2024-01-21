@@ -76,3 +76,13 @@ export async function overwriteConfigFile(newConfig) {
         console.error('Error overwriting config file:', error);
     }
 }
+
+export async function checkDeviceConnection (webAppHwUid) {
+    const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
+    
+    if (hwUidMatch === null) {
+      throw new Error("No device is plugged in or the device HW_UID does not match.");
+    }
+    
+    return hwUidMatch; 
+  };
