@@ -73,6 +73,10 @@ export async function overwriteConfigFile(newConfig) {
 
         console.log('Config file overwritten successfully.');
     } catch (error) {
+        if (error instanceof DOMException) {
+            // unplugged error
+            throw new Error("File or directory not found. Please check the file path and try again.");
+        }
         console.error('Error overwriting config file:', error);
     }
 }

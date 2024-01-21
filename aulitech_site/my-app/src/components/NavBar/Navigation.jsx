@@ -141,6 +141,10 @@ const DevicesList = React.memo(() => {
         const isActive = isNavLinkActive(devicePath);
 
         return (
+          <div 
+            key={devicePath}
+            className={`relative w-full mt-0 mr-12 space-y-1 align-center overflow-hidden cursor-pointer rounded-xl ${isActive ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
+          >
           <div className={`relative w-full mt-0 mr-12 space-y-1 align-center overflow-hidden cursor-pointer rounded-xl ${isActive ? 'bg-gray-700' : 'hover:bg-gray-700'}`}>
             <div className='flex flex-row w-full align-center '>
               <NavLink 
@@ -160,6 +164,7 @@ const DevicesList = React.memo(() => {
               </NavLink>
               {isActive && <PracticeModeToggle deviceName={devicePath} onToggle={() => togglePracticeMode(index)}/>} 
             </div>
+          </div>
           </div>
         );
       })}

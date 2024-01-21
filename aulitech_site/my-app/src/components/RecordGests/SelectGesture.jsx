@@ -223,7 +223,7 @@ const SelectGesture = ({ user }) => {
   
     } catch (error) {
       if (error instanceof DOMException) {
-        alert("Error: Please plug in a valid device.");
+        alert("ERROR: Please plug in a valid device.");
       } else {
         console.error("Error in form submission:", error);
         setErrorMessage("An unexpected error occurred.");
