@@ -390,7 +390,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     
     
     navigate(`/devices/${enteredName}`);
-    window.location.reload();
+    //window.location.reload();
     
   };
 
