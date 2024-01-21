@@ -70,7 +70,7 @@
         "HW_UID": {
             "label": "Hardware Unique Identity",
             "access": "r",
-            "value": "6a6a866c7d2c4c0c",
+            "value": "",
             "description": "Unique hex code for identifying different devices"
         },
         "battery": {

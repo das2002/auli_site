@@ -103,148 +103,236 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
   console.log('user', user);
   console.log('devices', devices);
 
-  const checkIfHardwareUidTaken = async (hwUidToCheck) => {
-    try {
-      const colRef = collection(db, "users", user.uid, "userCatos");
-      const hwUidQuery = query(colRef, where("device_info.hw_uid", "==", hwUidToCheck));
-      const querySnapshot = await getDocs(hwUidQuery);
-      return !querySnapshot.empty; 
-    } catch (error) {
-      console.error("Error checking hw_uid in Firebase:", error);
-      return false; 
-    }
-  };
-  
-
-  const checkIfNameTaken = async () => {
-    for (let i = 0; i < devices.length; i++) {
-      if (devices[i].data.device_info.device_nickname === enteredName) {
-        return true;
+  async function fetchAndCompareConfig() {
+    async function checkIfHardwareUidTaken(hwUidToCheck) {
+      try {
+        const colRef = collection(db, "users", user.uid, "userCatos");
+        const hwUidQuery = query(colRef, where("device_info.hw_uid", "==", hwUidToCheck));
+        const querySnapshot = await getDocs(hwUidQuery);
+        return !querySnapshot.empty;
+      } catch (error) {
+        console.error("Error checking hw_uid in Firebase:", error);
+        return false;
       }
     }
-    return false;
+    async function checkIfNameTaken() {
+      for (let i = 0; i < devices.length; i++) {
+        if (devices[i].data.device_info.device_nickname === enteredName) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    async function checkIfNameValid() {
+      console.log("enteredName", enteredName);
+      if (enteredName === "") {
+        return false;
+      }
+      return true;
+    }
+
+    try {
+      // check existence directories
+      let directoryHandle = await get('configDirectoryHandle');
+  
+      // request + store in indexedDB
+      if (!directoryHandle) {
+        directoryHandle = await window.showDirectoryPicker();
+        await set('configDirectoryHandle', directoryHandle);
+      }
+  
+      // get r/w access
+      const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
+      console.log('Permission Status:', permissionStatus);
+      if (permissionStatus !== 'granted') {
+        console.log('Permission to access directory not granted');
+        return;
+      }
+  
+      // check if config.json exists
+      const fileHandle = await directoryHandle.getFileHandle('config.json', { create: false });
+  
+      //delete + create again
+      const file = await fileHandle.getFile();
+  
+      // read config.json
+      const text = await file.text();
+      const config = JSON.parse(text);
+  
+      // check if there is a deviceHwUid
+      if (!config || !config.global_info || !config.global_info.HW_UID || !config.global_info.HW_UID.value) {
+        console.error("HW_UID is empty or not found in the JSON structure");
+        return;
+      }
+      const deviceHwUid = config.global_info.HW_UID.value;
+
+      // check if hw_uid is taken
+      const hwUidTaken = await checkIfHardwareUidTaken(deviceHwUid);
+      if (hwUidTaken) {
+        setErrMessage("A device with this HW_UID already exists");
+        return;
+      }
+
+      setHwUid(deviceHwUid);
+
+      // check if name is taken
+      const nameTaken = await checkIfNameTaken();
+      if (nameTaken) {
+        setErrMessage("Name already taken");
+        return;
+      }
+
+      // check if name is valid
+      const nameValid = await checkIfNameValid();
+      if (!nameValid) {
+        setErrMessage("Invalid name");
+        return;
+      }
+
+      // if all checks pass return the config
+      return config;
+      
+    } catch (error) {
+      console.log("Error:", error);
+      return;
+    }
   }
 
-  const downloadSequence = async () => {
-    const retrievedJson = await getJsonData();
-    if (!retrievedJson || enteredName === "") {
-      console.log("No data retrieved or no name entered");
-      return;
-    }
-  
-    const hwUidFromJson = retrievedJson.global_info.HW_UID.value;
-    console.log("Retrieved HW_UID:", hwUidFromJson); 
-
-    // console.log(retrievedJson)
-
-    // if (!hwUidFromJson) {
-    //   console.error("HW_UID is empty or not found in the JSON structure");
-    //   setErrMessage("HW_UID is empty or not found. Please provide a valid HW_UID.");
-    //   return;
-    // }
-  
-    const hwUidTaken = await checkIfHardwareUidTaken(hwUidFromJson);
-    console.log("HW_UID taken:", hwUidTaken); 
-    if (hwUidTaken) {
-      setErrMessage("A device with this HW_UID already exists");
-      return;
-    }
-
-    const nameTaken = await checkIfNameTaken();
-    if (nameTaken) {
-      setErrMessage("Name already taken");
-      return;
-    }
-  
-    setDeviceName(enteredName);
-    console.log("retrievedJson", retrievedJson);
-    if (retrievedJson == null) {
-      return;
-    }
-    let connectionsArray = [];
-    let globalInfoData = deepCopy(globalInfoDefault);
-
-    for (let i = 0; i < retrievedJson["connections"].length; i++) {
-      console.log("connection", retrievedJson["connections"][i]);
-      
-      let connection = retrievedJson["connections"][i];
-      if (connection["operation_mode"]["value"] === "practice") {
-        continue;
-      } else {
-        let currentOperationMode = connection["operation_mode"]["value"];
-        let currentConnectionConfig = {
-          connection_name: {...connection["connection_name"]},
-          screen_size: {...connection["screen_size"]},
-        };
-        let currentModeConfig = {};
-        let modeMap = {};
-        if (currentOperationMode == "pointer") {
-          currentModeConfig = {
-            ...currentModeConfig,
-            ...connection["operation_mode"],
-            ...connection["mouse"],
-            ...connection["bindings"]
-          }
-          modeMap = {
-            pointer: JSON.stringify(currentModeConfig),
-            clicker: JSON.stringify(modeDefaultGenerator("clicker")),
-            gesture_mouse: JSON.stringify(modeDefaultGenerator("gesture_mouse")),
-            tv_remote: JSON.stringify(modeDefaultGenerator("tv_remote"))
-          }
-
-        } else if (currentOperationMode == "tv_remote") {
-          currentModeConfig = {
-            ...currentModeConfig,
-            ...connection["operation_mode"],
-            ...connection["tv_remote"],
-            ...connection["bindings"],
-            ...connection["gesture"]
-          }
-          modeMap = {
-            pointer: JSON.stringify(modeDefaultGenerator("pointer")),
-            clicker: JSON.stringify(modeDefaultGenerator("clicker")),
-            gesture_mouse: JSON.stringify(modeDefaultGenerator("gesture_mouse")),
-            tv_remote: JSON.stringify(currentModeConfig)
-          }
-        } else if (currentOperationMode == "gesture_mouse") {
-          currentModeConfig = {
-            ...currentModeConfig,
-            ...connection["operation_mode"],
-            ...connection["mouse"],
-            ...connection["bindings"],
-            ...connection["gesture"]
-          }
-          modeMap = {
-            pointer: JSON.stringify(modeDefaultGenerator("pointer")),
-            clicker: JSON.stringify(modeDefaultGenerator("clicker")),
-            gesture_mouse: JSON.stringify(currentModeConfig),
-            tv_remote: JSON.stringify(modeDefaultGenerator("tv_remote"))
-          }
-        } else if (currentOperationMode == "clicker") {
-          currentModeConfig = {
-            ...currentModeConfig,
-            ...connection["operation_mode"],
-            ...connection["clicker"],
-            ...connection["bindings"]
-          }
-          modeMap = {
-            pointer: JSON.stringify(modeDefaultGenerator("pointer")),
-            clicker: JSON.stringify(currentModeConfig),
-            gesture_mouse: JSON.stringify(modeDefaultGenerator("gesture_mouse")),
-            tv_remote: JSON.stringify(modeDefaultGenerator("tv_remote"))
-          }
-        }
-        let firebaseConnectionConfig = {
-          connection_config: JSON.stringify(currentConnectionConfig),
-          mode: modeMap,
-          current_mode: currentOperationMode,
-          name: connection["connection_name"]["value"],
-        }
-        connectionsArray.push(firebaseConnectionConfig);
+  async function getGlobalInfoData(config) {
+    async function checkIfGlobalSectionExists(config) {
+      if (!config || !config.global_info) {
+        console.error("global_info section not found in the JSON structure");
+        return false;
       }
-
+      return true;
     }
 
+    //basically, for every field in the globalInfoDefault, check if it exists in the config
+    //if it does, add it to the globalInfoData object
+    //if it doesn't, add the default value to the globalInfoData object
+    
+    let globalInfoData = deepCopy(globalInfoDefault);
+    let globalInfoExists = await checkIfGlobalSectionExists(config);
+    if (!globalInfoExists) {
+      return globalInfoData;
+    }
+
+    function updateNestedFields(source, target) {
+      for (const key in source) {
+        if (target.hasOwnProperty(key)) {
+          if (typeof source[key] === 'object' && typeof target[key] === 'object') {
+            updateNestedFields(source[key], target[key]);
+          } else {
+            target[key] = source[key];
+          }
+        }
+      }
+    }
+
+
+    updateNestedFields(config.global_info, globalInfoData.global_info);
+
+    if (globalInfoData["default"] != null) {
+      delete globalInfoData["default"];
+    }
+
+    globalInfoData.global_info.name.value = enteredName;
+    //globalInfoData.global_info.HW_UID.value = config.globalInfoData.HW_UID.value;
+    return globalInfoData;
+  }
+
+  async function getConnectionsData(config) {
+    async function checkIfConnectionsSectionExists(config) {
+      if (!config || !config.connections) {
+        console.error("connections section not found in the JSON structure");
+        return false;
+      }
+      return true;
+    }
+
+    let connectionsArray = [];
+    let connectionsExist = await checkIfConnectionsSectionExists(config);
+    if (connectionsExist) {
+      for (let i = 0; i < config["connections"].length; i++) {
+        console.log("connection", config["connections"][i]);
+
+        let connection = config["connections"][i];
+
+        if (connection["operation_mode"]["value"] === "practice") {
+          continue;
+        } else {
+          let currentOperationMode = connection["operation_mode"]["value"];
+          let currentConnectionConfig = {
+            connection_name: { ...connection["connection_name"] },
+            screen_size: { ...connection["screen_size"] },
+          };
+
+          console.log("currentConnectionConfig", currentConnectionConfig);
+
+          let currentModeConfig = {};
+          let modeMap = {};
+          if (currentOperationMode == "pointer") {
+            currentModeConfig = {
+              operation_mode: { ...connection["operation_mode"] },
+              mouse: { ...connection["mouse"] },
+              bindings: { ...connection["bindings"] }
+            }
+            modeMap = {
+              pointer: JSON.stringify(currentModeConfig),
+              clicker: JSON.stringify(modeDefaultGenerator("clicker")),
+              gesture_mouse: JSON.stringify(modeDefaultGenerator("gesture_mouse")),
+              tv_remote: JSON.stringify(modeDefaultGenerator("tv_remote"))
+            }
+          } else if (currentOperationMode == "tv_remote") {
+            currentModeConfig = {
+              operation_mode: { ...connection["operation_mode"] },
+              tv_remote: { ...connection["tv_remote"] },
+              bindings: { ...connection["bindings"] },
+              gesture: { ...connection["gesture"] }
+            }
+            modeMap = {
+              pointer: JSON.stringify(modeDefaultGenerator("pointer")),
+              clicker: JSON.stringify(modeDefaultGenerator("clicker")),
+              gesture_mouse: JSON.stringify(modeDefaultGenerator("gesture_mouse")),
+              tv_remote: JSON.stringify(currentModeConfig)
+            }
+          } else if (currentOperationMode == "gesture_mouse") {
+            currentModeConfig = {
+              operation_mode: { ...connection["operation_mode"] },
+              mouse: { ...connection["mouse"] },
+              bindings: { ...connection["bindings"] },
+              gesture: { ...connection["gesture"] }
+            }
+            modeMap = {
+              pointer: JSON.stringify(modeDefaultGenerator("pointer")),
+              clicker: JSON.stringify(modeDefaultGenerator("clicker")),
+              gesture_mouse: JSON.stringify(currentModeConfig),
+              tv_remote: JSON.stringify(modeDefaultGenerator("tv_remote"))
+            }
+          } else if (currentOperationMode == "clicker") {
+            currentModeConfig = {
+              operation_mode: { ...connection["operation_mode"] },
+              clicker: { ...connection["clicker"] },
+              bindings: { ...connection["bindings"] }
+            }
+            modeMap = {
+              pointer: JSON.stringify(modeDefaultGenerator("pointer")),
+              clicker: JSON.stringify(currentModeConfig),
+              gesture_mouse: JSON.stringify(modeDefaultGenerator("gesture_mouse")),
+              tv_remote: JSON.stringify(modeDefaultGenerator("tv_remote"))
+            }
+          }
+          let firebaseConnectionConfig = {
+            connection_config: JSON.stringify(currentConnectionConfig),
+            mode: modeMap,
+            current_mode: currentOperationMode,
+            name: connection["connection_name"]["value"],
+          }
+          connectionsArray.push(firebaseConnectionConfig);
+        }
+      }
+    }
     if (connectionsArray.length === 0) {
       let connectionConfig = JSON.stringify(connectionSpecificDefault);
       let current_mode = "practice";
@@ -263,19 +351,25 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       };
       connectionsArray.push(firebaseConnectionConfig);
     }
+    return connectionsArray;
+  }
+
+  const downloadSequence = async () => {
+    setDeviceName(enteredName);
+    let retrievedJson = await fetchAndCompareConfig();
+    console.log("retrievedJson", retrievedJson);
+    if (retrievedJson == null) {
+      return;
+    }
+    let globalInfoData = await getGlobalInfoData(retrievedJson);
+    console.log("globalInfoData", globalInfoData);
+    let connectionsArray = await getConnectionsData(retrievedJson);
     console.log("connectionsArray", connectionsArray);
 
-    globalInfoData.global_info.name.value = enteredName;
-    globalInfoData.global_info.HW_UID.value = hwUidFromJson;
-
-    console.log("globalInfoData", globalInfoData);
-    if (globalInfoData["default"] != null) {
-      delete globalInfoData["default"];
-    }
-
-    // const deviceAdded = addDeviceDoc(globalInfoData, connectionsArray);
     const deviceAdded = await addDeviceDoc(globalInfoData, connectionsArray);
-    
+    console.log("deviceAdded", deviceAdded);
+
+    /*
     console.log(enteredName);
     console.log(encodeURIComponent(enteredName))
 
@@ -291,7 +385,10 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     }
     deleteInitializeDoc();
     //downloadNewConfig(newConfig);
-    navigate("/");
+    */
+    
+    //navigate(`/devices/${enteredName}`);
+    //window.location.reload();
   };
 
 
@@ -370,16 +467,37 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
           //const deviceName = newDeviceConfig.global_info.name.value;
           
           const colRef = collection(db, "users");
+
+          async function checkUserCatosCollectionExists(collectionName) {
+            try {
+              const collectionRef = collection(db, "users", user.uid, collectionName);
+              const snapshot = await getDocs(collectionRef);
+              return !snapshot.empty;
+            } catch (error) {
+              console.error("Error checking collection existence:", error);
+              return false;
+            }
+          }
+
+          const userCatosCollectionExists = await checkUserCatosCollectionExists("userCatos");
+          if (!userCatosCollectionExists) {
+            console.log("userCatos collection does not exist");
+            await addDoc(collection(colRef, user.uid, "userCatos"), {
+              initialize: "initializeUserCatosSubcollection",
+            });
+          }
+          
           await addDoc(collection(colRef, user.uid, "userCatos"), {
             device_info: {
               global_config: newData,
               device_nickname: enteredName,
-              hw_uid: hwUid,
+              hw_uid: globalInfoData.global_info.HW_UID.value,
               practice_config: practiceDataString,
             },
             connections: connectionsArray,
           });
           handleRenderDevices();
+          deleteInitializeDoc();
           
         } catch (error) {
           console.log("store another device error: ", error);
