@@ -106,7 +106,7 @@
 }
 
 .simple-popup {
-  position: absolute;
+  position: fixed; /* Ensures the popup is placed relative to the viewport */
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -115,7 +115,6 @@
   padding-bottom: 0px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  z-index: 1000;
 }
 
 .signout-modal {
