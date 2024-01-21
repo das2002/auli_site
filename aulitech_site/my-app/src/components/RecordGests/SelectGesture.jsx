@@ -191,10 +191,10 @@ const SelectGesture = ({ user }) => {
     // Check if all fields are filled out
     if (!timestamp || !gestureName || !numRecordings || !timeBetween || !timeToSituate || !timeForUnplugging) {
       setErrorMessage('Please fill out all fields.');
-      return; // Stop the function if any field is empty
+      return; 
     }
 
-    // Clear any existing error message when all fields are filled
+    // clear existing errors
     setErrorMessage('');
   
     try {
@@ -217,13 +217,17 @@ const SelectGesture = ({ user }) => {
       await writable.write(gestureCatoContent);
       await writable.close();
   
-      // Debug: Read the file content back to confirm
       const file = await fileHandle.getFile();
       const text = await file.text();
       console.log("File content after write:", text);
   
     } catch (error) {
-      console.error("Error in form submission:", error);
+      if (error instanceof DOMException) {
+        alert("Error: Please plug in a valid device.");
+      } else {
+        console.error("Error in form submission:", error);
+        setErrorMessage("An unexpected error occurred.");
+      }
     }
   
     setShowPopup(false);
