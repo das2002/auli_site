@@ -15,6 +15,8 @@ const FormattedUpdate = ({ release, index, id }) => {
   const tagName = isLatest ? `${release.tag_name} (latest)` : release.tag_name;
 
   return (
+    <div id={id} className={'mt-2 mb-12'}>
+
     <div key={index} id={id} className={'mt-2 mb-12'}>
       <div className='text-2xl font-bold mb-2.5'>Firmware Version {release.tag_name}</div>
       <div className="text-lg font-bold">What's New:</div>
@@ -28,6 +30,8 @@ const FormattedUpdate = ({ release, index, id }) => {
         </a>
       </div>
     </div>
+    </div>
+
   );
 };
 
@@ -144,8 +148,8 @@ const Updates = () => {
 
       {/* Actual container */}
       <div ref={containerRef} className='release-container'>
-        {visibleItems.map(item => (
-            <FormattedUpdate key={item.key} release={item} />
+        {visibleItems.map((item, index) => (
+          <FormattedUpdate key={item.id || index} release={item} index={index} />
         ))}
       </div>
  

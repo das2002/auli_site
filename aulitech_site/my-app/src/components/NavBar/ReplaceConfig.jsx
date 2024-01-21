@@ -73,6 +73,20 @@ export async function overwriteConfigFile(newConfig) {
 
         console.log('Config file overwritten successfully.');
     } catch (error) {
+        if (error instanceof DOMException) {
+            // unplugged error
+            throw new Error("File or directory not found. Please check the file path and try again.");
+        }
         console.error('Error overwriting config file:', error);
     }
 }
+
+export async function checkDeviceConnection (webAppHwUid) {
+    const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
+    
+    if (hwUidMatch === null) {
+      throw new Error("No device is plugged in or the device HW_UID does not match.");
+    }
+    
+    return hwUidMatch; 
+  };
