@@ -1,5 +1,5 @@
 import { get, set } from 'idb-keyval';
-import { doc, updateDoc } from "firebase/firestore"; 
+import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 
 let directoryHandle = null;
@@ -59,19 +59,19 @@ export async function checkForFlagFile(callback) {
 export async function uploadLogToFirebase(gestureId, logText) {
     // Assuming gestureId is the ID of the Firestore document you want to update
     const gestureRef = doc(db, "gesture-data", gestureId);
-  
+
     try {
-      await updateDoc(gestureRef, {
-        log: logText, // logText is the content from log.txt
-        // You can add more fields to update if necessary
-      });
-      console.log("Log updated successfully");
+        await updateDoc(gestureRef, {
+            log: logText, // logText is the content from log.txt
+            // You can add more fields to update if necessary
+        });
+        console.log("Log updated successfully");
     } catch (error) {
-      console.error("Error updating log:", error);
+        console.error("Error updating log:", error);
     }
-  }
-  
-  export async function overwriteConfigFile(newConfig) {
+}
+
+export async function overwriteConfigFile(newConfig) {
     try {
         let directoryHandle = await get('directoryHandle');
         if (!directoryHandle) {

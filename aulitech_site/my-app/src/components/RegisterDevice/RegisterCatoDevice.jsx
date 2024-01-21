@@ -108,13 +108,13 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       const colRef = collection(db, "users", user.uid, "userCatos");
       const hwUidQuery = query(colRef, where("device_info.hw_uid", "==", hwUidToCheck));
       const querySnapshot = await getDocs(hwUidQuery);
-      return !querySnapshot.empty; 
+      return !querySnapshot.empty;
     } catch (error) {
       console.error("Error checking hw_uid in Firebase:", error);
-      return false; 
+      return false;
     }
   };
-  
+
 
   const checkIfNameTaken = async () => {
     for (let i = 0; i < devices.length; i++) {
@@ -131,9 +131,9 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       console.log("No data retrieved or no name entered");
       return;
     }
-  
+
     const hwUidFromJson = retrievedJson.global_info.HW_UID.value;
-    console.log("Retrieved HW_UID:", hwUidFromJson); 
+    console.log("Retrieved HW_UID:", hwUidFromJson);
 
     // console.log(retrievedJson)
 
@@ -142,9 +142,9 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     //   setErrMessage("HW_UID is empty or not found. Please provide a valid HW_UID.");
     //   return;
     // }
-  
+
     const hwUidTaken = await checkIfHardwareUidTaken(hwUidFromJson);
-    console.log("HW_UID taken:", hwUidTaken); 
+    console.log("HW_UID taken:", hwUidTaken);
     if (hwUidTaken) {
       setErrMessage("A device with this HW_UID already exists");
       return;
@@ -155,7 +155,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       setErrMessage("Name already taken");
       return;
     }
-  
+
     setDeviceName(enteredName);
     console.log("retrievedJson", retrievedJson);
     if (retrievedJson == null) {
@@ -166,15 +166,15 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
     for (let i = 0; i < retrievedJson["connections"].length; i++) {
       console.log("connection", retrievedJson["connections"][i]);
-      
+
       let connection = retrievedJson["connections"][i];
       if (connection["operation_mode"]["value"] === "practice") {
         continue;
       } else {
         let currentOperationMode = connection["operation_mode"]["value"];
         let currentConnectionConfig = {
-          connection_name: {...connection["connection_name"]},
-          screen_size: {...connection["screen_size"]},
+          connection_name: { ...connection["connection_name"] },
+          screen_size: { ...connection["screen_size"] },
         };
         let currentModeConfig = {};
         let modeMap = {};
@@ -275,7 +275,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
     // const deviceAdded = addDeviceDoc(globalInfoData, connectionsArray);
     const deviceAdded = await addDeviceDoc(globalInfoData, connectionsArray);
-    
+
     console.log(enteredName);
     console.log(encodeURIComponent(enteredName))
 
@@ -319,7 +319,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     try {
       if (window.showDirectoryPicker) {
         const dirHandle = await window.showDirectoryPicker();
-  
+
         const iterateDirectory = async (dirHandle) => {
           for await (const entry of dirHandle.values()) {
             if (entry.kind === "file" && entry.name === "config.json") {
@@ -339,7 +339,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
           }
           return null;
         };
-  
+
         const found = await iterateDirectory(dirHandle);
         if (!found) {
           console.log("config.json file not found");
@@ -356,7 +356,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     }
   };
 
-  
+
   const addDeviceDoc = async (globalInfoData, connectionsArray) => {
     console.log(globalInfoData);
     console.log(connectionsArray);
@@ -368,7 +368,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
           const newData = JSON.stringify(globalInfoData);
           //const hwUid = newDeviceConfig.global_info.HW_UID.value;
           //const deviceName = newDeviceConfig.global_info.name.value;
-          
+
           const colRef = collection(db, "users");
           await addDoc(collection(colRef, user.uid, "userCatos"), {
             device_info: {
@@ -380,7 +380,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
             connections: connectionsArray,
           });
           handleRenderDevices();
-          
+
         } catch (error) {
           console.log("store another device error: ", error);
           return false;
@@ -393,7 +393,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       return false;
     }
   }
-  
+
 
   const deleteInitializeDoc = async () => {
     try {
@@ -436,53 +436,53 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
         </p>
       </div>
       <div className="px-4 sm:px-6 lg:px-8">
-      <div className="bg-white shadow-lg border border-gray-200 rounded-lg p-5 mt-10">
-        
-        <div className="px-4 py-5 sm:p-6 lg:px-8">
-          <div className="border-b border-gray-200 pb-10">
-            <div className="border-b border-gray-200 pb-5">
-              <h3 className="text-xl font-semibold leading-6 text-gray-900">
-                Name your Cato
-              </h3>
+        <div className="bg-white shadow-lg border border-gray-200 rounded-lg p-5 mt-10">
+
+          <div className="px-4 py-5 sm:p-6 lg:px-8">
+            <div className="border-b border-gray-200 pb-10">
+              <div className="border-b border-gray-200 pb-5">
+                <h3 className="text-xl font-semibold leading-6 text-gray-900">
+                  Name your Cato
+                </h3>
+              </div>
+              <div className="mt-5 max-w-xl text-lg text-gray-900">
+                <p>Enter a name for your Cato below.</p>
+              </div>
+              <div className="w-full mt-5 sm:max-w-xs">
+                <input
+                  type="text"
+                  value={enteredName}
+                  onChange={(e) => setEnteredName(e.target.value)}
+                  className="block w-full rounded-md border-0 outline-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
+                  placeholder="my-cato"
+                />
+              </div>
+              <div className="mt-5 max-w-xl text-lg text-gray-900">
+                <p>
+                  When you click <strong>Save</strong> your browser will ask if
+                  you want to allow access to the device, allow access in order to
+                  register the device.
+                </p>
+              </div>
             </div>
-            <div className="mt-5 max-w-xl text-lg text-gray-900">
-              <p>Enter a name for your Cato below.</p>
-            </div>
-            <div className="w-full mt-5 sm:max-w-xs">
-              <input
-                type="text"
-                value={enteredName}
-                onChange={(e) => setEnteredName(e.target.value)}
-                className="block w-full rounded-md border-0 outline-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
-                placeholder="my-cato"
-              />
-            </div>
-            <div className="mt-5 max-w-xl text-lg text-gray-900">
-              <p>
-                When you click <strong>Save</strong> your browser will ask if
-                you want to allow access to the device, allow access in order to
-                register the device.
-              </p>
+            <div className="mt-6 flex items-center justify-end">
+              <div className="mt-4 sm:mt-0">
+                <button
+                  disabled={enteredName === "" ? true : false}
+                  onClick={downloadSequence}
+                  className="inline-flex rounded-full items-center bg-blue-500 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-300"
+                >
+                  Save
+                </button>
+              </div>
             </div>
           </div>
-          <div className="mt-6 flex items-center justify-end">
-            <div className="mt-4 sm:mt-0">
-              <button
-                disabled={enteredName === "" ? true : false}
-                onClick={downloadSequence}
-                className="inline-flex rounded-full items-center bg-blue-500 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-300"
-              >
-                Save
-              </button>
+          {errMessage && (
+            <div className="text-red-500">
+              {errMessage}
             </div>
-          </div>
+          )}
         </div>
-        {errMessage && (
-          <div className="text-red-500">
-            {errMessage}
-          </div>
-        )}
-      </div>
       </div>
     </div>
   );

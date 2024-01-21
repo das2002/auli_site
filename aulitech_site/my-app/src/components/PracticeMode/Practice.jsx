@@ -4,7 +4,7 @@ import { overwriteConfigFile } from '../NavBar/ReplaceConfig';
 
 const deepCopy = (obj) => {
     return JSON.parse(JSON.stringify(obj));
-};  
+};
 
 const getConfigFromCato = async (setOriginalJson, currentDevice) => {
     try {
@@ -29,20 +29,20 @@ const getConfigFromCato = async (setOriginalJson, currentDevice) => {
                         setOriginalJson(parsedJson); // without practice mode 
 
                         // check if current device is in json
-                        if (parsedJson['global_info']['name']['value'] !== currentDevice){
+                        if (parsedJson['global_info']['name']['value'] !== currentDevice) {
                             alert("Device must be connected to initiate practice mode")
                             console.log("Device must be connected to initiate practice mode!")
-                            return; 
+                            return;
                         }
-                        
+
 
                         globalConfig['connections'][0]['operation_mode']['value'] = 'practice';
 
 
                         // create a practice mode file and write 
-                        const success = await overwriteConfigFile(globalConfig); 
+                        const success = await overwriteConfigFile(globalConfig);
                         if (success) { // file written  
-                            return 1; 
+                            return 1;
                         }
 
                         return; // unsuccessful 
@@ -91,7 +91,7 @@ const Practice = () => {
         }
         setIsPracticing(true)
     };
-    
+
 
     const handleTextChange = (event) => {
         setPracticeText(event.target.value);
@@ -99,22 +99,22 @@ const Practice = () => {
 
     return (
         <div className="flex row items-center h-screen min-w-[70vw] p-5 bg-[#f0f0f0] gap-2.5 flex-wrap overflow-auto">
-            <button 
-                onClick={togglePractice} 
+            <button
+                onClick={togglePractice}
                 className="text-lg mb-2.5 fixed ml- font-bold bg-[rgb(252,220,109)] rounded-lg px-4 py-2 shadow-md text-black cursor-pointer"
             >
-                {isPracticing ? 'Finish Practice' : 'Start Practice'}          
+                {isPracticing ? 'Finish Practice' : 'Start Practice'}
             </button>
             <textarea
                 ref={textareaRef}
                 value={practiceText}
-                onChange={handleTextChange} 
+                onChange={handleTextChange}
                 placeholder="Start typing..."
                 className="w-3/4 h-[300px] ml-60 bg-black text-white border border-gray-300 rounded p-2.5 text-base resize-none"
             />
         </div>
     );
-    
+
 }
 
 export default Practice;

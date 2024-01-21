@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useLayoutEffect, useRef} from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import ReactDOM from 'react-dom'
-import {marked} from 'marked';
+import { marked } from 'marked';
 import DOMPurify from 'dompurify';
-import './Updates.css'; 
+import './Updates.css';
 
 // sanitises markdown 
 const createMarkup = (markdown) => {
@@ -17,19 +17,19 @@ const FormattedUpdate = ({ release, index, id }) => {
   return (
     <div id={id} className={'mt-2 mb-12'}>
 
-    <div key={index} id={id} className={'mt-2 mb-12'}>
-      <div className='text-2xl font-bold mb-2.5'>Firmware Version {release.tag_name}</div>
-      <div className="text-lg font-bold">What's New:</div>
-      <div className = 'markdown' dangerouslySetInnerHTML={createMarkup(release.body)} />
-      <div style={{ marginTop: '.7rem' }}>
-        <a href={release.zipball_url} 
-          target="_blank" 
-          className="decision-button px-3 py-2 rounded-lg cursor-pointer text-lg"
-          style={{ border: 'none' }}>
-          Download Update
-        </a>
+      <div key={index} id={id} className={'mt-2 mb-12'}>
+        <div className='text-2xl font-bold mb-2.5'>Firmware Version {release.tag_name}</div>
+        <div className="text-lg font-bold">What's New:</div>
+        <div className='markdown' dangerouslySetInnerHTML={createMarkup(release.body)} />
+        <div style={{ marginTop: '.7rem' }}>
+          <a href={release.zipball_url}
+            target="_blank"
+            className="decision-button px-3 py-2 rounded-lg cursor-pointer text-lg"
+            style={{ border: 'none' }}>
+            Download Update
+          </a>
+        </div>
       </div>
-    </div>
     </div>
 
   );
@@ -61,31 +61,31 @@ const Updates = () => {
   // measure items in a hidden div
   useLayoutEffect(() => {
     const heights = releases.map((item, index) => {
-        const el = document.getElementById(`hidden-item-${index}`);
-        return el ? el.clientHeight : 0;
+      const el = document.getElementById(`hidden-item-${index}`);
+      return el ? el.clientHeight : 0;
     });
     setMeasuredHeights(heights);
-}, [releases]);
+  }, [releases]);
 
   // calculate which items to show
   useEffect(() => {
-      if (!containerRef.current) return;
+    if (!containerRef.current) return;
 
-      let availableHeight = containerRef.current.clientHeight;
-      let currentHeight = 0;
-      let itemsToShow = [];
+    let availableHeight = containerRef.current.clientHeight;
+    let currentHeight = 0;
+    let itemsToShow = [];
 
-      for (let i = 0; i < measuredHeights.length; i++) {
-          if (currentHeight + measuredHeights[i] > availableHeight) break;
-          currentHeight += measuredHeights[i];
-          itemsToShow.push(releases[i]);
-      }
+    for (let i = 0; i < measuredHeights.length; i++) {
+      if (currentHeight + measuredHeights[i] > availableHeight) break;
+      currentHeight += measuredHeights[i];
+      itemsToShow.push(releases[i]);
+    }
 
-      // add 'latest' to most recent
-      if (itemsToShow && itemsToShow.length > 0){
-        itemsToShow[0].tag_name += ' (latest)'
-      }
-      setVisibleItems(itemsToShow);
+    // add 'latest' to most recent
+    if (itemsToShow && itemsToShow.length > 0) {
+      itemsToShow[0].tag_name += ' (latest)'
+    }
+    setVisibleItems(itemsToShow);
   }, [measuredHeights]);
 
   // fixes load more button to the bottom until we load more releases 
@@ -106,17 +106,17 @@ const Updates = () => {
     setVisibleItems(visible);
   }, [displayedReleaseCount, releases]);
 
-  const buttonStyle  = (buttonState) => {
-    switch(buttonState){
+  const buttonStyle = (buttonState) => {
+    switch (buttonState) {
       case 'fixed':
         return ({ position: 'sticky', bottom: '10px', left: '50%', transform: 'translateX(-50%)', border: 'none' })
-        break; 
+        break;
       case 'float':
         return ({ position: 'sticky', bottom: '10px', left: '50%', transform: 'translateX(-50%)', border: 'none' })
-        break; 
+        break;
       case 'hidden':
-        return ({visibility: 'hidden'})
-        break; 
+        return ({ visibility: 'hidden' })
+        break;
     }
   }
 
@@ -133,17 +133,17 @@ const Updates = () => {
       </div>
 
       {/* Hidden div for measuring */}
-      <div style={{ 
-          position: 'fixed', 
-          left: '-9999px', 
-          width: '1000px', // or an appropriate width that matches your items
-          overflow: 'hidden'
-        }} 
+      <div style={{
+        position: 'fixed',
+        left: '-9999px',
+        width: '1000px', // or an appropriate width that matches your items
+        overflow: 'hidden'
+      }}
         className='release-container'
       >
-          {releases.map((release, index) => (
-              <FormattedUpdate key={index} release={release} index={index} id={`hidden-item-${index}`} />
-          ))}
+        {releases.map((release, index) => (
+          <FormattedUpdate key={index} release={release} index={index} id={`hidden-item-${index}`} />
+        ))}
       </div>
 
       {/* Actual container */}
@@ -152,10 +152,10 @@ const Updates = () => {
           <FormattedUpdate key={item.id || index} release={item} index={index} />
         ))}
       </div>
- 
+
       {buttonState !== 'hidden' && (
         <div className="text-center my-4" style={{ width: '100%', position: 'relative' }}>
-          <button 
+          <button
             onClick={loadMoreReleases}
             className="decision-button px-4 py-2 rounded-lg cursor-pointer text-lg"
             style={buttonStyle(buttonState)}>

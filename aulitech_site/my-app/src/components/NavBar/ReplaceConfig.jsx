@@ -24,7 +24,7 @@ export async function fetchAndCompareConfig(webAppHwUid) {
 
         //delete + create again
 
-        
+
         const file = await fileHandle.getFile();
 
         // read config.json 
@@ -81,12 +81,12 @@ export async function overwriteConfigFile(newConfig) {
     }
 }
 
-export async function checkDeviceConnection (webAppHwUid) {
+export async function checkDeviceConnection(webAppHwUid) {
     const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
-    
+
     if (hwUidMatch === null) {
-      throw new Error("No device is plugged in or the device HW_UID does not match.");
+        throw new Error("No device is plugged in or the device HW_UID does not match.");
     }
-    
-    return hwUidMatch; 
-  };
+
+    return hwUidMatch;
+};
