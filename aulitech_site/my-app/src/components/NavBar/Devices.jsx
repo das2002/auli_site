@@ -356,6 +356,15 @@ const Devices = ({ devices }) => {
       return;
     }
 
+    // Prompt the user for confirmation
+    const confirmed = window.confirm(
+      "Are you sure you want to delete the connection? Deleting this connection will remove it from your cloud database. Please ensure to Save after deleting to ensure synchronization."
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
     try {
       const userId = getCurrentUserId();
       const userCatoDocRef = doc(db, "users", userId, "userCatos", thisDevice.id);
@@ -377,6 +386,8 @@ const Devices = ({ devices }) => {
       console.error("Error deleting connection: ", error);
     }
   };
+
+  
 
 
 
@@ -723,6 +734,8 @@ const Devices = ({ devices }) => {
           setActiveOperationMode("pointer");
         } else if (value === "Clicker") {
           setActiveOperationMode("clicker");
+        } else if (value === "Select Operation Mode") {
+          setActiveOperationMode("practice");
         }
       }
 
@@ -735,6 +748,8 @@ const Devices = ({ devices }) => {
           return "Pointer";
         } else if (mode === "clicker") {
           return "Clicker";
+        } else if (mode === "practice"){
+          return "Select Practice Mode";
         }
       };
 
@@ -1727,6 +1742,7 @@ const Devices = ({ devices }) => {
                 title=""
                 description="Select the operation mode"
                 options={[
+                  "Select Operation Mode",
                   "Gesture Mouse",
                   "TV Remote",
                   "Pointer",
@@ -1826,7 +1842,12 @@ const Devices = ({ devices }) => {
     for (let i = 0; i < editedConnectionsSettings.length; i++) {
       let connection = editedConnectionsSettings[i];
       let connectionConfig = JSON.parse(connection["connection_config"]);
-      let currentModeConfig = JSON.parse(connection["mode"][connection["current_mode"]]);
+      let currentModeConfig = null;
+      if (connection["current_mode"] === "practice") {
+        currentModeConfig = JSON.parse(thisDevice["data"]["device_info"]["practice_config"]);
+      } else {
+        currentModeConfig = JSON.parse(connection["mode"][connection["current_mode"]]);
+      }
 
       connectionConfig["connection_name"]["value"] = connection.name;
 

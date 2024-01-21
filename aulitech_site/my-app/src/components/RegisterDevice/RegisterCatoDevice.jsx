@@ -27,25 +27,25 @@ import * as globalInfoDefault from '../../resources/templates/global_info_defaul
 const modeDefaultGenerator = (mode) => {
   if (mode === "pointer") {
     let pointerOperationDefault = deepCopy(operationDefault);
-    pointerOperationDefault["value"] = "pointer";
+    pointerOperationDefault["operation_mode"]["value"] = "pointer";
     let pointerData = {
       ...pointerOperationDefault,
       ...mouseDefault,
       ...bindingsDefault
     };
     return pointerData;
-  } else if (mode === "clicker") {
+  } else if (mode == "clicker") {
     let clickerOperationDefault = deepCopy(operationDefault);
-    clickerOperationDefault["value"] = "clicker";
+    clickerOperationDefault["operation_mode"]["value"] = "clicker";
     let clickerData = {
       ...clickerOperationDefault,
       ...clickerDefault,
       ...bindingsDefault
     };
     return clickerData;
-  } else if (mode === "gesture_mouse") {
+  } else if (mode == "gesture_mouse") {
     let gestureMouseOperationDefault = deepCopy(operationDefault);
-    gestureMouseOperationDefault["value"] = "gesture_mouse";
+    gestureMouseOperationDefault["operation_mode"]["value"] = "gesture_mouse";
     let gestureMouseData = {
       ...gestureMouseOperationDefault,
       ...mouseDefault,
@@ -54,9 +54,9 @@ const modeDefaultGenerator = (mode) => {
     };
     return gestureMouseData;
 
-  } else if (mode === "tv_remote") {
+  } else if (mode == "tv_remote") {
     let tvRemoteOperationDefault = deepCopy(operationDefault);
-    tvRemoteOperationDefault["value"] = "tv_remote";
+    tvRemoteOperationDefault["operation_mode"]["value"] = "tv_remote";
     let tvRemoteData = {
       ...tvRemoteOperationDefault,
       ...tvRemoteDefault,
@@ -65,9 +65,9 @@ const modeDefaultGenerator = (mode) => {
     };
     return tvRemoteData;
 
-  } else if (mode === "practice") {
+  } else if (mode == "practice") {
     let practiceOperationDefault = deepCopy(operationDefault);
-    practiceOperationDefault["value"] = "practice";
+    practiceOperationDefault["operation_mode"]["value"] = "practice";
     let practiceData = {
       ...practiceOperationDefault,
       ...practiceDefault,
@@ -366,10 +366,12 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     let connectionsArray = await getConnectionsData(retrievedJson);
     console.log("connectionsArray", connectionsArray);
 
+    
+
     const deviceAdded = await addDeviceDoc(globalInfoData, connectionsArray);
     console.log("deviceAdded", deviceAdded);
 
-    /*
+    
     console.log(enteredName);
     console.log(encodeURIComponent(enteredName))
 
@@ -385,10 +387,11 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     }
     deleteInitializeDoc();
     //downloadNewConfig(newConfig);
-    */
+    
     
     navigate(`/devices/${enteredName}`);
     window.location.reload();
+    
   };
 
 
