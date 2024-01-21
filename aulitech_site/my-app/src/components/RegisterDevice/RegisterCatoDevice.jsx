@@ -387,8 +387,8 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     //downloadNewConfig(newConfig);
     */
     
-    //navigate(`/devices/${enteredName}`);
-    //window.location.reload();
+    navigate(`/devices/${enteredName}`);
+    window.location.reload();
   };
 
 
