@@ -455,7 +455,7 @@ function App() {
             <Route path="/devices/:deviceName" element={<Devices  devices={devices}/>} />
             <Route path='/devices/:deviceName/bindings' element={<BindingsPanel user={user} devices={devices} currIndex={currIndex} />} />
             <Route path= "/devices/:deviceName/register-interface" element={<RegisterInterface user={user} devices={devices}/>} />
-            <Route path="/devices/:deviceName/practice" element={<Practice />} />
+            <Route path="/devices/:deviceName/practice" element={<Practice user={user} devices={devices}/>} />
             </Routes>
         </div>
       </main>

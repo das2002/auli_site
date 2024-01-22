@@ -1,6 +1,8 @@
 import React, { useState, useRef, useContext } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { overwriteConfigFile } from '../NavBar/ReplaceConfig';
+import { get, set } from 'idb-keyval';
+
 
 const deepCopy = (obj) => {
     return JSON.parse(JSON.stringify(obj));
@@ -62,9 +64,9 @@ const getConfigFromCato = async (setOriginalJson, currentDevice) => {
     }
 }
 
-const Practice = () => {
+const Practice = ({user, devices}) => {
     const { deviceName } = useParams();
-
+    const thisDevice = devices.find(device => device.data.device_info.device_nickname === deviceName);
     const [originalJson, setOriginalJson] = useState({}); // original device config with standard operation mode 
 
     const navigate = useNavigate();
@@ -74,7 +76,86 @@ const Practice = () => {
     const [isPracticing, setIsPracticing] = useState(false);
     const textareaRef = useRef(null);
 
+    async function fetchAndCompareConfig() {
+        async function checkIfHardwareUidMatches(deviceName, hwUidToCheck) {
+            try {
+                for (let i = 0; i < devices.length; i++) {
+                    if ( devices[i]["data"]["device_info"]["device_nickname"] === deviceName) {
+                        if (devices[i]["data"]["device_info"]["hardware_uid"] === hwUidToCheck) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    }
+                }
+                return false;
+            } catch (error) {
+                console.log("Error checking if hardware uid matches", error);
+                return false;
+            }
+        }
+
+        try {
+            // check existence directories
+            let directoryHandle = await get('configDirectoryHandle');
+
+            // request + store in indexedDB
+            if (!directoryHandle) {
+                directoryHandle = await window.showDirectoryPicker();
+                await set('configDirectoryHandle', directoryHandle);
+            }
+
+            // get r/w access
+            const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
+            if (permissionStatus !== 'granted') {
+                console.log("Permission to access directory not granted");
+                return;
+            }
+
+            //check if config.json exists
+            const fileHandle = await directoryHandle.getFileHandle('config.json');
+            const file = await fileHandle.getFile();
+            const text = await file.text();
+            const config = JSON.parse(text);
+
+            console.log("config", config);
+
+            // check if there is a deviceHwUid
+            if (!config || !config.global_info || !config.global_info.HW_UID || !config.global_info.HW_UID.value) {
+                console.error("HW_UID is empty or not found in the JSON structure");
+                return;
+            }
+            const deviceHwUid = config.global_info.HW_UID.value;
+            const hwUidMatches = await checkIfHardwareUidMatches(deviceName, deviceHwUid);
+            if (!hwUidMatches) {
+                console.error("HW_UID does not match the device name");
+                return;
+            }
+            return config;
+
+        } catch (error) {
+            console.log("Error fetching config.json", error);
+            return;
+        }
+    }
+
+    async function practiceModeConfigChange(config) {
+        let practiceConfig = deepCopy(config);
+        // if the first connection in the array is already in practice mode, return true
+        if (practiceConfig['connections'][0]['operation_mode']['value'] === 'practice') {
+            return practiceConfig;
+        } else {
+            // we have to push the practice mode config to the device
+            let connectionObject = JSON.parse(thisDevice['data']['device_info']['practice_config']);
+            //push the connectionObject to the front of the connections array
+            practiceConfig['connections'].unshift(connectionObject);
+            console.log("practiceConfig", practiceConfig);
+            return practiceConfig;
+        }
+    }
+
     const togglePractice = async () => {
+        console.log("isPracticing", isPracticing);
         if (isPracticing) { // turning off current practice
             textareaRef.current.blur();
             // download the original config.json file
@@ -82,14 +163,34 @@ const Practice = () => {
             // setIsPracticeMode(false);
             navigate("/")
         } else { // turning on current practice 
-            const success = await getConfigFromCato(setOriginalJson, deviceName);
-            if (success) { // file picked 
-                textareaRef.current.focus();
+            // fetch the config.json file from catos
+            const config = await fetchAndCompareConfig();
+            if (!config) {
+                // make sure that the device is not in practice mode
+                alert("Device must be connected to initiate practice mode")
+                console.log("Device must be connected to initiate practice mode!")
+                return;
+            }
+            // set the original config.json file
+            setOriginalJson(deepCopy(config));
+
+            const practiceConfig = await practiceModeConfigChange(config);
+            if (!practiceConfig) {
+                console.log("Error creating practice mode config");
+                return;
+            }
+
+            console.log("practiceConfig", practiceConfig);
+            // write the practice mode config to the device
+            //const success = await overwriteConfigFile(practiceConfig);
+
+            //if (success) { // file picked 
+                //textareaRef.current.focus();
                 // setSavedConfig(originalJson)
                 // setIsPracticeMode(true); // general practice mode state from Navigation.jsx 
-            }
+            //}
+            setIsPracticing(true)
         }
-        setIsPracticing(true)
     };
 
 
