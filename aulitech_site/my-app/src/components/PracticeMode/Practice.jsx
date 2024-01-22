@@ -68,7 +68,7 @@ const Practice = ({user, devices}) => {
     const { deviceName } = useParams();
     const thisDevice = devices.find(device => device.data.device_info.device_nickname === deviceName);
     const [originalJson, setOriginalJson] = useState({}); // original device config with standard operation mode 
-
+    console.log("thisDevice", thisDevice);
     const navigate = useNavigate();
 
     const [practiceText, setPracticeText] = useState('');
@@ -78,15 +78,17 @@ const Practice = ({user, devices}) => {
 
     async function fetchAndCompareConfig() {
         async function checkIfHardwareUidMatches(deviceName, hwUidToCheck) {
+            console.log("deviceName", deviceName);
+            console.log("hwUidToCheck", hwUidToCheck);
             try {
-                for (let i = 0; i < devices.length; i++) {
-                    if ( devices[i]["data"]["device_info"]["device_nickname"] === deviceName) {
-                        if (devices[i]["data"]["device_info"]["hardware_uid"] === hwUidToCheck) {
-                            return true;
-                        } else {
-                            return false;
-                        }
+                if (thisDevice['data']['device_info']['device_nickname'] == deviceName) {
+                    if (thisDevice['data']['device_info']['hw_uid'] == hwUidToCheck) {
+                        return true;
+                    } else {
+                        console.log("HW_UID does not match");
                     }
+                } else {
+                    console.log("Device name does not match");
                 }
                 return false;
             } catch (error) {
@@ -161,7 +163,7 @@ const Practice = ({user, devices}) => {
             // download the original config.json file
             overwriteConfigFile(originalJson);
             // setIsPracticeMode(false);
-            navigate("/")
+            navigate(`/devices/${deviceName}`)
         } else { // turning on current practice 
             // fetch the config.json file from catos
             const config = await fetchAndCompareConfig();
@@ -172,7 +174,7 @@ const Practice = ({user, devices}) => {
                 return;
             }
             // set the original config.json file
-            setOriginalJson(deepCopy(config));
+            //setOriginalJson(deepCopy(config));
 
             const practiceConfig = await practiceModeConfigChange(config);
             if (!practiceConfig) {
@@ -180,16 +182,15 @@ const Practice = ({user, devices}) => {
                 return;
             }
 
-            console.log("practiceConfig", practiceConfig);
+            //console.log("practiceConfig", practiceConfig);
             // write the practice mode config to the device
-            //const success = await overwriteConfigFile(practiceConfig);
-
-            //if (success) { // file picked 
-                //textareaRef.current.focus();
-                // setSavedConfig(originalJson)
-                // setIsPracticeMode(true); // general practice mode state from Navigation.jsx 
-            //}
-            setIsPracticing(true)
+            const success = await overwriteConfigFile(practiceConfig);
+            console.log(success);
+            if (success) { // file picked 
+                textareaRef.current.focus();
+                setOriginalJson(deepCopy(config));
+                setIsPracticing(true); // general practice mode state from Navigation.jsx 
+            }
         }
     };
 
@@ -231,7 +232,7 @@ const Practice = ({user, devices}) => {
                 <header className="shrink-0 bg-transparent border-b border-gray-200">
                     <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
                         <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-                            Record
+                            Practice Mode
                         </h2>
                     </div>
                 </header>
