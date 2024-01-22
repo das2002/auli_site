@@ -261,7 +261,7 @@ const SelectGesture = ({ user }) => {
           const fileHandle = await waitForFile(fileName);
           const file = await fileHandle.getFile();
           // Pass the docId to the upload function
-          await uploadFileToFirebase(file, fileName, docId);
+          await uploadFileToFirebase(file, fileName);
         } catch (error) {
           console.error(`Error accessing file ${fileName}:`, error);
         }
@@ -282,15 +282,15 @@ const SelectGesture = ({ user }) => {
 //       console.error(`Error uploading file ${fileName} to Firebase:`, error);
 //   }
 // };
-const uploadFileToFirebase = async (file, fileName, docId) => {
+const uploadFileToFirebase = async (file, fileName) => {
   console.log(`Attempting to upload file: ${fileName}`);
   try {
-    const storage = getStorage();
+    //const storage = getStorage();
 
-    
-
-    const storageRef = ref(storage, `gesture-data/${docId}/${fileName}`);
-    const result = await uploadBytes(storageRef, file);
+    //const storageRef = ref(storage, `gesture-data/${docId}/${fileName}`);
+    //const result = await uploadBytes(storageRef, file);
+    const gestureRef = collection(db, "gesture-data");
+    const result = await addDoc(gestureRef, {fileName: fileName, file: file});
     console.log(`File ${fileName} uploaded successfully`, result);
   } catch (error) {
     console.error(`Error uploading file ${fileName} to Firebase:`, error);
@@ -358,7 +358,7 @@ const uploadFileToFirebase = async (file, fileName, docId) => {
         throw new Error('file not found or is empty after retries.');
       }
 
-      const csvPath = `gestures/${selectedGesture.id}/${timestamp.toISOString()}.csv`;
+      //const csvPath = `gestures/${selectedGesture.id}/${timestamp.toISOString()}.csv`;
 
       const gestureDataRef = collection(db, "gesture-data");
       const recordingData = {
@@ -368,7 +368,7 @@ const uploadFileToFirebase = async (file, fileName, docId) => {
         duration,
         gestureData,
         log: logText,
-        csvPath
+        //csvPath
       };
       const docRef = await addDoc(gestureDataRef, recordingData);
 
