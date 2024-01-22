@@ -286,7 +286,9 @@ const uploadFileToFirebase = async (file, fileName, docId) => {
   console.log(`Attempting to upload file: ${fileName}`);
   try {
     const storage = getStorage();
-    // Use the docId in the storage path to organize files under their respective document in Firestore
+
+    
+
     const storageRef = ref(storage, `gesture-data/${docId}/${fileName}`);
     const result = await uploadBytes(storageRef, file);
     console.log(`File ${fileName} uploaded successfully`, result);
@@ -318,6 +320,8 @@ const uploadFileToFirebase = async (file, fileName, docId) => {
     setShowPopup(false);
 
     try {
+      const baseFileName = `${timestamp}_${selectedGesture.name}_${numRecordings}.txt`;
+
       let fileHandle = null;
       let logText = "";
       let retries = 0;
@@ -326,7 +330,9 @@ const uploadFileToFirebase = async (file, fileName, docId) => {
 
       while (!fileHandle && retries < maxRetries) {
         try {
-          fileHandle = await directoryHandle.getFileHandle('log.txt', { create: false });
+          fileHandle = await directoryHandle.getFileHandle(baseFileName, { create: false });
+
+          // fileHandle = await directoryHandle.getFileHandle('log.txt', { create: false });
           const file = await fileHandle.getFile();
           logText = await file.text();
 
@@ -338,7 +344,7 @@ const uploadFileToFirebase = async (file, fileName, docId) => {
           }
         } catch (error) {
           if (retries === maxRetries - 1) {
-            throw new Error('log.txt file not found after maximum retries.');
+            throw new Error('file not found after maximum retries.');
           }
           // wait before retrying
           await new Promise(resolve => setTimeout(resolve, retryDelay));
@@ -346,8 +352,10 @@ const uploadFileToFirebase = async (file, fileName, docId) => {
         }
       }
 
+      
+
       if (!logText) {
-        throw new Error('log.txt file not found or is empty after retries.');
+        throw new Error('file not found or is empty after retries.');
       }
 
       const csvPath = `gestures/${selectedGesture.id}/${timestamp.toISOString()}.csv`;
@@ -379,6 +387,8 @@ const uploadFileToFirebase = async (file, fileName, docId) => {
       }));
 
       console.log("Recording saved for gesture:", selectedGesture.name);
+      console.log(`File ${baseFileName} found and read successfully.`);
+
     } catch (error) {
       console.error("Error during recording stop process:", error);
     }
