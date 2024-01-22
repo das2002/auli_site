@@ -28,6 +28,13 @@ const deepCopy = (obj) => {
     return JSON.parse(JSON.stringify(obj));
 };
 
+const sliderContainerStyle = {
+    margin: '1rem',
+    boxShadow: '0 0 5px rgba(0, 0, 0, 0.1)',
+    borderRadius: '4px',
+    padding: '1rem',
+};
+
 const getConfigFromCato = async (setOriginalJson, currentDevice) => {
     try {
         if (window.showDirectoryPicker) {
@@ -183,7 +190,7 @@ const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, slide
     };
 
     return (
-        <div style={{ marginBottom: '10px' }}>
+        <div style={{ marginBottom: '0 px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <label
                     htmlFor={sliderLabel}
@@ -473,56 +480,57 @@ const Practice = ({ user, devices }) => {
     const PracticeOptions = (config) => {
         console.log("config", config);
         return (
+            <div style={sliderContainerStyle}>
+                <div style={{ maxWidth: '600px', margin: '0' }}>
+                    <h2 style={sectionHeadingStyle}>Practice Options</h2>
+                    {/* <h1 style={titleStyle}> TV Remote Options </h1> */}
+                    <CheckboxOption
+                        checked={config["practice"]["value"]["dense"]["value"]}
+                        onChange={(e) => handlePracticeConfigChange(['practice', 'value', 'dense', 'value'])(e.target.checked)}
+                        title="Format Condensed"
+                        description="True: outputs in a single line. False: type outputs as a table"
+                    />
+                    <InputSlider
+                        value={config["practice"]["value"]["num_infers"]["value"]}
+                        onChange={(e) => handlePracticeConfigChange(['practice', 'value', 'num_infers', 'value'])(e.target.value)}
+                        min={config["practice"]["value"]["num_infers"]["range"]["min"]}
+                        max={config["practice"]["value"]["num_infers"]["range"]["max"]}
+                        step={1}
+                        sliderTitle="Number of Displayed Inferences"
+                        unit="inferences"
+                        sliderDescription="Number of relevant inferences displayed per gesture"
+                        sliderLabel="num_infers"
+                    >
 
-            <div style={{ maxWidth: '600px', margin: '0' }}>
-                <h2 style={sectionHeadingStyle}>Practice Options</h2>
-                {/* <h1 style={titleStyle}> TV Remote Options </h1> */}
-                {/* <div style={sliderContainerStyle}> */}
-                <CheckboxOption
-                    checked={config["practice"]["value"]["dense"]["value"]}
-                    onChange={(e) => handlePracticeConfigChange(['practice', 'value', 'dense', 'value'])(e.target.checked)}
-                    title="Format Condensed"
-                    description="true: type outputs in a single line; false: type outputs as a table"
-                />
-                <InputSlider
-                    value={config["practice"]["value"]["num_infers"]["value"]}
-                    onChange={(e) => handlePracticeConfigChange(['practice', 'value', 'num_infers', 'value'])(e.target.value)}
-                    min={config["practice"]["value"]["num_infers"]["range"]["min"]}
-                    max={config["practice"]["value"]["num_infers"]["range"]["max"]}
-                    step={1}
-                    sliderTitle="Number of Displayed Inferences"
-                    unit="inferences"
-                    sliderDescription="Number of relevant inferences displayed per gesture"
-                    sliderLabel="num_infers"
-                >
-
-                </InputSlider>
-                <InputSlider
-                    value={config["practice"]["value"]["cutoff"]["value"]}
-                    onChange={(e) => handlePracticeConfigChange(['practice', 'value', 'cutoff', 'value'])(parseFloat(e.target.value))}
-                    min={config["practice"]["value"]["cutoff"]["range"]["min"]}
-                    max={config["practice"]["value"]["cutoff"]["range"]["max"]}
-                    step={0.1}
-                    sliderTitle="Certainty Cutoff"
-                    unit=""
-                    sliderDescription="Level of certainty below which gesture will not be displayed"
-                    sliderLabel="certainity_cutoff"
-                ></InputSlider>
+                    </InputSlider>
+                    <InputSlider
+                        value={config["practice"]["value"]["cutoff"]["value"]}
+                        onChange={(e) => handlePracticeConfigChange(['practice', 'value', 'cutoff', 'value'])(parseFloat(e.target.value))}
+                        min={config["practice"]["value"]["cutoff"]["range"]["min"]}
+                        max={config["practice"]["value"]["cutoff"]["range"]["max"]}
+                        step={0.1}
+                        sliderTitle="Certainty Cutoff"
+                        unit=""
+                        sliderDescription="Level of certainty below which gesture will not be displayed"
+                        sliderLabel="certainity_cutoff"
+                    ></InputSlider>
 
 
-                <button onClick={handleSave}
-                    style={{
-                        backgroundColor: '#B8860B', //B8860B
-                        color: 'white',
-                        padding: '10px 20px',
-                        fontSize: '16px',
-                        borderRadius: '5px',
-                        border: 'none',
-                        cursor: 'pointer',
-                        marginLeft: '10px',
-                    }}>
-                    Save
-                </button>
+                    <button onClick={handleSave}
+                        style={{
+                            backgroundColor: '#B8860B', //B8860B
+                            color: 'white',
+                            padding: '10px 20px',
+                            fontSize: '16px',
+                            borderRadius: '5px',
+                            border: 'none',
+                            cursor: 'pointer',
+                            marginLeft: '10px',
+                            marginTop: '20px'
+                        }}>
+                        Save
+                    </button>
+                </div>
             </div>
 
 
@@ -553,7 +561,7 @@ const Practice = ({ user, devices }) => {
         setPracticeText(event.target.value);
     };
     const headerStyle = {
-        marginBottom: '10px', // Adjust this value as needed
+        marginBottom: '5 px', // Adjust this value as needed
         // Other styles...
     };
 
@@ -592,8 +600,8 @@ const Practice = ({ user, devices }) => {
                 </header>
             </div>
 
-
-            <div className="flex items-start h-screen p-5 bg-[#f0f0f0] gap-2.5 overflow-auto">
+            {/* <div className="flex flex-start h-screen items-start p-5 bg-[#f0f0f0] gap-2.5 overflow-auto"> */}
+            <div className="flex items-start p-5 bg-[#f0f0f0] gap-2.5 overflow-auto">
                 <button
                     onClick={togglePractice}
                     className="text-lg font-bold bg-[rgb(252,220,109)] rounded-lg px-4 py-2 shadow-md text-black cursor-pointer"
