@@ -233,43 +233,159 @@ const SelectGesture = ({ user }) => {
     readAndUploadFiles(timestamp, gestureName, numRecordings);
 
     setShowPopup(false);
+    stopRecording();
 
   };
 
-  const readAndUploadFiles = async (timestamp, gestureName, numRecordings) => {
-    try {
-        const fileNames = Array.from({ length: numRecordings }, (_, index) => `${timestamp}_${gestureName}_${index + 1}.txt`);
-
-        for (const fileName of fileNames) {
-            try {
-                const fileHandle = await directoryHandle.getFileHandle(fileName, { create: false });
-                const file = await fileHandle.getFile();
-                await uploadFileToFirebase(file, fileName);
-            } catch (error) {
-                console.error(`Error accessing file ${fileName}:`, error);
-            }
+  const waitForFile = async (fileName, retries = 5000, interval = 5000) => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        const fileHandle = await directoryHandle.getFileHandle(fileName, { create: false });
+        return fileHandle;
+      } catch (error) {
+        if (i < retries - 1) {
+          await new Promise(resolve => setTimeout(resolve, interval)); 
+        } else {
+          throw error; 
         }
-    } catch (error) {
-        console.error("Error in reading and uploading files:", error);
+      }
     }
-};
+  };
+  
+  const readAndUploadFiles = async (timestamp, gestureName, numRecordings, docId) => {
+    try {
+      const fileNames = Array.from({ length: numRecordings }, (_, index) => `${timestamp}_${gestureName}_${index + 1}.txt`);
+  
+      for (const fileName of fileNames) {
+        try {
+          const fileHandle = await waitForFile(fileName);
+          const file = await fileHandle.getFile();
+          // Pass the docId to the upload function
+          await uploadFileToFirebase(file, fileName, docId);
+        } catch (error) {
+          console.error(`Error accessing file ${fileName}:`, error);
+        }
+      }
+    } catch (error) {
+      console.error("Error in reading and uploading files:", error);
+    }
+  };
 
-const uploadFileToFirebase = async (file, fileName) => {
+// const uploadFileToFirebase = async (file, fileName) => {
+//   try {
+//       const storage = getStorage();
+//       const storageRef = ref(storage, `gestures/${fileName}`);
+
+//       await uploadBytes(storageRef, file);
+//       console.log(`File ${fileName} uploaded successfully`);
+//   } catch (error) {
+//       console.error(`Error uploading file ${fileName} to Firebase:`, error);
+//   }
+// };
+const uploadFileToFirebase = async (file, fileName, docId) => {
+  console.log(`Attempting to upload file: ${fileName}`);
   try {
-      const storage = getStorage();
-      const storageRef = ref(storage, `gestures/${fileName}`);
-
-      await uploadBytes(storageRef, file);
-      console.log(`File ${fileName} uploaded successfully`);
+    const storage = getStorage();
+    // Use the docId in the storage path to organize files under their respective document in Firestore
+    const storageRef = ref(storage, `gesture-data/${docId}/${fileName}`);
+    const result = await uploadBytes(storageRef, file);
+    console.log(`File ${fileName} uploaded successfully`, result);
   } catch (error) {
-      console.error(`Error uploading file ${fileName} to Firebase:`, error);
+    console.error(`Error uploading file ${fileName} to Firebase:`, error);
   }
 };
 
 
 
+
   //rest: -----------------------------------------------------------------------
   const [directoryHandle, setDirectoryHandle] = useState(null);
+
+  //hereeeeeeee
+  const stopRecording = async () => {
+    if (!selectedGesture) {
+      console.error("No gesture selected.");
+      return;
+    }
+
+    if (!directoryHandle) {
+      console.error("Directory handle is not initialized.");
+      return;
+    }
+
+    const duration = new Date() - recordingStart;
+    const timestamp = new Date();
+    setShowPopup(false);
+
+    try {
+      let fileHandle = null;
+      let logText = "";
+      let retries = 0;
+      const maxRetries = 5000; 
+      const retryDelay = 5000
+
+      while (!fileHandle && retries < maxRetries) {
+        try {
+          fileHandle = await directoryHandle.getFileHandle('log.txt', { create: false });
+          const file = await fileHandle.getFile();
+          logText = await file.text();
+
+          if (logText.trim()) {
+            // firestore
+            await uploadLogToFirebase(selectedGesture.id, logText);
+            console.log("Log uploaded successfully to Firestore for gesture ID:", selectedGesture.id);
+            break; 
+          }
+        } catch (error) {
+          if (retries === maxRetries - 1) {
+            throw new Error('log.txt file not found after maximum retries.');
+          }
+          // wait before retrying
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
+          retries++;
+        }
+      }
+
+      if (!logText) {
+        throw new Error('log.txt file not found or is empty after retries.');
+      }
+
+      const csvPath = `gestures/${selectedGesture.id}/${timestamp.toISOString()}.csv`;
+
+      const gestureDataRef = collection(db, "gesture-data");
+      const recordingData = {
+        useruid: user.uid,
+        gesture: selectedGesture.name,
+        timestamp,
+        duration,
+        gestureData,
+        log: logText,
+        csvPath
+      };
+      const docRef = await addDoc(gestureDataRef, recordingData);
+
+      const newRecording = {
+        timestamp: timestamp.toLocaleString(),
+        docId: docRef.id,
+      };
+      setGestures(currentGestures => currentGestures.map(g => {
+        if (g.id === selectedGesture.id) {
+          return {
+            ...g,
+            recordings: [...g.recordings, newRecording]
+          };
+        }
+        return g;
+      }));
+
+      console.log("Recording saved for gesture:", selectedGesture.name);
+    } catch (error) {
+      console.error("Error during recording stop process:", error);
+    }
+
+    setIsRecording(false);
+    setCountdown(10);
+  };
 
   const [showPopup, setShowPopup] = useState(false);
   const [selectedGesture, setSelectedGesture] = useState(null);
@@ -352,6 +468,7 @@ const uploadFileToFirebase = async (file, fileName) => {
   const startRecording = async (gesture) => {
 
     setShowPopup(true);
+
     // Reset form fields to empty when opening the form
     setTimestamp('');
     setGestureName('');
@@ -361,97 +478,6 @@ const uploadFileToFirebase = async (file, fileName) => {
     setTimeForUnplugging('');
 
 
-  };
-
-  //hereeeeeeee
-  const stopRecording = async () => {
-    if (!selectedGesture) {
-      console.error("No gesture selected.");
-      return;
-    }
-
-    if (!directoryHandle) {
-      console.error("Directory handle is not initialized.");
-      return;
-    }
-
-    const duration = new Date() - recordingStart;
-    const timestamp = new Date();
-    setShowPopup(false);
-
-    try {
-      let fileHandle = null;
-      let logText = "";
-      let retries = 0;
-      const maxRetries = 50; // Adjust based on expected time for file system readiness
-      const retryDelay = 5000; // Adjust delay as needed (e.g., 3000 ms)
-
-      // Wait until the file system is ready after reboot
-      while (!fileHandle && retries < maxRetries) {
-        try {
-          fileHandle = await directoryHandle.getFileHandle('log.txt', { create: false });
-          const file = await fileHandle.getFile();
-          logText = await file.text();
-
-          if (logText.trim()) {
-            // Call the function to update Firestore
-            await uploadLogToFirebase(selectedGesture.id, logText);
-            console.log("Log uploaded successfully to Firestore for gesture ID:", selectedGesture.id);
-            break; // If the file is read successfully, exit the loop
-          }
-        } catch (error) {
-          if (retries === maxRetries - 1) {
-            throw new Error('log.txt file not found after maximum retries.');
-          }
-          // Wait before retrying
-          await new Promise(resolve => setTimeout(resolve, retryDelay));
-          retries++;
-        }
-      }
-
-      if (!logText) {
-        throw new Error('log.txt file not found or is empty after retries.');
-      }
-
-      // store csv file path in firestore
-      const csvPath = `gestures/${selectedGesture.id}/${timestamp.toISOString()}.csv`;
-
-      // add data document to firebase
-      const gestureDataRef = collection(db, "gesture-data");
-      const recordingData = {
-        useruid: user.uid,
-        gesture: selectedGesture.name,
-        timestamp,
-        duration,
-        gestureData,
-        log: logText,
-        csvPath
-      };
-      const docRef = await addDoc(gestureDataRef, recordingData);
-
-      // update local state to view new recording
-      const newRecording = {
-        timestamp: timestamp.toLocaleString(),
-        docId: docRef.id,
-        // other properties you want to add
-      };
-      setGestures(currentGestures => currentGestures.map(g => {
-        if (g.id === selectedGesture.id) {
-          return {
-            ...g,
-            recordings: [...g.recordings, newRecording]
-          };
-        }
-        return g;
-      }));
-
-      console.log("Recording saved for gesture:", selectedGesture.name);
-    } catch (error) {
-      console.error("Error during recording stop process:", error);
-    }
-
-    setIsRecording(false);
-    setCountdown(10);
   };
 
 
