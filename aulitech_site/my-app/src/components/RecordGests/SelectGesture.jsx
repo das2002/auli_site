@@ -15,7 +15,7 @@ import { uploadLogToFirebase } from './initGestureFile';
 import { get, set } from 'idb-keyval';
 import { checkDeviceConnection } from '../NavBar/ReplaceConfig';
 
-import { getStorage, ref as storageRef, uploadBytes } from "firebase/storage";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
 
 
 const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startRecording, deleteSelectedRecordings }) => {
@@ -230,8 +230,41 @@ const SelectGesture = ({ user }) => {
       }
     }
 
+    readAndUploadFiles(timestamp, gestureName, numRecordings);
+
     setShowPopup(false);
+
   };
+
+  const readAndUploadFiles = async (timestamp, gestureName, numRecordings) => {
+    try {
+        const fileNames = Array.from({ length: numRecordings }, (_, index) => `${timestamp}_${gestureName}_${index + 1}.txt`);
+
+        for (const fileName of fileNames) {
+            try {
+                const fileHandle = await directoryHandle.getFileHandle(fileName, { create: false });
+                const file = await fileHandle.getFile();
+                await uploadFileToFirebase(file, fileName);
+            } catch (error) {
+                console.error(`Error accessing file ${fileName}:`, error);
+            }
+        }
+    } catch (error) {
+        console.error("Error in reading and uploading files:", error);
+    }
+};
+
+const uploadFileToFirebase = async (file, fileName) => {
+  try {
+      const storage = getStorage();
+      const storageRef = ref(storage, `gestures/${fileName}`);
+
+      await uploadBytes(storageRef, file);
+      console.log(`File ${fileName} uploaded successfully`);
+  } catch (error) {
+      console.error(`Error uploading file ${fileName} to Firebase:`, error);
+  }
+};
 
 
 
@@ -249,20 +282,6 @@ const SelectGesture = ({ user }) => {
 
   const [activeGestureId, setActiveGestureId] = useState(null);
   const [gestureData, setGestureData] = useState([]);
-
-  const handleFlagFileDetected = async (gestureId) => {
-    try {
-      const fileHandle = await directoryHandle.getFileHandle('log.txt');
-      const file = await fileHandle.getFile();
-      const text = await file.text();
-
-      //after getting log.txt, call uploadLogToFirebase
-      await uploadLogToFirebase(gestureId, text);
-      console.log("Log uploaded successfully for gesture ID:", gestureId);
-    } catch (error) {
-      console.error("Failed to upload log for gesture ID:", gestureId, error);
-    }
-  };
 
   const [gestures, setGestures] = useState([
     { id: 1, name: "Nod up", count: 0, recordings: [] },
@@ -539,12 +558,12 @@ const SelectGesture = ({ user }) => {
               </div>
 
               <div className="flex mb-2 justify-center items-center">
-                <label className="w-1/3 text-right mr-2 text-gray-600">Time to Situate Device:</label>
+                <label className="w-1/3 text-right mr-2 text-gray-600">Time to Situate Device (optional):</label>
                 <input className="w-1/6 p-2 border border-gray-300 rounded" type="text" value={timeToSituate} onChange={(e) => setTimeToSituate(e.target.value)} />
               </div>
 
               <div className="flex mb-2 justify-center items-center">
-                <label className="w-1/3 text-right mr-2 text-gray-600">Time for Unplugging:</label>
+                <label className="w-1/3 text-right mr-2 text-gray-600">Time for Unplugging (optional):</label>
                 <input className="w-1/6 p-2 border border-gray-300 rounded" type="text" value={timeForUnplugging} onChange={(e) => setTimeForUnplugging(e.target.value)} />
               </div>
 
