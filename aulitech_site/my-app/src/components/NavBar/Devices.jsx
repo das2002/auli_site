@@ -145,6 +145,7 @@ const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, slide
 
   const handleSliderChange = (event, newValue) => {
     setSliderValue(newValue);
+    setInputValue(newValue);
   };
 
   const handleSliderChangeCommitted = (event, newValue) => {
