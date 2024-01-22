@@ -593,10 +593,10 @@ const Practice = ({ user, devices }) => {
             </div>
 
 
-            <div className="flex row items-center h-screen min-w-[70vw] p-5 bg-[#f0f0f0] gap-2.5 flex-wrap overflow-auto">
+            <div className="flex items-start h-screen p-5 bg-[#f0f0f0] gap-2.5 overflow-auto">
                 <button
                     onClick={togglePractice}
-                    className="text-lg mb-2.5 fixed ml- font-bold bg-[rgb(252,220,109)] rounded-lg px-4 py-2 shadow-md text-black cursor-pointer"
+                    className="text-lg font-bold bg-[rgb(252,220,109)] rounded-lg px-4 py-2 shadow-md text-black cursor-pointer"
                 >
                     {isPracticing ? 'Finish Practice' : 'Start Practice'}
                 </button>
@@ -605,7 +605,7 @@ const Practice = ({ user, devices }) => {
                     value={practiceText}
                     onChange={handleTextChange}
                     placeholder="Start typing..."
-                    className="w-3/4 h-[300px] ml-60 bg-black text-white border border-gray-300 rounded p-2.5 text-base resize-none"
+                    className="flex-1 h-[300px] bg-black text-white border border-gray-300 rounded p-2.5 text-base resize-none"
                 />
             </div>
 
