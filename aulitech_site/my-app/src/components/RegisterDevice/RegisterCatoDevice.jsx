@@ -69,6 +69,7 @@ const modeDefaultGenerator = (mode) => {
     let practiceOperationDefault = deepCopy(operationDefault);
     practiceOperationDefault["operation_mode"]["value"] = "practice";
     let practiceData = {
+      ...connectionSpecificDefault,
       ...practiceOperationDefault,
       ...practiceDefault,
       ...gestureDefault,
