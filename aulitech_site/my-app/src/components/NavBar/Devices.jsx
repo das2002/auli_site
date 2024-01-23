@@ -633,6 +633,9 @@ const Devices = ({ devices }) => {
     const ConnectionAccordion = ({ connection, onDelete }) => {
       const [isExpanded, setIsExpanded] = useState(false);
       const [collapsedSections, setCollapsedSections] = useState({});
+
+      const isDefaultConnection = connection.name === "Default Connection";
+
       const toggleSection = (sectionKey) => {
         setCollapsedSections((prevSections) => ({
           ...prevSections,
@@ -1712,25 +1715,26 @@ const Devices = ({ devices }) => {
                 {connection.name}
               </button>
             </div>
-            <div>
-              <button
-                // onClick={handleConnectionDeletion}
-                onClick={handleDelete}
-                style={{
-                  backgroundColor: '#8B0000',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '5px',
-                  outline: 'none',
-                  textAlign: 'left',
-                  width: '100%',
-                  padding: '10px',
-                  fontSize: '16px',
-                  cursor: 'pointer'
-                }}>
-                Delete Connection
-              </button>
-            </div>
+            {!isDefaultConnection && (
+              <div>
+                <button
+                  onClick={() => onDelete(connection.name)}
+                  style={{
+                    backgroundColor: '#8B0000',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '5px',
+                    outline: 'none',
+                    textAlign: 'left',
+                    width: '100%',
+                    padding: '10px',
+                    fontSize: '16px',
+                    cursor: 'pointer'
+                  }}>
+                  Delete Connection
+                </button>
+              </div>
+            )}
           </div>
 
 
