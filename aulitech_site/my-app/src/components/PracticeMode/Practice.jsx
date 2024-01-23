@@ -35,62 +35,6 @@ const sliderContainerStyle = {
     padding: '1rem',
 };
 
-const getConfigFromCato = async (setOriginalJson, currentDevice) => {
-    try {
-        if (window.showDirectoryPicker) {
-            try {
-                // request the user to pick a directory
-                const dirHandle = await window.showDirectoryPicker({
-                    id: "AULI_CATO",
-                    mode: "readwrite",
-                });
-                // attempt to find the config.json file in the directory
-                for await (const entry of dirHandle.values()) {
-                    if (entry.kind === "file" && entry.name === "config.json") {
-                        console.log('found file');
-                        // found the file, read it
-                        const file = await entry.getFile();
-                        const jsonDataText = await file.text();
-                        console.log(jsonDataText);
-                        let parsedJson = JSON.parse(jsonDataText);
-                        console.log("original json", parsedJson)
-                        let globalConfig = deepCopy(parsedJson);
-                        setOriginalJson(parsedJson); // without practice mode 
-
-                        // check if current device is in json
-                        if (parsedJson['global_info']['name']['value'] !== currentDevice) {
-                            alert("Device must be connected to initiate practice mode")
-                            console.log("Device must be connected to initiate practice mode!")
-                            return;
-                        }
-
-
-                        globalConfig['connections'][0]['operation_mode']['value'] = 'practice';
-
-
-                        // create a practice mode file and write 
-                        const success = await overwriteConfigFile(globalConfig);
-                        if (success) { // file written  
-                            return 1;
-                        }
-
-                        return; // unsuccessful 
-                    }
-                }
-            } catch (error) {
-                console.log(error);
-                return;
-            }
-        } else {
-            console.log("window.showDirectoryPicker is not supported");
-            return;
-        }
-    } catch (error) {
-        console.log(error);
-        return;
-    }
-}
-
 const sectionHeadingStyle = {
     fontSize: '20px',
     marginBottom: '10px',
@@ -328,8 +272,7 @@ const Practice = ({ user, devices }) => {
     const navigate = useNavigate();
 
     const [practiceText, setPracticeText] = useState('');
-    const [practiceJSON, setPracticeJSON] = useState({}); // practice mode config
-    const [editedConfig, setEditedConfig] = useState({}); // practice mode config
+    const [firebaseConfig, setFirebaseConfig] = useState(deepCopy(JSON.parse(thisDevice['data']['device_info']['practice_config']))); // practice mode config stored in firebase
     const [isPracticing, setIsPracticing] = useState(false);
     const textareaRef = useRef(null);
 
@@ -447,33 +390,22 @@ const Practice = ({ user, devices }) => {
                 textareaRef.current.focus();
                 setOriginalJson(deepCopy(config));
                 setIsPracticing(true); // general practice mode state from Navigation.jsx 
-                setPracticeJSON(deepCopy(practiceConfig['connections'][0])); // practice mode config
-                setEditedConfig(deepCopy(practiceConfig)); // practice mode config
             }
         }
     };
 
     const handleSave = async () => {
-        console.log("practiceJSON", practiceJSON);
+        console.log("practice config for firebase", firebaseConfig);
         const userCatoDocId = thisDevice.id;
         const userCatoDocRef = doc(db, "users", user.uid, "userCatos", userCatoDocId);
 
         try {
             await updateDoc(userCatoDocRef, {
-                "device_info.practice_config": JSON.stringify(practiceJSON),
+                "device_info.practice_config": JSON.stringify(firebaseConfig),
             });
             console.log("Practice config updated successfully on Firebase");
         } catch (error) {
             console.error("Error updating practice config:", error);
-        }
-
-        // edit editedConfig
-        editedConfig['connections'][0] = deepCopy(practiceJSON);
-
-        // overwrite config.json 
-        const success = await overwriteConfigFile(editedConfig);
-        if (success) {
-            console.log("Practice mode config written successfully");
         }
     }
 
@@ -539,19 +471,19 @@ const Practice = ({ user, devices }) => {
     }
 
     useEffect(() => {
-        console.log("practiceJSON", practiceJSON);
+        console.log("practice config for firebase", firebaseConfig);
 
-    }, [practiceJSON]);
+    }, [firebaseConfig]);
 
     const handlePracticeConfigChange = (keylist) => {
         return debounce((value) => {
-            const newPracticeJSON = deepCopy(practiceJSON);
+            const newPracticeJSON = deepCopy(firebaseConfig);
             let pointer = newPracticeJSON;
             for (let i = 0; i < keylist.length - 1; i++) {
                 pointer = pointer[keylist[i]];
             }
             pointer[keylist[keylist.length - 1]] = value;
-            setPracticeJSON(newPracticeJSON);
+            setFirebaseConfig(newPracticeJSON);
         }, 100);
     }
 
@@ -654,7 +586,7 @@ const Practice = ({ user, devices }) => {
                 />
             </div>
 
-            {isPracticing && practiceJSON && PracticeOptions(practiceJSON)}
+            {firebaseConfig && PracticeOptions(firebaseConfig)}
 
         </div>
     );
