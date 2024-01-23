@@ -285,10 +285,12 @@ const SelectGesture = ({ user }) => {
 const uploadFileToFirebase = async (file, fileName, docId) => {
   console.log(`Attempting to upload file: ${fileName}`);
   try {
-    const storage = getStorage();
+    //const storage = getStorage();
     // Use the docId in the storage path to organize files under their respective document in Firestore
-    const storageRef = ref(storage, `gesture-data/${docId}/${fileName}`);
-    const result = await uploadBytes(storageRef, file);
+    //const storageRef = ref(storage, `gesture-data/${docId}/${fileName}`);
+    //const result = await uploadBytes(storageRef, file);
+    const gestureRef = collection(db, "gesture-data");
+    const result = await addDoc(gestureRef, {fileName: fileName, file: file});
     console.log(`File ${fileName} uploaded successfully`, result);
   } catch (error) {
     console.error(`Error uploading file ${fileName} to Firebase:`, error);

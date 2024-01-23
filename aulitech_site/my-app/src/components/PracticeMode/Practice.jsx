@@ -555,6 +555,41 @@ const Practice = ({ user, devices }) => {
         }, 100);
     }
 
+    const styles = {
+        container: {
+            backgroundColor: '#f7f7f7', // Light grey background
+            border: '1px solid #ddd',   // Light border
+            borderRadius: '8px',        // Rounded corners
+            padding: '20px',            // Padding around the content
+            maxWidth: '600px',          // Maximum width of the container
+            margin: '20px auto',        // Center the container
+            boxShadow: '0 4px 8px rgba(0,0,0,0.1)'  // Subtle shadow
+        },
+        heading: {
+            color: '#333',              // Dark grey color for the heading
+            marginBottom: '10px',       // Space below the heading
+        },
+
+        button: {
+            backgroundColor: '#0056b3', // Blue background color
+            color: 'white',             // White text
+            padding: '10px 15px',       // Padding inside the button
+            border: 'none',             // No border
+            borderRadius: '5px',        // Rounded corners
+            cursor: 'pointer',          // Pointer cursor on hover
+            marginTop: '15px',          // Space above the button
+            fontSize: '16px'            // Larger font size
+        },
+
+        list: {
+            lineHeight: '1.6',            // Space between lines
+            color: '#555',                // Dark grey color for the text
+            paddingLeft: '20px',          // Add padding to the left of the list for the numbers
+            listStyleType: 'decimal',     // Ensure decimal numbers are used
+            listStylePosition: 'inside'   // Position the numbers inside the list item content
+        },
+    };
+
 
 
     const handleTextChange = (event) => {
@@ -569,26 +604,6 @@ const Practice = ({ user, devices }) => {
 
 
         <div>
-            {/* <div className="ml-90">
-                <header className="shrink-0 bg-transparent border-b border-gray-200">
-                    <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
-                        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-                            Instructions
-                        </h2>
-                    </div>
-                </header>
-            </div>
-
-            <div className="ml-90">
-                <header className="shrink-0 bg-transparent border-b border-gray-200">
-                    <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
-                        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-                            Practice Settings
-                        </h2>
-                    </div>
-                </header>
-            </div> */}
-
 
             <div className="ml-90" style={headerStyle}>
                 <header className="shrink-0 bg-transparent border-b border-gray-200">
@@ -599,9 +614,31 @@ const Practice = ({ user, devices }) => {
                     </div>
                 </header>
             </div>
+            <div style={styles.container}>
+                <h2 style={styles.heading}>Instructions to Put Device in Practice Mode:</h2>
+                <ol style={styles.list}>
+                    <li>Connect your Cato to the computer via USB.</li>
+                    <li>Click on the <strong>Start Practice</strong> and allow permission to access your Cato device.</li>
+                    <li>Cato device should start outputting to text box below to begin practicing.</li>
+                    <li>Once you are done practicing, click on <strong>Finish Practice</strong> to save your practice session.</li>
+                </ol>
+            </div>
+            { /*
+            <div className="ml-90">
+                <header className="shrink-0 bg-transparent border-b border-gray-200">
+                    <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
+                        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                            Practice Settings
+                        </h2>
+                    </div>
+                </header>
+    </div> */}
+
+
+
 
             {/* <div className="flex flex-start h-screen items-start p-5 bg-[#f0f0f0] gap-2.5 overflow-auto"> */}
-            <div className="flex items-start p-5 bg-[#f0f0f0] gap-2.5 overflow-auto">
+            <div className="flex items-center justify-center p-5 bg-[#f0f0f0] gap-2.5 overflow-auto">
                 <button
                     onClick={togglePractice}
                     className="text-lg font-bold bg-[rgb(252,220,109)] rounded-lg px-4 py-2 shadow-md text-black cursor-pointer"
