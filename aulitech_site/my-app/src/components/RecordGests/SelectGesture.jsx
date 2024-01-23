@@ -189,8 +189,8 @@ const SelectGesture = ({ user }) => {
     e.preventDefault();
 
     // Check if all fields are filled out
-    if (!timestamp || !gestureName || !numRecordings || !timeBetween || !timeToSituate || !timeForUnplugging) {
-      setErrorMessage('Please fill out all fields.');
+    if (!timestamp || !gestureName || !numRecordings || !timeBetween) {
+      setErrorMessage('Please fill out all required fields.');
       return;
     }
 
@@ -199,15 +199,19 @@ const SelectGesture = ({ user }) => {
 
     try {
       await initGestureFile();
-
+  
+      // Provide default values for optional fields
+      const defaultTimeToSituate = timeToSituate || '0';
+      const defaultTimeForUnplugging = timeForUnplugging || '0';
+  
       const gestureCatoContent = [
         `${timestamp}`,
         `${gestureName}`,
         `${numRecordings}`,
         `${timeBetween}`,
-        `${timeToSituate}`,
-        `${timeForUnplugging}`,
-      ].join('\n');
+        `${defaultTimeToSituate}`,
+        `${defaultTimeForUnplugging}`,
+      ].join('\n');  
 
       console.log("Content to be written:", gestureCatoContent);
 
