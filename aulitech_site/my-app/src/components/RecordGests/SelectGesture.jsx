@@ -20,6 +20,9 @@ import { getStorage, ref, uploadBytes } from "firebase/storage";
 
 const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startRecording, deleteSelectedRecordings }) => {
   const activeGesture = gestures.find(g => g.id === activeGestureId);
+
+  console.log("activeGesture: ", activeGesture);
+  
   const [selectedRecordings, setSelectedRecordings] = useState([]);
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -52,6 +55,7 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
     deleteSelectedRecordings(allRecordingIds);
     closeDeleteConfirm();
   };
+
 
   return (
     <div className="flex">
@@ -131,7 +135,7 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
                         className={`flex justify-between items-center p-2 hover:bg-gray-100 cursor-pointer ${selectedRecordings.includes(recording.docId) ? 'bg-blue-100' : ''}`}
                         onClick={() => toggleRecordingSelection(recording.docId)}
                       >
-                        {recording.timestamp}
+                        {recording.timestamp + " " + recording.fileName}
                       </div>
                     ))}
                   </div>
@@ -515,7 +519,7 @@ const uploadFileToFirebase = async (file, fileName) => {
   const getGestStats = async () => {
     const dataRef = collection(db, "gesture-data");
     const userDataQuery = query(dataRef, where("useruid", "==", user.uid));
-    const snapshot = await getDocs(userDataQuery);
+    const snapshot = await getDocs(userDataQuery); // now we have all the recordings for the user
     const updatedGestures = gestures.map(gesture => ({
       ...gesture,
       recordings: []
@@ -525,14 +529,22 @@ const uploadFileToFirebase = async (file, fileName) => {
       const gestureName = doc.data().gesture;
       const gestureIndex = updatedGestures.findIndex(g => g.name === gestureName);
       if (gestureIndex !== -1) {
+        const filename = doc.data().fileName;
         const timestampString = doc.data().timestamp.toDate().toLocaleString();
         const recording = {
           timestamp: timestampString,
-          docId: doc.id
+          docId: doc.id,
+          fileName: filename,
         };
+        if (!updatedGestures[gestureIndex].recordings.find(r => r.fileName === filename)) {
+          updatedGestures[gestureIndex].recordings.push(recording);
+        }
+
+        /*
         if (!updatedGestures[gestureIndex].recordings.find(r => r.timestamp === timestampString)) {
           updatedGestures[gestureIndex].recordings.push(recording);
         }
+        */
       }
     });
 
