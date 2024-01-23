@@ -260,8 +260,12 @@ const SelectGesture = ({ user }) => {
         try {
           const fileHandle = await waitForFile(fileName);
           const file = await fileHandle.getFile();
+          const fileContent = await file.text();
           // Pass the docId to the upload function
-          await uploadFileToFirebase(file, fileName);
+          console.log("File:", file);
+          console.log("File content:", await file.text());
+          console.log("File name:", fileName);
+          await uploadFileToFirebase(fileContent, fileName);
         } catch (error) {
           console.error(`Error accessing file ${fileName}:`, error);
         }
@@ -283,6 +287,12 @@ const SelectGesture = ({ user }) => {
 //   }
 // };
 const uploadFileToFirebase = async (file, fileName) => {
+
+  const duration = new Date() - recordingStart;
+  const timestamp = new Date();
+
+  console.log("uploadFileToFirebase");
+  console.log("file:", file);
   console.log(`Attempting to upload file: ${fileName}`);
   try {
     //const storage = getStorage();
@@ -290,7 +300,14 @@ const uploadFileToFirebase = async (file, fileName) => {
     //const storageRef = ref(storage, `gesture-data/${docId}/${fileName}`);
     //const result = await uploadBytes(storageRef, file);
     const gestureRef = collection(db, "gesture-data");
-    const result = await addDoc(gestureRef, {fileName: fileName, file: file});
+    const result = await addDoc(gestureRef, {
+      useruid: user.uid,
+      gesture: selectedGesture.name,
+      timestamp,
+      duration,
+      fileName: fileName, 
+      log: file
+    });
     console.log(`File ${fileName} uploaded successfully`, result);
   } catch (error) {
     console.error(`Error uploading file ${fileName} to Firebase:`, error);
