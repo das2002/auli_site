@@ -753,7 +753,7 @@ const Devices = ({ devices }) => {
         } else if (mode === "clicker") {
           return "Clicker";
         } else if (mode === "practice"){
-          return "Select Practice Mode";
+          return "Select Operation Mode";
         }
       };
 
