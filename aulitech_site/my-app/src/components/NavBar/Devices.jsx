@@ -81,7 +81,7 @@ const CheckboxOption = ({ checked, onChange, title, description }) => {
 const HardwareUIDField = ({ hardwareUID }) => {
   return (
     <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
-      <h2 style={{ fontSize: '16px', marginRight: '10px' }}>Hardware UID</h2>
+      <h2 style={{ fontSize: '16px', marginRight: '10px' }}><strong>Hardware UID:</strong></h2>
       <input
         value={hardwareUID}
         style={{
@@ -363,7 +363,7 @@ const Devices = ({ devices }) => {
   
     return (
       <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
-        <h2 style={{ fontSize: '16px', marginRight: '10px' }}>Device Name</h2>
+        <h2 style={{ fontSize: '16px', marginRight: '10px' }}><strong>Device Name:</strong></h2>
         <input
           value={editedDeviceName}
           onChange={handleNameChange}
@@ -1770,11 +1770,11 @@ const Devices = ({ devices }) => {
                   textAlign: 'left',
                   width: '100%',
                   padding: '10px',
-                  fontSize: '16px',
+                  fontSize: '18px',
                   cursor: 'pointer'
                 }}
               >
-                {connection.name}
+                <strong>{connection.name}</strong>
               </button>
             </div>
             {!isDefaultConnection && (
