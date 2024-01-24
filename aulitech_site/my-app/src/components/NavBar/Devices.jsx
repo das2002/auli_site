@@ -330,7 +330,16 @@ const Devices = ({ devices }) => {
   const { deviceName } = useParams();
   const navigate = useNavigate();
 
+  const [isUniversalSettingsExpanded, setIsUniversalSettingsExpanded] = useState(true);
+  const [isConnectionsExpanded, setIsConnectionsExpanded] = useState(true);
 
+  const toggleUniversalSettings = () => {
+    setIsUniversalSettingsExpanded(!isUniversalSettingsExpanded);
+  };
+
+  const toggleConnections = () => {
+    setIsConnectionsExpanded(!isConnectionsExpanded);
+  };
   
 
   // Find the specific device
@@ -1929,6 +1938,35 @@ const Devices = ({ devices }) => {
   return (
     <div>
       <div className="ml-90">
+        <header 
+          className="shrink-0 bg-transparent border-b border-gray-200" 
+          onClick={toggleUniversalSettings} 
+          style={{ cursor: 'pointer' }} // Add cursor style here
+        >
+          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between">
+            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+              Universal Settings
+            </h2>
+          </div>
+        </header>
+        {isUniversalSettingsExpanded && <GlobalInfoSection />}
+      </div>
+
+      <div className="ml-90">
+        <header 
+          className="shrink-0 bg-transparent border-b border-gray-200" 
+          onClick={toggleConnections} 
+          style={{ cursor: 'pointer' }} // Add cursor style here
+        >
+          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between">
+            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+              Connections
+            </h2>
+          </div>
+        </header>
+        {isConnectionsExpanded && <AccordionList data={connectionsList} />}
+      </div>
+      {/* <div className="ml-90">
         <header className="shrink-0 bg-transparent border-b border-gray-200">
           <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
@@ -1944,14 +1982,13 @@ const Devices = ({ devices }) => {
         <header className="shrink-0 bg-transparent border-b border-gray-200">
           <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-              {/* Interfaces */}
               Connections
             </h2>
           </div>
         </header>
-      </div>
+      </div> */}
 
-      <AccordionList data={connectionsList} />
+      {/* <AccordionList data={connectionsList} /> */}
       <button onClick={handleRegisterInterface}
         style={{
           backgroundColor: '#8B0000', //red
