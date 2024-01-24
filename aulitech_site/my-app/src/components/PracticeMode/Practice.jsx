@@ -364,7 +364,7 @@ const Practice = ({ user, devices }) => {
             overwriteConfigFile(originalJson);
             setIsPracticing(false);
             // setIsPracticeMode(false);
-            navigate(`/devices/${deviceName}`)
+            //navigate(`/devices/${deviceName}`)
         } else { // turning on current practice 
             // fetch the config.json file from catos
             const config = await fetchAndCompareConfig();
@@ -417,12 +417,15 @@ const Practice = ({ user, devices }) => {
         const toggleCollapse = () => {
             if (!isPracticing) {
                 setIsCollapsed(!isCollapsed);
+            } else {
+                alert("Cannot change practice options while practicing");
             }
         }
 
         useEffect(() => {
+            console.log("isPracticing", isPracticing);
             if (isPracticing) {
-                setIsCollapsed(isCollapsed);
+                setIsCollapsed(isPracticing);
             }
         }, [isPracticing]);
 
