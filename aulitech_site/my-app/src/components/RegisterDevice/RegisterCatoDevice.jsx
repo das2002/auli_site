@@ -33,6 +33,9 @@ const modeDefaultGenerator = (mode) => {
       ...mouseDefault,
       ...bindingsDefault
     };
+    if (pointerData.hasOwnProperty("default")){
+      delete pointerData.default;
+    }
     return pointerData;
   } else if (mode == "clicker") {
     let clickerOperationDefault = deepCopy(operationDefault);
@@ -42,6 +45,9 @@ const modeDefaultGenerator = (mode) => {
       ...clickerDefault,
       ...bindingsDefault
     };
+    if (clickerData.hasOwnProperty("default")){
+      delete clickerData.default;
+    }
     return clickerData;
   } else if (mode == "gesture_mouse") {
     let gestureMouseOperationDefault = deepCopy(operationDefault);
@@ -52,6 +58,9 @@ const modeDefaultGenerator = (mode) => {
       ...bindingsDefault,
       ...gestureDefault
     };
+    if (gestureMouseData.hasOwnProperty("default")){
+      delete gestureMouseData.default;
+    }
     return gestureMouseData;
 
   } else if (mode == "tv_remote") {
@@ -63,6 +72,9 @@ const modeDefaultGenerator = (mode) => {
       ...bindingsDefault,
       ...gestureDefault
     };
+    if (tvRemoteData.hasOwnProperty("default")){
+      delete tvRemoteData.default;
+    }
     return tvRemoteData;
 
   } else if (mode == "practice") {
@@ -75,6 +87,9 @@ const modeDefaultGenerator = (mode) => {
       ...gestureDefault,
       ...bindingsDefault
     };
+    if (practiceData.hasOwnProperty("default")){
+      delete practiceData.default;
+    }
     return practiceData;
   }
 
@@ -234,9 +249,11 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
     updateNestedFields(config.global_info, globalInfoData.global_info);
 
-    if (globalInfoData["default"] != null) {
-      delete globalInfoData["default"];
+    
+    if (globalInfoData.hasOwnProperty("default")){
+      delete globalInfoData.default;
     }
+    
 
     globalInfoData.global_info.name.value = enteredName;
     //globalInfoData.global_info.HW_UID.value = config.globalInfoData.HW_UID.value;
@@ -335,9 +352,6 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       }
     }
     if (connectionsArray.length == 0) {
-      if (connectionSpecificDefault["default"] != null) {
-        delete connectionSpecificDefault["default"];
-      }
       let connectionConfig = JSON.stringify(connectionSpecificDefault);
       let current_mode = "practice";
       let modeMap = {
