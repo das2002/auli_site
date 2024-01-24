@@ -16,7 +16,7 @@ import { collection, query, getDocs, where, doc, getDoc, setDoc, serverTimestamp
 import RecordGestures from './components/RecordGests/RecordGestures';
 import Updates from './components/UpdatePage/Updates';
 import Devices from './components/NavBar/Devices';
-import Practice from './components/PracticeMode/Practice';
+import Practice from './components/NavBar/Practice';
 import RegisterInterface from './components/NavBar/RegisterInterface';
 
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";

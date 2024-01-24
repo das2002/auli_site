@@ -8,7 +8,7 @@ import SignOutAccount from "../GoogleAuth/SignOutAccount";
 import { useNavigate, useRoutes, useLocation, BrowserRouter as Router, Route, Routes, Outlet } from 'react-router-dom';
 import RegisterInterface from './RegisterInterface';
 import PracticeModeToggle from "./PracticeModeToggle/PracticeModeToggle";
-import Practice from "../PracticeMode/Practice";
+import Practice from "./Practice";
 import { overwriteConfigFile } from '../NavBar/ReplaceConfig';
 
 // static nav buttons in navbar
