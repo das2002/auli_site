@@ -33,7 +33,7 @@ const DarkYellowSlider = styled(Slider)(({ theme }) => ({
 // };
 
 const sectionHeadingStyle = {
-  fontSize: '20px',
+  fontSize: '18px',
   marginBottom: '10px',
   fontWeight: 'bold',
   backgroundColor: '#fcdc6d',
@@ -332,6 +332,17 @@ const Devices = ({ devices }) => {
 
   const handleRegisterInterface = () => {
     navigate(`/devices/${deviceName}/register-interface`);
+  };
+
+  const [isUniversalSettingsExpanded, setIsUniversalSettingsExpanded] = useState(true);
+  const [isConnectionsExpanded, setIsConnectionsExpanded] = useState(true);
+
+  const toggleUniversalSettings = () => {
+    setIsUniversalSettingsExpanded(!isUniversalSettingsExpanded);
+  };
+
+  const toggleConnections = () => {
+    setIsConnectionsExpanded(!isConnectionsExpanded);
   };
 
   const [editedGlobalSettings, setEditedGlobalSettings] = useState(null);
@@ -871,7 +882,7 @@ const Devices = ({ devices }) => {
                 padding: '5px 15px',
                 display: 'inline-block',
                 boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '20px',
+                fontSize: '18px',
                 fontWeight: 'bold',
                 border: 'none',
                 cursor: 'pointer',
@@ -928,7 +939,7 @@ const Devices = ({ devices }) => {
                 padding: '5px 15px',
                 display: 'inline-block',
                 boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '20px',
+                fontSize: '18px',
                 fontWeight: 'bold',
                 border: 'none',
                 cursor: 'pointer',
@@ -1062,7 +1073,7 @@ const Devices = ({ devices }) => {
                 padding: '5px 15px',
                 display: 'inline-block',
                 boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '20px',
+                fontSize: '18px',
                 fontWeight: 'bold',
                 border: 'none',
                 cursor: 'pointer',
@@ -1146,7 +1157,7 @@ const Devices = ({ devices }) => {
                 padding: '5px 15px',
                 display: 'inline-block',
                 boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '20px',
+                fontSize: '18px',
                 fontWeight: 'bold',
                 border: 'none',
                 cursor: 'pointer',
@@ -1301,7 +1312,7 @@ const Devices = ({ devices }) => {
           padding: '5px 15px',
           display: 'inline-block',
           boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-          fontSize: '20px',
+          fontSize: '18px',
           fontWeight: 'bold',
           border: 'none',
           cursor: 'pointer',
@@ -1740,7 +1751,9 @@ const Devices = ({ devices }) => {
 
           {isExpanded && (
             <div>
-              <h2 style={sectionHeadingStyle}>Operation Mode</h2>
+              <h2 style={sectionHeadingStyle}>
+                Operation Mode
+              </h2>
               <Dropdown
                 value={operationModeConversion(activeOperationMode)}
                 onChange={(e) => handleOperationModeSelection(e.target.value)}
@@ -1891,7 +1904,7 @@ const Devices = ({ devices }) => {
         <header className="shrink-0 bg-transparent border-b border-gray-200">
           <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-              Device Settings
+              Universal Settings
             </h2>
           </div>
         </header>
