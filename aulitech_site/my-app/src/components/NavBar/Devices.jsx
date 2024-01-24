@@ -74,10 +74,6 @@ const CheckboxOption = ({ checked, onChange, title, description }) => {
   );
 };
 
-
-
-
-
 const HardwareUIDField = ({ hardwareUID }) => {
   return (
     <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
@@ -689,21 +685,24 @@ const Devices = ({ devices }) => {
 
     const ConnectionAccordion = ({ connection, onDelete, onNameChange = () => { } }) => {
       const [isExpanded, setIsExpanded] = useState(false);
+      const [localConnection, setLocalConnection] = useState(connection);
+
       const [editedConnectionName, setEditedConnectionName] = useState(connection.name);
 
       const handleNameChange = (event) => {
-        setEditedConnectionName(event.target.value);
+        const updatedConnection = { ...localConnection, name: event.target.value };
+        setLocalConnection(updatedConnection);
       };
 
-      const handleNameCommit = async (connectionId) => {
+      const handleNameCommit = async () => {
+        onNameChange(localConnection.id, localConnection.name);
         const newConnectionsSettings = editedConnectionsSettings.map(conn => {
-          if (conn.id === connectionId) {
-            return { ...conn, name: editedConnectionName };
+          if (conn.id === localConnection.id) {  // Use localConnection.id here
+            return { ...conn, name: localConnection.name }; // Use localConnection.name here
           }
           return conn;
         });
         setEditedConnectionsSettings(newConnectionsSettings);
-      
         // update firebase
         try {
           const userId = getCurrentUserId();
@@ -927,11 +926,11 @@ const Devices = ({ devices }) => {
           // Data is not yet available, you can return a loader or null
           return <div>Loading...</div>; // or return null;
         }
-      
+
 
         return (
           <div onClick={toggleExpand} style={{ cursor: 'pointer', marginBottom: '1rem' }}>
-          <button
+            <button
               onClick={() => toggleSection('connectionSettings')}
               style={{
 
@@ -987,7 +986,7 @@ const Devices = ({ devices }) => {
           setIsCollapsed(!isCollapsed);
         };
 
-        
+
 
         return (
           <div style={{ maxWidth: '600px', margin: '0' }}>
@@ -1661,8 +1660,6 @@ const Devices = ({ devices }) => {
 
       }
 
-
-
       const GestureMouseSetting = () => {
         if (!fetchedGestureMouseConfig) {
           return <div>Loading...</div>;
@@ -1765,18 +1762,18 @@ const Devices = ({ devices }) => {
       // }
 
       return (
-        <div 
-              onClick={toggleExpand}
-              style={{ cursor: 'pointer', marginBottom: '1rem' }}
-            >
+        <div
+          onClick={toggleExpand}
+          style={{ cursor: 'pointer', marginBottom: '1rem' }}
+        >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             {/* Always show the input box */}
             <input
-              value={editedConnectionName}
+              value={localConnection.name}
+              // value={editedConnectionName}
               onChange={handleNameChange}
               // onBlur={handleNameCommit}
-              onBlur={() => handleNameCommit(connection.id)}
-
+              onBlur={() => handleNameCommit()}
               style={{
                 borderColor: 'black',
                 borderWidth: 1,
@@ -1847,6 +1844,7 @@ const Devices = ({ devices }) => {
               <ConnectionAccordion
                 connection={item}
                 onDelete={handleConnectionDeletion} //delete connections
+                // onNameChange={handleNameChange}
               >
                 {item.name}
               </ConnectionAccordion>
@@ -1857,6 +1855,7 @@ const Devices = ({ devices }) => {
       </div>
     );
   };
+
 
 
   const accordionListStyle = {
