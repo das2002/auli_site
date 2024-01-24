@@ -352,7 +352,11 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       }
     }
     if (connectionsArray.length == 0) {
-      let connectionConfig = JSON.stringify(connectionSpecificDefault);
+      let connectionConfig = deepCopy(connectionSpecificDefault);
+      if (connectionConfig.hasOwnProperty("default")){
+        delete connectionConfig.default;
+      }
+      connectionConfig = JSON.stringify(connectionConfig);
       let current_mode = "practice";
       let modeMap = {
         pointer: JSON.stringify(modeDefaultGenerator("pointer")),
