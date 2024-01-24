@@ -334,7 +334,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
         }
       }
     }
-    if (connectionsArray.length === 0) {
+    if (connectionsArray.length == 0) {
       if (connectionSpecificDefault["default"] != null) {
         delete connectionSpecificDefault["default"];
       }
