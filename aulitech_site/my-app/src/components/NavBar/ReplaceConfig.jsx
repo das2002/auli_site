@@ -53,10 +53,13 @@ export async function overwriteConfigFile(newConfig) {
     try {
         let directoryHandle = await get('configDirectoryHandle');
 
+
         if (!directoryHandle) {
             directoryHandle = await window.showDirectoryPicker();
             await set('configDirectoryHandle', directoryHandle);
         }
+
+
 
         const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
         if (permissionStatus !== 'granted') {
@@ -64,14 +67,36 @@ export async function overwriteConfigFile(newConfig) {
         }
 
         // handle to the config.json file
-        const fileHandle = await directoryHandle.getFileHandle('config.json', { create: false });
+        const fileHandle = await directoryHandle.getFileHandle('config.json', { create: true }); //false
+
 
         // Create a writable stream to overwrite the existing config.json file
         let writable = await fileHandle.createWritable();
+
+
+        //hereeee
+        console.log(writable);
         await writable.write(new Blob([JSON.stringify(newConfig, null, 2)], { type: 'application/json' }));
+
+
+        /*
+        const fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+        const writable = await fileHandle.createWritable();
+        await writable.write(new Blob([JSON.stringify(newConfig)], { type: 'application/json' }));
         await writable.close();
 
+        */
+        
+        console.log("4.2");
+
+        await writable.close();
+
+        console.log("5");
+
+
         console.log('Config file overwritten successfully.');
+
+
         return true;
     } catch (error) {
         if (error instanceof DOMException) {
