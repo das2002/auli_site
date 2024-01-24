@@ -362,6 +362,7 @@ const Practice = ({ user, devices }) => {
             textareaRef.current.blur();
             // download the original config.json file
             overwriteConfigFile(originalJson);
+            setIsPracticing(false);
             // setIsPracticeMode(false);
             navigate(`/devices/${deviceName}`)
         } else { // turning on current practice 
@@ -414,8 +415,16 @@ const Practice = ({ user, devices }) => {
         const [isCollapsed, setIsCollapsed] = useState(false);
 
         const toggleCollapse = () => {
-            setIsCollapsed(!isCollapsed);
+            if (!isPracticing) {
+                setIsCollapsed(!isCollapsed);
+            }
         }
+
+        useEffect(() => {
+            if (isPracticing) {
+                setIsCollapsed(isCollapsed);
+            }
+        }, [isPracticing]);
 
         console.log("config", config);
         return (
