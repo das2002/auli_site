@@ -8,6 +8,7 @@ import {
   addDoc,
   doc,
   getDoc,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import { writeBatch } from "firebase/firestore";
@@ -19,7 +20,16 @@ import { checkDeviceConnection } from '../NavBar/ReplaceConfig';
 import { getStorage, ref, uploadBytes } from "firebase/storage";
 
 
-const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startRecording, deleteSelectedRecordings }) => {
+const GestureGrid = ({
+  activeGestureId,
+  gestures,
+  setGestures,
+  handleGestureSelect,
+  startRecording,
+  deleteSelectedRecordings,
+  handleBackdropClick, 
+
+}) => {
   const activeGesture = gestures.find(g => g.id === activeGestureId);
 
   console.log("activeGesture: ", activeGesture);
@@ -27,6 +37,37 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
   const [selectedRecordings, setSelectedRecordings] = useState([]);
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showAddGesturePopup, setShowAddGesturePopup] = useState(false);
+  const [newGestureName, setNewGestureName] = useState('');
+
+  const saveNewGesture = async () => {
+    if (!newGestureName.trim()) {
+      alert('Please enter a gesture name.');
+      return;
+    }
+
+    try {
+      const gestureInfoDocRef = doc(db, 'gesture', 'info');
+      const docSnap = await getDoc(gestureInfoDocRef);
+
+      if (docSnap.exists()) {
+        const labelsArray = docSnap.data().labels;
+        labelsArray.push(newGestureName); // Add new gesture name to array
+
+        await updateDoc(gestureInfoDocRef, {
+          labels: labelsArray,
+        });
+
+        setGestures([...gestures, { id: gestures.length, name: newGestureName, recordings: [] }]);
+        setNewGestureName(''); // reset to new gesture name
+        setShowAddGesturePopup(false); // exit out of the popup
+      } else {
+        console.error('No gesture data found!');
+      }
+    } catch (error) {
+      console.error('Error saving new gesture:', error);
+    }
+  };
 
   const handleDeleteAll = () => {
     setShowDeleteConfirm(true);
@@ -100,10 +141,34 @@ const GestureGrid = ({ activeGestureId, gestures, handleGestureSelect, startReco
         ))}
         <button
           className="w-full text-left p-2 bg-gray-900 text-white rounded-md hover:bg-gray-800"
-          onClick={() => handleGestureSelect(null)}
+          onClick={() => setShowAddGesturePopup(true)}
         >
           +
         </button>
+
+        {showAddGesturePopup && (
+          <div
+            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+            onClick={(e) => handleBackdropClick(e, () => setShowAddGesturePopup(false))}
+          >
+          <div className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center">
+            <input
+              type="text"
+              className="p-2 border border-gray-300 rounded mb-4"
+              value={newGestureName}
+              onChange={(e) => setNewGestureName(e.target.value)}
+              placeholder="New gesture name"
+            />
+            <button
+              className="rounded-md bg-yellow-600 p-3 text-white hover:bg-yellow-700"
+              onClick={saveNewGesture}
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      )}
+
       </div>
       <div className="w-3/4 p-4 rounded-lg">
         {activeGesture ? (
@@ -189,6 +254,12 @@ const SelectGesture = ({ user }) => {
   const [timeForUnplugging, setTimeForUnplugging] = useState();
 
   const [errorMessage, setErrorMessage] = useState('');
+
+  const handleBackdropClick = (event, closePopupFunction) => {
+    if (event.target === event.currentTarget) {
+      closePopupFunction();
+    }
+  };  
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -582,23 +653,26 @@ const uploadFileToFirebase = async (file, fileName) => {
     setShowPopup(false);
   };
 
-  const handleBackdropClick = (event) => {
-    if (event.target === event.currentTarget) {
-      closeModal();
-    }
-  };
+  // const handleBackdropClick = (event) => {
+  //   if (event.target === event.currentTarget) {
+  //     closeModal();
+  //   }
+  // };
 
 
   return (
     <div className="">
       <div className="border-b border-gray-200 pb-10">
-        <GestureGrid
-          activeGestureId={activeGestureId}
-          gestures={gestures}
-          handleGestureSelect={handleGestureSelect}
-          startRecording={startRecording}
-          deleteSelectedRecordings={deleteSelectedRecordings}
-        />
+      <GestureGrid
+        activeGestureId={activeGestureId}
+        gestures={gestures}
+        setGestures={setGestures}
+        handleGestureSelect={handleGestureSelect}
+        startRecording={startRecording}
+        deleteSelectedRecordings={deleteSelectedRecordings}
+        handleBackdropClick={handleBackdropClick} 
+      />
+
       </div>
 
       {showPopup && (
