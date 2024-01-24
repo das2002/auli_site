@@ -935,7 +935,7 @@ const Devices = ({ devices }) => {
                 outline: 'none',
                 marginBottom: '10px',
               }}
-            >Connection Settings</button>
+            >Screen Size</button>
             {!collapsedSections['connectionSettings'] && (
               <div>
                 <InputSlider
@@ -945,7 +945,7 @@ const Devices = ({ devices }) => {
                   min={600}
                   max={4320}
                   step={1}
-                  sliderTitle={"Screen Size - Height"}
+                  sliderTitle={"Height"}
                   unit={"px"}
                   sliderDescription={"Height of interface screen"}
                 />
@@ -957,7 +957,7 @@ const Devices = ({ devices }) => {
                   min={800}
                   max={8192}
                   step={1}
-                  sliderTitle={"Screen Size - Width"}
+                  sliderTitle={"Width"}
                   unit={"px"}
                   sliderDescription={"Width of interface screen"}
                 />
