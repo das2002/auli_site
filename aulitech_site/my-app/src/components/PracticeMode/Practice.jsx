@@ -296,7 +296,6 @@ const Practice = ({ user, devices }) => {
                 return false;
             }
         }
-
         try {
             // check existence directories
             let directoryHandle = await get('configDirectoryHandle');
@@ -320,7 +319,7 @@ const Practice = ({ user, devices }) => {
             const text = await file.text();
             const config = JSON.parse(text);
 
-            console.log("config", config);
+            // console.log("config", config);
 
             // check if there is a deviceHwUid
             if (!config || !config.global_info || !config.global_info.HW_UID || !config.global_info.HW_UID.value) {

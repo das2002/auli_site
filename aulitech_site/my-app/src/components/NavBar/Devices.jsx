@@ -8,6 +8,7 @@ import Slider from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
 import { KeyOptions, getKeyOption } from './KeyOptions';
 import { fetchAndCompareConfig, overwriteConfigFile, deleteConfigFileIfExists } from './ReplaceConfig';
+import { getDirectoryHandle } from './ReplaceConfig';
 
 
 const DarkYellowSlider = styled(Slider)(({ theme }) => ({
@@ -1859,9 +1860,9 @@ const Devices = ({ devices }) => {
 
     const webAppHwUid = editedGlobalSettings["HW_UID"]["value"];
 
+    const directoryHandle = await getDirectoryHandle();
 
-
-    const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
+    const hwUidMatch = await fetchAndCompareConfig(directoryHandle, webAppHwUid);
     console.log(webAppHwUid);
     console.log(hwUidMatch);
     // const configFile = await fetchConfigFileFromDevice();
