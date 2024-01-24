@@ -74,6 +74,10 @@ const CheckboxOption = ({ checked, onChange, title, description }) => {
   );
 };
 
+
+
+
+
 const HardwareUIDField = ({ hardwareUID }) => {
   return (
     <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
@@ -326,12 +330,47 @@ const Devices = ({ devices }) => {
   const { deviceName } = useParams();
   const navigate = useNavigate();
 
+
+  
+
   // Find the specific device
   const thisDevice = devices.find(device => device.data.device_info.device_nickname === deviceName);
   // Check if the device was found
 
   const handleRegisterInterface = () => {
     navigate(`/devices/${deviceName}/register-interface`);
+  };
+
+  const DeviceNameField = ({intialDeviceName, onNameChange}) => {
+    const [editedDeviceName, setEditedDeviceName] = useState(intialDeviceName);
+
+    const handleNameChange = (event) => {
+      setEditedDeviceName(event.target.value);
+    };
+
+    const handleNameCommit = (event) => {
+      onNameChange(event.target.value);
+    }
+  
+    return (
+      <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
+        <h2 style={{ fontSize: '16px', marginRight: '10px' }}>Device Name</h2>
+        <input
+          value={editedDeviceName}
+          onChange={handleNameChange}
+          onBlur = {handleNameCommit}
+          style={{
+            borderColor: 'black',
+            borderWidth: 1,
+            padding: '5px 10px',
+            borderRadius: '5px',
+            fontSize: '14px',
+          }}
+          type="text"
+          placeholder="Device Name"
+        />
+      </div>
+    );
   };
 
   const [editedGlobalSettings, setEditedGlobalSettings] = useState(null);
@@ -462,6 +501,12 @@ const Devices = ({ devices }) => {
       // borderRadius: '5px',
     };
 
+    const handleDeviceNameChange = (value) => {
+      const newEditedGlobalSettings = deepCopy(editedGlobalSettings);
+      newEditedGlobalSettings["name"]["value"] = value;
+      setEditedGlobalSettings(newEditedGlobalSettings);
+    }
+
     const handleDeviceDelete = async () => {
       // delete the device from the database
       if (thisDevice) {
@@ -484,6 +529,9 @@ const Devices = ({ devices }) => {
       <div>
         <div style={sliderContainerStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <DeviceNameField intialDeviceName={editedGlobalSettings["name"]["value"]} onNameChange={handleDeviceNameChange}/>
+            </div>
             <div>
               <HardwareUIDField hardwareUID={editedGlobalSettings["HW_UID"]["value"]} />
             </div>
@@ -1805,6 +1853,8 @@ const Devices = ({ devices }) => {
 
     const webAppHwUid = editedGlobalSettings["HW_UID"]["value"];
 
+
+    
     const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
     console.log(webAppHwUid);
     console.log(hwUidMatch);
@@ -1817,6 +1867,7 @@ const Devices = ({ devices }) => {
       console.error("HW_UID does not match with the connected device.");
       return;
     }
+    
 
     const userId = getCurrentUserId();
     const userCatoDocId = thisDevice.id;
@@ -1829,6 +1880,7 @@ const Devices = ({ devices }) => {
 
 
       await updateDoc(userCatoDocRef, {
+        'device_info.device_nickname': editedGlobalSettings["name"]["value"],
         'device_info.global_config': JSON.stringify(globalConfigUpdate),
         'connections': editedConnectionsSettings,
       });
@@ -1838,6 +1890,7 @@ const Devices = ({ devices }) => {
     }
 
 
+    
     const deviceConfig = {
       "connections": [],
       "global_info": editedGlobalSettings,
@@ -1863,22 +1916,8 @@ const Devices = ({ devices }) => {
       };
       deviceConfig["connections"].push(pushedConnection);
     };
-
-    // try { //delete later
-    //   const blob = new Blob([JSON.stringify(deviceConfig)], {
-    //     type: "application/json",
-    //   });
-    //   const url = URL.createObjectURL(blob);
-    //   const link = document.createElement("a");
-    //   link.href = url;
-    //   link.download = "config.json";
-    //   document.body.appendChild(link);
-    //   link.click();
-    //   document.body.removeChild(link);
-    // } catch (error) {
-    //   console.log("download new config error: ", error);
-    // }
     await overwriteConfigFile(deviceConfig);
+    
   };
 
 
