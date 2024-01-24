@@ -436,10 +436,6 @@ const Devices = ({ devices }) => {
     }
   };
 
-  
-
-
-
 
   // what should happen as soon as we get thisDevice
   useEffect(() => {
@@ -786,6 +782,44 @@ const Devices = ({ devices }) => {
         setIsExpanded(!isExpanded);
       };
 
+      const handleConnectionNameChange = (value) => {
+        const newEditedConnectionConfig = deepCopy(editedConnectionConfig);
+        newEditedConnectionConfig["name"] = value;
+        setEditedConnectionConfig(newEditedConnectionConfig);
+      }
+
+      const ConnectionNameField = ({ intialConnectionName, onNameChange }) => {
+        const [editedConnectionName, setEditedConnectionName] = useState(intialConnectionName);
+
+        const handleNameChange = (event) => {
+          setEditedConnectionName(event.target.value);
+        };
+
+        const handleNameCommit = (event) => {
+          onNameChange(event.target.value);
+        };
+
+        return (
+          <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
+            <h2 style={{ fontSize: '16px', marginRight: '10px' }}>Connection Name</h2>
+            <input
+              value={editedConnectionName}
+              onChange={handleNameChange}
+              onBlur={handleNameCommit}
+              style={{
+                borderColor: 'black',
+                borderWidth: 1,
+                padding: '5px 10px',
+                borderRadius: '5px',
+                fontSize: '14px',
+              }}
+              type="text"
+              placeholder="Connection Name"
+            />
+          </div>
+        );
+      };
+
       const handleOperationModeSelection = (value) => {
         if (value === "Gesture Mouse") {
           setActiveOperationMode("gesture_mouse");
@@ -915,6 +949,8 @@ const Devices = ({ devices }) => {
             [sectionKey]: !prevSections[sectionKey],
           }));
         };
+
+        
 
         return (
           <div style={{ maxWidth: '600px', margin: '0' }}>
@@ -1641,8 +1677,6 @@ const Devices = ({ devices }) => {
 
       }
 
-
-
       const GestureMouseSetting = () => {
         if (!fetchedGestureMouseConfig) {
           return <div>Loading...</div>;
@@ -1756,21 +1790,10 @@ const Devices = ({ devices }) => {
         <div style={{ marginBottom: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <button
-                onClick={toggleIsExpanded}
-                style={{
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  textAlign: 'left',
-                  width: '100%',
-                  padding: '10px',
-                  fontSize: '16px',
-                  cursor: 'pointer'
-                }}
-              >
-                {connection.name}
-              </button>
+              <ConnectionNameField
+                initialConnectionName={deepCopy(connection.name)}
+                onChange={handleConnectionNameChange}
+              ></ConnectionNameField>
             </div>
             {!isDefaultConnection && (
               <div>
