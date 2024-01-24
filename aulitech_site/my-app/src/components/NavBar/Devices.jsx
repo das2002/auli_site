@@ -695,8 +695,27 @@ const Devices = ({ devices }) => {
         setEditedConnectionName(event.target.value);
       };
 
-      const handleNameCommit = () => {
-        onNameChange(connection.name, editedConnectionName);
+      const handleNameCommit = async (connectionId) => {
+        const newConnectionsSettings = editedConnectionsSettings.map(conn => {
+          if (conn.id === connectionId) {
+            return { ...conn, name: editedConnectionName };
+          }
+          return conn;
+        });
+        setEditedConnectionsSettings(newConnectionsSettings);
+      
+        // update firebase
+        try {
+          const userId = getCurrentUserId();
+          const userCatoDocId = thisDevice.id;
+          const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
+          await updateDoc(userCatoDocRef, {
+            'connections': newConnectionsSettings,
+          });
+          console.log("Connection name updated successfully");
+        } catch (error) {
+          console.error("Error updating connection name: ", error);
+        }
       };
       const [collapsedSections, setCollapsedSections] = useState({});
 
@@ -1746,16 +1765,18 @@ const Devices = ({ devices }) => {
       // }
 
       return (
-<div 
-      onClick={toggleExpand}
-      style={{ cursor: 'pointer', marginBottom: '1rem' }}
-    >
+        <div 
+              onClick={toggleExpand}
+              style={{ cursor: 'pointer', marginBottom: '1rem' }}
+            >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             {/* Always show the input box */}
             <input
               value={editedConnectionName}
               onChange={handleNameChange}
-              onBlur={handleNameCommit}
+              // onBlur={handleNameCommit}
+              onBlur={() => handleNameCommit(connection.id)}
+
               style={{
                 borderColor: 'black',
                 borderWidth: 1,
