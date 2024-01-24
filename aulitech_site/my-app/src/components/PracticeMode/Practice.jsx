@@ -410,58 +410,85 @@ const Practice = ({ user, devices }) => {
     }
 
     const PracticeOptions = (config) => {
+
+        const [isCollapsed, setIsCollapsed] = useState(false);
+
+        const toggleCollapse = () => {
+            setIsCollapsed(!isCollapsed);
+        }
+
         console.log("config", config);
         return (
             <div style={sliderContainerStyle}>
                 <div style={{ maxWidth: '600px', margin: '0' }}>
-                    <h2 style={sectionHeadingStyle}>Practice Options</h2>
-                    {/* <h1 style={titleStyle}> TV Remote Options </h1> */}
-                    <CheckboxOption
-                        checked={config["practice"]["value"]["dense"]["value"]}
-                        onChange={(e) => handlePracticeConfigChange(['practice', 'value', 'dense', 'value'])(e.target.checked)}
-                        title="Format Condensed"
-                        description="True: outputs in a single line. False: type outputs as a table"
-                    />
-                    <InputSlider
-                        value={config["practice"]["value"]["num_infers"]["value"]}
-                        onChange={(e) => handlePracticeConfigChange(['practice', 'value', 'num_infers', 'value'])(e.target.value)}
-                        min={config["practice"]["value"]["num_infers"]["range"]["min"]}
-                        max={config["practice"]["value"]["num_infers"]["range"]["max"]}
-                        step={1}
-                        sliderTitle="Number of Displayed Inferences"
-                        unit="inferences"
-                        sliderDescription="Number of relevant inferences displayed per gesture"
-                        sliderLabel="num_infers"
-                    >
-
-                    </InputSlider>
-                    <InputSlider
-                        value={config["practice"]["value"]["cutoff"]["value"]}
-                        onChange={(e) => handlePracticeConfigChange(['practice', 'value', 'cutoff', 'value'])(parseFloat(e.target.value))}
-                        min={config["practice"]["value"]["cutoff"]["range"]["min"]}
-                        max={config["practice"]["value"]["cutoff"]["range"]["max"]}
-                        step={0.1}
-                        sliderTitle="Certainty Cutoff"
-                        unit=""
-                        sliderDescription="Level of certainty below which gesture will not be displayed"
-                        sliderLabel="certainity_cutoff"
-                    ></InputSlider>
-
-
-                    <button onClick={handleSave}
+                    <button
+                        onClick={toggleCollapse}
                         style={{
-                            backgroundColor: '#B8860B', //B8860B
-                            color: 'white',
-                            padding: '10px 20px',
-                            fontSize: '16px',
-                            borderRadius: '5px',
+                            backgroundColor: isCollapsed ? '#1A202C' : '#fcdc6d',
+                            color: isCollapsed ? '#FFFFFF' : '#000000',
+                            borderRadius: '10px',
+                            padding: '5px 15px',
+                            display: 'inline-block',
+                            boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+                            fontSize: '20px',
+                            fontWeight: 'bold',
                             border: 'none',
                             cursor: 'pointer',
-                            marginLeft: '10px',
-                            marginTop: '20px'
-                        }}>
-                        Save
-                    </button>
+                            outline: 'none',
+                            marginBottom: '10px',
+                        }}
+                    >Practice Options</button>
+                    {!isCollapsed && (
+                        <div>
+                            <CheckboxOption
+                                checked={config["practice"]["value"]["dense"]["value"]}
+                                onChange={(e) => handlePracticeConfigChange(['practice', 'value', 'dense', 'value'])(e.target.checked)}
+                                title="Format Condensed"
+                                description="True: outputs in a single line. False: type outputs as a table"
+                            />
+                            <InputSlider
+                                value={config["practice"]["value"]["num_infers"]["value"]}
+                                onChange={(e) => handlePracticeConfigChange(['practice', 'value', 'num_infers', 'value'])(e.target.value)}
+                                min={config["practice"]["value"]["num_infers"]["range"]["min"]}
+                                max={config["practice"]["value"]["num_infers"]["range"]["max"]}
+                                step={1}
+                                sliderTitle="Number of Displayed Inferences"
+                                unit="inferences"
+                                sliderDescription="Number of relevant inferences displayed per gesture"
+                                sliderLabel="num_infers"
+                            >
+
+                            </InputSlider>
+                            <InputSlider
+                                value={config["practice"]["value"]["cutoff"]["value"]}
+                                onChange={(e) => handlePracticeConfigChange(['practice', 'value', 'cutoff', 'value'])(parseFloat(e.target.value))}
+                                min={config["practice"]["value"]["cutoff"]["range"]["min"]}
+                                max={config["practice"]["value"]["cutoff"]["range"]["max"]}
+                                step={0.1}
+                                sliderTitle="Certainty Cutoff"
+                                unit=""
+                                sliderDescription="Level of certainty below which gesture will not be displayed"
+                                sliderLabel="certainity_cutoff"
+                            ></InputSlider>
+
+
+                            <button onClick={handleSave}
+                                style={{
+                                    backgroundColor: '#B8860B', //B8860B
+                                    color: 'white',
+                                    padding: '10px 20px',
+                                    fontSize: '16px',
+                                    borderRadius: '5px',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    marginLeft: '10px',
+                                    marginTop: '20px'
+                                }}>
+                                Save
+                            </button>
+                        </div>
+                    )
+                    }
                 </div>
             </div>
 
