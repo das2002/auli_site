@@ -27,13 +27,13 @@ const GestureGrid = ({
   handleGestureSelect,
   startRecording,
   deleteSelectedRecordings,
-  handleBackdropClick, 
+  handleBackdropClick,
 
 }) => {
   const activeGesture = gestures.find(g => g.id === activeGestureId);
 
   console.log("activeGesture: ", activeGesture);
-  
+
   const [selectedRecordings, setSelectedRecordings] = useState([]);
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -151,23 +151,23 @@ const GestureGrid = ({
             className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
             onClick={(e) => handleBackdropClick(e, () => setShowAddGesturePopup(false))}
           >
-          <div className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center">
-            <input
-              type="text"
-              className="p-2 border border-gray-300 rounded mb-4"
-              value={newGestureName}
-              onChange={(e) => setNewGestureName(e.target.value)}
-              placeholder="New gesture name"
-            />
-            <button
-              className="rounded-md bg-yellow-600 p-3 text-white hover:bg-yellow-700"
-              onClick={saveNewGesture}
-            >
-              Save
-            </button>
+            <div className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center">
+              <input
+                type="text"
+                className="p-2 border border-gray-300 rounded mb-4"
+                value={newGestureName}
+                onChange={(e) => setNewGestureName(e.target.value)}
+                placeholder="New gesture name"
+              />
+              <button
+                className="rounded-md bg-yellow-600 p-3 text-white hover:bg-yellow-700"
+                onClick={saveNewGesture}
+              >
+                Save
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
       </div>
       <div className="w-3/4 p-4 rounded-lg">
@@ -259,7 +259,7 @@ const SelectGesture = ({ user }) => {
     if (event.target === event.currentTarget) {
       closePopupFunction();
     }
-  };  
+  };
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
@@ -275,11 +275,11 @@ const SelectGesture = ({ user }) => {
 
     try {
       await initGestureFile();
-  
+
       // Provide default values for optional fields
       const defaultTimeToSituate = timeToSituate || '0';
       const defaultTimeForUnplugging = timeForUnplugging || '0';
-  
+
       const gestureCatoContent = [
         `${timestamp}`,
         `${gestureName}`,
@@ -287,7 +287,7 @@ const SelectGesture = ({ user }) => {
         `${timeBetween}`,
         `${defaultTimeToSituate}`,
         `${defaultTimeForUnplugging}`,
-      ].join('\n');  
+      ].join('\n');
 
       console.log("Content to be written:", gestureCatoContent);
 
@@ -324,18 +324,18 @@ const SelectGesture = ({ user }) => {
         return fileHandle;
       } catch (error) {
         if (i < retries - 1) {
-          await new Promise(resolve => setTimeout(resolve, interval)); 
+          await new Promise(resolve => setTimeout(resolve, interval));
         } else {
-          throw error; 
+          throw error;
         }
       }
     }
   };
-  
+
   const readAndUploadFiles = async (timestamp, gestureName, numRecordings, docId) => {
     try {
       const fileNames = Array.from({ length: numRecordings }, (_, index) => `${timestamp}_${gestureName}_${index + 1}.txt`);
-  
+
       for (const fileName of fileNames) {
         try {
           const fileHandle = await waitForFile(fileName);
@@ -355,44 +355,44 @@ const SelectGesture = ({ user }) => {
     }
   };
 
-// const uploadFileToFirebase = async (file, fileName) => {
-//   try {
-//       const storage = getStorage();
-//       const storageRef = ref(storage, `gestures/${fileName}`);
+  // const uploadFileToFirebase = async (file, fileName) => {
+  //   try {
+  //       const storage = getStorage();
+  //       const storageRef = ref(storage, `gestures/${fileName}`);
 
-//       await uploadBytes(storageRef, file);
-//       console.log(`File ${fileName} uploaded successfully`);
-//   } catch (error) {
-//       console.error(`Error uploading file ${fileName} to Firebase:`, error);
-//   }
-// };
-const uploadFileToFirebase = async (file, fileName) => {
+  //       await uploadBytes(storageRef, file);
+  //       console.log(`File ${fileName} uploaded successfully`);
+  //   } catch (error) {
+  //       console.error(`Error uploading file ${fileName} to Firebase:`, error);
+  //   }
+  // };
+  const uploadFileToFirebase = async (file, fileName) => {
 
-  const duration = new Date() - recordingStart;
-  const timestamp = new Date();
+    const duration = new Date() - recordingStart;
+    const timestamp = new Date();
 
-  console.log("uploadFileToFirebase");
-  console.log("file:", file);
-  console.log(`Attempting to upload file: ${fileName}`);
-  try {
-    //const storage = getStorage();
-    // Use the docId in the storage path to organize files under their respective document in Firestore
-    //const storageRef = ref(storage, `gesture-data/${docId}/${fileName}`);
-    //const result = await uploadBytes(storageRef, file);
-    const gestureRef = collection(db, "gesture-data");
-    const result = await addDoc(gestureRef, {
-      useruid: user.uid,
-      gesture: selectedGesture.name,
-      timestamp,
-      duration,
-      fileName: fileName, 
-      log: file
-    });
-    console.log(`File ${fileName} uploaded successfully`, result);
-  } catch (error) {
-    console.error(`Error uploading file ${fileName} to Firebase:`, error);
-  }
-};
+    console.log("uploadFileToFirebase");
+    console.log("file:", file);
+    console.log(`Attempting to upload file: ${fileName}`);
+    try {
+      //const storage = getStorage();
+      // Use the docId in the storage path to organize files under their respective document in Firestore
+      //const storageRef = ref(storage, `gesture-data/${docId}/${fileName}`);
+      //const result = await uploadBytes(storageRef, file);
+      const gestureRef = collection(db, "gesture-data");
+      const result = await addDoc(gestureRef, {
+        useruid: user.uid,
+        gesture: selectedGesture.name,
+        timestamp,
+        duration,
+        fileName: fileName,
+        log: file
+      });
+      console.log(`File ${fileName} uploaded successfully`, result);
+    } catch (error) {
+      console.error(`Error uploading file ${fileName} to Firebase:`, error);
+    }
+  };
 
 
 
@@ -407,16 +407,16 @@ const uploadFileToFirebase = async (file, fileName) => {
 
     // request + store in indexedDB
     if (!directoryHandle) {
-        directoryHandle = await window.showDirectoryPicker();
-        await set('configDirectoryHandle', directoryHandle);
+      directoryHandle = await window.showDirectoryPicker();
+      await set('configDirectoryHandle', directoryHandle);
     }
 
     // get r/w access
     const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
     if (permissionStatus !== 'granted') {
-        throw new Error('Permission to access directory not granted.');
+      throw new Error('Permission to access directory not granted.');
     }
-    
+
     // check if config.json exists
     const fileHandle = await directoryHandle.getFileHandle('config.json', { create: false });
 
@@ -442,7 +442,7 @@ const uploadFileToFirebase = async (file, fileName) => {
       let fileHandle = null;
       let logText = "";
       let retries = 0;
-      const maxRetries = 5000; 
+      const maxRetries = 5000;
       const retryDelay = 5000
 
       while (!fileHandle && retries < maxRetries) {
@@ -457,7 +457,7 @@ const uploadFileToFirebase = async (file, fileName) => {
             // firestore
             await uploadLogToFirebase(selectedGesture.id, logText);
             console.log("Log uploaded successfully to Firestore for gesture ID:", selectedGesture.id);
-            break; 
+            break;
           }
         } catch (error) {
           if (retries === maxRetries - 1) {
@@ -469,7 +469,7 @@ const uploadFileToFirebase = async (file, fileName) => {
         }
       }
 
-      
+
 
       if (!logText) {
         throw new Error('file not found or is empty after retries.');
@@ -530,22 +530,22 @@ const uploadFileToFirebase = async (file, fileName) => {
   useEffect(() => {
     const fetchGesturesFromFirebase = async () => {
       // try {
-        const gestureInfoDocRef = doc(db, 'gesture', 'info');
-        const docSnap = await getDoc(gestureInfoDocRef);
-        console.log(docSnap.data())
+      const gestureInfoDocRef = doc(db, 'gesture', 'info');
+      const docSnap = await getDoc(gestureInfoDocRef);
+      console.log(docSnap.data())
 
-        if (docSnap.exists()) {
-          const labelsArray = docSnap.data().labels;
-          const fetchedGestures = labelsArray.map((label, index) => ({
-            id: index, // Assuming id as index, adjust if needed
-            name: label,
-            count: 0,
-            recordings: []
-          }));
-          setGestures(fetchedGestures);
-        } else {
-          console.log('No gesture data found!');
-        }
+      if (docSnap.exists()) {
+        const labelsArray = docSnap.data().labels;
+        const fetchedGestures = labelsArray.map((label, index) => ({
+          id: index, // Assuming id as index, adjust if needed
+          name: label,
+          count: 0,
+          recordings: []
+        }));
+        setGestures(fetchedGestures);
+      } else {
+        console.log('No gesture data found!');
+      }
       // } catch (error) {
       //   console.error('Error fetching gestures:', error);
       // }
@@ -663,22 +663,22 @@ const uploadFileToFirebase = async (file, fileName) => {
   return (
     <div className="">
       <div className="border-b border-gray-200 pb-10">
-      <GestureGrid
-        activeGestureId={activeGestureId}
-        gestures={gestures}
-        setGestures={setGestures}
-        handleGestureSelect={handleGestureSelect}
-        startRecording={startRecording}
-        deleteSelectedRecordings={deleteSelectedRecordings}
-        handleBackdropClick={handleBackdropClick} 
-      />
+        <GestureGrid
+          activeGestureId={activeGestureId}
+          gestures={gestures}
+          setGestures={setGestures}
+          handleGestureSelect={handleGestureSelect}
+          startRecording={startRecording}
+          deleteSelectedRecordings={deleteSelectedRecordings}
+          handleBackdropClick={handleBackdropClick}
+        />
 
       </div>
 
       {showPopup && (
         <div
           className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
-          onClick={handleBackdropClick}
+          onClick={(e) => handleBackdropClick(e, () => setShowPopup(false))}
         >
           <div className="bg-white rounded-lg p-6 shadow-lg flex flex-col items-center justify-between" style={{ width: '50%', maxHeight: '70%', overflowY: 'auto' }}>
 
