@@ -1278,6 +1278,11 @@ const Devices = ({ devices }) => {
       };
 
       const BindingsPanel = ({ config }) => {
+        const [isBindingsExpanded, setIsBindingsExpanded] = useState(true);
+        const toggleBindings = () => {
+          setIsBindingsExpanded(!isBindingsExpanded);
+        };
+      
 
         console.log(config);
 

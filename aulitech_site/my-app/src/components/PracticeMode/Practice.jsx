@@ -586,12 +586,12 @@ const Practice = ({ user, devices }) => {
                 </header>
             </div>
             <div style={styles.container}>
-                <h2 style={styles.heading}>Instructions to Put Device in Practice Mode:</h2>
+                <h2 style={styles.heading}><strong>Instructions:</strong></h2>
                 <ol style={styles.list}>
-                    <li>Connect your Cato to the computer via bluetooth.</li>
-                    <li>Click on the <strong>Start Practice</strong> and allow permission to access your Cato device.</li>
-                    <li>Cato device should start outputting to text box below to begin practicing.</li>
-                    <li>Once you are done practicing, click on <strong>Finish Practice</strong> to save your practice session.</li>
+                    <li>Connect your Cato to the computer via <strong>bluetooth.</strong></li>
+                    <li>Click on the <strong>"Start Practice"</strong> and allow permission to access your Cato device.</li>
+                    <li>Cato device should start outputting to the text box below to begin practicing.</li>
+                    <li>Once you are done practicing, click on <strong>"Finish Practice"</strong> to save your practice session.</li>
                 </ol>
             </div>
             { /*
