@@ -291,6 +291,22 @@ const SelectGesture = ({ user }) => {
 
       console.log("Content to be written:", gestureCatoContent);
 
+
+      console.log("directoryHandle", directoryHandle);
+      let directoryHandle = await get('configDirectoryHandle');
+
+      // request + store in indexedDB
+      if (!directoryHandle) {
+        directoryHandle = await window.showDirectoryPicker();
+        await set('configDirectoryHandle', directoryHandle);
+      }
+
+      // get r/w access
+      const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
+      if (permissionStatus !== 'granted') {
+        throw new Error('Permission to access directory not granted.');
+      }
+
       const fileHandle = await directoryHandle.getFileHandle('gesture.cato', { create: true });
       const writable = await fileHandle.createWritable();
 
