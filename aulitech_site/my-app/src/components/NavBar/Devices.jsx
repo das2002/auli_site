@@ -908,11 +908,11 @@ const Devices = ({ devices }) => {
           // Data is not yet available, you can return a loader or null
           return <div>Loading...</div>; // or return null;
         }
-      
+
 
         return (
           <div onClick={toggleExpand} style={{ cursor: 'pointer', marginBottom: '1rem' }}>
-          <button
+            <button
               onClick={() => toggleSection('connectionSettings')}
               style={{
 
@@ -968,7 +968,7 @@ const Devices = ({ devices }) => {
           setIsCollapsed(!isCollapsed);
         };
 
-        
+
 
         return (
           <div style={{ maxWidth: '600px', margin: '0' }}>
@@ -1746,27 +1746,17 @@ const Devices = ({ devices }) => {
       // }
 
       return (
-<div 
-      onClick={toggleExpand}
-      style={{ cursor: 'pointer', marginBottom: '1rem' }}
-    >
+        <div onClick={() => setIsExpanded(!isExpanded)} style={{ cursor: 'pointer', marginBottom: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            {/* Always show the input box */}
-            <input
-              value={editedConnectionName}
-              onChange={handleNameChange}
-              onBlur={handleNameCommit}
-              style={{
-                borderColor: 'black',
-                borderWidth: 1,
-                padding: '5px 10px',
-                borderRadius: '5px',
-                fontSize: '14px',
-              }}
-              type="text"
-              placeholder="Connection Name"
-            />
-
+            {/* Displaying the connection name without an input box */}
+            <span style={{
+              padding: '5px 10px',
+              borderRadius: '5px',
+              fontSize: '14px',
+              fontWeight: 'bold'
+            }}>
+              {connection.name}
+            </span>
             {!isDefaultConnection && (
               <div>
                 <button
@@ -1866,7 +1856,7 @@ const Devices = ({ devices }) => {
 
     // const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
     const hwUidMatch = await fetchAndCompareConfig(directoryHandle, webAppHwUid);
-    
+
     console.log(webAppHwUid);
     console.log(hwUidMatch);
     // const configFile = await fetchConfigFileFromDevice();
