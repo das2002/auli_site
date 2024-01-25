@@ -7,7 +7,8 @@ import { set } from 'lodash';
 import Slider from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
 import { KeyOptions, getKeyOption } from './KeyOptions';
-import { fetchAndCompareConfig, overwriteConfigFile, deleteConfigFileIfExists, getDirectoryHandle } from './ReplaceConfig';
+import { fetchAndCompareConfig, overwriteConfigFile, deleteConfigFileIfExists } from './ReplaceConfig';
+import { getDirectoryHandle } from './ReplaceConfig';
 
 
 const DarkYellowSlider = styled(Slider)(({ theme }) => ({
@@ -340,7 +341,7 @@ const Devices = ({ devices }) => {
   const toggleConnections = () => {
     setIsConnectionsExpanded(!isConnectionsExpanded);
   };
-
+  
 
   // Find the specific device
   const thisDevice = devices.find(device => device.data.device_info.device_nickname === deviceName);
@@ -350,7 +351,7 @@ const Devices = ({ devices }) => {
     navigate(`/devices/${deviceName}/register-interface`);
   };
 
-  const DeviceNameField = ({ intialDeviceName, onNameChange }) => {
+  const DeviceNameField = ({intialDeviceName, onNameChange}) => {
     const [editedDeviceName, setEditedDeviceName] = useState(intialDeviceName);
 
     const handleNameChange = (event) => {
@@ -360,14 +361,14 @@ const Devices = ({ devices }) => {
     const handleNameCommit = (event) => {
       onNameChange(event.target.value);
     }
-
+  
     return (
       <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
         <h2 style={{ fontSize: '16px', marginRight: '10px' }}><strong>Device Name:</strong></h2>
         <input
           value={editedDeviceName}
           onChange={handleNameChange}
-          onBlur={handleNameCommit}
+          onBlur = {handleNameCommit}
           style={{
             borderColor: 'black',
             borderWidth: 1,
@@ -436,7 +437,7 @@ const Devices = ({ devices }) => {
     }
   };
 
-
+  
 
 
 
@@ -539,7 +540,7 @@ const Devices = ({ devices }) => {
         <div style={sliderContainerStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <DeviceNameField intialDeviceName={editedGlobalSettings["name"]["value"]} onNameChange={handleDeviceNameChange} />
+              <DeviceNameField intialDeviceName={editedGlobalSettings["name"]["value"]} onNameChange={handleDeviceNameChange}/>
             </div>
             <div>
               <HardwareUIDField hardwareUID={editedGlobalSettings["HW_UID"]["value"]} />
@@ -687,24 +688,36 @@ const Devices = ({ devices }) => {
       );
     }
 
-    const ConnectionAccordion = ({ connection, onDelete, onNameChange = () => { } }) => {
+    const ConnectionAccordion = ({ connection, onDelete }) => {
       const [isExpanded, setIsExpanded] = useState(false);
-      const [editedConnectionName, setEditedConnectionName] = useState(connection.name);
-
-      const handleNameChange = (event) => {
-        setEditedConnectionName(event.target.value);
-      };
-
-      const handleNameCommit = () => {
-        onNameChange(connection.name, editedConnectionName);
-      };
       const [collapsedSections, setCollapsedSections] = useState({});
 
       const isDefaultConnection = connection.name === "Default Connection";
 
-      const toggleExpand = () => {
-        setIsExpanded(!isExpanded);
+      const toggleSection = (sectionKey) => {
+        setCollapsedSections((prevSections) => ({
+          ...prevSections,
+          [sectionKey]: !prevSections[sectionKey],
+        }));
       };
+
+
+
+      // const [collapsedSections, setCollapsedSections] = useState({
+      //   connectionSettings: false,
+      //   mouseSettings: false,
+      //   clickerSettings: false,
+      //   gestureSettings: false,
+      //   tvRemoteOptions: false,
+      // });
+
+      // const toggleSection = (sectionKey) => {
+      //   setCollapsedSections((prevSections) => ({
+      //     ...prevSections,
+      //     [sectionKey]: !prevSections[sectionKey],
+      //   }));
+      // };
+
 
       const [fetchedConnectionConfig, setFetchedConnectionConfig] = useState(null);
       const [editedConnectionConfig, setEditedConnectionConfig] = useState(null);
@@ -797,7 +810,7 @@ const Devices = ({ devices }) => {
           return "Pointer";
         } else if (mode === "clicker") {
           return "Clicker";
-        } else if (mode === "practice") {
+        } else if (mode === "practice"){
           return "Select Operation Mode";
         }
       };
@@ -904,14 +917,8 @@ const Devices = ({ devices }) => {
           }));
         };
 
-        if (!editedConnectionConfig || !editedConnectionConfig.screen_size) {
-          // Data is not yet available, you can return a loader or null
-          return <div>Loading...</div>; // or return null;
-        }
-
-
         return (
-          <div onClick={toggleExpand} style={{ cursor: 'pointer', marginBottom: '1rem' }}>
+          <div style={{ maxWidth: '600px', margin: '0' }}>
             <button
               onClick={() => toggleSection('connectionSettings')}
               style={{
@@ -967,8 +974,6 @@ const Devices = ({ devices }) => {
         const toggleCollapse = () => {
           setIsCollapsed(!isCollapsed);
         };
-
-
 
         return (
           <div style={{ maxWidth: '600px', margin: '0' }}>
@@ -1278,7 +1283,7 @@ const Devices = ({ devices }) => {
         const toggleBindings = () => {
           setIsBindingsExpanded(!isBindingsExpanded);
         };
-
+      
 
         console.log(config);
 
@@ -1732,7 +1737,7 @@ const Devices = ({ devices }) => {
       const userId = getCurrentUserId();
       const userCatoDocId = thisDevice.id;
       const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
-  
+
       try {
         await updateDoc(userCatoDocRef, {
           'connections': arrayRemove(editedConnectionConfig),
@@ -1744,19 +1749,35 @@ const Devices = ({ devices }) => {
       */
 
       // }
+      const handleDelete = async () => {
+        //delete connection
+        if (connection && connection.name) {
+          await onDelete(connection.name);
+        } else {
+          console.error("Invalid connection data");
+        }
+      }
 
       return (
-        <div onClick={() => setIsExpanded(!isExpanded)} style={{ cursor: 'pointer', marginBottom: '1rem' }}>
+        <div style={{ marginBottom: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            {/* Displaying the connection name without an input box */}
-            <span style={{
-              padding: '5px 10px',
-              borderRadius: '5px',
-              fontSize: '14px',
-              fontWeight: 'bold'
-            }}>
-              {connection.name}
-            </span>
+            <div>
+              <button
+                onClick={toggleIsExpanded}
+                style={{
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  textAlign: 'left',
+                  width: '100%',
+                  padding: '10px',
+                  fontSize: '18px',
+                  cursor: 'pointer'
+                }}
+              >
+                <strong>{connection.name}</strong>
+              </button>
+            </div>
             {!isDefaultConnection && (
               <div>
                 <button
@@ -1849,14 +1870,9 @@ const Devices = ({ devices }) => {
 
     const webAppHwUid = editedGlobalSettings["HW_UID"]["value"];
 
-    const directoryHandle = await getDirectoryHandle();
-
-
-
-
-    // const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
-    const hwUidMatch = await fetchAndCompareConfig(directoryHandle, webAppHwUid);
-
+    // const directoryHandle = await getDirectoryHandle();
+    
+    const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
     console.log(webAppHwUid);
     console.log(hwUidMatch);
     // const configFile = await fetchConfigFileFromDevice();
@@ -1868,7 +1884,6 @@ const Devices = ({ devices }) => {
       console.error("HW_UID does not match with the connected device.");
       return;
     }
-
 
     const userId = getCurrentUserId();
     const userCatoDocId = thisDevice.id;
@@ -1891,7 +1906,7 @@ const Devices = ({ devices }) => {
     }
 
 
-
+    
     const deviceConfig = {
       "connections": [],
       "global_info": editedGlobalSettings,
@@ -1918,7 +1933,7 @@ const Devices = ({ devices }) => {
       deviceConfig["connections"].push(pushedConnection);
     };
     await overwriteConfigFile(deviceConfig);
-
+    
   };
 
 
@@ -1928,9 +1943,9 @@ const Devices = ({ devices }) => {
   return (
     <div>
       <div className="ml-90">
-        <header
-          className="shrink-0 bg-transparent border-b border-gray-200"
-          onClick={toggleUniversalSettings}
+        <header 
+          className="shrink-0 bg-transparent border-b border-gray-200" 
+          onClick={toggleUniversalSettings} 
           style={{ cursor: 'pointer' }} // Add cursor style here
         >
           <div className="ml-0 flex h-16 max-w-7xl items-center justify-between">
@@ -1943,9 +1958,9 @@ const Devices = ({ devices }) => {
       </div>
 
       <div className="ml-90">
-        <header
-          className="shrink-0 bg-transparent border-b border-gray-200"
-          onClick={toggleConnections}
+        <header 
+          className="shrink-0 bg-transparent border-b border-gray-200" 
+          onClick={toggleConnections} 
           style={{ cursor: 'pointer' }} // Add cursor style here
         >
           <div className="ml-0 flex h-16 max-w-7xl items-center justify-between">

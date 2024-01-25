@@ -3,6 +3,11 @@ import { get, set } from 'idb-keyval';
 export async function getDirectoryHandle() {
     let directoryHandle = await get('configDirectoryHandle');
 
+    const hasPermission = await verifyPermission(directoryHandle, true);
+    if (!hasPermission) {
+        throw new Error('Read-write access not granted.');
+    }
+
     // Check if we already have a handle with the required permissions
     if (directoryHandle) {
         const permissions = await directoryHandle.queryPermission({ mode: 'readwrite' });
@@ -29,39 +34,28 @@ export async function getDirectoryHandle() {
     return directoryHandle;
 }
 
-
-
-
 export async function fetchAndCompareConfig(webAppHwUid) {
     console.log("Fetching and comparing config.json...");
 
     try {
-        const directoryHandle = await getDirectoryHandle();
-
-        // check if config.json exists
-        const fileHandle = await directoryHandle.getFileHandle('config.json', { create: false });
-
-        //delete + create again
-        const file = await fileHandle.getFile();
-
-        // read config.json 
-        const text = await file.text();
-        const config = JSON.parse(text);
-
-        // get hw_uid
-        const deviceHwUid = config.global_info.HW_UID.value;
-
-        // compare
-        if (deviceHwUid === webAppHwUid) {
-            console.log('HW_UID matches.');
-            return true;
+        // Try to get the file handle from IndexedDB
+        const fileHandle = await get('configFileHandle');
+        
+        // If there's no handle in IndexedDB, use the directory picker
+        if (!fileHandle) {
+            const directoryHandle = await getDirectoryHandle();
+            // ... rest of the existing code ...
         } else {
-            console.log('HW_UID does not match.');
-            return false;
-        }
+            // Verify permission
+            const hasPermission = await verifyPermission(fileHandle, false);
+            if (!hasPermission) {
+                throw new Error('Permission to read the file was not granted.');
+            }
 
-        // return hw_uid
-        // return deviceHwUid;
+            // Use the file handle to read the file
+            const file = await fileHandle.getFile();
+            // ... rest of the existing code ...
+        }
     } catch (error) {
         console.error('Error fetching and comparing config:', error);
         return false;
@@ -72,14 +66,18 @@ export async function overwriteConfigFile(newConfig) {
     try {
         const directoryHandle = await getDirectoryHandle();
 
-        // handle to the config.json file
-        const fileHandle = await directoryHandle.getFileHandle('config.json', { create: true }); //false
-        // Create a writable stream to overwrite the existing config.json file
-        let writable = await fileHandle.createWritable();
+        // handle config.json
+        const fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+
+        // store in indexedDB
+        await set('configFileHandle', fileHandle);
+
+        // overwrite config
+        const writable = await fileHandle.createWritable();
         await writable.write(new Blob([JSON.stringify(newConfig, null, 2)], { type: 'application/json' }));
         await writable.close();
 
-        console.log('Config file overwritten successfully.');
+        console.log('Config file overwritten and handle stored successfully.');
         return true;
 
     } catch (error) {
@@ -97,3 +95,19 @@ export async function checkDeviceConnection(webAppHwUid) {
 
     return hwUidMatch;
 };
+
+async function verifyPermission(fileHandle, readWrite) {
+    const options = {};
+    if (readWrite) {
+        options.mode = 'readwrite';
+    }
+    // permission granted? --> true
+    if ((await fileHandle.queryPermission(options)) === 'granted') {
+        return true;
+    }
+    // user grants permission --> also true
+    if ((await fileHandle.requestPermission(options)) === 'granted') {
+        return true;
+    }
+    return false;
+}
