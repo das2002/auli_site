@@ -43,31 +43,31 @@ const Updates = () => {
       try {
         const response = await fetch('https://api.github.com/repos/aulitech/Cato/releases');
         const data = await response.json();
-  
+
         // don't fetch files older than 0.0.5
         const filteredReleases = data.filter(release => {
           const releaseVersion = release.tag_name.startsWith('v') ? release.tag_name.substring(1) : release.tag_name;
           return compareVersions(releaseVersion, '0.0.5') > 0;
         });
-  
+
         setReleases(filteredReleases);
       } catch (error) {
         console.error('Error fetching releases:', error);
       }
     };
-  
+
     fetchReleases();
   }, []);
 
   const compareVersions = (v1, v2) => {
     const v1parts = v1.split('.').map(Number);
     const v2parts = v2.split('.').map(Number);
-  
+
     for (let i = 0; i < v1parts.length; ++i) {
       if (v2parts.length === i) {
         return 1;
       }
-  
+
       if (v1parts[i] === v2parts[i]) {
         continue;
       } else if (v1parts[i] > v2parts[i]) {
@@ -76,11 +76,11 @@ const Updates = () => {
         return -1;
       }
     }
-  
+
     if (v1parts.length !== v2parts.length) {
       return -1;
     }
-  
+
     return 0;
   };
 
@@ -150,6 +150,41 @@ const Updates = () => {
     }
   }
 
+  const styles = {
+    container: {
+      backgroundColor: '#f7f7f7', // Light grey background
+      border: '1px solid #ddd',   // Light border
+      borderRadius: '8px',        // Rounded corners
+      padding: '20px',            // Padding around the content
+      maxWidth: '600px',          // Maximum width of the container
+      margin: '20px 0px 20px 20px', // Adjusted margin for left alignment
+      boxShadow: '0 4px 8px rgba(0,0,0,0.1)' // Subtle shadow
+    },
+    heading: {
+      color: '#333',              // Dark grey color for the heading
+      marginBottom: '10px',       // Space below the heading
+    },
+
+    button: {
+      backgroundColor: '#0056b3', // Blue background color
+      color: 'white',             // White text
+      padding: '10px 15px',       // Padding inside the button
+      border: 'none',             // No border
+      borderRadius: '5px',        // Rounded corners
+      cursor: 'pointer',          // Pointer cursor on hover
+      marginTop: '15px',          // Space above the button
+      fontSize: '16px'            // Larger font size
+    },
+
+    list: {
+      lineHeight: '1.6',            // Space between lines
+      color: '#555',                // Dark grey color for the text
+      paddingLeft: '20px',          // Add padding to the left of the list for the numbers
+      listStyleType: 'decimal',     // Ensure decimal numbers are used
+      listStylePosition: 'inside'   // Position the numbers inside the list item content
+    },
+  };
+
   return (
     <div id='basecontainer' className='base-container'>
       <div className="ml-90">
@@ -162,11 +197,18 @@ const Updates = () => {
         </header>
       </div>
 
-      {/* Hidden div for measuring */}
+      <div style={styles.container}>
+        <h2 style={styles.heading}><strong>Instructions:</strong></h2>
+        <ol style={styles.list}>
+          <li>Download the <strong>release.zip</strong> file and unzip the content.</li>
+          <li>Drag the contents of the file onto your <strong>"AULI_CATO"</strong> device.</li>
+        </ol>
+      </div>
+
       <div style={{
         position: 'fixed',
         left: '-9999px',
-        width: '1000px', // or an appropriate width that matches your items
+        width: '1000px', 
         overflow: 'hidden'
       }}
         className='release-container'
