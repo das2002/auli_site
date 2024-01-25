@@ -59,7 +59,7 @@ export async function fetchAndCompareConfig(webAppHwUid) {
             const text = await file.text();
             const config = JSON.parse(text);
             const deviceHwUid = config.global_info.HW_UID.value;
-            if (deviceHwUid === webAppHwUid) {
+            if (deviceHwUid == webAppHwUid) {
                 console.log('HW_UID matches.');
             } else {
                 console.log('HW_UID does not match.');
