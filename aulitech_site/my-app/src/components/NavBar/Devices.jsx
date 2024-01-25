@@ -74,10 +74,6 @@ const CheckboxOption = ({ checked, onChange, title, description }) => {
   );
 };
 
-
-
-
-
 const HardwareUIDField = ({ hardwareUID }) => {
   return (
     <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
@@ -687,22 +683,17 @@ const Devices = ({ devices }) => {
       );
     }
 
-    const ConnectionAccordion = ({ connection, onDelete, onNameChange = () => { } }) => {
+    const ConnectionAccordion = ({ connection, onDelete }) => {
       const [isExpanded, setIsExpanded] = useState(false);
-      const [editedConnectionName, setEditedConnectionName] = useState(connection.name);
-
-      const handleNameChange = (event) => {
-        setEditedConnectionName(event.target.value);
-      };
-
-      const handleNameCommit = () => {
-        onNameChange(connection.name, editedConnectionName);
-      };
+     
       const [collapsedSections, setCollapsedSections] = useState({});
 
       const isDefaultConnection = connection.name === "Default Connection";
 
-      const toggleExpand = () => {
+      const toggleExpand = (event) => {
+        if (event.target.tagName.toLowerCase() === 'input') {
+          return; // Do not toggle if clicking inside the input
+        }
         setIsExpanded(!isExpanded);
       };
 
@@ -857,37 +848,33 @@ const Devices = ({ devices }) => {
       }, [activeOperationMode]);
 
       useEffect(() => {
-        console.log('editedConnectionConfig: ' + editedConnectionConfig)
+        console.log('editedConnectionConfig: ' + JSON.stringify(editedConnectionConfig))
         if (editedConnectionConfig) {
           connection["connection_config"] = JSON.stringify(editedConnectionConfig);
+          connection["name"] = editedConnectionConfig["connection_name"]["value"];
         }
+        console.log('connection: ' + JSON.stringify(connection))
       }, [editedConnectionConfig]);
 
       useEffect(() => {
-        console.log('editedGestureMouseConfig: ' + editedGestureMouseConfig)
         if (editedGestureMouseConfig) {
           connection["mode"]["gesture_mouse"] = JSON.stringify(editedGestureMouseConfig);
         }
       }, [editedGestureMouseConfig]);
 
       useEffect(() => {
-        console.log('editedTVRemoteConfig: ' + editedTVRemoteConfig)
         if (editedTVRemoteConfig) {
-          console.log('editedTVRemoteConfig: ' + editedTVRemoteConfig)
           connection["mode"]["tv_remote"] = JSON.stringify(editedTVRemoteConfig);
         }
       }, [editedTVRemoteConfig]);
 
       useEffect(() => {
-        console.log('editedPointerConfig: ' + editedPointerConfig)
-        console.log(editedPointerConfig);
         if (editedPointerConfig) {
           connection["mode"]["pointer"] = JSON.stringify(editedPointerConfig);
         }
       }, [editedPointerConfig]);
 
       useEffect(() => {
-        console.log('editedClickerConfig: ' + editedClickerConfig)
         if (editedClickerConfig) {
           connection["mode"]["clicker"] = JSON.stringify(editedClickerConfig);
 
@@ -908,11 +895,11 @@ const Devices = ({ devices }) => {
           // Data is not yet available, you can return a loader or null
           return <div>Loading...</div>; // or return null;
         }
-      
+
 
         return (
           <div onClick={toggleExpand} style={{ cursor: 'pointer', marginBottom: '1rem' }}>
-          <button
+            <button
               onClick={() => toggleSection('connectionSettings')}
               style={{
 
@@ -960,7 +947,6 @@ const Devices = ({ devices }) => {
           </div>
         );
       };
-
       const MouseOptions = (config) => {
         const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -968,7 +954,7 @@ const Devices = ({ devices }) => {
           setIsCollapsed(!isCollapsed);
         };
 
-        
+
 
         return (
           <div style={{ maxWidth: '600px', margin: '0' }}>
@@ -1093,7 +1079,6 @@ const Devices = ({ devices }) => {
           </div>
         );
       };
-
       const ClickerOptions = (config) => {
         const [collapsedSections, setCollapsedSections] = useState({ clickerSettings: false });
 
@@ -1179,8 +1164,6 @@ const Devices = ({ devices }) => {
           </div>
         );
       };
-
-
       const GestureOptions = (config) => {
         const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -1252,7 +1235,6 @@ const Devices = ({ devices }) => {
           </div>
         );
       };
-
       const TVRemoteOptions = (config) => {
         return (
           // give a title for the TV Remote Options
@@ -1272,18 +1254,13 @@ const Devices = ({ devices }) => {
 
         );
       };
-
       const BindingsPanel = ({ config }) => {
         const [isBindingsExpanded, setIsBindingsExpanded] = useState(true);
         const toggleBindings = () => {
           setIsBindingsExpanded(!isBindingsExpanded);
         };
 
-
-        console.log(config);
-
         const getInitialBindingsForMode = (config) => {
-          console.log(config);
           const defaultConfig = [
             { gesture: 'None', command: 'noop', setting1: '', setting2: '', setting3: '' },
             { gesture: 'Nod Up', command: 'noop', setting1: '', setting2: '', setting3: '' },
@@ -1641,9 +1618,6 @@ const Devices = ({ devices }) => {
 
 
       }
-
-
-
       const GestureMouseSetting = () => {
         if (!fetchedGestureMouseConfig) {
           return <div>Loading...</div>;
@@ -1664,7 +1638,6 @@ const Devices = ({ devices }) => {
           </div>
         );
       }
-
       const ClickerSetting = () => {
         const [collapsedSections, setCollapsedSections] = useState({});
 
@@ -1687,7 +1660,6 @@ const Devices = ({ devices }) => {
           </div>
         );
       }
-
       const TVRemoteSetting = () => {
         if (!fetchedTVRemoteConfig) {
           return <div>Loading...</div>;
@@ -1706,7 +1678,6 @@ const Devices = ({ devices }) => {
           </div>
         );
       };
-
       const PointerSetting = () => {
         //pointer setting
         if (!fetchedPointerConfig) {
@@ -1726,32 +1697,20 @@ const Devices = ({ devices }) => {
           </div>
         );
       }
-
-      // const handleConnectionDeletion = async () => {
-      /*
-      const userId = getCurrentUserId();
-      const userCatoDocId = thisDevice.id;
-      const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
-  
-      try {
-        await updateDoc(userCatoDocRef, {
-          'connections': arrayRemove(editedConnectionConfig),
-        });
-        console.log("Connection deleted successfully");
-      } catch (error) {
-        console.error("Error deleting connection: ", error);
-      }
-      */
-
-      // }
-
-      return (
-<div 
-      onClick={toggleExpand}
-      style={{ cursor: 'pointer', marginBottom: '1rem' }}
-    >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            {/* Always show the input box */}
+      const ConnectionNameField = ({initialConnectionName, onNameChange}) => {
+        const [editedConnectionName, setEditedConnectionName] = useState(initialConnectionName);
+        const handleNameChange = (e) => {
+          console.log("new name: " + e.target.value);
+          setEditedConnectionName(e.target.value);
+        }
+        const handleNameCommit = (event) => {
+          console.log("committing name change");
+          console.log(event.target.value);
+          onNameChange(event.target.value);
+        }
+        return (
+          <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
+            <h2 style={{ fontSize: '16px', marginRight: '10px' }}><strong>Connection Name:</strong></h2>
             <input
               value={editedConnectionName}
               onChange={handleNameChange}
@@ -1766,7 +1725,27 @@ const Devices = ({ devices }) => {
               type="text"
               placeholder="Connection Name"
             />
-
+          </div>
+        );
+      };
+      const handleConnectionNameChange = (value) => {
+        console.log("New connection name: " + value);
+        let newEditedConnectionConfig = deepCopy(editedConnectionConfig);
+        newEditedConnectionConfig["connection_name"]["value"] = value;
+        setEditedConnectionConfig(newEditedConnectionConfig);
+      }
+      return (
+        <div
+          onClick={toggleExpand}
+          style={{ cursor: 'pointer', marginBottom: '1rem' }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            { editedConnectionConfig &&
+              <ConnectionNameField
+                initialConnectionName={deepCopy(connection.name)}
+                onNameChange={handleConnectionNameChange}
+              />
+            } 
             {!isDefaultConnection && (
               <div>
                 <button
@@ -1816,8 +1795,9 @@ const Devices = ({ devices }) => {
             </div>
           )}
         </div>
-      )
-    }
+      );
+    };
+
     return (
       <div style={sliderContainerStyle}>
         <div style={accordionListStyle}>
@@ -1826,9 +1806,8 @@ const Devices = ({ devices }) => {
               <ConnectionAccordion
                 connection={item}
                 onDelete={handleConnectionDeletion} //delete connections
-              >
-                {item.name}
-              </ConnectionAccordion>
+                // onNameChange={handleNameChange}
+              />
               {index !== data.length - 1 && <DashedLine style={{ marginBottom: '1rem' }} />}
             </div>
           ))}
@@ -1836,6 +1815,7 @@ const Devices = ({ devices }) => {
       </div>
     );
   };
+
 
 
   const accordionListStyle = {
@@ -1858,17 +1838,9 @@ const Devices = ({ devices }) => {
     console.log(editedConnectionsSettings);
 
     const webAppHwUid = editedGlobalSettings["HW_UID"]["value"];
-
-
-
     const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
     console.log(webAppHwUid);
     console.log(hwUidMatch);
-    // const configFile = await fetchConfigFileFromDevice();
-    // const configData = JSON.parse(configFile);
-    // const deviceHwUid = configData.global_info.HW_UID.value;
-
-    // const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
     if (!hwUidMatch) {
       console.error("HW_UID does not match with the connected device.");
       return;
