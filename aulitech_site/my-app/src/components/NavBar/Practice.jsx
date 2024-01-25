@@ -272,19 +272,24 @@ const Practice = ({ user, devices }) => {
             }
         }
         try {
-            let directoryHandle = await get('configDirectoryHandle');
-            if (!directoryHandle) {
-                directoryHandle = await window.showDirectoryPicker();
-                await set('configDirectoryHandle', directoryHandle);
+            let fileHandle = await get('configFileHandle');
+
+            if (!fileHandle) {
+                const directoryHandle = await getDirectoryHandle();
+                fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+                await set('configFileHandle', fileHandle);
             }
+
             //check if user granted permission to r/w
-            const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
+            const permissionStatus = await fileHandle.queryPermission({ mode: 'readwrite' });
             if (permissionStatus !== 'granted') {
-                console.log("Permission to access directory not granted");
-                return;
-             }
+                const permissionGranted = await fileHandle.requestPermission({ mode: 'readwrite' });
+                if (permissionGranted !== 'granted') {
+                    throw new Error('Read-write access not granted.');
+                }
+            }
+
             //check if config.json exists
-            const fileHandle = await directoryHandle.getFileHandle('config.json');
             const file = await fileHandle.getFile();
             const text = await file.text();
             const config = JSON.parse(text);
@@ -333,6 +338,8 @@ const Practice = ({ user, devices }) => {
             //navigate(`/devices/${deviceName}`)
         } else { // turning on current practice 
             // fetch the config.json file from catos
+
+
             const config = await fetchAndCompareConfig();
             if (!config) {
                 // make sure that the device is not in practice mode
@@ -340,8 +347,6 @@ const Practice = ({ user, devices }) => {
                 console.log("Device must be connected to initiate practice mode!")
                 return;
             }
-            // set the original config.json file
-            //setOriginalJson(deepCopy(config));
 
             const practiceConfig = await practiceModeConfigChange(config);
             if (!practiceConfig) {
