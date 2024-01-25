@@ -11,27 +11,30 @@ const createMarkup = (markdown) => {
 };
 
 const FormattedUpdate = ({ release, index, id }) => {
-  const isLatest = index === 0; // Check if it's the first release
+  const isLatest = index === 0; 
   const tagName = isLatest ? `${release.tag_name} (latest)` : release.tag_name;
-
+  const releaseZipUrl = release.assets?.find(asset => asset.name === 'release.zip')?.browser_download_url;
+  //only release.zip
+  
   return (
     <div id={id} className={'mt-2 mb-12'}>
-
       <div key={index} id={id} className={'mt-2 mb-12'}>
-        <div className='text-2xl font-bold mb-2.5'>Firmware Version {release.tag_name}</div>
+        <div className='text-2xl font-bold mb-2.5'>Firmware Version {tagName}</div>
         <div className="text-lg font-bold">What's New:</div>
         <div className='markdown' dangerouslySetInnerHTML={createMarkup(release.body)} />
-        <div style={{ marginTop: '.7rem' }}>
-          <a href={release.zipball_url}
-            target="_blank"
-            className="decision-button px-3 py-2 rounded-lg cursor-pointer text-lg"
-            style={{ border: 'none' }}>
-            Download Update
-          </a>
-        </div>
+        {releaseZipUrl && (
+          <div style={{ marginTop: '.7rem' }}>
+            <a href={releaseZipUrl}
+              target="_blank"
+              rel="noopener noreferrer" //security doc?
+              className="decision-button px-3 py-2 rounded-lg cursor-pointer text-lg"
+              style={{ border: 'none' }}>
+              Download Update
+            </a>
+          </div>
+        )}
       </div>
     </div>
-
   );
 };
 
