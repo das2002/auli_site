@@ -1,36 +1,22 @@
 import { get, set } from 'idb-keyval';
 
+
 export async function getDirectoryHandle() {
     let directoryHandle = await get('configDirectoryHandle');
-
-    const hasPermission = await verifyPermission(directoryHandle, true);
-    if (!hasPermission) {
-        throw new Error('Read-write access not granted.');
+    // no handle --> store the handle
+    if (!directoryHandle) {
+        directoryHandle = await window.showDirectoryPicker();
+        await set('configDirectoryHandle', directoryHandle);
     }
-
-    // Check if we already have a handle with the required permissions
-    if (directoryHandle) {
-        const permissions = await directoryHandle.queryPermission({ mode: 'readwrite' });
-        if (permissions === 'granted') {
-            return directoryHandle;
-        }
-    }
-
-    // If no handle or insufficient permissions, request directory picker
-    // This implicitly requests read-write access
-    directoryHandle = await window.showDirectoryPicker();
-
-    // Check and request permissions if necessary
-    const permissionStatus = await directoryHandle.queryPermission({ mode: 'readwrite' });
-    if (permissionStatus !== 'granted') {
-        const permissionGranted = await directoryHandle.requestPermission({ mode: 'readwrite' });
+    const options = { mode: 'readwrite' };
+    const permission = await directoryHandle.queryPermission(options);
+    console.log("has permission??", permission)
+    if (permission !== 'granted') {
+        const permissionGranted = await directoryHandle.requestPermission(options);
         if (permissionGranted !== 'granted') {
-            throw new Error('Read-write access not granted.');
+            throw new Error('Read-write access not granted.'); //return from decision
         }
     }
-
-    // Store the handle for future use
-    await set('configDirectoryHandle', directoryHandle);
     return directoryHandle;
 }
 
@@ -97,66 +83,34 @@ export async function fetchAndCompareConfig(webAppHwUid) {
 
 export async function getFileHandle() {
     let fileHandle = await get('configFileHandle');
-    const hasPermission = await verifyPermission(fileHandle, true);
-    if (!hasPermission) {
-        throw new Error('Read-write access not granted.');
-    }
 
-    // Check if we already have a handle with the required permissions
     if (fileHandle) {
-        const permissions = await fileHandle.queryPermission({ mode: 'readwrite' });
-        if (permissions === 'granted') {
+        const permission = await verifyPermission(fileHandle, true);
+        if (permission) {
             return fileHandle;
         } else {
-            // If no handle or insufficient permissions, request directory picker
-            // This implicitly requests read-write access
             const directoryHandle = await getDirectoryHandle();
             fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
-            
-            // Check and request permissions if necessary
-            const permissionStatus = await fileHandle.queryPermission({ mode: 'readwrite' });
-            if (permissionStatus !== 'granted') {
-                const permissionGranted = await fileHandle.requestPermission({ mode: 'readwrite' });
-                if (permissionGranted !== 'granted') {
-                    throw new Error('Read-write access not granted.');
-                }
-            }
-
-            // Store the handle for future use
             await set('configFileHandle', fileHandle);
             return fileHandle;
         }
-    } else {
-        // If no handle or insufficient permissions, request directory picker
-        // This implicitly requests read-write access
-        const directoryHandle = await getDirectoryHandle();
-        fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
-        
-        // Check and request permissions if necessary
-        const permissionStatus = await fileHandle.queryPermission({ mode: 'readwrite' });
-        if (permissionStatus !== 'granted') {
-            const permissionGranted = await fileHandle.requestPermission({ mode: 'readwrite' });
-            if (permissionGranted !== 'granted') {
-                throw new Error('Read-write access not granted.');
-            }
-        }
-
-        // Store the handle for future use
-        await set('configFileHandle', fileHandle);
-        return fileHandle;
     }
+
+    const directoryHandle = await getDirectoryHandle();
+    fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+    await set('configFileHandle', fileHandle);
+    const permission = await verifyPermission(fileHandle, true);
+    if (permission) {
+        return fileHandle;
+    } else {
+        throw new Error('Permission to read the file was not granted.');
+    }    
 }
 
 export async function overwriteConfigFile(newConfig) {
     try {
         // check if we have a file handle
-        let fileHandle = await get('configFileHandle');
-
-        if (!fileHandle) {
-            const directoryHandle = await getDirectoryHandle();
-            fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
-            await set('configFileHandle', fileHandle);
-        }
+        const fileHandle = await getFileHandle();
 
         // overwrite config
         const writable = await fileHandle.createWritable();
@@ -187,13 +141,15 @@ async function verifyPermission(fileHandle, readWrite) {
     if (readWrite) {
         options.mode = 'readwrite';
     }
-    // permission granted? --> true
-    if ((await fileHandle.queryPermission(options)) === 'granted') {
+    // alredy permission granted?
+    const permission = await fileHandle.queryPermission(options);
+    // permission granted --> true
+    if (permission === 'granted') {
         return true;
     }
-    // user grants permission --> also true
-    if ((await fileHandle.requestPermission(options)) === 'granted') {
-        return true;
+    // permission not there --> request permission
+    if (permission === 'denied' || permission === 'prompt') {
+        return (await fileHandle.requestPermission(options)) === 'granted';
     }
     return false;
 }

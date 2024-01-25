@@ -8,7 +8,7 @@ import debounce from 'lodash.debounce';
 import { db, auth } from '../../firebase';
 import { doc, updateDoc } from "firebase/firestore";
 import { use } from 'marked';
-import {getDirectoryHandle} from './ReplaceConfig'
+import {getDirectoryHandle, getFileHandle} from './ReplaceConfig'
 
 const deepCopy = (obj) => {
     return JSON.parse(JSON.stringify(obj));
@@ -272,39 +272,32 @@ const Practice = ({ user, devices }) => {
             }
         }
         try {
-            let fileHandle = await get('configFileHandle');
 
-            if (!fileHandle) {
-                const directoryHandle = await getDirectoryHandle();
-                fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
-                await set('configFileHandle', fileHandle);
-            }
-
-            //check if user granted permission to r/w
-            const permissionStatus = await fileHandle.queryPermission({ mode: 'readwrite' });
-            if (permissionStatus !== 'granted') {
-                const permissionGranted = await fileHandle.requestPermission({ mode: 'readwrite' });
-                if (permissionGranted !== 'granted') {
-                    throw new Error('Read-write access not granted.');
-                }
-            }
+            const fileHandle = await getFileHandle();
 
             //check if config.json exists
             const file = await fileHandle.getFile();
+            console.log("3.1")
             const text = await file.text();
+            console.log("3.2")
             const config = JSON.parse(text);
+
+            console.log("4")
             // console.log("config", config);
             // check if there is a deviceHwUid
             if (!config || !config.global_info || !config.global_info.HW_UID || !config.global_info.HW_UID.value) {
                 console.error("HW_UID is empty or not found in the JSON structure");
                 return;
             }
+
+            console.log("5");
             const deviceHwUid = config.global_info.HW_UID.value;
             const hwUidMatches = await checkIfHardwareUidMatches(deviceName, deviceHwUid);
             if (!hwUidMatches) {
                 console.error("HW_UID does not match the device name");
                 return;
             }
+            console.log("6");
             return config;
         } catch (error) {
             console.log("Error fetching config.json", error);
