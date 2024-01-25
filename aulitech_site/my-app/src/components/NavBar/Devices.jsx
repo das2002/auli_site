@@ -1845,7 +1845,7 @@ const Devices = ({ devices }) => {
 
 
     // const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
-    const hwUidMatch = await fetchAndCompareConfig(directoryHandle, webAppHwUid);
+    const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
     
     console.log(webAppHwUid);
     console.log(hwUidMatch);
