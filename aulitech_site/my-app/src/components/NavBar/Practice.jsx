@@ -248,6 +248,7 @@ const Practice = ({ user, devices }) => {
 
     const [practiceText, setPracticeText] = useState('');
     const [firebaseConfig, setFirebaseConfig] = useState(deepCopy(JSON.parse(thisDevice['data']['device_info']['practice_config']))); // practice mode config stored in firebase
+    const [lastFirebaseConfig, setLastFirebaseConfig] = useState(deepCopy(JSON.parse(thisDevice['data']['device_info']['practice_config'])));
     const [isPracticing, setIsPracticing] = useState(false);
     const textareaRef = useRef(null);
 
@@ -277,12 +278,9 @@ const Practice = ({ user, devices }) => {
 
             //check if config.json exists
             const file = await fileHandle.getFile();
-            console.log("3.1")
             const text = await file.text();
-            console.log("3.2")
             const config = JSON.parse(text);
 
-            console.log("4")
             // console.log("config", config);
             // check if there is a deviceHwUid
             if (!config || !config.global_info || !config.global_info.HW_UID || !config.global_info.HW_UID.value) {
@@ -290,14 +288,12 @@ const Practice = ({ user, devices }) => {
                 return;
             }
 
-            console.log("5");
             const deviceHwUid = config.global_info.HW_UID.value;
             const hwUidMatches = await checkIfHardwareUidMatches(deviceName, deviceHwUid);
             if (!hwUidMatches) {
                 console.error("HW_UID does not match the device name");
                 return;
             }
-            console.log("6");
             return config;
         } catch (error) {
             console.log("Error fetching config.json", error);
@@ -306,22 +302,27 @@ const Practice = ({ user, devices }) => {
     }
 
     async function practiceModeConfigChange(config) {
+
+        console.log("practiceConfig", config);
+
         let practiceConfig = deepCopy(config);
-        // if the first connection in the array is already in practice mode, return true
+
+        
+        // if the first connection in the array is already in practice mode, we want to update the settings accordingly to the updated settings
         if (practiceConfig['connections'][0]['operation_mode']['value'] === 'practice') {
+            practiceConfig['connections'][0]['practice'] = lastFirebaseConfig['practice'];
             return practiceConfig;
         } else {
             // we have to push the practice mode config to the device
-            let connectionObject = JSON.parse(thisDevice['data']['device_info']['practice_config']);
+            //let connectionObject = JSON.parse(thisDevice['data']['device_info']['practice_config']);
+            let connectionObject = deepCopy(lastFirebaseConfig);
             //push the connectionObject to the front of the connections array
             practiceConfig['connections'].unshift(connectionObject);
-            console.log("practiceConfig", practiceConfig);
             return practiceConfig;
         }
     }
 
     const togglePractice = async () => {
-        console.log("isPracticing", isPracticing);
         if (isPracticing) { // turning off current practice
             textareaRef.current.blur();
             // download the original config.json file
@@ -347,6 +348,7 @@ const Practice = ({ user, devices }) => {
                 return;
             }
 
+
             //console.log("practiceConfig", practiceConfig);
             // write the practice mode config to the device
             const success = await overwriteConfigFile(practiceConfig);
@@ -369,6 +371,7 @@ const Practice = ({ user, devices }) => {
                 "device_info.practice_config": JSON.stringify(firebaseConfig),
             });
             console.log("Practice config updated successfully on Firebase");
+            setLastFirebaseConfig(deepCopy(firebaseConfig));
         } catch (error) {
             console.error("Error updating practice config:", error);
         }
