@@ -15,7 +15,7 @@ const FormattedUpdate = ({ release, index, id }) => {
   const tagName = isLatest ? `${release.tag_name} (latest)` : release.tag_name;
   const releaseZipUrl = release.assets?.find(asset => asset.name === 'release.zip')?.browser_download_url;
   //only release.zip
-  
+
   return (
     <div id={id} className={'mt-2 mb-12'}>
       <div key={index} id={id} className={'mt-2 mb-12'}>

@@ -12,31 +12,31 @@ import Practice from "./Practice";
 import { overwriteConfigFile } from '../NavBar/ReplaceConfig';
 
 // static nav buttons in navbar
-const RecordGesturesRoute = () => {
-  const { classNames } = useContext(AppContext);
-  return (
-    <div className="-mx-6 transition-all duration-300">
-      <NavLink
-        to="/record-gestures"
-        className={({ isActive }) =>
-          classNames(
-            isActive
-              ? "bg-gray-700 text-white"
-              : "text-gray-400 hover:text-white hover:bg-gray-700",
-            "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
-          )
-        }
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
-          <circle cx="12" cy="12" r="8" strokeWidth="2" />
-          <circle cx="12" cy="12" r="4" fill="currentColor" />
-          <rect x="2" y="2" width="20" height="20" rx="10" strokeWidth="2" />
-        </svg>
-        <p>Record Gestures</p>
-      </NavLink>
-    </div>
-  );
-};
+// const RecordGesturesRoute = () => {
+//   const { classNames } = useContext(AppContext);
+//   return (
+//     <div className="-mx-6 transition-all duration-300">
+//       <NavLink
+//         to="/record-gestures"
+//         className={({ isActive }) =>
+//           classNames(
+//             isActive
+//               ? "bg-gray-700 text-white"
+//               : "text-gray-400 hover:text-white hover:bg-gray-700",
+//             "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
+//           )
+//         }
+//       >
+//         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
+//           <circle cx="12" cy="12" r="8" strokeWidth="2" />
+//           <circle cx="12" cy="12" r="4" fill="currentColor" />
+//           <rect x="2" y="2" width="20" height="20" rx="10" strokeWidth="2" />
+//         </svg>
+//         <p>Record Gestures</p>
+//       </NavLink>
+//     </div>
+//   );
+// };
 
 const UpdateRoute = () => {
   const { classNames } = useContext(AppContext);
@@ -517,7 +517,7 @@ const Navigation = ({
                           </div>
                           {/* Routes that will move */}
                           <UpdateRoute />
-                          <RecordGesturesRoute />
+                          {/* <RecordGesturesRoute /> */}
                         </div>
                         <ProfileRoute />
                       </nav>
@@ -545,7 +545,7 @@ const Navigation = ({
                 <div role="list" className="flex align-top flex-col gap-y-7 transition-all duration-300">
                   {/* Routes that will move */}
                   <UpdateRoute />
-                  <RecordGesturesRoute />
+                  {/* <RecordGesturesRoute /> */}
                 </div>
                 <ProfileRoute />
               </nav>
