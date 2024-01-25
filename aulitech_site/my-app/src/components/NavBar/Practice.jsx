@@ -272,31 +272,23 @@ const Practice = ({ user, devices }) => {
             }
         }
         try {
-            // check existence directories
-            // let directoryHandle = await get('configDirectoryHandle');
-
-            // // request + store in indexedDB
-            // if (!directoryHandle) {
-            //     directoryHandle = await window.showDirectoryPicker();
-            //     await set('configDirectoryHandle', directoryHandle);
-            // }
-
-            // // get r/w access
-            // const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
-            // if (permissionStatus !== 'granted') {
-            //     console.log("Permission to access directory not granted");
-            //     return;
-            // }
-            const directoryHandle = await getDirectoryHandle();
-
+            let directoryHandle = await get('configDirectoryHandle');
+            if (!directoryHandle) {
+                directoryHandle = await window.showDirectoryPicker();
+                await set('configDirectoryHandle', directoryHandle);
+            }
+            //check if user granted permission to r/w
+            const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
+            if (permissionStatus !== 'granted') {
+                console.log("Permission to access directory not granted");
+                return;
+             }
             //check if config.json exists
             const fileHandle = await directoryHandle.getFileHandle('config.json');
             const file = await fileHandle.getFile();
             const text = await file.text();
             const config = JSON.parse(text);
-
             // console.log("config", config);
-
             // check if there is a deviceHwUid
             if (!config || !config.global_info || !config.global_info.HW_UID || !config.global_info.HW_UID.value) {
                 console.error("HW_UID is empty or not found in the JSON structure");
@@ -309,7 +301,6 @@ const Practice = ({ user, devices }) => {
                 return;
             }
             return config;
-
         } catch (error) {
             console.log("Error fetching config.json", error);
             return;
