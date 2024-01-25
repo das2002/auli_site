@@ -364,7 +364,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
         gesture_mouse: JSON.stringify(modeDefaultGenerator("gesture_mouse")),
         tv_remote: JSON.stringify(modeDefaultGenerator("tv_remote"))
       };
-      let connectionName = "default";
+      let connectionName = "Default Connection";
       let firebaseConnectionConfig = {
         connection_config: connectionConfig,
         mode: modeMap,
