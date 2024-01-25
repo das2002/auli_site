@@ -43,16 +43,46 @@ const Updates = () => {
       try {
         const response = await fetch('https://api.github.com/repos/aulitech/Cato/releases');
         const data = await response.json();
-
-
-        setReleases(data);
+  
+        // don't fetch files older than 0.0.5
+        const filteredReleases = data.filter(release => {
+          const releaseVersion = release.tag_name.startsWith('v') ? release.tag_name.substring(1) : release.tag_name;
+          return compareVersions(releaseVersion, '0.0.5') > 0;
+        });
+  
+        setReleases(filteredReleases);
       } catch (error) {
         console.error('Error fetching releases:', error);
       }
     };
-
+  
     fetchReleases();
   }, []);
+
+  const compareVersions = (v1, v2) => {
+    const v1parts = v1.split('.').map(Number);
+    const v2parts = v2.split('.').map(Number);
+  
+    for (let i = 0; i < v1parts.length; ++i) {
+      if (v2parts.length === i) {
+        return 1;
+      }
+  
+      if (v1parts[i] === v2parts[i]) {
+        continue;
+      } else if (v1parts[i] > v2parts[i]) {
+        return 1;
+      } else {
+        return -1;
+      }
+    }
+  
+    if (v1parts.length !== v2parts.length) {
+      return -1;
+    }
+  
+    return 0;
+  };
 
   const containerRef = useRef(null);
   const [measuredHeights, setMeasuredHeights] = useState([]);
