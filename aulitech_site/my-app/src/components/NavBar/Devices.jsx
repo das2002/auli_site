@@ -113,10 +113,10 @@ const getCurrentUserId = () => {
 function parseBool(value) {
   if (typeof value === 'string') {
     value = value.toLowerCase().trim();
-    if (value === 'true') {
-      return true;
-    } else if (value === 'false') {
-      return false;
+    if (value === 'true' || value === 'on') {
+      return 'true';
+    } else if (value === 'false' || value === 'off') {
+      return 'false';
     }
   }
   return Boolean(value);
@@ -886,7 +886,7 @@ const Devices = ({ devices }) => {
       useEffect(() => {
         console.log('editedTVRemoteConfig: ' + editedTVRemoteConfig)
         if (editedTVRemoteConfig) {
-          console.log('editedTVRemoteConfig: ' + editedTVRemoteConfig)
+          console.log('editedTVRemoteConfig: ' + JSON.stringify(editedTVRemoteConfig))
           connection["mode"]["tv_remote"] = JSON.stringify(editedTVRemoteConfig);
         }
       }, [editedTVRemoteConfig]);
@@ -1267,10 +1267,9 @@ const Devices = ({ devices }) => {
             {/* <div style={sliderContainerStyle}> */}
             <CheckboxOption
               checked={config.config.tv_remote.value.await_actions.value}
-              onChange={(e) => handleModeConfigChange(['tv_remote', 'value', 'await_actions', 'value'], activeOperationMode)(parseBool(e.target.value))}
+              onChange={(e) => handleModeConfigChange(['tv_remote', 'value', 'await_actions', 'value'], activeOperationMode)((e.target.checked))}
               title="Await Actions"
               description="Wait for previous action to end before reading a new gesture"
-              options={[true, false]}
             />
           </div>
           // </div>
@@ -1873,13 +1872,6 @@ const Devices = ({ devices }) => {
     // const directoryHandle = await getDirectoryHandle();
     
     const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
-    console.log(webAppHwUid);
-    console.log(hwUidMatch);
-    // const configFile = await fetchConfigFileFromDevice();
-    // const configData = JSON.parse(configFile);
-    // const deviceHwUid = configData.global_info.HW_UID.value;
-
-    // const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
     if (!hwUidMatch) {
       console.error("HW_UID does not match with the connected device.");
       return;
