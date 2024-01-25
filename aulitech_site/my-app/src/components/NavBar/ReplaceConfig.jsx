@@ -44,7 +44,30 @@ export async function fetchAndCompareConfig(webAppHwUid) {
         // If there's no handle in IndexedDB, use the directory picker
         if (!fileHandle) {
             const directoryHandle = await getDirectoryHandle();
-            // ... rest of the existing code ...
+            // request + store in indexedDB
+            if (!directoryHandle) {
+                directoryHandle = await window.showDirectoryPicker();
+                await set('configDirectoryHandle', directoryHandle);
+            }
+            const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
+            if (permissionStatus !== 'granted') {
+                throw new Error('Permission to access directory not granted.');
+            }
+            const fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+            await set('configFileHandle', fileHandle);
+            const file = await fileHandle.getFile();
+            const text = await file.text();
+            const config = JSON.parse(text);
+            const deviceHwUid = config.global_info.HW_UID.value;
+            if (deviceHwUid === webAppHwUid) {
+                console.log('HW_UID matches.');
+            } else {
+                console.log('HW_UID does not match.');
+            }
+
+            // return hw_uid
+            return deviceHwUid;
+
         } else {
             // Verify permission
             const hasPermission = await verifyPermission(fileHandle, false);
@@ -54,7 +77,17 @@ export async function fetchAndCompareConfig(webAppHwUid) {
 
             // Use the file handle to read the file
             const file = await fileHandle.getFile();
-            // ... rest of the existing code ...
+            const text = await file.text();
+            const config = JSON.parse(text);
+            const deviceHwUid = config.global_info.HW_UID.value;
+            if (deviceHwUid === webAppHwUid) {
+                console.log('HW_UID matches.');
+            } else {
+                console.log('HW_UID does not match.');
+            }
+    
+            // return hw_uid
+            return deviceHwUid; 
         }
     } catch (error) {
         console.error('Error fetching and comparing config:', error);
@@ -62,15 +95,68 @@ export async function fetchAndCompareConfig(webAppHwUid) {
     }
 }
 
+export async function getFileHandle() {
+    let fileHandle = await get('configFileHandle');
+    const hasPermission = await verifyPermission(fileHandle, true);
+    if (!hasPermission) {
+        throw new Error('Read-write access not granted.');
+    }
+
+    // Check if we already have a handle with the required permissions
+    if (fileHandle) {
+        const permissions = await fileHandle.queryPermission({ mode: 'readwrite' });
+        if (permissions === 'granted') {
+            return fileHandle;
+        } else {
+            // If no handle or insufficient permissions, request directory picker
+            // This implicitly requests read-write access
+            const directoryHandle = await getDirectoryHandle();
+            fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+            
+            // Check and request permissions if necessary
+            const permissionStatus = await fileHandle.queryPermission({ mode: 'readwrite' });
+            if (permissionStatus !== 'granted') {
+                const permissionGranted = await fileHandle.requestPermission({ mode: 'readwrite' });
+                if (permissionGranted !== 'granted') {
+                    throw new Error('Read-write access not granted.');
+                }
+            }
+
+            // Store the handle for future use
+            await set('configFileHandle', fileHandle);
+            return fileHandle;
+        }
+    } else {
+        // If no handle or insufficient permissions, request directory picker
+        // This implicitly requests read-write access
+        const directoryHandle = await getDirectoryHandle();
+        fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+        
+        // Check and request permissions if necessary
+        const permissionStatus = await fileHandle.queryPermission({ mode: 'readwrite' });
+        if (permissionStatus !== 'granted') {
+            const permissionGranted = await fileHandle.requestPermission({ mode: 'readwrite' });
+            if (permissionGranted !== 'granted') {
+                throw new Error('Read-write access not granted.');
+            }
+        }
+
+        // Store the handle for future use
+        await set('configFileHandle', fileHandle);
+        return fileHandle;
+    }
+}
+
 export async function overwriteConfigFile(newConfig) {
     try {
-        const directoryHandle = await getDirectoryHandle();
+        // check if we have a file handle
+        let fileHandle = await get('configFileHandle');
 
-        // handle config.json
-        const fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
-
-        // store in indexedDB
-        await set('configFileHandle', fileHandle);
+        if (!fileHandle) {
+            const directoryHandle = await getDirectoryHandle();
+            fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+            await set('configFileHandle', fileHandle);
+        }
 
         // overwrite config
         const writable = await fileHandle.createWritable();
