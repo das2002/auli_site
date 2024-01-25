@@ -200,8 +200,8 @@ const Updates = () => {
       <div style={styles.container}>
         <h2 style={styles.heading}><strong>Instructions:</strong></h2>
         <ol style={styles.list}>
-          <li>Download the <strong>release.zip</strong> file and unzip the content.</li>
-          <li>Drag the contents of the file onto your <strong>"AULI_CATO"</strong> device.</li>
+          <li>Download the link and unzip the content.</li>
+          <li>Drag the contents of <strong>release.zip</strong> folder onto the <strong>"AULI_CATO"</strong> device.</li>
         </ol>
       </div>
 
