@@ -1,6 +1,6 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { overwriteConfigFile } from '../NavBar/ReplaceConfig';
+import { overwriteConfigFile } from './ReplaceConfig';
 import { get, set } from 'idb-keyval';
 import { styled } from '@mui/material/styles';
 import Slider from '@mui/material/Slider';
@@ -8,21 +8,7 @@ import debounce from 'lodash.debounce';
 import { db, auth } from '../../firebase';
 import { doc, updateDoc } from "firebase/firestore";
 import { use } from 'marked';
-
-
-
-function parseBool(value) {
-    if (typeof value === 'string') {
-        value = value.toLowerCase().trim();
-        if (value === 'true') {
-            return true;
-        } else if (value === 'false') {
-            return false;
-        }
-    }
-    return Boolean(value);
-}
-
+import {getDirectoryHandle} from './ReplaceConfig'
 
 const deepCopy = (obj) => {
     return JSON.parse(JSON.stringify(obj));
@@ -33,17 +19,6 @@ const sliderContainerStyle = {
     boxShadow: '0 0 5px rgba(0, 0, 0, 0.1)',
     borderRadius: '4px',
     padding: '1rem',
-};
-
-const sectionHeadingStyle = {
-    fontSize: '20px',
-    marginBottom: '10px',
-    fontWeight: 'bold',
-    backgroundColor: '#fcdc6d',
-    borderRadius: '10px',
-    padding: '5px 15px',
-    display: 'inline-block',
-    boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
 };
 
 const hoverstyle = {
@@ -296,23 +271,23 @@ const Practice = ({ user, devices }) => {
                 return false;
             }
         }
-
         try {
             // check existence directories
-            let directoryHandle = await get('configDirectoryHandle');
+            // let directoryHandle = await get('configDirectoryHandle');
 
-            // request + store in indexedDB
-            if (!directoryHandle) {
-                directoryHandle = await window.showDirectoryPicker();
-                await set('configDirectoryHandle', directoryHandle);
-            }
+            // // request + store in indexedDB
+            // if (!directoryHandle) {
+            //     directoryHandle = await window.showDirectoryPicker();
+            //     await set('configDirectoryHandle', directoryHandle);
+            // }
 
-            // get r/w access
-            const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
-            if (permissionStatus !== 'granted') {
-                console.log("Permission to access directory not granted");
-                return;
-            }
+            // // get r/w access
+            // const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
+            // if (permissionStatus !== 'granted') {
+            //     console.log("Permission to access directory not granted");
+            //     return;
+            // }
+            const directoryHandle = await getDirectoryHandle();
 
             //check if config.json exists
             const fileHandle = await directoryHandle.getFileHandle('config.json');
@@ -320,7 +295,7 @@ const Practice = ({ user, devices }) => {
             const text = await file.text();
             const config = JSON.parse(text);
 
-            console.log("config", config);
+            // console.log("config", config);
 
             // check if there is a deviceHwUid
             if (!config || !config.global_info || !config.global_info.HW_UID || !config.global_info.HW_UID.value) {
