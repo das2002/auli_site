@@ -526,7 +526,7 @@ const Devices = ({ devices }) => {
       setTimeout(() => {
         navigate('/devices');
         //refresh the page
-        window.location.reload();
+        //window.location.reload();
       }, 2000);
     }
 
@@ -898,7 +898,7 @@ const Devices = ({ devices }) => {
 
 
         return (
-          <div onClick={toggleExpand} style={{ cursor: 'pointer', marginBottom: '1rem' }}>
+          <div style={{ maxWidth: '600px', margin: '0' }}>
             <button
               onClick={() => toggleSection('connectionSettings')}
               style={{
@@ -1697,55 +1697,30 @@ const Devices = ({ devices }) => {
           </div>
         );
       }
-      const ConnectionNameField = ({initialConnectionName, onNameChange}) => {
-        const [editedConnectionName, setEditedConnectionName] = useState(initialConnectionName);
-        const handleNameChange = (e) => {
-          console.log("new name: " + e.target.value);
-          setEditedConnectionName(e.target.value);
-        }
-        const handleNameCommit = (event) => {
-          console.log("committing name change");
-          console.log(event.target.value);
-          onNameChange(event.target.value);
-        }
-        return (
-          <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
-            <h2 style={{ fontSize: '16px', marginRight: '10px' }}><strong>Connection Name:</strong></h2>
-            <input
-              value={editedConnectionName}
-              onChange={handleNameChange}
-              onBlur={handleNameCommit}
-              style={{
-                borderColor: 'black',
-                borderWidth: 1,
-                padding: '5px 10px',
-                borderRadius: '5px',
-                fontSize: '14px',
-              }}
-              type="text"
-              placeholder="Connection Name"
-            />
-          </div>
-        );
-      };
-      const handleConnectionNameChange = (value) => {
-        console.log("New connection name: " + value);
-        let newEditedConnectionConfig = deepCopy(editedConnectionConfig);
-        newEditedConnectionConfig["connection_name"]["value"] = value;
-        setEditedConnectionConfig(newEditedConnectionConfig);
-      }
+      
       return (
         <div
           onClick={toggleExpand}
           style={{ cursor: 'pointer', marginBottom: '1rem' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            { editedConnectionConfig &&
-              <ConnectionNameField
-                initialConnectionName={deepCopy(connection.name)}
-                onNameChange={handleConnectionNameChange}
-              />
-            } 
+          <div>
+              <button
+                onClick={toggleIsExpanded}
+                style={{
+                  backgroundColor: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  textAlign: 'left',
+                  width: '100%',
+                  padding: '10px',
+                  fontSize: '18px',
+                  cursor: 'pointer'
+                }}
+              >
+                <strong>{connection.name}</strong>
+              </button>
+            </div> 
             {!isDefaultConnection && (
               <div>
                 <button
@@ -1807,7 +1782,9 @@ const Devices = ({ devices }) => {
                 connection={item}
                 onDelete={handleConnectionDeletion} //delete connections
                 // onNameChange={handleNameChange}
-              />
+              >
+                {item.name}
+              </ConnectionAccordion>
               {index !== data.length - 1 && <DashedLine style={{ marginBottom: '1rem' }} />}
             </div>
           ))}
@@ -1838,13 +1815,6 @@ const Devices = ({ devices }) => {
     console.log(editedConnectionsSettings);
 
     const webAppHwUid = editedGlobalSettings["HW_UID"]["value"];
-
-    const directoryHandle = await getDirectoryHandle();
-
-
-
-
-    // const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
     const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
     
     console.log(webAppHwUid);
@@ -1941,29 +1911,6 @@ const Devices = ({ devices }) => {
         </header>
         {isConnectionsExpanded && <AccordionList data={connectionsList} />}
       </div>
-      {/* <div className="ml-90">
-        <header className="shrink-0 bg-transparent border-b border-gray-200">
-          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
-            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-              Universal Settings
-            </h2>
-          </div>
-        </header>
-      </div>
-
-      <GlobalInfoSection />
-
-      <div className="ml-90">
-        <header className="shrink-0 bg-transparent border-b border-gray-200">
-          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
-            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-              Connections
-            </h2>
-          </div>
-        </header>
-      </div> */}
-
-      {/* <AccordionList data={connectionsList} /> */}
       <button onClick={handleRegisterInterface}
         style={{
           backgroundColor: '#8B0000', //red

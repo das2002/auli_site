@@ -248,8 +248,12 @@ const RegisterInterface = ({ user, devices }) => {
 
       };
       await getConnections();
-      navigate(`/devices/${deviceName}`);
-      window.location.reload();
+
+      setTimeout(() => {
+        navigate(`/devices/${deviceName}`);
+        //refresh the page
+        //window.location.reload();
+      }, 2000);
 
     } catch (error) {
       console.log("add connection doc to usersCato connections error: ", error);
