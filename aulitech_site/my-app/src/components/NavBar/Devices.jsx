@@ -9,6 +9,8 @@ import { styled } from '@mui/material/styles';
 import { KeyOptions, getKeyOption } from './KeyOptions';
 import { fetchAndCompareConfig, overwriteConfigFile, deleteConfigFileIfExists } from './ReplaceConfig';
 import { getDirectoryHandle } from './ReplaceConfig';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
 const DarkYellowSlider = styled(Slider)(({ theme }) => ({
@@ -1924,8 +1926,20 @@ const Devices = ({ devices }) => {
       };
       deviceConfig["connections"].push(pushedConnection);
     };
-    await overwriteConfigFile(deviceConfig);
-    
+    const overwriteSuccess = await overwriteConfigFile(deviceConfig); 
+
+    if (overwriteSuccess) {
+      // give an alert to the user that the settings have been saved
+      //toast.success("Settings saved successfully", {
+        //position: "top-center",
+        alert("Settings saved successfully");
+      } else {
+      // give an alert to the user that the settings have not been saved
+      //toast.error("Settings failed to saved", {
+       // position: "top-center",
+        alert("Settings failed to saved");
+      };
+    }
   };
 
 
