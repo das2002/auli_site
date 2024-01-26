@@ -1939,7 +1939,7 @@ const Devices = ({ devices }) => {
        // position: "top-center",
         alert("Settings failed to saved");
       };
-    }
+    
   };
 
 
