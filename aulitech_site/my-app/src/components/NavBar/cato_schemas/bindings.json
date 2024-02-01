@@ -1,16 +1,50 @@
 {
-    "bindings": [
-        {
-            "command" : "noop",
-            "args" : []
-        },
-        {
-            "command": "button_action",
-            "args": [
-                0,
-                "",
-                0
-            ]
-        }
-    ]
+    "bindings": {
+        "value": [
+            {
+                "command": "noop",
+                "args": []
+            },
+            {
+                "command": "button_action",
+                "args": [
+                    0,
+                    "double_tap",
+                    1
+                ]
+            },
+            {
+                "command": "button_action",
+                "args": [
+                    0,
+                    "tap",
+                    1
+                ]
+            },
+            {
+                "command": "button_action",
+                "args": [
+                    0,
+                    "tap",
+                    2
+                ]
+            },
+            {
+                "command": "button_action",
+                "args": [
+                    0,
+                    "hold_until_idle",
+                    1
+                ]
+            },
+            {
+                "command": "quick_sleep",
+                "args": []
+            },
+            {
+                "command": "pointer_sleep",
+                "args": []
+            }
+        ]
+    }
 }

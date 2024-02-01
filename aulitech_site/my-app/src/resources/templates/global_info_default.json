@@ -1,0 +1,146 @@
+{
+    "global_info": {
+        "name": {
+            "value": "",
+            "label": "Device Name",
+            "access": "rw",
+            "note": "Name defaults to 'Cato_<HW_UID>' at boot, but is not set if name is defined here",
+            "description": "a user-settable string for assigning the name of the Cato device"
+        },
+        "sleep": {
+            "label": "Sleep",
+            "access": "rw",
+            "value": {
+                "timeout": {
+                    "value": 600,
+                    "label": "Timeout",
+                    "access": "rw",
+                    "description": "Number of consecutive low-movement seconds before Cato sleeps",
+                    "range": {
+                        "max": 1200,
+                        "min": 10
+                    }
+                },
+                "threshold": {
+                    "value": 5.0,
+                    "label": "Sleep Threshold",
+                    "access": "rw",
+                    "description": "Movement level below which Cato starts counting towards sleep",
+                    "range": {
+                        "max": 10.0,
+                        "min": 2.0
+                    }
+                }
+            },
+            "description": "Controls for Entering Sleep"
+        },
+        "calibration": {
+            "label": "Calibration (including automatic) Parameters",
+            "access": "rw",
+            "value": {
+                "drift": {
+                    "label": "drift",
+                    "access": "r",
+                    "value": [
+                        0,
+                        0,
+                        0
+                    ],
+                    "description": "x, y, z gyroscope drift per-cycle - used as trim adjustments"
+                },
+                "auto_samples": {
+                    "label": "Auto-Calibration Samples Taken",
+                    "access": "rw",
+                    "value": 100,
+                    "description": "number of samples to wait (at below auto_threshold) required to trigger auto recalibratoion"
+                },
+                "auto_threshold": {
+                    "value": 3.0,
+                    "label": "Auto-Calibration Threshold",
+                    "access": "rw",
+                    "description": "movement required (as a scale of mouse>idle_threshold) to fail automatic calibration for gyro drift",
+                    "range": {
+                        "max": 5.0,
+                        "min": 0.6
+                    }
+                }
+            },
+            "description": "structure containing both current calibration (trim) values and preferences for auto calibration"
+        },
+        "HW_UID": {
+            "label": "Hardware Unique Identity",
+            "access": "r",
+            "value": "",
+            "description": "Unique hex code for identifying different devices"
+        },
+        "battery": {
+            "label": "Battery",
+            "access": "r",
+            "value": {
+                "high": {
+                    "label": "High",
+                    "access": "r",
+                    "value": 27500,
+                    "description": "Value of analog pin indicating charged battery. Typ. ~30000"
+                },
+                "low": {
+                    "label": "Low",
+                    "access": "r",
+                    "value": 22800,
+                    "description": "Value of analog pin indicating discharged battery. Typ. ~23000"
+                }
+            },
+            "description": "DEV TOOL: analog pin values of high and low battery charge [low, high]"
+        },
+        "orientation": {
+            "value": {
+                "front": {
+                    "value": "-y",
+                    "label": "front",
+                    "access": "rw",
+                    "description": "",
+                    "options": [
+                        "+x",
+                        "-x",
+                        "+y",
+                        "-y",
+                        "+z",
+                        "-z"
+                    ]
+                },
+                "bottom": {
+                    "value": "+x",
+                    "label": "bottom",
+                    "access": "rw",
+                    "description": "",
+                    "options": [
+                        "+x",
+                        "-x",
+                        "+y",
+                        "-y",
+                        "+z",
+                        "-z"
+                    ]
+                },
+                "left": {
+                    "value": "+z",
+                    "label": "left",
+                    "access": "rw",
+                    "description": "",
+                    "options": [
+                        "+x",
+                        "-x",
+                        "+y",
+                        "-y",
+                        "+z",
+                        "-z"
+                    ]
+                }
+            },
+            "label": "Orientation",
+            "access": "rw",
+            "note": "default orientation is on the right side of the glasses, with the circular battery compartment facing OUT (and usb port forward)",
+            "description": "parameters describing usage orientation for Cato"
+        }
+    }
+}

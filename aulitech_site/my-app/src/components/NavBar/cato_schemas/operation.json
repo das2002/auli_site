@@ -1,0 +1,15 @@
+{
+    "operation_mode": {
+        "value": "gesture_mouse",
+        "label": "Mode",
+        "access": "rw",
+        "description": "a name defining the operation mode of Cato",
+        "options": [
+            "gesture_mouse",
+            "tv_remote",
+            "pointer",
+            "clicker",
+            "practice"
+        ]
+    }
+}

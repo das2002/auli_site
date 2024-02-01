@@ -25,3 +25,17 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+
+.markdown > * {
+  all: revert; /* remove css preventing list bullets from rendering */
+  text-align: left;
+  /* Spacing */
+  margin: 0 1.5rem;
+  max-width: 800px;
+}
+/* Links in markdown */
+.markdown a {
+  color: #0366d6;
+  text-decoration: none;
+}
