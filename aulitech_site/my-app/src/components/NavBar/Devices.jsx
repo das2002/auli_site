@@ -652,7 +652,7 @@ const Devices = ({ devices }) => {
             </div>
           )}
 
-          <div style={sectionStyle}>
+          {/* <div style={sectionStyle}>
             <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
             <h2 style={sectionHeadingDynamicStyle(isCalibrationExpanded)} onClick={toggleCalibrationSection}>
               Calibration
@@ -683,7 +683,7 @@ const Devices = ({ devices }) => {
                 ></InputSlider>
               </div>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
     )
