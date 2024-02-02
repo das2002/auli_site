@@ -343,7 +343,7 @@ const Devices = ({ devices }) => {
   const toggleConnections = () => {
     setIsConnectionsExpanded(!isConnectionsExpanded);
   };
-  
+
 
   // Find the specific device
   const thisDevice = devices.find(device => device.data.device_info.device_nickname === deviceName);
@@ -353,7 +353,7 @@ const Devices = ({ devices }) => {
     navigate(`/devices/${deviceName}/register-interface`);
   };
 
-  const DeviceNameField = ({intialDeviceName, onNameChange}) => {
+  const DeviceNameField = ({ intialDeviceName, onNameChange }) => {
     const [editedDeviceName, setEditedDeviceName] = useState(intialDeviceName);
 
     const handleNameChange = (event) => {
@@ -363,14 +363,14 @@ const Devices = ({ devices }) => {
     const handleNameCommit = (event) => {
       onNameChange(event.target.value);
     }
-  
+
     return (
       <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
         <h2 style={{ fontSize: '16px', marginRight: '10px' }}><strong>Device Name:</strong></h2>
         <input
           value={editedDeviceName}
           onChange={handleNameChange}
-          onBlur = {handleNameCommit}
+          onBlur={handleNameCommit}
           style={{
             borderColor: 'black',
             borderWidth: 1,
@@ -439,7 +439,7 @@ const Devices = ({ devices }) => {
     }
   };
 
-  
+
 
 
 
@@ -520,6 +520,11 @@ const Devices = ({ devices }) => {
     }
 
     const handleDeviceDelete = async () => {
+      const confirmed = window.confirm("Are you sure you want to delete your device? All associated data will be deleted.");
+      if (!confirmed) {
+        return;
+      }
+
       // delete the device from the database
       if (thisDevice) {
         const deviceRef = doc(db, 'users', getCurrentUserId(), 'userCatos', thisDevice.id);
@@ -530,6 +535,15 @@ const Devices = ({ devices }) => {
           console.log('error deleting device');
         }
       }
+
+      const deviceRef = doc(db, 'users', getCurrentUserId(), 'userCatos', thisDevice.id);
+      try {
+        await deleteDoc(deviceRef);
+        console.log('Device deleted successfully');
+      } catch (error) {
+        console.error('Error deleting device: ', error);
+      }
+
       setTimeout(() => {
         navigate('/devices');
         //refresh the page
@@ -542,13 +556,15 @@ const Devices = ({ devices }) => {
         <div style={sliderContainerStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <DeviceNameField intialDeviceName={editedGlobalSettings["name"]["value"]} onNameChange={handleDeviceNameChange}/>
+              <DeviceNameField intialDeviceName={editedGlobalSettings["name"]["value"]} onNameChange={handleDeviceNameChange} />
             </div>
             <div>
               <HardwareUIDField hardwareUID={editedGlobalSettings["HW_UID"]["value"]} />
             </div>
             <div>
-              <button onClick={handleDeviceDelete} style={{ backgroundColor: '#8B0000', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}>Delete Device</button>
+              <button onClick={handleDeviceDelete} style={{ backgroundColor: '#8B0000', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}>
+                Delete Device
+              </button>
             </div>
           </div>
           <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
@@ -812,7 +828,7 @@ const Devices = ({ devices }) => {
           return "Pointer";
         } else if (mode === "clicker") {
           return "Clicker";
-        } else if (mode === "practice"){
+        } else if (mode === "practice") {
           return "Select Operation Mode";
         }
       };
@@ -1284,7 +1300,7 @@ const Devices = ({ devices }) => {
         const toggleBindings = () => {
           setIsBindingsExpanded(!isBindingsExpanded);
         };
-      
+
 
         console.log(config);
 
@@ -1872,7 +1888,7 @@ const Devices = ({ devices }) => {
     const webAppHwUid = editedGlobalSettings["HW_UID"]["value"];
 
     // const directoryHandle = await getDirectoryHandle();
-    
+
     const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
     if (!hwUidMatch) {
       console.error("HW_UID does not match with the connected device.");
@@ -1900,7 +1916,7 @@ const Devices = ({ devices }) => {
     }
 
 
-    
+
     const deviceConfig = {
       "connections": [],
       "global_info": editedGlobalSettings,
@@ -1926,20 +1942,20 @@ const Devices = ({ devices }) => {
       };
       deviceConfig["connections"].push(pushedConnection);
     };
-    const overwriteSuccess = await overwriteConfigFile(deviceConfig); 
+    const overwriteSuccess = await overwriteConfigFile(deviceConfig);
 
     if (overwriteSuccess) {
       // give an alert to the user that the settings have been saved
       //toast.success("Settings saved successfully", {
-        //position: "top-center",
-        alert("Settings saved successfully");
-      } else {
+      //position: "top-center",
+      alert("Settings saved successfully");
+    } else {
       // give an alert to the user that the settings have not been saved
       //toast.error("Settings failed to saved", {
-       // position: "top-center",
-        alert("Settings failed to saved");
-      };
-    
+      // position: "top-center",
+      alert("Settings failed to saved");
+    };
+
   };
 
 
@@ -1949,9 +1965,9 @@ const Devices = ({ devices }) => {
   return (
     <div>
       <div className="ml-90">
-        <header 
-          className="shrink-0 bg-transparent border-b border-gray-200" 
-          onClick={toggleUniversalSettings} 
+        <header
+          className="shrink-0 bg-transparent border-b border-gray-200"
+          onClick={toggleUniversalSettings}
           style={{ cursor: 'pointer' }} // Add cursor style here
         >
           <div className="ml-0 flex h-16 max-w-7xl items-center justify-between">
@@ -1964,9 +1980,9 @@ const Devices = ({ devices }) => {
       </div>
 
       <div className="ml-90">
-        <header 
-          className="shrink-0 bg-transparent border-b border-gray-200" 
-          onClick={toggleConnections} 
+        <header
+          className="shrink-0 bg-transparent border-b border-gray-200"
+          onClick={toggleConnections}
           style={{ cursor: 'pointer' }} // Add cursor style here
         >
           <div className="ml-0 flex h-16 max-w-7xl items-center justify-between">
