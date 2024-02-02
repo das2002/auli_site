@@ -1915,12 +1915,15 @@ const Devices = ({ devices }) => {
       console.error("Error updating settings: ", error);
     }
 
-
-
     const deviceConfig = {
       "connections": [],
       "global_info": editedGlobalSettings,
     };
+
+    const newDeviceName = editedGlobalSettings["name"]["value"];
+
+    navigate(`/devices/${newDeviceName}`);
+    window.location.reload(); //change later for permission?
 
 
     for (let i = 0; i < editedConnectionsSettings.length; i++) {
