@@ -1920,10 +1920,10 @@ const Devices = ({ devices }) => {
       "global_info": editedGlobalSettings,
     };
 
-    const newDeviceName = editedGlobalSettings["name"]["value"];
+    // const newDeviceName = editedGlobalSettings["name"]["value"];
 
-    navigate(`/devices/${newDeviceName}`);
-    window.location.reload(); //change later for permission?
+    // navigate(`/devices/${newDeviceName}`);
+    // window.location.reload(); //change later for permission?
 
 
     for (let i = 0; i < editedConnectionsSettings.length; i++) {
