@@ -36,7 +36,7 @@ const DarkYellowSlider = styled(Slider)(({ theme }) => ({
 // };
 
 const sectionHeadingStyle = {
-  fontSize: '18px',
+  fontSize: '16px',
   marginBottom: '10px',
   fontWeight: 'bold',
   backgroundColor: '#fcdc6d',
@@ -84,7 +84,7 @@ const CheckboxOption = ({ checked, onChange, title, description }) => {
 const HardwareUIDField = ({ hardwareUID }) => {
   return (
     <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
-      <h2 style={{ fontSize: '16px', marginRight: '10px' }}><strong>Hardware UID:</strong></h2>
+      <h2 style={{ fontSize: '16px', marginRight: '10px' }}><strong>Serial Number:</strong></h2>
       <input
         value={hardwareUID}
         style={{
@@ -95,7 +95,7 @@ const HardwareUIDField = ({ hardwareUID }) => {
           fontSize: '14px',
         }}
         type="text"
-        placeholder="Hardware UID"
+        placeholder="Serial Number"
         readOnly={true}
       />
     </div>
@@ -236,13 +236,16 @@ const Dropdown = ({ value, onChange, title, description, options }) => {
     setIsHovered(false);
   };
 
-
   return (
     <div style={{ marginBottom: '0px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-
         {title && (
-          <label onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} htmlFor="dropdown" style={{ fontSize: '16px', marginRight: '10px' }}>
+          <label 
+            onMouseEnter={handleMouseEnter} 
+            onMouseLeave={handleMouseLeave} 
+            htmlFor="dropdown" 
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+          >
             {title}
           </label>
         )}
@@ -254,7 +257,8 @@ const Dropdown = ({ value, onChange, title, description, options }) => {
             </option>
           ))}
         </select>
-        {isHovered &&
+
+        {isHovered && (
           <div className="tooltip"
             style={{
               position: 'absolute',
@@ -269,11 +273,12 @@ const Dropdown = ({ value, onChange, title, description, options }) => {
           >
             {description}
           </div>
-        }
+        )}
       </div>
     </div>
   );
 };
+
 
 const titleStyle = {
   color: '#333', // Darker text for better readability
@@ -519,38 +524,6 @@ const Devices = ({ devices }) => {
       setEditedGlobalSettings(newEditedGlobalSettings);
     }
 
-    const handleDeviceDelete = async () => {
-      const confirmed = window.confirm("Are you sure you want to delete your device? All associated data will be deleted.");
-      if (!confirmed) {
-        return;
-      }
-
-      // delete the device from the database
-      if (thisDevice) {
-        const deviceRef = doc(db, 'users', getCurrentUserId(), 'userCatos', thisDevice.id);
-        try {
-          await deleteDoc(deviceRef);
-          console.log('device deleted');
-        } catch {
-          console.log('error deleting device');
-        }
-      }
-
-      const deviceRef = doc(db, 'users', getCurrentUserId(), 'userCatos', thisDevice.id);
-      try {
-        await deleteDoc(deviceRef);
-        console.log('Device deleted successfully');
-      } catch (error) {
-        console.error('Error deleting device: ', error);
-      }
-
-      setTimeout(() => {
-        navigate('/devices');
-        //refresh the page
-        window.location.reload();
-      }, 2000);
-    }
-
     return (
       <div>
         <div style={sliderContainerStyle}>
@@ -561,11 +534,11 @@ const Devices = ({ devices }) => {
             <div>
               <HardwareUIDField hardwareUID={editedGlobalSettings["HW_UID"]["value"]} />
             </div>
-            <div>
+            {/* <div>
               <button onClick={handleDeviceDelete} style={{ backgroundColor: '#8B0000', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}>
                 Delete Device
               </button>
-            </div>
+            </div> */}
           </div>
           <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
 
@@ -594,7 +567,7 @@ const Devices = ({ devices }) => {
                 max={10.0}
                 step={0.5}
                 sliderTitle={'Sleep Threshold'}
-                unit={'level'}
+                unit={'degrees per second'}
                 sliderDescription={'Movement level below which Cato starts counting towards sleep'}
               />
             </div>
@@ -947,7 +920,7 @@ const Devices = ({ devices }) => {
                 padding: '5px 15px',
                 display: 'inline-block',
                 boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '18px',
+                fontSize: '16px',
                 fontWeight: 'bold',
                 border: 'none',
                 cursor: 'pointer',
@@ -1004,7 +977,7 @@ const Devices = ({ devices }) => {
                 padding: '5px 15px',
                 display: 'inline-block',
                 boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '18px',
+                fontSize: '16px',
                 fontWeight: 'bold',
                 border: 'none',
                 cursor: 'pointer',
@@ -1138,7 +1111,7 @@ const Devices = ({ devices }) => {
                 padding: '5px 15px',
                 display: 'inline-block',
                 boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '18px',
+                fontSize: '16px',
                 fontWeight: 'bold',
                 border: 'none',
                 cursor: 'pointer',
@@ -1222,7 +1195,7 @@ const Devices = ({ devices }) => {
                 padding: '5px 15px',
                 display: 'inline-block',
                 boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '18px',
+                fontSize: '16px',
                 fontWeight: 'bold',
                 border: 'none',
                 cursor: 'pointer',
@@ -1381,7 +1354,7 @@ const Devices = ({ devices }) => {
           padding: '5px 15px',
           display: 'inline-block',
           boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-          fontSize: '18px',
+          fontSize: '16px',
           fontWeight: 'bold',
           border: 'none',
           cursor: 'pointer',
@@ -1963,32 +1936,69 @@ const Devices = ({ devices }) => {
 
 
   if (!thisDevice) {
-    return <div>Device not found</div>;
+    return <div>Loading...</div>;
   }
+
+  const handleDeviceDelete = async () => {
+    const confirmed = window.confirm("Are you sure you want to delete your device? All associated data will be deleted.");
+    if (!confirmed) {
+      return;
+    }
+
+    // delete the device from the database
+    if (thisDevice) {
+      const deviceRef = doc(db, 'users', getCurrentUserId(), 'userCatos', thisDevice.id);
+      try {
+        await deleteDoc(deviceRef);
+        console.log('device deleted');
+      } catch {
+        console.log('error deleting device');
+      }
+    }
+
+    const deviceRef = doc(db, 'users', getCurrentUserId(), 'userCatos', thisDevice.id);
+    try {
+      await deleteDoc(deviceRef);
+      console.log('Device deleted successfully');
+    } catch (error) {
+      console.error('Error deleting device: ', error);
+    }
+
+    setTimeout(() => {
+      navigate('/devices');
+      //refresh the page
+      window.location.reload();
+    }, 2000);
+  }
+
   return (
     <div>
       <div className="ml-90">
         <header
           className="shrink-0 bg-transparent border-b border-gray-200"
           onClick={toggleUniversalSettings}
-          style={{ cursor: 'pointer' }} // Add cursor style here
+          style={{ cursor: 'pointer' }}
         >
-          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between">
+          <div className="flex h-16 max-w-7xl items-center justify-between">
             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
               Universal Settings
             </h2>
+            {/* delete device */}
+            <button onClick={handleDeviceDelete} style={{ backgroundColor: '#8B0000', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}>
+              Delete Device
+            </button>
           </div>
         </header>
         {isUniversalSettingsExpanded && <GlobalInfoSection />}
       </div>
-
+  
       <div className="ml-90">
         <header
           className="shrink-0 bg-transparent border-b border-gray-200"
           onClick={toggleConnections}
-          style={{ cursor: 'pointer' }} // Add cursor style here
+          style={{ cursor: 'pointer' }}
         >
-          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between">
+          <div className="flex h-16 max-w-7xl items-center justify-between">
             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
               Connections
             </h2>
