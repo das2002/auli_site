@@ -240,10 +240,10 @@ const Dropdown = ({ value, onChange, title, description, options }) => {
     <div style={{ marginBottom: '0px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         {title && (
-          <label 
-            onMouseEnter={handleMouseEnter} 
-            onMouseLeave={handleMouseLeave} 
-            htmlFor="dropdown" 
+          <label
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            htmlFor="dropdown"
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
           >
             {title}
@@ -1991,7 +1991,7 @@ const Devices = ({ devices }) => {
         </header>
         {isUniversalSettingsExpanded && <GlobalInfoSection />}
       </div>
-  
+
       <div className="ml-90">
         <header
           className="shrink-0 bg-transparent border-b border-gray-200"
@@ -2002,9 +2002,13 @@ const Devices = ({ devices }) => {
             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
               Connections
             </h2>
+            
           </div>
+          
         </header>
+
         {isConnectionsExpanded && <AccordionList data={connectionsList} />}
+
       </div>
       {/* <div className="ml-90">
         <header className="shrink-0 bg-transparent border-b border-gray-200">
