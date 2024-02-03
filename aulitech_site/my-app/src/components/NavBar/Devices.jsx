@@ -1830,12 +1830,30 @@ const Devices = ({ devices }) => {
               >
                 {item.name}
               </ConnectionAccordion>
-              {index !== data.length - 1 && <DashedLine style={{ marginBottom: '1rem' }} />}
+              {index !== data.length - 1 && <DashedLine />}
             </div>
           ))}
+          <DashedLine />
+          <div style={{ marginBottom: '10px' }}> {/* Center button container */}
+            <button onClick={handleRegisterInterface}
+              style={{
+                backgroundColor: '#8B0000', // Red color
+                color: 'white',
+                padding: '10px',
+                fontSize: '16px',
+                borderRadius: '5px',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'inline-block', // Changed to inline-block for a narrower button
+                margin: '10px auto', // Center button
+                maxWidth: '200px', // Maximum width of the button
+              }}>
+              Add Connection
+            </button>
+          </div>
         </div>
       </div>
-    );
+    );    
   };
 
 
@@ -2002,51 +2020,22 @@ const Devices = ({ devices }) => {
             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
               Connections
             </h2>
-            
+
           </div>
-          
+
         </header>
 
-        {isConnectionsExpanded && <AccordionList data={connectionsList} />}
+        {isConnectionsExpanded && (
+          <>
+            <AccordionList data={connectionsList} />
+            {/* Add Connection button should be here, inside the same conditional rendering block */}
+
+          </>
+        )}
+
 
       </div>
-      {/* <div className="ml-90">
-        <header className="shrink-0 bg-transparent border-b border-gray-200">
-          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
-            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-              Universal Settings
-            </h2>
-          </div>
-        </header>
-      </div>
 
-      <GlobalInfoSection />
-
-      <div className="ml-90">
-        <header className="shrink-0 bg-transparent border-b border-gray-200">
-          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
-            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-              Connections
-            </h2>
-          </div>
-        </header>
-      </div> */}
-
-      {/* <AccordionList data={connectionsList} /> */}
-      <button onClick={handleRegisterInterface}
-        style={{
-          backgroundColor: '#8B0000', //red
-          color: 'white',
-          padding: '10px 20px',
-          fontSize: '16px',
-          borderRadius: '5px',
-          border: 'none',
-          cursor: 'pointer',
-        }}>
-        <span>Add Connection</span>
-
-        {/* <span>+</span> */}
-      </button>
       <button onClick={handleSave}
         style={{
           backgroundColor: '#B8860B', //B8860B
