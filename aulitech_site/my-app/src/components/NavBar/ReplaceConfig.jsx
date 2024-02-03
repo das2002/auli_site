@@ -35,12 +35,12 @@ export async function fetchAndCompareConfig(webAppHwUid) {
         const deviceHwUid = config.global_info.HW_UID.value;
         if (deviceHwUid == webAppHwUid) {
             console.log('HW_UID matches.');
+            return deviceHwUid;
         } else {
             console.log('HW_UID does not match.');
+            return null;
         }
 
-        return deviceHwUid;
-        
     } catch (error) {
         console.error('Error fetching and comparing config:', error);
         return false;

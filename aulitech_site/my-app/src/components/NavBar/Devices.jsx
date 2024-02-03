@@ -8,9 +8,6 @@ import Slider from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
 import { KeyOptions, getKeyOption } from './KeyOptions';
 import { fetchAndCompareConfig, overwriteConfigFile, deleteConfigFileIfExists } from './ReplaceConfig';
-import { getDirectoryHandle } from './ReplaceConfig';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 
 const DarkYellowSlider = styled(Slider)(({ theme }) => ({
@@ -1879,31 +1876,45 @@ const Devices = ({ devices }) => {
     const webAppHwUid = editedGlobalSettings["HW_UID"]["value"];
 
     // const directoryHandle = await getDirectoryHandle();
+    let webSave = false;
 
     const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
     if (!hwUidMatch) {
       console.error("HW_UID does not match with the connected device.");
-      return;
+      // create a prompt to inform the user that the HW_UID does not match and that if they press continue, they will only be editing the web settings
+      const confirmed = window.confirm("The HW_UID does not match with the connected device. If you continue, you will only be editing the web settings. Do you want to continue?");
+      if (!confirmed) {
+        return;
+      } else {
+        webSave = true;
+      }
     }
 
-    const userId = getCurrentUserId();
-    const userCatoDocId = thisDevice.id;
-    const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
+    if (webSave) {
+      const userId = getCurrentUserId();
+      const userCatoDocId = thisDevice.id;
+      const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
 
-    try {
-      const globalConfigUpdate = {
-        "global_info": editedGlobalSettings,
-      };
+      try {
+        const globalConfigUpdate = {
+          "global_info": editedGlobalSettings,
+        };
 
 
-      await updateDoc(userCatoDocRef, {
-        'device_info.device_nickname': editedGlobalSettings["name"]["value"],
-        'device_info.global_config': JSON.stringify(globalConfigUpdate),
-        'connections': editedConnectionsSettings,
-      });
-      console.log("Settings updated successfully");
-    } catch (error) {
-      console.error("Error updating settings: ", error);
+        await updateDoc(userCatoDocRef, {
+          'device_info.device_nickname': editedGlobalSettings["name"]["value"],
+          'device_info.global_config': JSON.stringify(globalConfigUpdate),
+          'connections': editedConnectionsSettings,
+        });
+        console.log("Settings updated successfully");
+      } catch (error) {
+        console.error("Error updating settings: ", error);
+      }
+
+      const newDeviceName = editedGlobalSettings["name"]["value"];
+
+      navigate(`/devices/${newDeviceName}`);
+      window.location.reload(); //TODO: change later for permission?
     }
 
     const deviceConfig = {
@@ -1911,44 +1922,36 @@ const Devices = ({ devices }) => {
       "global_info": editedGlobalSettings,
     };
 
-    const newDeviceName = editedGlobalSettings["name"]["value"];
-
-    navigate(`/devices/${newDeviceName}`);
-    window.location.reload(); //change later for permission?
-
-
-    for (let i = 0; i < editedConnectionsSettings.length; i++) {
-      let connection = editedConnectionsSettings[i];
-      let connectionConfig = JSON.parse(connection["connection_config"]);
-      let currentModeConfig = null;
-      if (connection["current_mode"] === "practice") {
-        currentModeConfig = JSON.parse(thisDevice["data"]["device_info"]["practice_config"]);
-      } else {
-        currentModeConfig = JSON.parse(connection["mode"][connection["current_mode"]]);
-      }
-
-      connectionConfig["connection_name"]["value"] = connection.name;
-
-      let pushedConnection = {
-        ...connectionConfig,
-        ...currentModeConfig,
-        // "name": connection.name, //debug
+    if (hwUidMatch) {
+      for (let i = 0; i < editedConnectionsSettings.length; i++) {
+        let connection = editedConnectionsSettings[i];
+        let connectionConfig = JSON.parse(connection["connection_config"]);
+        let currentModeConfig = null;
+        if (connection["current_mode"] === "practice") {
+          currentModeConfig = JSON.parse(thisDevice["data"]["device_info"]["practice_config"]);
+        } else {
+          currentModeConfig = JSON.parse(connection["mode"][connection["current_mode"]]);
+        }
+  
+        connectionConfig["connection_name"]["value"] = connection.name;
+  
+        let pushedConnection = {
+          ...connectionConfig,
+          ...currentModeConfig,
+        };
+        deviceConfig["connections"].push(pushedConnection);
       };
-      deviceConfig["connections"].push(pushedConnection);
-    };
-    const overwriteSuccess = await overwriteConfigFile(deviceConfig);
+      const overwriteSuccess = await overwriteConfigFile(deviceConfig);
+  
+      if (overwriteSuccess) {
+        alert("Settings saved successfully");
+      } else {
+        alert("Settings failed to saved");
+      };
 
-    if (overwriteSuccess) {
-      // give an alert to the user that the settings have been saved
-      //toast.success("Settings saved successfully", {
-      //position: "top-center",
-      alert("Settings saved successfully");
-    } else {
-      // give an alert to the user that the settings have not been saved
-      //toast.error("Settings failed to saved", {
-      // position: "top-center",
-      alert("Settings failed to saved");
-    };
+    }
+
+    
 
   };
 
