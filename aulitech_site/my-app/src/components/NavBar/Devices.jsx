@@ -8,9 +8,6 @@ import Slider from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
 import { KeyOptions, getKeyOption } from './KeyOptions';
 import { fetchAndCompareConfig, overwriteConfigFile, deleteConfigFileIfExists } from './ReplaceConfig';
-import { getDirectoryHandle } from './ReplaceConfig';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 
 const DarkYellowSlider = styled(Slider)(({ theme }) => ({
@@ -36,7 +33,7 @@ const DarkYellowSlider = styled(Slider)(({ theme }) => ({
 // };
 
 const sectionHeadingStyle = {
-  fontSize: '18px',
+  fontSize: '16px',
   marginBottom: '10px',
   fontWeight: 'bold',
   backgroundColor: '#fcdc6d',
@@ -84,7 +81,7 @@ const CheckboxOption = ({ checked, onChange, title, description }) => {
 const HardwareUIDField = ({ hardwareUID }) => {
   return (
     <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
-      <h2 style={{ fontSize: '16px', marginRight: '10px' }}><strong>Hardware UID:</strong></h2>
+      <h2 style={{ fontSize: '16px', marginRight: '10px' }}><strong>Serial Number:</strong></h2>
       <input
         value={hardwareUID}
         style={{
@@ -95,7 +92,7 @@ const HardwareUIDField = ({ hardwareUID }) => {
           fontSize: '14px',
         }}
         type="text"
-        placeholder="Hardware UID"
+        placeholder="Serial Number"
         readOnly={true}
       />
     </div>
@@ -236,13 +233,16 @@ const Dropdown = ({ value, onChange, title, description, options }) => {
     setIsHovered(false);
   };
 
-
   return (
     <div style={{ marginBottom: '0px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-
         {title && (
-          <label onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave} htmlFor="dropdown" style={{ fontSize: '16px', marginRight: '10px' }}>
+          <label
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            htmlFor="dropdown"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}
+          >
             {title}
           </label>
         )}
@@ -254,7 +254,8 @@ const Dropdown = ({ value, onChange, title, description, options }) => {
             </option>
           ))}
         </select>
-        {isHovered &&
+
+        {isHovered && (
           <div className="tooltip"
             style={{
               position: 'absolute',
@@ -269,11 +270,12 @@ const Dropdown = ({ value, onChange, title, description, options }) => {
           >
             {description}
           </div>
-        }
+        )}
       </div>
     </div>
   );
 };
+
 
 const titleStyle = {
   color: '#333', // Darker text for better readability
@@ -343,7 +345,7 @@ const Devices = ({ devices }) => {
   const toggleConnections = () => {
     setIsConnectionsExpanded(!isConnectionsExpanded);
   };
-  
+
 
   // Find the specific device
   const thisDevice = devices.find(device => device.data.device_info.device_nickname === deviceName);
@@ -353,7 +355,7 @@ const Devices = ({ devices }) => {
     navigate(`/devices/${deviceName}/register-interface`);
   };
 
-  const DeviceNameField = ({intialDeviceName, onNameChange}) => {
+  const DeviceNameField = ({ intialDeviceName, onNameChange }) => {
     const [editedDeviceName, setEditedDeviceName] = useState(intialDeviceName);
 
     const handleNameChange = (event) => {
@@ -363,14 +365,14 @@ const Devices = ({ devices }) => {
     const handleNameCommit = (event) => {
       onNameChange(event.target.value);
     }
-  
+
     return (
       <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
         <h2 style={{ fontSize: '16px', marginRight: '10px' }}><strong>Device Name:</strong></h2>
         <input
           value={editedDeviceName}
           onChange={handleNameChange}
-          onBlur = {handleNameCommit}
+          onBlur={handleNameCommit}
           style={{
             borderColor: 'black',
             borderWidth: 1,
@@ -439,7 +441,7 @@ const Devices = ({ devices }) => {
     }
   };
 
-  
+
 
 
 
@@ -519,37 +521,21 @@ const Devices = ({ devices }) => {
       setEditedGlobalSettings(newEditedGlobalSettings);
     }
 
-    const handleDeviceDelete = async () => {
-      // delete the device from the database
-      if (thisDevice) {
-        const deviceRef = doc(db, 'users', getCurrentUserId(), 'userCatos', thisDevice.id);
-        try {
-          await deleteDoc(deviceRef);
-          console.log('device deleted');
-        } catch {
-          console.log('error deleting device');
-        }
-      }
-      setTimeout(() => {
-        navigate('/devices');
-        //refresh the page
-        window.location.reload();
-      }, 2000);
-    }
-
     return (
       <div>
         <div style={sliderContainerStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <DeviceNameField intialDeviceName={editedGlobalSettings["name"]["value"]} onNameChange={handleDeviceNameChange}/>
+              <DeviceNameField intialDeviceName={editedGlobalSettings["name"]["value"]} onNameChange={handleDeviceNameChange} />
             </div>
             <div>
               <HardwareUIDField hardwareUID={editedGlobalSettings["HW_UID"]["value"]} />
             </div>
-            <div>
-              <button onClick={handleDeviceDelete} style={{ backgroundColor: '#8B0000', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}>Delete Device</button>
-            </div>
+            {/* <div>
+              <button onClick={handleDeviceDelete} style={{ backgroundColor: '#8B0000', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}>
+                Delete Device
+              </button>
+            </div> */}
           </div>
           <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
 
@@ -578,7 +564,7 @@ const Devices = ({ devices }) => {
                 max={10.0}
                 step={0.5}
                 sliderTitle={'Sleep Threshold'}
-                unit={'level'}
+                unit={'degrees per second'}
                 sliderDescription={'Movement level below which Cato starts counting towards sleep'}
               />
             </div>
@@ -636,7 +622,7 @@ const Devices = ({ devices }) => {
             </div>
           )}
 
-          <div style={sectionStyle}>
+          {/* <div style={sectionStyle}>
             <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
             <h2 style={sectionHeadingDynamicStyle(isCalibrationExpanded)} onClick={toggleCalibrationSection}>
               Calibration
@@ -667,7 +653,7 @@ const Devices = ({ devices }) => {
                 ></InputSlider>
               </div>
             )}
-          </div>
+          </div> */}
         </div>
       </div>
     )
@@ -812,7 +798,7 @@ const Devices = ({ devices }) => {
           return "Pointer";
         } else if (mode === "clicker") {
           return "Clicker";
-        } else if (mode === "practice"){
+        } else if (mode === "practice") {
           return "Select Operation Mode";
         }
       };
@@ -931,7 +917,7 @@ const Devices = ({ devices }) => {
                 padding: '5px 15px',
                 display: 'inline-block',
                 boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '18px',
+                fontSize: '16px',
                 fontWeight: 'bold',
                 border: 'none',
                 cursor: 'pointer',
@@ -988,7 +974,7 @@ const Devices = ({ devices }) => {
                 padding: '5px 15px',
                 display: 'inline-block',
                 boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '18px',
+                fontSize: '16px',
                 fontWeight: 'bold',
                 border: 'none',
                 cursor: 'pointer',
@@ -1122,7 +1108,7 @@ const Devices = ({ devices }) => {
                 padding: '5px 15px',
                 display: 'inline-block',
                 boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '18px',
+                fontSize: '16px',
                 fontWeight: 'bold',
                 border: 'none',
                 cursor: 'pointer',
@@ -1206,7 +1192,7 @@ const Devices = ({ devices }) => {
                 padding: '5px 15px',
                 display: 'inline-block',
                 boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '18px',
+                fontSize: '16px',
                 fontWeight: 'bold',
                 border: 'none',
                 cursor: 'pointer',
@@ -1284,7 +1270,7 @@ const Devices = ({ devices }) => {
         const toggleBindings = () => {
           setIsBindingsExpanded(!isBindingsExpanded);
         };
-      
+
 
         console.log(config);
 
@@ -1365,7 +1351,7 @@ const Devices = ({ devices }) => {
           padding: '5px 15px',
           display: 'inline-block',
           boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-          fontSize: '18px',
+          fontSize: '16px',
           fontWeight: 'bold',
           border: 'none',
           cursor: 'pointer',
@@ -1725,8 +1711,8 @@ const Devices = ({ devices }) => {
             <MouseOptions config={editedPointerConfig} />
             <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
 
-            <BindingsPanel config={editedPointerConfig} mode={"pointer"} />
-            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+            {/* <BindingsPanel config={editedPointerConfig} mode={"pointer"} />
+            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} /> */}
 
 
           </div>
@@ -1841,12 +1827,30 @@ const Devices = ({ devices }) => {
               >
                 {item.name}
               </ConnectionAccordion>
-              {index !== data.length - 1 && <DashedLine style={{ marginBottom: '1rem' }} />}
+              {index !== data.length - 1 && <DashedLine />}
             </div>
           ))}
+          <DashedLine />
+          <div style={{ marginBottom: '10px' }}> {/* Center button container */}
+            <button onClick={handleRegisterInterface}
+              style={{
+                backgroundColor: '#8B0000', // Red color
+                color: 'white',
+                padding: '10px',
+                fontSize: '16px',
+                borderRadius: '5px',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'inline-block', // Changed to inline-block for a narrower button
+                margin: '10px auto', // Center button
+                maxWidth: '200px', // Maximum width of the button
+              }}>
+              Add Connection
+            </button>
+          </div>
         </div>
       </div>
-    );
+    );    
   };
 
 
@@ -1872,148 +1876,169 @@ const Devices = ({ devices }) => {
     const webAppHwUid = editedGlobalSettings["HW_UID"]["value"];
 
     // const directoryHandle = await getDirectoryHandle();
-    
+    let webSave = false;
+
     const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
     if (!hwUidMatch) {
       console.error("HW_UID does not match with the connected device.");
-      return;
+      // create a prompt to inform the user that the HW_UID does not match and that if they press continue, they will only be editing the web settings
+      const confirmed = window.confirm("The HW_UID does not match with the connected device. If you continue, you will only be editing the web settings. Do you want to continue?");
+      if (!confirmed) {
+        return;
+      } else {
+        webSave = true;
+      }
     }
 
-    const userId = getCurrentUserId();
-    const userCatoDocId = thisDevice.id;
-    const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
+    if (webSave) {
+      const userId = getCurrentUserId();
+      const userCatoDocId = thisDevice.id;
+      const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
 
-    try {
-      const globalConfigUpdate = {
-        "global_info": editedGlobalSettings,
-      };
+      try {
+        const globalConfigUpdate = {
+          "global_info": editedGlobalSettings,
+        };
 
 
-      await updateDoc(userCatoDocRef, {
-        'device_info.device_nickname': editedGlobalSettings["name"]["value"],
-        'device_info.global_config': JSON.stringify(globalConfigUpdate),
-        'connections': editedConnectionsSettings,
-      });
-      console.log("Settings updated successfully");
-    } catch (error) {
-      console.error("Error updating settings: ", error);
+        await updateDoc(userCatoDocRef, {
+          'device_info.device_nickname': editedGlobalSettings["name"]["value"],
+          'device_info.global_config': JSON.stringify(globalConfigUpdate),
+          'connections': editedConnectionsSettings,
+        });
+        console.log("Settings updated successfully");
+      } catch (error) {
+        console.error("Error updating settings: ", error);
+      }
+
+      const newDeviceName = editedGlobalSettings["name"]["value"];
+
+      navigate(`/devices/${newDeviceName}`);
+      window.location.reload(); //TODO: change later for permission?
     }
 
-
-    
     const deviceConfig = {
       "connections": [],
       "global_info": editedGlobalSettings,
     };
 
-
-    for (let i = 0; i < editedConnectionsSettings.length; i++) {
-      let connection = editedConnectionsSettings[i];
-      let connectionConfig = JSON.parse(connection["connection_config"]);
-      let currentModeConfig = null;
-      if (connection["current_mode"] === "practice") {
-        currentModeConfig = JSON.parse(thisDevice["data"]["device_info"]["practice_config"]);
-      } else {
-        currentModeConfig = JSON.parse(connection["mode"][connection["current_mode"]]);
-      }
-
-      connectionConfig["connection_name"]["value"] = connection.name;
-
-      let pushedConnection = {
-        ...connectionConfig,
-        ...currentModeConfig,
-        // "name": connection.name, //debug
+    if (hwUidMatch) {
+      for (let i = 0; i < editedConnectionsSettings.length; i++) {
+        let connection = editedConnectionsSettings[i];
+        let connectionConfig = JSON.parse(connection["connection_config"]);
+        let currentModeConfig = null;
+        if (connection["current_mode"] === "practice") {
+          currentModeConfig = JSON.parse(thisDevice["data"]["device_info"]["practice_config"]);
+        } else {
+          currentModeConfig = JSON.parse(connection["mode"][connection["current_mode"]]);
+        }
+  
+        connectionConfig["connection_name"]["value"] = connection.name;
+  
+        let pushedConnection = {
+          ...connectionConfig,
+          ...currentModeConfig,
+        };
+        deviceConfig["connections"].push(pushedConnection);
       };
-      deviceConfig["connections"].push(pushedConnection);
-    };
-    const overwriteSuccess = await overwriteConfigFile(deviceConfig); 
-
-    if (overwriteSuccess) {
-      // give an alert to the user that the settings have been saved
-      //toast.success("Settings saved successfully", {
-        //position: "top-center",
+      const overwriteSuccess = await overwriteConfigFile(deviceConfig);
+  
+      if (overwriteSuccess) {
         alert("Settings saved successfully");
       } else {
-      // give an alert to the user that the settings have not been saved
-      //toast.error("Settings failed to saved", {
-       // position: "top-center",
         alert("Settings failed to saved");
       };
+
+    }
+
     
+
   };
 
 
   if (!thisDevice) {
-    return <div>Device not found</div>;
+    return <div>Loading...</div>;
   }
+
+  const handleDeviceDelete = async () => {
+    const confirmed = window.confirm("Are you sure you want to delete your device? All associated data will be deleted.");
+    if (!confirmed) {
+      return;
+    }
+
+    // delete the device from the database
+    if (thisDevice) {
+      const deviceRef = doc(db, 'users', getCurrentUserId(), 'userCatos', thisDevice.id);
+      try {
+        await deleteDoc(deviceRef);
+        console.log('device deleted');
+      } catch {
+        console.log('error deleting device');
+      }
+    }
+
+    const deviceRef = doc(db, 'users', getCurrentUserId(), 'userCatos', thisDevice.id);
+    try {
+      await deleteDoc(deviceRef);
+      console.log('Device deleted successfully');
+    } catch (error) {
+      console.error('Error deleting device: ', error);
+    }
+
+    setTimeout(() => {
+      navigate('/devices');
+      //refresh the page
+      window.location.reload();
+    }, 2000);
+  }
+
   return (
     <div>
       <div className="ml-90">
-        <header 
-          className="shrink-0 bg-transparent border-b border-gray-200" 
-          onClick={toggleUniversalSettings} 
-          style={{ cursor: 'pointer' }} // Add cursor style here
+        <header
+          className="shrink-0 bg-transparent border-b border-gray-200"
+          onClick={toggleUniversalSettings}
+          style={{ cursor: 'pointer' }}
         >
-          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between">
+          <div className="flex h-16 max-w-7xl items-center justify-between">
             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
               Universal Settings
             </h2>
+            {/* delete device */}
+            <button onClick={handleDeviceDelete} style={{ backgroundColor: '#8B0000', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}>
+              Delete Device
+            </button>
           </div>
         </header>
         {isUniversalSettingsExpanded && <GlobalInfoSection />}
       </div>
 
       <div className="ml-90">
-        <header 
-          className="shrink-0 bg-transparent border-b border-gray-200" 
-          onClick={toggleConnections} 
-          style={{ cursor: 'pointer' }} // Add cursor style here
+        <header
+          className="shrink-0 bg-transparent border-b border-gray-200"
+          onClick={toggleConnections}
+          style={{ cursor: 'pointer' }}
         >
-          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between">
+          <div className="flex h-16 max-w-7xl items-center justify-between">
             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
               Connections
             </h2>
+
           </div>
+
         </header>
-        {isConnectionsExpanded && <AccordionList data={connectionsList} />}
+
+        {isConnectionsExpanded && (
+          <>
+            <AccordionList data={connectionsList} />
+            {/* Add Connection button should be here, inside the same conditional rendering block */}
+
+          </>
+        )}
+
+
       </div>
-      {/* <div className="ml-90">
-        <header className="shrink-0 bg-transparent border-b border-gray-200">
-          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
-            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-              Universal Settings
-            </h2>
-          </div>
-        </header>
-      </div>
 
-      <GlobalInfoSection />
-
-      <div className="ml-90">
-        <header className="shrink-0 bg-transparent border-b border-gray-200">
-          <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
-            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-              Connections
-            </h2>
-          </div>
-        </header>
-      </div> */}
-
-      {/* <AccordionList data={connectionsList} /> */}
-      <button onClick={handleRegisterInterface}
-        style={{
-          backgroundColor: '#8B0000', //red
-          color: 'white',
-          padding: '10px 20px',
-          fontSize: '16px',
-          borderRadius: '5px',
-          border: 'none',
-          cursor: 'pointer',
-        }}>
-        <span>Add Connection</span>
-
-        {/* <span>+</span> */}
-      </button>
       <button onClick={handleSave}
         style={{
           backgroundColor: '#B8860B', //B8860B

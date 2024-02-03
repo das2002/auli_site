@@ -257,7 +257,7 @@ const RegisterInterface = ({ user, devices }) => {
   };
 
   if (!thisDevice) {
-    return <div>Device not found</div>;
+    return <div>Loading...</div>;
   }
 
   return (

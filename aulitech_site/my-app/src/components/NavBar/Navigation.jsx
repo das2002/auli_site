@@ -88,6 +88,8 @@ const UserIcon = () => {
 const DevicesList = React.memo(() => {
   const { classNames, isDevicesMenuOpen, devices, savedConfig, isPracticeMode, setIsPracticeMode } = useContext(AppContext);
 
+  // const [isDevicesMenuOpen] = useState(AppContext); 
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -390,7 +392,7 @@ const Navigation = ({
 }) => {
   // states for settings and devices accordions 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isDevicesMenuOpen, setIsDevicesMenuOpen] = useState(false);
+  const [isDevicesMenuOpen, setIsDevicesMenuOpen] = useState(true);
   const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false);
   const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
   const [savedConfig, setSavedConfig] = useState({}); // must be accessible to Practice 

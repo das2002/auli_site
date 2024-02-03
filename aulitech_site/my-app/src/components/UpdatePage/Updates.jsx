@@ -12,7 +12,7 @@ const createMarkup = (markdown) => {
 
 const FormattedUpdate = ({ release, index, id }) => {
   const isLatest = index === 0; 
-  const tagName = isLatest ? `${release.tag_name} (latest)` : release.tag_name;
+  const tagName = isLatest ? `${release.tag_name}` : release.tag_name;
   const releaseZipUrl = release.assets?.find(asset => asset.name === 'release.zip')?.browser_download_url;
   //only release.zip
 
