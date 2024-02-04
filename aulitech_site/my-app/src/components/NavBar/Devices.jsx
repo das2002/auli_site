@@ -956,6 +956,64 @@ const Devices = ({ devices }) => {
         );
       };
 
+      
+      /* 
+
+      const DynamicMouseOptions = (config) => {
+        const [isCollapsed, setIsCollapsed] = useState(false);
+
+        const toggleCollapse = () => {
+          setIsCollapsed(!isCollapsed);
+        };
+
+        return (
+          <div style={{maxWidth: '600px', margin: '0'}}>
+            <button
+              onClick={toggleCollapse}
+              style={{
+                backgroundColor: isCollapsed ? '#1A202C' : '#fcdc6d',
+                color: isCollapsed ? '#FFFFFF' : '#000000',
+                borderRadius: '10px',
+                padding: '5px 15px',
+                display: 'inline-block',
+                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                border: 'none',
+                cursor: 'pointer',
+                outline: 'none',
+                marginBottom: '10px',
+              }}
+            >
+              Dynamic Mouse Settings
+            </button>
+
+            {!isCollapsed && (
+              <div>
+                <InputSlider
+                  sliderLabel={'dynamicMouseSlowMovement'}
+                  value={config.config.mouse.value.dynamic_mouse.value.input.value.slow.value}
+                  onChange={(e) => handleModeConfigChange(['mouse', 'value', 'dynamic_mouse', 'value', 'input', 'value', 'slow', 'value'], activeOperationMode)(parseInt(e.target.value))}
+                  min={0}
+                  max={400}
+                  step={1}
+                  sliderTitle="Slow Movement"
+                  unit={"degrees/second"}
+                  sliderDescription="Rotation speed floor below which scale remains constant."
+                />
+              </div>
+            )}
+          </div>
+        )
+
+        
+
+
+      }
+
+      */
+      
+
       const MouseOptions = (config) => {
         const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -1059,6 +1117,69 @@ const Devices = ({ devices }) => {
                   sliderTitle="Vertical Movement Scale Factor"
                   sliderDescription="Mouse sensitivity to vertical movement"
                 />
+
+                <div>
+                  <h3>Dynamic Mouse:</h3>
+                  <div style={{marginLeft: '20px'}}>
+                    <h3>User Speed:</h3>
+                    <div style={{marginLeft: '20px'}}>
+                      <InputSlider
+                        sliderLabel={'dynamicMouseInputSlowMovement'}
+                        value={config.config.mouse.value.dynamic_mouse.value.input.value.slow.value}
+                        onChange={(e) => handleModeConfigChange(['mouse', 'value', 'dynamic_mouse', 'value', 'input', 'value', 'slow', 'value'], activeOperationMode)(parseInt(e.target.value))}
+                        min={0}
+                        max={400}
+                        step={1}
+                        sliderTitle="Slow Movement"
+                        unit={"degrees/second"}
+                        sliderDescription="Rotation speed floor below which scale remains constant."
+                      />
+                      <InputSlider
+                        sliderLabel={'dynamicMouseInputFastMovement'}
+                        value={config.config.mouse.value.dynamic_mouse.value.input.value.fast.value}
+                        onChange={(e) => handleModeConfigChange(['mouse', 'value', 'dynamic_mouse', 'value', 'input', 'value', 'fast', 'value'], activeOperationMode)(parseInt(e.target.value))}
+                        min={0}
+                        max={500}
+                        step={1}
+                        sliderTitle="Slow Movement"
+                        unit={"degrees/second"}
+                        sliderDescription="Rotation speed ceiling above which scale remains constant."
+                      />
+                    </div>
+                  </div>
+                  <div style={{ marginLeft: '20px' }}>
+                    <h3>Cursor Speed:</h3>
+                    <div style={{ marginLeft: '20px' }}>
+                      <InputSlider
+                        sliderLabel={'dynamicMouseOutputSlowMovement'}
+                        value={config.config.mouse.value.dynamic_mouse.value.output.value.slow.value}
+                        onChange={(e) => handleModeConfigChange(['mouse', 'value', 'dynamic_mouse', 'value', 'output', 'value', 'slow', 'value'], activeOperationMode)(parseFloat(e.target.value))}
+                        min={0.1}
+                        max={2.0}
+                        step={0.1}
+                        sliderTitle="Slow Movement"
+                        unit={""}
+                        sliderDescription="Scale factor at (and below) slowest input speed."
+                      />
+                      <InputSlider
+                        sliderLabel={'dynamicMouseOutputFastMovement'}
+                        value={config.config.mouse.value.dynamic_mouse.value.output.value.fast.value}
+                        onChange={(e) => handleModeConfigChange(['mouse', 'value', 'dynamic_mouse', 'value', 'output', 'value', 'fast', 'value'], activeOperationMode)(parseFloat(e.target.value))}
+                        min={1.0}
+                        max={6.0}
+                        step={0.1}
+                        sliderTitle="Fast Movement"
+                        unit={""}
+                        sliderDescription="Scale factor at (and above) fastest input speed."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+
+
+
+
                 <InputSlider
                   sliderLabel={'mouseShakeSize'}
                   value={config.config.mouse.value.shake_size.value}
