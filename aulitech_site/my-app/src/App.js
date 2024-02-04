@@ -112,7 +112,8 @@ function App() {
     const auth = getAuth();
   
     // Regex for password validation
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{12,24}$/;
+    // const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{12,24}$/;
+    const passwordRegex = /^.{8,}$/;
   
     if (!passwordRegex.test(password)) {
       setErrorMessage("Password must be 12-24 characters long and include at least one letter, one number, and one special character.");
