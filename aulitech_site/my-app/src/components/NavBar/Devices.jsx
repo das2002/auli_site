@@ -1876,7 +1876,9 @@ const Devices = ({ devices }) => {
     const webAppHwUid = editedGlobalSettings["HW_UID"]["value"];
 
     // const directoryHandle = await getDirectoryHandle();
-    let webSave = false;
+
+    let calibratedWithFirebase = false;
+
 
     const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
     if (!hwUidMatch) {
@@ -1886,43 +1888,17 @@ const Devices = ({ devices }) => {
       if (!confirmed) {
         return;
       } else {
-        webSave = true;
+        calibratedWithFirebase = false;    
       }
     }
-
-    if (webSave) {
-      const userId = getCurrentUserId();
-      const userCatoDocId = thisDevice.id;
-      const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
-
-      try {
-        const globalConfigUpdate = {
-          "global_info": editedGlobalSettings,
-        };
-
-
-        await updateDoc(userCatoDocRef, {
-          'device_info.device_nickname': editedGlobalSettings["name"]["value"],
-          'device_info.global_config': JSON.stringify(globalConfigUpdate),
-          'connections': editedConnectionsSettings,
-        });
-        console.log("Settings updated successfully");
-      } catch (error) {
-        console.error("Error updating settings: ", error);
-      }
-
-      const newDeviceName = editedGlobalSettings["name"]["value"];
-
-      navigate(`/devices/${newDeviceName}`);
-      window.location.reload(); //TODO: change later for permission?
-    }
-
-    const deviceConfig = {
-      "connections": [],
-      "global_info": editedGlobalSettings,
-    };
 
     if (hwUidMatch) {
+
+      const deviceConfig = {
+        "connections": [],
+        "global_info": editedGlobalSettings,
+      };
+
       for (let i = 0; i < editedConnectionsSettings.length; i++) {
         let connection = editedConnectionsSettings[i];
         let connectionConfig = JSON.parse(connection["connection_config"]);
@@ -1944,15 +1920,40 @@ const Devices = ({ devices }) => {
       const overwriteSuccess = await overwriteConfigFile(deviceConfig);
   
       if (overwriteSuccess) {
-        alert("Settings saved successfully");
+        alert("Settings saved successfully.");
+        calibratedWithFirebase = true;
       } else {
-        alert("Settings failed to saved");
+        alert("Settings failed to saved to device.");
+        calibratedWithFirebase = false;
       };
-
     }
 
-    
+    const userId = getCurrentUserId();
+    const userCatoDocId = thisDevice.id;
+    const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
 
+    try {
+      const globalConfigUpdate = {
+        "global_info": editedGlobalSettings,
+      };
+
+      await updateDoc(userCatoDocRef, {
+        'device_info.device_nickname': editedGlobalSettings["name"]["value"],
+        'device_info.global_config': JSON.stringify(globalConfigUpdate),
+        'connections': editedConnectionsSettings,
+        'device_info.calibrated': calibratedWithFirebase,
+      });
+      console.log("Settings updated successfully");
+    } catch (error) {
+      console.error("Error updating settings: ", error);
+    }
+
+    const newDeviceName = editedGlobalSettings["name"]["value"];
+
+    navigate(`/devices/${newDeviceName}`); // is this the correct order?
+    window.location.reload(); //TODO: change later for permission?
+
+    
   };
 
 

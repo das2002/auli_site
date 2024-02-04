@@ -93,7 +93,7 @@ const DevicesList = React.memo(() => {
   const location = useLocation();
   const navigate = useNavigate();
 
-
+  
   const [isPracticeModeToggleOn, setIsPracticeModeToggleOn] = useState(false);
   const [animate, setAnimate] = useState(false);
 

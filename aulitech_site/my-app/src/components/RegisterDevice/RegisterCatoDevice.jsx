@@ -518,6 +518,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
               device_nickname: enteredName,
               hw_uid: globalInfoData.global_info.HW_UID.value,
               practice_config: practiceDataString,
+              calibrated: false,
             },
             connections: connectionsArray,
           });
