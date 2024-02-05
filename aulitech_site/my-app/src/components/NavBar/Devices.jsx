@@ -393,6 +393,28 @@ const Devices = ({ devices }) => {
   const [editedConnectionsSettings, setEditedConnectionsSettings] = useState(null);
   const [connectionsList, setConnectionsList] = useState([]);
 
+  const makePrimary = async (primaryConnection) => {
+    setConnectionsList(currentList => {
+      return [primaryConnection, ...currentList.filter(conn => conn.name !== primaryConnection.name)];
+    });
+
+    try {
+      const userId = getCurrentUserId();
+      const userCatoDocRef = doc(db, "users", userId, "userCatos", thisDevice.id);
+
+      await updateDoc(userCatoDocRef, {
+        connections: [primaryConnection, ...connectionsList.filter(conn => conn.name !== primaryConnection.name)].map(connection => ({
+          ...connection,
+          connection_config: JSON.stringify(connection)
+        }))
+      });
+      console.log("Connections order updated successfully in Firestore");
+    } catch (error) {
+      console.error("Error updating connections order in Firestore: ", error);
+    }
+  };
+
+
   const handleGlobalConfigChange = (keyList) => {
     return debounce((value) => {
       const newEditedGlobalSettings = deepCopy(editedGlobalSettings);
