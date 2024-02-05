@@ -431,6 +431,7 @@ const Devices = ({ devices }) => {
       //firebase
       await updateDoc(userCatoDocRef, {
         'connections': updatedConnections
+
       });
 
       //local states
@@ -678,7 +679,7 @@ const Devices = ({ devices }) => {
       );
     }
 
-    const ConnectionAccordion = ({ connection, onDelete }) => {
+    const ConnectionAccordion = ({ connection, onDelete, makePrimary, index }) => {
       const [isExpanded, setIsExpanded] = useState(false);
       const [collapsedSections, setCollapsedSections] = useState({});
 
@@ -958,7 +959,7 @@ const Devices = ({ devices }) => {
         );
       };
 
-      
+
       /* 
 
       const DynamicMouseOptions = (config) => {
@@ -1014,7 +1015,7 @@ const Devices = ({ devices }) => {
       }
 
       */
-      
+
 
       const MouseOptions = (config) => {
         const [isCollapsed, setIsCollapsed] = useState(false);
@@ -1122,9 +1123,9 @@ const Devices = ({ devices }) => {
 
                 <div>
                   <h3>Dynamic Mouse:</h3>
-                  <div style={{marginLeft: '20px'}}>
+                  <div style={{ marginLeft: '20px' }}>
                     <h3>User Speed:</h3>
-                    <div style={{marginLeft: '20px'}}>
+                    <div style={{ marginLeft: '20px' }}>
                       <InputSlider
                         sliderLabel={'dynamicMouseInputSlowMovement'}
                         value={config.config.mouse.value.dynamic_mouse.value.input.value.slow.value}
@@ -1879,17 +1880,40 @@ const Devices = ({ devices }) => {
                   border: 'none',
                   outline: 'none',
                   textAlign: 'left',
-                  width: '100%',
                   padding: '10px',
                   fontSize: '18px',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  flex: 1
                 }}
               >
                 <strong>{connection.name}</strong>
               </button>
             </div>
-            {!isDefaultConnection && (
-              <div>
+
+            <div style={{ display: 'flex' }}>
+              {index !== 0 && (
+                <button
+                  onClick={() => makePrimary(connection)}
+                  style={{
+                    backgroundColor: '#fcdc6d',
+                    //'#1A202C' : '#fcdc6d',
+                    // color: 'white',
+                    color: '#1A202C',
+                    border: 'none',
+                    borderRadius: '5px',
+                    outline: 'none',
+                    padding: '10px',
+                    fontSize: '16px',
+                    cursor: 'pointer',
+                    marginRight: '5px',
+                  }}
+                  aria-label="Make Primary"
+                >
+                  &#9733; {/* star character unicode */}
+                </button>
+              )}
+
+              {!isDefaultConnection && (
                 <button
                   onClick={() => onDelete(connection.name)}
                   style={{
@@ -1899,15 +1923,14 @@ const Devices = ({ devices }) => {
                     borderRadius: '5px',
                     outline: 'none',
                     textAlign: 'left',
-                    width: '100%',
                     padding: '10px',
                     fontSize: '16px',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
                   }}>
                   Delete Connection
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
 
@@ -1947,6 +1970,8 @@ const Devices = ({ devices }) => {
               <ConnectionAccordion
                 connection={item}
                 onDelete={handleConnectionDeletion} //delete connections
+                makePrimary={makePrimary}
+                index={index}
               >
                 {item.name}
               </ConnectionAccordion>
@@ -1954,26 +1979,27 @@ const Devices = ({ devices }) => {
             </div>
           ))}
           <DashedLine />
-          <div style={{ marginBottom: '10px' }}> {/* Center button container */}
+          <div style={{ marginBottom: '10px' }}> 
             <button onClick={handleRegisterInterface}
               style={{
-                backgroundColor: '#8B0000', // Red color
+                backgroundColor: '#8B0000', 
                 color: 'white',
                 padding: '10px',
                 fontSize: '16px',
                 borderRadius: '5px',
                 border: 'none',
                 cursor: 'pointer',
-                display: 'inline-block', // Changed to inline-block for a narrower button
-                margin: '10px auto', // Center button
-                maxWidth: '200px', // Maximum width of the button
+                display: 'inline-block', 
+                margin: '10px auto', 
+                maxWidth: '200px', 
               }}>
               Add Connection
             </button>
+
           </div>
         </div>
       </div>
-    );    
+    );
   };
 
 
@@ -2011,7 +2037,7 @@ const Devices = ({ devices }) => {
       if (!confirmed) {
         return;
       } else {
-        calibratedWithFirebase = false;    
+        calibratedWithFirebase = false;
       }
     }
 
@@ -2042,7 +2068,7 @@ const Devices = ({ devices }) => {
         progress: undefined,
         theme: "light",
         transition: Bounce,
-        });
+      });
     } catch (error) {
       console.error("Error updating web settings: ", error);
       toast.error("Error updating web settings. Aborting save operation.", {
@@ -2074,9 +2100,9 @@ const Devices = ({ devices }) => {
         } else {
           currentModeConfig = JSON.parse(connection["mode"][connection["current_mode"]]);
         }
-  
+
         connectionConfig["connection_name"]["value"] = connection.name;
-  
+
         let pushedConnection = {
           ...connectionConfig,
           ...currentModeConfig,
@@ -2084,7 +2110,7 @@ const Devices = ({ devices }) => {
         deviceConfig["connections"].push(pushedConnection);
       };
       const overwriteSuccess = await overwriteConfigFile(deviceConfig);
-  
+
       if (overwriteSuccess) {
         toast.success('Device settings updated successfully', {
           position: "bottom-right",
@@ -2096,7 +2122,7 @@ const Devices = ({ devices }) => {
           progress: undefined,
           theme: "light",
           transition: Bounce,
-          });
+        });
         calibratedWithFirebase = true;
       } else {
         toast.error("Error updating device settings. Device not in sync with web.", {
@@ -2114,14 +2140,14 @@ const Devices = ({ devices }) => {
       };
     }
 
-    
+
 
     //const newDeviceName = editedGlobalSettings["name"]["value"];
 
     //navigate(`/devices/${newDeviceName}`); // is this the correct order?
     //window.location.reload(); //TODO: change later for permission?
 
-    
+
   };
 
 
@@ -2163,7 +2189,7 @@ const Devices = ({ devices }) => {
 
   return (
     <div>
-      
+
       <div className="ml-90">
         <header
           className="shrink-0 bg-transparent border-b border-gray-200"
@@ -2222,7 +2248,7 @@ const Devices = ({ devices }) => {
         }}>
         Save
       </button>
-      <ToastContainer/>
+      <ToastContainer />
     </div>
   );
 
