@@ -1946,6 +1946,8 @@ const Devices = ({ devices }) => {
       }
     }
 
+    
+
     const userId = getCurrentUserId();
     const userCatoDocId = thisDevice.id;
     const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
@@ -1955,12 +1957,21 @@ const Devices = ({ devices }) => {
         "global_info": editedGlobalSettings,
       };
 
-      await updateDoc(userCatoDocRef, {
-        'device_info.device_nickname': editedGlobalSettings["name"]["value"],
-        'device_info.global_config': JSON.stringify(globalConfigUpdate),
-        'connections': editedConnectionsSettings,
-        'device_info.calibrated': calibratedWithFirebase,
-      });
+      if (hwUidMatch) {
+        await updateDoc(userCatoDocRef, {
+          'device_info.device_nickname': editedGlobalSettings["name"]["value"],
+          'device_info.global_config': JSON.stringify(globalConfigUpdate),
+          'connections': editedConnectionsSettings,
+        });
+      } else {
+        await updateDoc(userCatoDocRef, {
+          'device_info.device_nickname': editedGlobalSettings["name"]["value"],
+          'device_info.global_config': JSON.stringify(globalConfigUpdate),
+          'connections': editedConnectionsSettings,
+          'device_info.calibrated': calibratedWithFirebase,
+        });
+      }
+
       console.log("Web settings updated successfully");
 
       toast.success('Web settings updated successfully', {
@@ -2043,14 +2054,14 @@ const Devices = ({ devices }) => {
         });
         calibratedWithFirebase = false;
       };
-    }
+      await updateDoc(userCatoDocRef, {
+        'device_info.calibrated': calibratedWithFirebase,
+      });
+    };
+    const newDeviceName = editedGlobalSettings["name"]["value"];
 
-    
-
-    //const newDeviceName = editedGlobalSettings["name"]["value"];
-
-    //navigate(`/devices/${newDeviceName}`); // is this the correct order?
-    //window.location.reload(); //TODO: change later for permission?
+    navigate(`/devices/${newDeviceName}`); // is this the correct order?
+    window.location.reload(); //TODO: change later for permission?
 
     
   };

@@ -9,7 +9,8 @@ import { useNavigate, useRoutes, useLocation, BrowserRouter as Router, Route, Ro
 import RegisterInterface from './RegisterInterface';
 import PracticeModeToggle from "./PracticeModeToggle/PracticeModeToggle";
 import Practice from "./Practice";
-import { overwriteConfigFile } from '../NavBar/ReplaceConfig';
+import { overwriteConfigFile, getFileHandle } from '../NavBar/ReplaceConfig';
+import connectionImage from '../../images/connection-svgrepo-com.svg';
 
 // static nav buttons in navbar
 // const RecordGesturesRoute = () => {
@@ -85,7 +86,7 @@ const UserIcon = () => {
 };
 
 // accordion menus 
-const DevicesList = React.memo(() => {
+const DevicesList = React.memo(({connectedDevice}) => {
   const { classNames, isDevicesMenuOpen, devices, savedConfig, isPracticeMode, setIsPracticeMode } = useContext(AppContext);
 
   // const [isDevicesMenuOpen] = useState(AppContext); 
@@ -96,6 +97,8 @@ const DevicesList = React.memo(() => {
   
   const [isPracticeModeToggleOn, setIsPracticeModeToggleOn] = useState(false);
   const [animate, setAnimate] = useState(false);
+
+  console.log(connectedDevice);
 
 
   const togglePracticeMode = async (index) => {
@@ -142,6 +145,10 @@ const DevicesList = React.memo(() => {
         const devicePath = device.data.device_info.device_nickname;
         const isActive = isNavLinkActive(devicePath);
         const isCalibrated = device.data.device_info.calibrated;
+        const isConnected = ((connectedDevice != null) && (connectedDevice == device.data.device_info.hw_uid));
+
+        console.log(device);
+        console.log(isConnected);
 
         return (
           <div
@@ -164,6 +171,15 @@ const DevicesList = React.memo(() => {
                   }}
                 >
                   {devicePath}
+
+                  {isConnected && (
+                    <div title="Device connected to computer via USB." style={{marginRight: '10px'}}>
+                      <img src={connectionImage} alt="Connected" className="w-6 h-6 ml-2"/>
+                    </div>
+                  )}
+
+
+
                   {!isCalibrated && (
                     <div title="Device not calibrated to web settings. Connect device and save settings to sync.">
                       <svg
@@ -177,6 +193,7 @@ const DevicesList = React.memo(() => {
                     </div>
                   )}
                 </NavLink>
+                
                 {isActive && <PracticeModeToggle deviceName={devicePath} onToggle={() => togglePracticeMode(index)} />}
               </div>
             </div>
@@ -221,12 +238,33 @@ const DevicesList = React.memo(() => {
 const DevicesRoute = () => {
   const { toggleDevicesMenu, isDevicesMenuOpen } = useContext(AppContext);
 
+  const [activeDevice, setActiveDevice] = useState(null);
+
+  const checkDeviceStatus = async () => {
+    console.log('Checking device status...');
+    try {
+      let fileHandle = await getFileHandle();
+      if (!fileHandle) {
+        throw new Error('No file handle found.');
+      }
+
+      const file = await fileHandle.getFile();
+      const text = await file.text();
+      const config = JSON.parse(text);
+      setActiveDevice(config.global_info.HW_UID.value);
+    } catch (error) {
+      console.error('Error checking device status:', error);
+      setActiveDevice(null);
+    }
+    toggleDevicesMenu();
+  }
+
   return (
     <>
       <div className="-mx-6 relative transition-transform duration-50 select-none mt-36">
         <div
           className="group flex items-center transition-all duration-200 overflow-x-hidden gap-x-4 px-6 py-3 text-lg leading-6 font-semibold text-gray-400 hover:text-white hover:bg-gray-800"
-          onClick={toggleDevicesMenu}
+          onClick={checkDeviceStatus}
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
             className={"w-6 h-6 transition-transform duration-300 transform " + (isDevicesMenuOpen ? "rotate-90" : "")}>
@@ -236,7 +274,7 @@ const DevicesRoute = () => {
         </div>
         {/* {console.log(devices[0].data.device_info.device_nickname)} */}
         <div className="pl-8 pt-2 space-y-2">
-          <DevicesList />
+          <DevicesList connectedDevice={activeDevice}/>
         </div>
       </div>
     </>
@@ -411,7 +449,7 @@ const Navigation = ({
   const [savedConfig, setSavedConfig] = useState({}); // must be accessible to Practice 
   const [isPracticeMode, setIsPracticeMode] = useState(false);
 
-  console.log('should definitely be func', setIsPracticeMode);
+  //console.log('should definitely be func', setIsPracticeMode);
   // router 
   <Router>
     <Routes>

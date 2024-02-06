@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { get, set, entries } from "idb-keyval";
+import { get, set } from "idb-keyval";
 import {
   collection,
   addDoc,
