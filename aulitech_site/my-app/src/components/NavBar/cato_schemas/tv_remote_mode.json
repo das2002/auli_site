@@ -144,42 +144,50 @@
             {
                 "command": "button_action",
                 "args": [
-                    0,
-                    "double_tap",
-                    1
-                ]
-            },
-            {
-                "command": "button_action",
-                "args": [
-                    0,
+                    1,
                     "tap",
-                    1
+                    82
                 ]
             },
             {
                 "command": "button_action",
                 "args": [
-                    0,
+                    1,
                     "tap",
-                    2
+                    81
                 ]
             },
             {
                 "command": "button_action",
                 "args": [
-                    0,
-                    "hold_until_idle",
-                    1
+                    1,
+                    "tap",
+                    79
                 ]
             },
             {
-                "command": "quick_sleep",
-                "args": []
+                "command": "button_action",
+                "args": [
+                    1,
+                    "tap",
+                    80
+                ]
             },
             {
-                "command": "pointer_sleep",
-                "args": []
+                "command": "button_action",
+                "args": [
+                    1,
+                    "tap",
+                    40
+                ]
+            },
+            {
+                "command": "button_action",
+                "args": [
+                    1,
+                    "tap",
+                    41
+                ]
             }
         ]
     }

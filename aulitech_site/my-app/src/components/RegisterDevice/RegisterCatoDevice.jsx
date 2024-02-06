@@ -17,6 +17,7 @@ import * as mouseDefault from '../NavBar/cato_schemas/mouse.json';
 import * as gestureDefault from '../NavBar/cato_schemas/gesture.json';
 import * as tvRemoteDefault from '../NavBar/cato_schemas/tv_remote.json';
 import * as bindingsDefault from '../NavBar/cato_schemas/bindings.json';
+import * as tvRemoteBindings from '../NavBar/cato_schemas/tv_remote_mode.json';
 import * as practiceDefault from '../NavBar/cato_schemas/practice.json';
 import * as connectionSpecificDefault from '../NavBar/cato_schemas/connection_specific.json';
 import * as operationDefault from '../NavBar/cato_schemas/operation.json';
@@ -63,21 +64,30 @@ const modeDefaultGenerator = (mode) => {
     }
     return gestureMouseData;
 
-  } else if (mode == "tv_remote") {
+  } 
+  else if (mode == "tv_remote") {
     let tvRemoteOperationDefault = deepCopy(operationDefault);
     tvRemoteOperationDefault["operation_mode"]["value"] = "tv_remote";
+
+    let tvRemoteBindings = deepCopy(operationDefault);
+    tvRemoteBindings["bindings"]["value"] = "tv_remote";
+
     let tvRemoteData = {
       ...tvRemoteOperationDefault,
       ...tvRemoteDefault,
-      ...bindingsDefault,
-      ...gestureDefault
+      ...gestureDefault,
+      ...tvRemoteBindings
     };
+
     if (tvRemoteData.hasOwnProperty("default")){
       delete tvRemoteData.default;
     }
-    return tvRemoteData;
 
-  } else if (mode == "practice") {
+    return tvRemoteData;
+}
+
+
+  else if (mode == "practice") {
     let practiceOperationDefault = deepCopy(operationDefault);
     practiceOperationDefault["operation_mode"]["value"] = "practice";
     let practiceData = {
