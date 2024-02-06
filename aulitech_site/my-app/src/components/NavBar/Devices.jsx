@@ -10,6 +10,7 @@ import { KeyOptions, getKeyOption } from './KeyOptions';
 import { fetchAndCompareConfig, overwriteConfigFile, deleteConfigFileIfExists } from './ReplaceConfig';
 import { toast, ToastContainer, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import dynamicMouseGraphic from '../../images/dynamic_mouse_graphic.png';
 
 
 const DarkYellowSlider = styled(Slider)(({ theme }) => ({
@@ -949,65 +950,7 @@ const Devices = ({ devices }) => {
             )}
           </div>
         );
-      };
-
-      
-      /* 
-
-      const DynamicMouseOptions = (config) => {
-        const [isCollapsed, setIsCollapsed] = useState(false);
-
-        const toggleCollapse = () => {
-          setIsCollapsed(!isCollapsed);
-        };
-
-        return (
-          <div style={{maxWidth: '600px', margin: '0'}}>
-            <button
-              onClick={toggleCollapse}
-              style={{
-                backgroundColor: isCollapsed ? '#1A202C' : '#fcdc6d',
-                color: isCollapsed ? '#FFFFFF' : '#000000',
-                borderRadius: '10px',
-                padding: '5px 15px',
-                display: 'inline-block',
-                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                border: 'none',
-                cursor: 'pointer',
-                outline: 'none',
-                marginBottom: '10px',
-              }}
-            >
-              Dynamic Mouse Settings
-            </button>
-
-            {!isCollapsed && (
-              <div>
-                <InputSlider
-                  sliderLabel={'dynamicMouseSlowMovement'}
-                  value={config.config.mouse.value.dynamic_mouse.value.input.value.slow.value}
-                  onChange={(e) => handleModeConfigChange(['mouse', 'value', 'dynamic_mouse', 'value', 'input', 'value', 'slow', 'value'], activeOperationMode)(parseInt(e.target.value))}
-                  min={0}
-                  max={400}
-                  step={1}
-                  sliderTitle="Slow Movement"
-                  unit={"degrees/second"}
-                  sliderDescription="Rotation speed floor below which scale remains constant."
-                />
-              </div>
-            )}
-          </div>
-        )
-
-        
-
-
-      }
-
-      */
-      
+      };      
 
       const MouseOptions = (config) => {
         const [isCollapsed, setIsCollapsed] = useState(false);
@@ -1115,7 +1058,7 @@ const Devices = ({ devices }) => {
 
                 <div>
                   <h3>Dynamic Mouse:</h3>
-                  <div style={{marginLeft: '20px'}}>
+                  <div style={{marginLeft: '20px', marginTop: '10px'}}>
                     <h3>User Speed:</h3>
                     <div style={{marginLeft: '20px'}}>
                       <InputSlider
@@ -1136,13 +1079,13 @@ const Devices = ({ devices }) => {
                         min={0}
                         max={500}
                         step={1}
-                        sliderTitle="Slow Movement"
+                        sliderTitle="Fast Movement"
                         unit={"degrees/second"}
                         sliderDescription="Rotation speed ceiling above which scale remains constant."
                       />
                     </div>
                   </div>
-                  <div style={{ marginLeft: '20px' }}>
+                  <div style={{ marginLeft: '20px', marginTop: '20px' }}>
                     <h3>Cursor Speed:</h3>
                     <div style={{ marginLeft: '20px' }}>
                       <InputSlider
@@ -1169,6 +1112,7 @@ const Devices = ({ devices }) => {
                       />
                     </div>
                   </div>
+                  <img src={dynamicMouseGraphic} alt="Dynamic Mouse Graph" style={{ width: '75%', marginTop: '20px', marginBottom: '30px' }} />
                 </div>
 
 
