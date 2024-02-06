@@ -393,26 +393,26 @@ const Devices = ({ devices }) => {
   const [editedConnectionsSettings, setEditedConnectionsSettings] = useState(null);
   const [connectionsList, setConnectionsList] = useState([]);
 
-  const makePrimary = async (primaryConnection) => {
-    setConnectionsList(currentList => {
-      return [primaryConnection, ...currentList.filter(conn => conn.name !== primaryConnection.name)];
-    });
+  // const makePrimary = async (primaryConnection) => {
+  //   setConnectionsList(currentList => {
+  //     return [primaryConnection, ...currentList.filter(conn => conn.name !== primaryConnection.name)];
+  //   });
 
-    try {
-      const userId = getCurrentUserId();
-      const userCatoDocRef = doc(db, "users", userId, "userCatos", thisDevice.id);
+  //   try {
+  //     const userId = getCurrentUserId();
+  //     const userCatoDocRef = doc(db, "users", userId, "userCatos", thisDevice.id);
 
-      await updateDoc(userCatoDocRef, {
-        connections: [primaryConnection, ...connectionsList.filter(conn => conn.name !== primaryConnection.name)].map(connection => ({
-          ...connection,
-          connection_config: JSON.stringify(connection)
-        }))
-      });
-      console.log("Connections order updated successfully in Firestore");
-    } catch (error) {
-      console.error("Error updating connections order in Firestore: ", error);
-    }
-  };
+  //     await updateDoc(userCatoDocRef, {
+  //       connections: [primaryConnection, ...connectionsList.filter(conn => conn.name !== primaryConnection.name)].map(connection => ({
+  //         ...connection,
+  //         connection_config: JSON.stringify(connection)
+  //       }))
+  //     });
+  //     console.log("Connections order updated successfully in Firestore");
+  //   } catch (error) {
+  //     console.error("Error updating connections order in Firestore: ", error);
+  //   }
+  // };
 
 
   const handleGlobalConfigChange = (keyList) => {
@@ -701,7 +701,8 @@ const Devices = ({ devices }) => {
       );
     }
 
-    const ConnectionAccordion = ({ connection, onDelete, makePrimary, index }) => {
+    // const ConnectionAccordion = ({ connection, onDelete, makePrimary, index }) => {
+    const ConnectionAccordion = ({ connection, onDelete }) => {
       const [isExpanded, setIsExpanded] = useState(false);
       const [collapsedSections, setCollapsedSections] = useState({});
 
@@ -1934,7 +1935,7 @@ const Devices = ({ devices }) => {
             </div>
 
             <div style={{ display: 'flex' }}>
-              {index !== 0 && (
+              {/* {index !== 0 && (
                 <button
                   onClick={() => makePrimary(connection)}
                   style={{
@@ -1952,9 +1953,9 @@ const Devices = ({ devices }) => {
                   }}
                   aria-label="Make Primary"
                 >
-                  &#9733; {/* star character unicode */}
+                  &#9733; 
                 </button>
-              )}
+              )} */}
 
               {!isDefaultConnection && (
                 <button
@@ -2013,8 +2014,8 @@ const Devices = ({ devices }) => {
               <ConnectionAccordion
                 connection={item}
                 onDelete={handleConnectionDeletion} //delete connections
-                makePrimary={makePrimary}
-                index={index}
+                // makePrimary={makePrimary}
+                // index={index}
               >
                 {item.name}
               </ConnectionAccordion>
