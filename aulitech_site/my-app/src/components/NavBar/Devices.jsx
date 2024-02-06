@@ -860,37 +860,30 @@ const Devices = ({ devices }) => {
       }, [activeOperationMode]);
 
       useEffect(() => {
-        console.log('editedConnectionConfig: ' + editedConnectionConfig)
         if (editedConnectionConfig) {
           connection["connection_config"] = JSON.stringify(editedConnectionConfig);
         }
       }, [editedConnectionConfig]);
 
       useEffect(() => {
-        console.log('editedGestureMouseConfig: ' + editedGestureMouseConfig)
         if (editedGestureMouseConfig) {
           connection["mode"]["gesture_mouse"] = JSON.stringify(editedGestureMouseConfig);
         }
       }, [editedGestureMouseConfig]);
 
       useEffect(() => {
-        console.log('editedTVRemoteConfig: ' + editedTVRemoteConfig)
         if (editedTVRemoteConfig) {
-          console.log('editedTVRemoteConfig: ' + JSON.stringify(editedTVRemoteConfig))
           connection["mode"]["tv_remote"] = JSON.stringify(editedTVRemoteConfig);
         }
       }, [editedTVRemoteConfig]);
 
       useEffect(() => {
-        console.log('editedPointerConfig: ' + editedPointerConfig)
-        console.log(editedPointerConfig);
         if (editedPointerConfig) {
           connection["mode"]["pointer"] = JSON.stringify(editedPointerConfig);
         }
       }, [editedPointerConfig]);
 
       useEffect(() => {
-        console.log('editedClickerConfig: ' + editedClickerConfig)
         if (editedClickerConfig) {
           connection["mode"]["clicker"] = JSON.stringify(editedClickerConfig);
 
@@ -1394,11 +1387,7 @@ const Devices = ({ devices }) => {
           setIsBindingsExpanded(!isBindingsExpanded);
         };
 
-
-        console.log(config);
-
         const getInitialBindingsForMode = (config) => {
-          console.log(config);
           const defaultConfig = [
             { gesture: 'None', command: 'noop', setting1: '', setting2: '', setting3: '' },
             { gesture: 'Nod Up', command: 'noop', setting1: '', setting2: '', setting3: '' },
@@ -1993,8 +1982,6 @@ const Devices = ({ devices }) => {
   };
 
   const handleSave = async () => {
-    console.log(editedGlobalSettings);
-    console.log(editedConnectionsSettings);
 
     const webAppHwUid = editedGlobalSettings["HW_UID"]["value"];
 
