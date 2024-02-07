@@ -802,29 +802,29 @@ const Devices = ({ devices }) => {
       };
 
       const handleOperationModeSelection = (value) => {
-        if (value === "Gesture Mouse") {
+        if (value == "Gesture Mouse") {
           setActiveOperationMode("gesture_mouse");
-        } else if (value === "TV Remote") {
+        } else if (value == "TV Remote") {
           setActiveOperationMode("tv_remote");
-        } else if (value === "Pointer") {
+        } else if (value == "Pointer") {
           setActiveOperationMode("pointer");
-        } else if (value === "Clicker") {
+        } else if (value == "Clicker") {
           setActiveOperationMode("clicker");
-        } else if (value === "Select Operation Mode") {
+        } else if (value == "Select Operation Mode") {
           setActiveOperationMode("practice");
         }
       }
 
       const operationModeConversion = (mode) => {
-        if (mode === "gesture_mouse") {
+        if (mode == "gesture_mouse") {
           return "Gesture Mouse";
-        } else if (mode === "tv_remote") {
+        } else if (mode == "tv_remote") {
           return "TV Remote";
-        } else if (mode === "pointer") {
+        } else if (mode == "pointer") {
           return "Pointer";
-        } else if (mode === "clicker") {
+        } else if (mode == "clicker") {
           return "Clicker";
-        } else if (mode === "practice") {
+        } else if (mode == "practice") {
           return "Select Operation Mode";
         }
       };
@@ -843,7 +843,7 @@ const Devices = ({ devices }) => {
 
       const handleModeConfigChange = (keyList, mode) => {
         return debounce((value) => {
-          if (mode === "gesture_mouse") {
+          if (mode == "gesture_mouse") {
             const newEditedGestureMouseConfig = deepCopy(editedGestureMouseConfig);
             let currentConfig = newEditedGestureMouseConfig;
             for (let i = 0; i < keyList.length - 1; i++) {
@@ -851,7 +851,7 @@ const Devices = ({ devices }) => {
             }
             currentConfig[keyList[keyList.length - 1]] = value;
             setEditedGestureMouseConfig(newEditedGestureMouseConfig);
-          } else if (mode === "tv_remote") {
+          } else if (mode == "tv_remote") {
             const newEditedTVRemoteConfig = deepCopy(editedTVRemoteConfig);
             let currentConfig = newEditedTVRemoteConfig;
             for (let i = 0; i < keyList.length - 1; i++) {
@@ -859,7 +859,7 @@ const Devices = ({ devices }) => {
             }
             currentConfig[keyList[keyList.length - 1]] = value;
             setEditedTVRemoteConfig(newEditedTVRemoteConfig);
-          } else if (mode === "pointer") {
+          } else if (mode == "pointer") {
             const newEditedPointerConfig = deepCopy(editedPointerConfig);
             let currentConfig = newEditedPointerConfig;
             for (let i = 0; i < keyList.length - 1; i++) {
@@ -867,7 +867,7 @@ const Devices = ({ devices }) => {
             }
             currentConfig[keyList[keyList.length - 1]] = value;
             setEditedPointerConfig(newEditedPointerConfig);
-          } else if (mode === "clicker") {
+          } else if (mode == "clicker") {
             const newEditedClickerConfig = deepCopy(editedClickerConfig);
             let currentConfig = newEditedClickerConfig;
             for (let i = 0; i < keyList.length - 1; i++) {
@@ -1419,28 +1419,6 @@ const Devices = ({ devices }) => {
         };
 
 
-        console.log(config);
-
-        const getInitialBindingsForMode = (config) => {
-          console.log(config);
-          const defaultConfig = [
-            { gesture: 'None', command: 'noop', setting1: '', setting2: '', setting3: '' },
-            { gesture: 'Nod Up', command: 'noop', setting1: '', setting2: '', setting3: '' },
-            { gesture: 'Nod Down', command: 'noop', setting1: '', setting2: '', setting3: '' },
-            { gesture: 'Nod Right', command: 'noop', setting1: '', setting2: '', setting3: '' },
-            { gesture: 'Nod Left', command: 'noop', setting1: '', setting2: '', setting3: '' },
-            { gesture: 'Tilt Right', command: 'noop', setting1: '', setting2: '', setting3: '' },
-            { gesture: 'Tilt Left', command: 'noop', setting1: '', setting2: '', setting3: '' },
-          ];
-          if (config) {
-            if (config.bindings.value) {
-              return config.bindings.value;
-            }
-          }
-
-          return defaultConfig;
-        };
-
         function generateDescription(binding) {
           switch (binding.command) {
             case "noop":
@@ -1452,8 +1430,8 @@ const Devices = ({ devices }) => {
             case "quick_calibrate":
               return "Runs quick calibration for drift removal.";
             case "dwell_click":
-              if (binding.setting1 && binding.setting2) {
-                return `Moves cursor and taps ${buttonMapping(binding.setting1)} on dwell, tilts at speed ${binding.setting2} to cancel.`;
+              if (binding.args[0] && binding.args[1]) {
+                return `Moves cursor and taps ${buttonMapping(binding.args[0])} on dwell, tilts at speed ${binding.args[1]} to cancel.`;
               }
               return "Moves cursor and taps on dwell, tilt to cancel.";
             case "_scroll":
@@ -1461,8 +1439,8 @@ const Devices = ({ devices }) => {
             case "_scroll_lr":
               return "Freezes cursor, look up/down to scroll horizontally, look left/right to cancel.";
             case "button_action":
-              if (binding.setting1 && binding.setting2 && binding.setting3) {
-                return `Button Action: ${actorMapping(binding.setting1)} ${actionMapping(binding.setting2)} on ${buttonMapping(binding.setting3)}.`;
+              if (binding.args[0] && binding.args[1] && binding.args[2]) {
+                return `Button Action: ${actorMapping(binding.args[0])} ${actionMapping(binding.args[1])} on ${buttonMapping(binding.args[2])}.`;
               }
               return "Performs a specified action.";
             default:
@@ -1470,7 +1448,7 @@ const Devices = ({ devices }) => {
           }
         }
         function actorMapping(actor) {
-          return actor === "0" ? "Mouse" : "Keyboard";
+          return actor == "0" ? "Mouse" : "Keyboard";
         }
         function actionMapping(action) {
           const actionMappings = {
@@ -1485,8 +1463,8 @@ const Devices = ({ devices }) => {
           return actionMappings[action] || "Unknown action";
         }
         function buttonMapping(button) {
-          if (button === "1") return "Left Click";
-          if (button === "2") return "Right Click";
+          if (button == "1") return "Left Click";
+          if (button == "2") return "Right Click";
           else {
             return getKeyOption(button);
           }
@@ -1514,25 +1492,24 @@ const Devices = ({ devices }) => {
           if (currentBinding.command !== value) {
             switch (value) {
               case 'dwell_click':
-                updatedBindings[index].setting1 = "1";
-                updatedBindings[index].setting2 = "2";
-                updatedBindings[index].setting3 = '';
+                updatedBindings[index]["args"][0] = "1";
+                updatedBindings[index]["args"][1] = "2";
+                updatedBindings[index]["args"][2] = '';
                 break;
               case 'button_action':
-                updatedBindings[index].setting1 = "0";
-                updatedBindings[index].setting2 = 'tap';
-                updatedBindings[index].setting3 = "1";
+                updatedBindings[index]["args"][0] = "0";
+                updatedBindings[index]["args"][1] = 'tap';
+                updatedBindings[index]["args"][2] = "1";
                 break;
               default:
                 // Reset settings for other commands, if necessary
-                updatedBindings[index].setting1 = '';
-                updatedBindings[index].setting2 = '';
-                updatedBindings[index].setting3 = '';
+                updatedBindings[index]["args"][0] = '';
+                updatedBindings[index]["args"][1] = '';
+                updatedBindings[index]["args"][2] = '';
                 break;
             }
           }
           updatedBindings[index].command = value;
-
 
           switch (activeOperationMode) {
             case "gesture_mouse":
@@ -1564,16 +1541,16 @@ const Devices = ({ devices }) => {
           let updatedBindings = [...config["bindings"]["value"]];
           let currentBinding = updatedBindings[index];
 
-          if (currentBinding.command === 'button_action') {
-            if (settingNumber === 1) {  // If the actor is being changed
+          if (currentBinding.command == 'button_action') {
+            if (settingNumber == 0) {  // If the actor is being changed
               // Set defaults based on the new actor value
-              currentBinding.setting2 = 'tap'; // Default action remains the same
-              currentBinding.setting3 = (value === '0') ? '1' : '4'; // Default button based on actor
+              currentBinding.args[1] = 'tap'; // Default action remains the same
+              currentBinding.args[2] = (value == '0') ? '1' : '4'; // Default button based on actor
             }
           }
 
           // Update the setting that has been changed
-          currentBinding[`setting${settingNumber}`] = value;
+          currentBinding["args"][settingNumber] = value;
           //setEditedBindings(updatedBindings);
 
           switch (activeOperationMode) {
@@ -1611,10 +1588,10 @@ const Devices = ({ devices }) => {
         // ]
 
         let gesturesList;
-        let bindings;
+        let bindingsSettings;
         if (mode === "clicker") {
-          gesturesList = ['Tap 1', 'Tap 2', 'Tap 3'];
-          bindings = config.bindings.value.slice(0, 3); //correct way to do this?
+          gesturesList = ['None', 'Tap 1', 'Tap 2', 'Tap 3'];
+          bindingsSettings = config.bindings.value; //correct way to do this?
         } else {
           gesturesList = [
             'None',
@@ -1625,7 +1602,7 @@ const Devices = ({ devices }) => {
             'Tilt Right',
             'Tilt Left'
           ];
-          bindings = config.bindings.value;
+          bindingsSettings = config.bindings.value;
         }
 
         const toggleSection = (sectionKey) => {
@@ -1657,9 +1634,11 @@ const Devices = ({ devices }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {config.bindings.value.map((binding, index) => {
+                    {bindingsSettings.map((binding, index) => {
+                      console.log(binding);
+                      console.log(index);
                       //if row isn't empty (for clicker):
-                      if (gesturesList[index]) {
+                      if (gesturesList[index] && index != 0) { //temporary solution for the first item being ignored
                         return (
                           <tr key={index} className="max-h-16 h-16">
 
@@ -1694,8 +1673,8 @@ const Devices = ({ devices }) => {
                                   <div className='w-full flex-0 flex flex-col items-center'>
                                     <th className="w-full px-4 text-center text-sm">Button</th>
                                     <select className='w-full py-1 text-sm'
-                                      value={binding.setting1}
-                                      onChange={(e) => handleSettingsChange(index, 1, e.target.value)}
+                                      value={binding.args[0]}
+                                      onChange={(e) => handleSettingsChange(index, 0, e.target.value)}
                                     >
                                       <option value={1}>Left Mouse Click</option>
                                       <option value={2}>Right Mouse Click</option>
@@ -1705,8 +1684,8 @@ const Devices = ({ devices }) => {
                                   <div className='w-full flex-0 flex flex-col items-center'>
                                     <th className="w-full px-4 text-center text-sm">Cancel Speed</th>
                                     <select className='w-5/6 py-1 text-sm'
-                                      value={binding.setting2}
-                                      onChange={(e) => handleSettingsChange(index, 2, e.target.value)}
+                                      value={binding.args[1]}
+                                      onChange={(e) => handleSettingsChange(index, 1, e.target.value)}
                                     >
                                       <option value={1}>1</option>
                                       <option value={2}>2</option>
@@ -1728,8 +1707,8 @@ const Devices = ({ devices }) => {
                                   <div className='w-full px-3 flex-0 flex flex-col items-center'>
                                     <th className="w-full px-1 text-center text-sm">Actor</th>
                                     <select className='w-5/6 py-1 text-sm'
-                                      value={binding.setting1}
-                                      onChange={(e) => handleSettingsChange(index, 1, e.target.value)}
+                                      value={binding.args[0]}
+                                      onChange={(e) => handleSettingsChange(index, 0, e.target.value)}
                                     >
                                       <option selected="selected" value={0}>Mouse</option>
                                       <option value={1}>Keyboard</option>
@@ -1740,8 +1719,8 @@ const Devices = ({ devices }) => {
                                   <div className='w-full px-3 flex-0 flex flex-col items-center'>
                                     <th className="w-full px-1 text-center text-sm">Action</th>
                                     <select className='w-5/6 py-1 text-sm'
-                                      value={binding.setting2}
-                                      onChange={(e) => handleSettingsChange(index, 2, e.target.value)}
+                                      value={binding.args[1]}
+                                      onChange={(e) => handleSettingsChange(index, 1, e.target.value)}
                                     >
                                       <option value={'tap'}>Tap</option>
                                       <option value={'double_tap'}>Double Tap</option>
@@ -1753,12 +1732,12 @@ const Devices = ({ devices }) => {
                                     </select>
                                   </div>
                                   {/* BUTTON */}
-                                  {binding.setting1 === "1" ? (
+                                  {binding.args[0] == "1" ? (
                                     <div className='px-3 w-full flex-0 flex flex-col items-center'>
                                       <th className="w-full px-1 text-center text-sm">Button</th>
                                       <select className='w-5/6 py-1 text-sm'
-                                        value={binding.setting3}
-                                        onChange={(e) => handleSettingsChange(index, 3, e.target.value)}>
+                                        value={binding.args[2]}
+                                        onChange={(e) => handleSettingsChange(index, 2, e.target.value)}>
                                         <KeyOptions />
                                       </select>
                                     </div>
@@ -1766,8 +1745,8 @@ const Devices = ({ devices }) => {
                                     <div className='px-3 w-full flex-0 flex flex-col items-center'>
                                       <th className="w-full px-1 text-center text-sm">Button</th>
                                       <select className='w-5/6 py-1 text-sm'
-                                        value={binding.setting3}
-                                        onChange={(e) => handleSettingsChange(index, 3, e.target.value)}>
+                                        value={binding.args[2]}
+                                        onChange={(e) => handleSettingsChange(index, 2, e.target.value)}>
                                         <option value={1}>Left Mouse Click</option>
                                         <option value={2}>Right Mouse Click</option>
                                       </select>
@@ -1862,7 +1841,7 @@ const Devices = ({ devices }) => {
             <GestureOptions config={editedTVRemoteConfig} />
             <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
 
-            <BindingsPanel config={editedGestureMouseConfig} mode={"tv_remote"} />
+            <BindingsPanel config={editedTVRemoteConfig} mode={"tv_remote"} />
           </div>
         );
       };

@@ -17,7 +17,9 @@ import * as mouseDefault from '../NavBar/cato_schemas/mouse.json';
 import * as gestureDefault from '../NavBar/cato_schemas/gesture.json';
 import * as tvRemoteDefault from '../NavBar/cato_schemas/tv_remote.json';
 import * as bindingsDefault from '../NavBar/cato_schemas/bindings.json';
-import * as tvRemoteBindings from '../NavBar/cato_schemas/tv_remote_mode.json';
+import * as clickerBindings from '../NavBar/cato_schemas/bindings/clicker_bindings.json';
+import * as tvRemoteBindings from '../NavBar/cato_schemas/bindings/tv_remote_bindings.json';
+import * as gestureMouseBindings from '../NavBar/cato_schemas/bindings/gesture_mouse_bindings.json';
 import * as practiceDefault from '../NavBar/cato_schemas/practice.json';
 import * as connectionSpecificDefault from '../NavBar/cato_schemas/connection_specific.json';
 import * as operationDefault from '../NavBar/cato_schemas/operation.json';
@@ -32,7 +34,6 @@ const modeDefaultGenerator = (mode) => {
     let pointerData = {
       ...pointerOperationDefault,
       ...mouseDefault,
-      ...bindingsDefault
     };
     if (pointerData.hasOwnProperty("default")){
       delete pointerData.default;
@@ -44,7 +45,7 @@ const modeDefaultGenerator = (mode) => {
     let clickerData = {
       ...clickerOperationDefault,
       ...clickerDefault,
-      ...bindingsDefault
+      ...clickerBindings
     };
     if (clickerData.hasOwnProperty("default")){
       delete clickerData.default;
@@ -56,7 +57,7 @@ const modeDefaultGenerator = (mode) => {
     let gestureMouseData = {
       ...gestureMouseOperationDefault,
       ...mouseDefault,
-      ...bindingsDefault,
+      ...gestureMouseBindings,
       ...gestureDefault
     };
     if (gestureMouseData.hasOwnProperty("default")){
@@ -68,10 +69,6 @@ const modeDefaultGenerator = (mode) => {
   else if (mode == "tv_remote") {
     let tvRemoteOperationDefault = deepCopy(operationDefault);
     tvRemoteOperationDefault["operation_mode"]["value"] = "tv_remote";
-
-    let tvRemoteBindings = deepCopy(operationDefault);
-    tvRemoteBindings["bindings"]["value"] = "tv_remote";
-
     let tvRemoteData = {
       ...tvRemoteOperationDefault,
       ...tvRemoteDefault,
@@ -95,7 +92,6 @@ const modeDefaultGenerator = (mode) => {
       ...practiceOperationDefault,
       ...practiceDefault,
       ...gestureDefault,
-      ...bindingsDefault
     };
     if (practiceData.hasOwnProperty("default")){
       delete practiceData.default;
@@ -241,6 +237,9 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     let globalInfoData = deepCopy(globalInfoDefault);
     let globalInfoExists = await checkIfGlobalSectionExists(config);
     if (!globalInfoExists) {
+      if (globalInfoData.hasOwnProperty("default")){
+        delete globalInfoData.default;
+      }
       return globalInfoData;
     }
 
@@ -304,7 +303,6 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
             currentModeConfig = {
               operation_mode: { ...connection["operation_mode"] },
               mouse: { ...connection["mouse"] },
-              bindings: { ...connection["bindings"] }
             }
             modeMap = {
               pointer: JSON.stringify(currentModeConfig),
@@ -388,13 +386,18 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
   const downloadSequence = async () => {
     setDeviceName(enteredName);
+
+    //retrieve the JSON
     let retrievedJson = await fetchAndCompareConfig();
-    console.log("retrievedJson", retrievedJson);
+
     if (retrievedJson == null) {
       return;
     }
+
+    // get the global info section of the JSON
     let globalInfoData = await getGlobalInfoData(retrievedJson);
-    console.log("globalInfoData", globalInfoData);
+
+
     let connectionsArray = await getConnectionsData(retrievedJson);
     console.log("connectionsArray", connectionsArray);
 
