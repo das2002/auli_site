@@ -1502,7 +1502,7 @@ const Devices = ({ devices }) => {
         let gesturesList;
         let bindingsSettings;
         if (mode === "clicker") {
-          gesturesList = ['None', 'Tap 1', 'Tap 2', 'Tap 3'];
+          gesturesList = ['None', 'Single', 'Double', 'Triple'];
           bindingsSettings = config.bindings.value; //correct way to do this?
         } else {
           gesturesList = [
