@@ -1419,10 +1419,11 @@ const Devices = ({ devices }) => {
             case "_scroll_lr":
               return "Freezes cursor, look up/down to scroll horizontally, look left/right to cancel.";
             case "button_action":
-              if (binding.args[0] && binding.args[1] && binding.args[2]) {
-                return `Button Action: ${actorMapping(binding.args[0])} ${actionMapping(binding.args[1])} on ${buttonMapping(binding.args[2])}.`;
-              }
-              return "Performs a specified action.";
+              return `Cato ${actionMapping(binding.args[1])} the ${actorMapping(binding.args[0])} on ${buttonMapping(binding.args[2])}.`;
+              // if (binding.args[0] && binding.args[1] && binding.args[2]) {
+              //   return `Button Action: ${actorMapping(binding.args[0])} ${actionMapping(binding.args[1])} on ${buttonMapping(binding.args[2])}.`;
+              // }
+              // return "Performs a specified action.";
             default:
               return "Unknown command.";
           }
