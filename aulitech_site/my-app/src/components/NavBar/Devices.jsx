@@ -1852,9 +1852,9 @@ const Devices = ({ devices }) => {
                 aria-label="Make Primary"
               >
                 <img
-                  src={index === 0 ? filledin : emptystar} 
+                  src={index === 0 ? filledin : emptystar}
                   alt="Star Icon"
-                  style={{ width: '20px', height: '20px' }} 
+                  style={{ width: '20px', height: '20px' }}
                 />
               </button>
 
@@ -1986,7 +1986,7 @@ const Devices = ({ devices }) => {
       }
     }
 
-    
+
 
     const userId = getCurrentUserId();
     const userCatoDocId = thisDevice.id;

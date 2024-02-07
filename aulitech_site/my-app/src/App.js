@@ -34,7 +34,7 @@ function App() {
   const [usbDevice, setUsbDevice] = useState(null);
 
   const [defaultRedirect, setDefaultRedirect] = useState("")
-  
+
   // triggers email login/signup flow 
   const [isEmailLoginOpen, setIsEmailLoginOpen] = useState(false);
   const handleEmailLogin = () => {
@@ -52,13 +52,13 @@ function App() {
   const toggleReset = () => {
     setIsResetPasswordPopupOpen(!isResetPasswordPopupOpen);
   };
-  
+
   // switches login popup to signup popup 
   const [isSignupPopupOpen, setIsSignupPopupOpen] = useState(false);
   const toggleSignupPopup = () => {
     setIsSignupPopupOpen(!isSignupPopupOpen);
   };
-  
+
   // closes both 
   const handleCloseEmailPopups = () => {
     setIsLoginPopupOpen(false);
@@ -73,28 +73,28 @@ function App() {
   const handleSignupToLogin = () => {
     setIsLoginPopupOpen(true);
     setIsSignupPopupOpen(false);
-  }; 
-  
+  };
+
 
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({
       prompt: "select_account",
-   });
-   
+    });
+
     try {
       const result = await signInWithPopup(auth, provider);
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential.accessToken;
       const user = result.user;
       console.log(user);
-  
+
       setIsLoginPopupOpen(false);
     } catch (error) {
       console.log("Error during Google sign-in:", error.message);
     }
   };
-  
+
   const submitEmailLogin = async (email, password, setErrorMessage) => {
     const auth = getAuth();
     signInWithEmailAndPassword(auth, email, password)
@@ -109,20 +109,20 @@ function App() {
         setErrorMessage("Incorrect email or password. Please try again."); // Set custom error message
       });
   };
-  
+
 
   const createEmailAccount = async (email, displayname, password, setErrorMessage) => {
     const auth = getAuth();
-  
+
     // Regex for password validation
     // const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{12,24}$/;
     const passwordRegex = /^.{8,}$/;
-  
+
     if (!passwordRegex.test(password)) {
       setErrorMessage("Password must be 12-24 characters long and include at least one letter, one number, and one special character.");
       return;
     }
-  
+
     createUserWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         // Signed up 
@@ -137,19 +137,19 @@ function App() {
         setErrorMessage(error.message); // Set Firebase error message
       });
   };
-  
-  
+
+
   // email and password flow login/signup
   const EmailLoginForm = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [errorMessage, setErrorMessage] = useState(''); 
-    
+    const [errorMessage, setErrorMessage] = useState('');
+
     const handleSubmit = (e) => {
       e.preventDefault();
       submitEmailLogin(email, password, setErrorMessage);
     };
-  
+
     return (
       <form onSubmit={handleSubmit}>
         <input
@@ -169,10 +169,10 @@ function App() {
           onChange={(e) => setPassword(e.target.value)}
         />
         {errorMessage && (
-        <div className="text-red-600 text-sm mt-1 mb-1">
-          {errorMessage}
-        </div>
-      )}
+          <div className="text-red-600 text-sm mt-1 mb-1">
+            {errorMessage}
+          </div>
+        )}
 
         <div className="flex items-end justify-between gap-10">
           <button className="flex items-center justify-center text-white bg-accent hover:opacity-70 px-12 rounded-full h-12 decision-button">
@@ -181,24 +181,24 @@ function App() {
           <div className="flex flex-col h-full text-right mb-1">
             <div>
               Don't have an account? {' '}
-              <button 
-                onClick={handleLoginToSignup} 
+              <button
+                onClick={handleLoginToSignup}
                 style={{ color: 'blue', cursor: 'pointer' }}
                 className="text-blue-600 hover:text-blue-800 focus:outline-none focus:underline"
-                >
+              >
                 Sign up
               </button>
             </div>
             <div>
               Forgot password? {' '}
-              <button 
+              <button
                 onClick={() => {
                   toggleReset();
                   toggleLoginPopup();
                 }}
                 style={{ color: 'blue', cursor: 'pointer' }}
                 className="text-blue-600 hover:text-blue-800 focus:outline-none focus:underline"
-                >
+              >
                 Reset now
               </button>
             </div>
@@ -214,13 +214,13 @@ function App() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [displayname, setName] = useState('');
-    const [errorMessage, setErrorMessage] = useState(''); 
-  
+    const [errorMessage, setErrorMessage] = useState('');
+
     const handleSubmit = (e) => {
       e.preventDefault();
       createEmailAccount(email, displayname, password, setErrorMessage);
     };
-  
+
     return (
       <form onSubmit={handleSubmit}>
         <input
@@ -247,20 +247,20 @@ function App() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-          {errorMessage && (
+        {errorMessage && (
           <div className="text-red-600 text-sm mt-2 mb-2">
             {errorMessage}
           </div>
-          )}
+        )}
 
-                <div className="flex items-end justify-between gap-10">
+        <div className="flex items-end justify-between gap-10">
           <button className="flex items-center justify-center text-white bg-accent hover:opacity-70 px-12 rounded-full h-12 decision-button">
             Sign Up
           </button>
           <p className="text-right mb-1">
             Already have an account? {' '}
-            <button 
-              onClick={handleSignupToLogin} 
+            <button
+              onClick={handleSignupToLogin}
               style={{ color: 'blue', cursor: 'pointer' }}
               className="text-blue-600 hover:text-blue-800 focus:outline-none focus:underline"
             >
@@ -272,7 +272,7 @@ function App() {
     );
   };
 
-  const PasswordResetRequestForm = () =>  {
+  const PasswordResetRequestForm = () => {
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
 
@@ -293,7 +293,7 @@ function App() {
       <div className='z-50'>
         <form onSubmit={handleSubmit}>
           <label className='inline-block'>
-            Please enter your email address. You will receive an email with a link to reset your password. 
+            Please enter your email address. You will receive an email with a link to reset your password.
             <input className='mt-3' placeholder="Enter Your Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </label>
           <button type="submit" className="flex items-center justify-center text-white bg-accent hover:opacity-70 px-12 rounded-full h-12 decision-button">
@@ -304,59 +304,59 @@ function App() {
       </div>
     );
   }
-  
-  
+
+
   useEffect(() => {
     async function handleUserAuth() {
-        const userListener = onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                await ensureUserDocumentExists(user);
-                const configData = await fetchUserCatos(user);
-                if (configData && configData.length > 0) {
-                  const firstDevice = configData[0];
-                  setDefaultRedirect(`/devices/${firstDevice.data.device_info.device_nickname}`)
-                }
-                else {
-                  setDefaultRedirect(`/register-cato-device`)
-                }
-                
-                setUser(user);
-                setDevices(configData);
-            } else {
-                setUser(null);
-            }
-        });
+      const userListener = onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          await ensureUserDocumentExists(user);
+          const configData = await fetchUserCatos(user);
+          if (configData && configData.length > 0) {
+            const firstDevice = configData[0];
+            setDefaultRedirect(`/devices/${firstDevice.data.device_info.device_nickname}`)
+          }
+          else {
+            setDefaultRedirect(`/register-cato-device`)
+          }
 
-        // Cleanup function to unsubscribe from the listener
-        return () => userListener();
+          setUser(user);
+          setDevices(configData);
+        } else {
+          setUser(null);
+        }
+      });
+
+      // Cleanup function to unsubscribe from the listener
+      return () => userListener();
     }
 
     async function ensureUserDocumentExists(user) {
-        const userRef = doc(db, "users", user.uid);
-        const userDoc = await getDoc(userRef);
-        if (!userDoc.exists()) {
-            await setDoc(userRef, {
-                email: user.email,
-                displayname: user.displayName || 'Anonymous',
-                uid: user.uid
-            });
-        }
+      const userRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userRef);
+      if (!userDoc.exists()) {
+        await setDoc(userRef, {
+          email: user.email,
+          displayname: user.displayName || 'Anonymous',
+          uid: user.uid
+        });
+      }
     }
 
     async function fetchUserCatos(user) {
-        const colRef = collection(db, "users", user.uid, "userCatos");
-        const querySnapshot = await getDocs(colRef);
-        return querySnapshot.docs
-            .filter(doc => doc.id !== 'defaultDoc') // Exclude 'defaultDoc'
-            .map(doc => ({
-                id: doc.id,
-                data: doc.data(),
-                current: false,
-            }));
+      const colRef = collection(db, "users", user.uid, "userCatos");
+      const querySnapshot = await getDocs(colRef);
+      return querySnapshot.docs
+        .filter(doc => doc.id !== 'defaultDoc') // Exclude 'defaultDoc'
+        .map(doc => ({
+          id: doc.id,
+          data: doc.data(),
+          current: false,
+        }));
     }
 
     handleUserAuth();
-}, [renderDevices]);
+  }, [renderDevices]);
 
 
   function classNames(...classes) {
@@ -459,7 +459,7 @@ function App() {
 
         return (
           <>
-            <Navigation user={user} classNames={classNames} devices={devices} currIndex={currIndex} connectedDevice={usbDevice}/>
+            <Navigation user={user} classNames={classNames} devices={devices} currIndex={currIndex} connectedDevice={usbDevice} />
             {/* This should be the only main tag */}
             <main id='main' className="py-10 lg:pl-72">
               <div className="px-4 sm:px-6 lg:px-8" >
@@ -489,82 +489,82 @@ function App() {
       }
     }
   }
-  
+
   return (
     <div className="h-screen">
       {user === null && (
-      <div className="flex w-full items-center justify-center z-50 transition px-6 bg-gradient-to-b from-[rgb(0,0,0,0.7)] to-transparent fixed top-0 h-landingNavigationBar">
         <div className="flex w-full items-center justify-center z-50 transition px-6 bg-gradient-to-b from-[rgb(0,0,0,0.7)] to-transparent fixed top-0 h-landingNavigationBar">
-        <div className="text-white py-2 w-full grid grid-cols-3 max-w-5xl h-landingNavigationBar max-md:flex max-md:flex-row max-md:justify-between">
-        <div className="flex flex-row items-center gap-2 cursor-pointer active:opacity-75 transition-all text-light-text-primary dark:text-dark-text-primary">
-          <img src="./images/fulllogo_transparent_nobuffer.png" alt="CATO Logo" style={{ width: '180px', height: 'auto' }} />
-        </div>
-
-          <div className="flex flex-row w-full justify-center max-md:hidden">
-            <div className="flex flex-row">
-              <div className="flex flex-row">
+          <div className="flex w-full items-center justify-center z-50 transition px-6 bg-gradient-to-b from-[rgb(0,0,0,0.7)] to-transparent fixed top-0 h-landingNavigationBar">
+            <div className="text-white py-2 w-full grid grid-cols-3 max-w-5xl h-landingNavigationBar max-md:flex max-md:flex-row max-md:justify-between">
+              <div className="flex flex-row items-center gap-2 cursor-pointer active:opacity-75 transition-all text-light-text-primary dark:text-dark-text-primary">
+                <img src="./images/fulllogo_transparent_nobuffer.png" alt="CATO Logo" style={{ width: '180px', height: 'auto' }} />
               </div>
+
+              <div className="flex flex-row w-full justify-center max-md:hidden">
+                <div className="flex flex-row">
+                  <div className="flex flex-row">
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
-
         </div>
-      </div>
-    </div>
-    )}
+      )}
 
       <BrowserRouter>
-        <OnRenderDisplays/>
+        <OnRenderDisplays />
       </BrowserRouter>
       {isResetPasswordPopupOpen && <div className="simple-popup z-50">
-          <div className="flex items-start justify-between w-full px-3 py-3 border-b border-light-divider dark:border-dark-divider">
+        <div className="flex items-start justify-between w-full px-3 py-3 border-b border-light-divider dark:border-dark-divider">
           <h3 className="text-base font-medium text-light-text-primary dark:text-dark-text-primary pl-3">Reset Password</h3>
-            <button 
-              type="button" 
-              className="popup-close-button"
-              onClick={() => {
-                toggleReset();
-                toggleLoginPopup();
-              }}
-            
-            >
-              <svg 
-                stroke="currentColor" 
-                fill="none" 
-                strokeWidth="2" 
-                viewBox="0 0 24 24" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                className="w-6 h-6 rotate-45" 
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-              </svg>
-            </button>
-          </div>
+          <button
+            type="button"
+            className="popup-close-button"
+            onClick={() => {
+              toggleReset();
+              toggleLoginPopup();
+            }}
 
-          <div className="email-login-content flex flex-col items-center justify-center p-0 gap-0">
-            <PasswordResetRequestForm />
-          </div>
-        </div>}
+          >
+            <svg
+              stroke="currentColor"
+              fill="none"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="w-6 h-6 rotate-45"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+        </div>
+
+        <div className="email-login-content flex flex-col items-center justify-center p-0 gap-0">
+          <PasswordResetRequestForm />
+        </div>
+      </div>}
 
       {isLoginPopupOpen && (
         <div className="simple-popup z-0">
           <div className="flex items-start justify-between w-full px-3 py-3 border-b border-light-divider dark:border-dark-divider">
-          <h3 className="text-base font-medium text-light-text-primary dark:text-dark-text-primary pl-3">Log In</h3>
-            <button 
-              type="button" 
+            <h3 className="text-base font-medium text-light-text-primary dark:text-dark-text-primary pl-3">Log In</h3>
+            <button
+              type="button"
               className="popup-close-button"
               onClick={toggleLoginPopup}
             >
-              <svg 
-                stroke="currentColor" 
-                fill="none" 
-                strokeWidth="2" 
-                viewBox="0 0 24 24" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                className="w-6 h-6 rotate-45" 
+              <svg
+                stroke="currentColor"
+                fill="none"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-6 h-6 rotate-45"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -582,20 +582,20 @@ function App() {
       {isSignupPopupOpen && (
         <div className="simple-popup">
           <div className="flex items-start justify-between w-full px-3 py-3 border-b border-light-divider dark:border-dark-divider">
-          <h3 className="text-base font-medium text-light-text-primary dark:text-dark-text-primary pl-3">Sign Up</h3>
-            <button 
-              type="button" 
+            <h3 className="text-base font-medium text-light-text-primary dark:text-dark-text-primary pl-3">Sign Up</h3>
+            <button
+              type="button"
               className="popup-close-button"
               onClick={toggleSignupPopup}
             >
-              <svg 
-                stroke="currentColor" 
-                fill="none" 
-                strokeWidth="2" 
-                viewBox="0 0 24 24" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                className="w-6 h-6 rotate-45" 
+              <svg
+                stroke="currentColor"
+                fill="none"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-6 h-6 rotate-45"
                 xmlns="http://www.w3.org/2000/svg"
               >
                 <line x1="12" y1="5" x2="12" y2="19"></line>
