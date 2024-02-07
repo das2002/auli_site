@@ -21,6 +21,7 @@ import RegisterInterface from './components/NavBar/RegisterInterface';
 
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import BindingsPanel from './components/NavBar/Bindings';
+import { getFileHandle } from './components/NavBar/ReplaceConfig';
 
 
 
@@ -29,6 +30,8 @@ function App() {
   const [devices, setDevices] = useState([]);
   const [currIndex, setCurrIndex] = useState(-1);
   const [renderDevices, setRenderDevices] = useState(false);
+
+  const [usbDevice, setUsbDevice] = useState(null);
 
   const [defaultRedirect, setDefaultRedirect] = useState("")
   
@@ -375,20 +378,20 @@ function App() {
                 My Cato
               </h2>
             </div> */}
-            <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-        className="w-20 h-20 mx-auto motion-safe:animate-spin text-gray-900"
-        >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
-        />
-      </svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="w-20 h-20 mx-auto motion-safe:animate-spin text-gray-900"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+            />
+          </svg>
           {/* </div> */}
         </div>
       )
@@ -397,7 +400,7 @@ function App() {
         <div className="login-container">
           <div className="flex gap-4 flex-col items-center justify-center min-h-screen bg-#181616">
             <h1>MyCato - Configuration Utility</h1>
-            
+
             <div className="flex gap-24">
               <button
                 onClick={handleGoogleLogin}
@@ -424,43 +427,64 @@ function App() {
         </div>
       );
     } else { // main page
-      if(typeof devices === 'undefined' || devices == []) { //don't do 3 equal signs --> "default" gets created
+      if (typeof devices === 'undefined' || devices == []) { //don't do 3 equal signs --> "default" gets created
         return (
           <>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 animate-spin">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-          </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6 animate-spin">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+            </svg>
           </>
         )
       } else {
+
+        const checkDeviceStatusWithoutToggle = async () => {
+          console.log('Checking device status...');
+          try {
+            let fileHandle = await getFileHandle();
+            if (!fileHandle) {
+              throw new Error('No file handle found.');
+            }
+            const file = await fileHandle.getFile();
+            const text = await file.text();
+            const config = JSON.parse(text);
+            setUsbDevice(config.global_info.HW_UID.value);
+          } catch (error) {
+            console.error('Error checking device status:', error);
+            setUsbDevice(null);
+          }
+        }
+
+        checkDeviceStatusWithoutToggle();
+
+
         return (
           <>
-      <Navigation user={user} classNames={classNames} devices={devices} currIndex={currIndex}/>
-      {/* This should be the only main tag */}
-      <main id='main' className="py-10 lg:pl-72">
-        <div className="px-4 sm:px-6 lg:px-8" >
-          <Routes>
-            {/* <Route exact path="/" element={<Dashboard classNames={classNames} user={user} devices={devices} />}/>
+            <Navigation user={user} classNames={classNames} devices={devices} currIndex={currIndex} connectedDevice={usbDevice}/>
+            {/* This should be the only main tag */}
+            <main id='main' className="py-10 lg:pl-72">
+              <div className="px-4 sm:px-6 lg:px-8" >
+                <Routes>
+                  {/* <Route exact path="/" element={<Dashboard classNames={classNames} user={user} devices={devices} />}/>
             {console.log(devices)} */}
-            {/* <Route path="/dashboard" element={<Dashboard classNames={classNames} user={user} devices={devices}/>}/> */}
-            <Route path="/profile" element={<ProfilePg user={user}/>}/>
-            <Route path="/cato-settings" element={<CatoSettings classNames={classNames} user={user} devices={devices} currIndex={currIndex}/>}/>
-            <Route path="/" element={<Navigate replace to={defaultRedirect} />} />
-            <Route path="/register-cato-device" element={<RegisterCatoDevice user={user} devices={devices} handleRenderDevices={handleRenderDevices} classNames={classNames}/>}/>
-            <Route path="/register-interface" element={<RegisterInterface user={user} />}/>
-            <Route path="/record-gestures" element={<ConfigureGestures classNames={classNames} user={user}/>}/>
-            <Route path="/record" element={ <RecordGestures/> } />
-            <Route path="/sign-out" element={<SignOutAccount/>}/>
-            <Route path="/record-gestures" element={<RecordGestures />} />
-            <Route path="/updates" element={<Updates />} />
-            <Route path="/devices/:deviceName" element={<Devices  devices={devices}/>} />
-            <Route path='/devices/:deviceName/bindings' element={<BindingsPanel user={user} devices={devices} currIndex={currIndex} />} />
-            <Route path= "/devices/:deviceName/register-interface" element={<RegisterInterface user={user} devices={devices}/>} />
-            <Route path="/devices/:deviceName/practice" element={<Practice user={user} devices={devices}/>} />
-            </Routes>
-        </div>
-      </main>
-     </>
+                  {/* <Route path="/dashboard" element={<Dashboard classNames={classNames} user={user} devices={devices}/>}/> */}
+                  <Route path="/profile" element={<ProfilePg user={user} />} />
+                  <Route path="/cato-settings" element={<CatoSettings classNames={classNames} user={user} devices={devices} currIndex={currIndex} />} />
+                  <Route path="/" element={<Navigate replace to={defaultRedirect} />} />
+                  <Route path="/register-cato-device" element={<RegisterCatoDevice user={user} devices={devices} handleRenderDevices={handleRenderDevices} classNames={classNames} />} />
+                  <Route path="/register-interface" element={<RegisterInterface user={user} />} />
+                  <Route path="/record-gestures" element={<ConfigureGestures classNames={classNames} user={user} />} />
+                  <Route path="/record" element={<RecordGestures />} />
+                  <Route path="/sign-out" element={<SignOutAccount />} />
+                  <Route path="/record-gestures" element={<RecordGestures />} />
+                  <Route path="/updates" element={<Updates />} />
+                  <Route path="/devices/:deviceName" element={<Devices devices={devices} />} />
+                  <Route path='/devices/:deviceName/bindings' element={<BindingsPanel user={user} devices={devices} currIndex={currIndex} />} />
+                  <Route path="/devices/:deviceName/register-interface" element={<RegisterInterface user={user} devices={devices} />} />
+                  <Route path="/devices/:deviceName/practice" element={<Practice user={user} devices={devices} />} />
+                </Routes>
+              </div>
+            </main>
+          </>
         )
       }
     }

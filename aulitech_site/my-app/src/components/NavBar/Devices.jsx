@@ -10,6 +10,7 @@ import { KeyOptions, getKeyOption } from './KeyOptions';
 import { fetchAndCompareConfig, overwriteConfigFile, deleteConfigFileIfExists } from './ReplaceConfig';
 import { toast, ToastContainer, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import dynamicMouseGraphic from '../../images/dynamic_mouse_graphic.png';
 
 import flatImage from './flatImage.png';
 import landscapeImage from './landscapeImage.png';
@@ -866,37 +867,30 @@ const Devices = ({ devices }) => {
       }, [activeOperationMode]);
 
       useEffect(() => {
-        console.log('editedConnectionConfig: ' + editedConnectionConfig)
         if (editedConnectionConfig) {
           connection["connection_config"] = JSON.stringify(editedConnectionConfig);
         }
       }, [editedConnectionConfig]);
 
       useEffect(() => {
-        console.log('editedGestureMouseConfig: ' + editedGestureMouseConfig)
         if (editedGestureMouseConfig) {
           connection["mode"]["gesture_mouse"] = JSON.stringify(editedGestureMouseConfig);
         }
       }, [editedGestureMouseConfig]);
 
       useEffect(() => {
-        console.log('editedTVRemoteConfig: ' + editedTVRemoteConfig)
         if (editedTVRemoteConfig) {
-          console.log('editedTVRemoteConfig: ' + JSON.stringify(editedTVRemoteConfig))
           connection["mode"]["tv_remote"] = JSON.stringify(editedTVRemoteConfig);
         }
       }, [editedTVRemoteConfig]);
 
       useEffect(() => {
-        console.log('editedPointerConfig: ' + editedPointerConfig)
-        console.log(editedPointerConfig);
         if (editedPointerConfig) {
           connection["mode"]["pointer"] = JSON.stringify(editedPointerConfig);
         }
       }, [editedPointerConfig]);
 
       useEffect(() => {
-        console.log('editedClickerConfig: ' + editedClickerConfig)
         if (editedClickerConfig) {
           connection["mode"]["clicker"] = JSON.stringify(editedClickerConfig);
 
@@ -1091,7 +1085,7 @@ const Devices = ({ devices }) => {
                         min={0}
                         max={500}
                         step={1}
-                        sliderTitle="Slow Movement"
+                        sliderTitle="Fast Movement"
                         unit={"degrees/second"}
                         sliderDescription="Rotation speed ceiling above which scale remains constant."
                       />
@@ -1124,6 +1118,7 @@ const Devices = ({ devices }) => {
                       />
                     </div>
                   </div>
+                  <img src={dynamicMouseGraphic} alt="Dynamic Mouse Graph" style={{ width: '75%', marginTop: '20px', marginBottom: '30px' }} />
                 </div>
 
 
@@ -1971,8 +1966,6 @@ const Devices = ({ devices }) => {
   };
 
   const handleSave = async () => {
-    console.log(editedGlobalSettings);
-    console.log(editedConnectionsSettings);
 
     const webAppHwUid = editedGlobalSettings["HW_UID"]["value"];
 
@@ -1993,6 +1986,8 @@ const Devices = ({ devices }) => {
       }
     }
 
+    
+
     const userId = getCurrentUserId();
     const userCatoDocId = thisDevice.id;
     const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
@@ -2002,12 +1997,21 @@ const Devices = ({ devices }) => {
         "global_info": editedGlobalSettings,
       };
 
-      await updateDoc(userCatoDocRef, {
-        'device_info.device_nickname': editedGlobalSettings["name"]["value"],
-        'device_info.global_config': JSON.stringify(globalConfigUpdate),
-        'connections': editedConnectionsSettings,
-        'device_info.calibrated': calibratedWithFirebase,
-      });
+      if (hwUidMatch) {
+        await updateDoc(userCatoDocRef, {
+          'device_info.device_nickname': editedGlobalSettings["name"]["value"],
+          'device_info.global_config': JSON.stringify(globalConfigUpdate),
+          'connections': editedConnectionsSettings,
+        });
+      } else {
+        await updateDoc(userCatoDocRef, {
+          'device_info.device_nickname': editedGlobalSettings["name"]["value"],
+          'device_info.global_config': JSON.stringify(globalConfigUpdate),
+          'connections': editedConnectionsSettings,
+          'device_info.calibrated': calibratedWithFirebase,
+        });
+      }
+
       console.log("Web settings updated successfully");
 
       toast.success('Web settings updated successfully', {
@@ -2090,14 +2094,14 @@ const Devices = ({ devices }) => {
         });
         calibratedWithFirebase = false;
       };
-    }
+      await updateDoc(userCatoDocRef, {
+        'device_info.calibrated': calibratedWithFirebase,
+      });
+    };
+    const newDeviceName = editedGlobalSettings["name"]["value"];
 
-
-
-    //const newDeviceName = editedGlobalSettings["name"]["value"];
-
-    //navigate(`/devices/${newDeviceName}`); // is this the correct order?
-    //window.location.reload(); //TODO: change later for permission?
+    navigate(`/devices/${newDeviceName}`); // is this the correct order?
+    window.location.reload(); //TODO: change later for permission?
 
 
   };

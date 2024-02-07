@@ -122,9 +122,6 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
   const [errMessage, setErrMessage] = useState(false);
   const [hwUid, setHwUid] = useState('');
 
-  console.log('user', user);
-  console.log('devices', devices);
-
   async function fetchAndCompareConfig() {
     async function checkIfHardwareUidTaken(hwUidToCheck) {
       try {
@@ -147,7 +144,6 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     }
 
     async function checkIfNameValid() {
-      console.log("enteredName", enteredName);
       if (enteredName === "") {
         return false;
       }

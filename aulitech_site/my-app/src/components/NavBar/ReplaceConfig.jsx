@@ -1,27 +1,30 @@
-import { get, set } from 'idb-keyval';
+import { get, set, entries } from 'idb-keyval';
 
 
 export async function getDirectoryHandle() {
-    let directoryHandle = await get('configDirectoryHandle');
-    // no handle --> store the handle
-    if (!directoryHandle) {
-        directoryHandle = await window.showDirectoryPicker();
-        await set('configDirectoryHandle', directoryHandle);
-    }
-    const options = { mode: 'readwrite' };
-    const permission = await directoryHandle.queryPermission(options);
-    console.log("has permission??", permission)
-    if (permission !== 'granted') {
-        const permissionGranted = await directoryHandle.requestPermission(options);
-        if (permissionGranted !== 'granted') {
-            throw new Error('Read-write access not granted.'); //return from decision
+
+    try {
+        let directoryHandle = await get('configDirectoryHandle');
+        if (!directoryHandle) {
+            directoryHandle = await window.showDirectoryPicker();
+            await set('configDirectoryHandle', directoryHandle);
         }
+        const permission = await verifyPermission(directoryHandle, true);
+        if (permission) {
+            return directoryHandle;
+        } else {
+            throw new Error('Permission to read the directory was not granted.');
+        }
+    } catch (error) {
+        console.error('Error getting directory handle:', error);
+        return false;
     }
-    return directoryHandle;
 }
 
 export async function fetchAndCompareConfig(webAppHwUid) {
     console.log("Fetching and comparing config.json...");
+
+    entries().then((entries) => console.log(entries));
 
     try {
         // Try to get the file handle from IndexedDB
@@ -48,29 +51,24 @@ export async function fetchAndCompareConfig(webAppHwUid) {
 }
 
 export async function getFileHandle() {
-    let fileHandle = await get('configFileHandle');
 
-    if (fileHandle) {
+    try {
+        let fileHandle = await get('configFileHandle');
+        if (!fileHandle) {
+            fileHandle = await getDirectoryHandle().getFileHandle('config.json', { create: true });
+            await set('configFileHandle', fileHandle);
+        }
         const permission = await verifyPermission(fileHandle, true);
         if (permission) {
             return fileHandle;
         } else {
-            const directoryHandle = await getDirectoryHandle();
-            fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
-            await set('configFileHandle', fileHandle);
-            return fileHandle;
+            throw new Error('Permission to read the file was not granted.');
         }
+    } catch (error) {
+        console.error('Error getting file handle:', error);
+        return false;
     }
-
-    const directoryHandle = await getDirectoryHandle();
-    fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
-    await set('configFileHandle', fileHandle);
-    const permission = await verifyPermission(fileHandle, true);
-    if (permission) {
-        return fileHandle;
-    } else {
-        throw new Error('Permission to read the file was not granted.');
-    }    
+ 
 }
 
 export async function overwriteConfigFile(newConfig) {
