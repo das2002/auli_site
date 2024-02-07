@@ -576,68 +576,68 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
   return (
     <div className="flex min-h-full flex-col">
-      <header className="shrink-0 bg-transparent">
+    <header className="shrink-0 bg-transparent">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between">
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight py-1">
             Register New Device
           </h2>
         </div>
-      </header>
+    </header>
 
-      <div className="border-b border-gray-200 pb-5">
-        <p className="max-w-4xl text-lg text-gray-900">
-          To register a new Cato device, connect it to your computer via cable.
-        </p>
-      </div>
-      <div className="px-4 sm:px-6 lg:px-8">
-        <div className="bg-white shadow-lg border border-gray-200 rounded-lg p-5 mt-10">
+    <div className="border-b border-gray-200 pb-5">
+      <p className="max-w-4xl text-lg text-gray-900">
+        To register a new Cato device, connect it to your computer via cable.
+      </p>
+    </div>
+    <div className="px-4 sm:px-6 lg:px-8">
+      <div className="bg-white shadow-lg border border-gray-200 rounded-lg p-5 mt-10">
 
-          <div className="px-4 py-5 sm:p-6 lg:px-8">
-            <div className="border-b border-gray-200 pb-10">
-              <div className="border-b border-gray-200 pb-5">
-                <h3 className="text-xl font-semibold leading-6 text-gray-900">
-                  Name your Cato
-                </h3>
-              </div>
-              <div className="mt-5 max-w-xl text-lg text-gray-900">
-                <p>Enter a name for your Cato below.</p>
-              </div>
-              <div className="w-full mt-5 sm:max-w-xs">
-                <input
-                  type="text"
-                  value={enteredName}
-                  onChange={(e) => setEnteredName(e.target.value)}
-                  className="block w-full rounded-md border-0 outline-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
-                  placeholder="my-cato"
-                />
-              </div>
-              <div className="mt-5 max-w-xl text-lg text-gray-900">
-                <p>
-                  When you click <strong>Save</strong> your browser will ask if
-                  you want to allow access to the device, allow access in order to
-                  register the device.
-                </p>
-              </div>
+        <div className="px-4 py-5 sm:p-6 lg:px-8">
+          <div className="border-b border-gray-200 pb-10">
+            <div className="border-b border-gray-200 pb-5">
+              <h3 className="text-xl font-semibold leading-6 text-gray-900">
+                Name your Cato
+              </h3>
             </div>
-            <div className="mt-6 flex items-center justify-end">
-              <div className="mt-4 sm:mt-0">
-                <button
-                  disabled={enteredName === "" ? true : false}
-                  onClick={downloadSequence}
-                  className="inline-flex rounded-full items-center bg-blue-500 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-300"
-                >
-                  Save
-                </button>
-              </div>
+            <div className="mt-5 max-w-xl text-lg text-gray-900">
+              <p>Enter a name for your Cato below.</p>
+            </div>
+            <div className="w-full mt-5 sm:max-w-xs">
+              <input
+                type="text"
+                value={enteredName}
+                onChange={(e) => setEnteredName(e.target.value)}
+                className="block w-full rounded-md border-0 outline-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
+                placeholder="my-cato"
+              />
+            </div>
+            <div className="mt-5 max-w-xl text-lg text-gray-900">
+              <p>
+                When you click <strong>Save</strong> your browser will ask if
+                you want to allow access to the device, allow access in order to
+                register the device.
+              </p>
             </div>
           </div>
-          {errMessage && (
-            <div className="text-red-500">
-              {errMessage}
+          <div className="mt-6 flex items-center justify-end">
+            <div className="mt-4 sm:mt-0">
+              <button
+                disabled={enteredName === "" ? true : false}
+                onClick={downloadSequence}
+                className="inline-flex rounded-full items-center bg-blue-500 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-300"
+              >
+                Save
+              </button>
             </div>
-          )}
+          </div>
         </div>
+        {errMessage && (
+          <div className="text-red-500">
+            {errMessage}
+          </div>
+        )}
       </div>
+    </div>
     </div>
   );
 };
