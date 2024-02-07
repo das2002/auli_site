@@ -54,7 +54,7 @@ const CheckboxOption = ({ checked, onChange, title, description }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', marginLeft: '40px' }}> 
+    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', marginLeft: '40px' }}>
       <label
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -163,7 +163,7 @@ const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, slide
   };
 
   return (
-    <div style={{ marginBottom: '10px', marginLeft: '40px' }}> 
+    <div style={{ marginBottom: '10px', marginLeft: '40px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <label
           htmlFor={sliderLabel}
@@ -1336,12 +1336,14 @@ const Devices = ({ devices }) => {
       };
 
       const BindingsPanel = ({ config, mode }) => {
-        const [isBindingsExpanded, setIsBindingsExpanded] = useState(true);
-        const toggleBindings = () => {
-          setIsBindingsExpanded(!isBindingsExpanded);
+        // const [isBindingsExpanded, setIsBindingsExpanded] = useState(true);
+        // const toggleBindings = () => {
+        //   setIsBindingsExpanded(!isBindingsExpanded);
+        // };
+        const [isExpanded, setIsExpanded] = useState(true);
+        const toggleExpanded = () => {
+          setIsExpanded(!isExpanded);
         };
-
-
         function generateDescription(binding) {
           switch (binding.command) {
             case "noop":
@@ -1473,10 +1475,7 @@ const Devices = ({ devices }) => {
               currentBinding.args[2] = (value == '0') ? '1' : '4'; // Default button based on actor
             }
           }
-
-          // Update the setting that has been changed
           currentBinding["args"][settingNumber] = value;
-          //setEditedBindings(updatedBindings);
 
           switch (activeOperationMode) {
             case "gesture_mouse":
@@ -1501,17 +1500,6 @@ const Devices = ({ devices }) => {
               break;
           }
         };
-
-        // const gesturesList = [
-        //   'None',
-        //   'Nod Up',
-        //   'Nod Down',
-        //   'Nod Right',
-        //   'Nod Left',
-        //   'Tilt Right',
-        //   'Tilt Left'
-        // ]
-
         let gesturesList;
         let bindingsSettings;
         if (mode === "clicker") {
@@ -1539,13 +1527,35 @@ const Devices = ({ devices }) => {
 
         return (
           <div className='w-16/12 flex flex-col'>
-            <button
-              onClick={() => toggleSection('bindingsPanel')}
+            {/* <button
+              onClick={toggleExpanded}
+              // onClick={() => toggleSection('bindingsPanel')}
               style={toggleStyle}
+            > */}
+            <button
+              onClick={toggleExpanded}
+              style={{
+                backgroundColor: isExpanded ? '#fcdc6d' : '#1A202C',
+                color: isExpanded ? '#000000' : '#FFFFFF',
+                borderRadius: '10px',
+                padding: '5px 15px',
+                display: 'inline-block',
+                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+                fontSize: '16px',
+                fontWeight: 'bold',
+                border: 'none',
+                cursor: 'pointer',
+                outline: 'none',
+                width: 'fit-content',
+                marginBottom: '10px',
+                marginLeft: '20px',
+              }}
             >
               {mode === "clicker" ? "Taps" : "Bindings Panel"}
             </button>
-            {!collapsedSections['bindingsPanel'] && (
+
+            {/* {!collapsedSections['bindingsPanel'] && ( */}
+            {isExpanded && (
               <div style={{ marginLeft: '40px' }}>
                 {/* <h2 style= {sectionHeadingStyle}>Bindings Panel</h2> */}
                 <table className='table-fixed'>
@@ -1701,11 +1711,7 @@ const Devices = ({ devices }) => {
             )}
           </div>
         );
-
-
       }
-
-
 
       const GestureMouseSetting = () => {
         if (!fetchedGestureMouseConfig) {
@@ -1783,8 +1789,6 @@ const Devices = ({ devices }) => {
 
             <MouseOptions config={editedPointerConfig} />
             <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
-
-
           </div>
         );
       }
@@ -2097,7 +2101,6 @@ const Devices = ({ devices }) => {
 
 
   };
-
 
   if (!thisDevice) {
     return (
