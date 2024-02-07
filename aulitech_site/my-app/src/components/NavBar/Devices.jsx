@@ -1784,9 +1784,6 @@ const Devices = ({ devices }) => {
             <MouseOptions config={editedPointerConfig} />
             <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
 
-            {/* <BindingsPanel config={editedPointerConfig} mode={"pointer"} />
-            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} /> */}
-
 
           </div>
         );

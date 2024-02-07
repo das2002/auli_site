@@ -6,7 +6,10 @@ import * as clickerDefault from './cato_schemas/clicker.json';
 import * as mouseDefault from './cato_schemas/mouse.json';
 import * as gestureDefault from './cato_schemas/gesture.json';
 import * as tvRemoteDefault from './cato_schemas/tv_remote.json';
-import * as bindingsDefault from './cato_schemas/bindings.json';
+import * as clickerBindings from '../NavBar/cato_schemas/bindings/clicker_bindings.json';
+import * as tvRemoteBindings from '../NavBar/cato_schemas/bindings/tv_remote_bindings.json';
+import * as gestureMouseBindings from '../NavBar/cato_schemas/bindings/gesture_mouse_bindings.json';
+
 import * as practiceDefault from './cato_schemas/practice.json';
 import * as connectionSpecificDefault from './cato_schemas/connection_specific.json';
 import * as operationDefault from './cato_schemas/operation.json';
@@ -169,7 +172,7 @@ const RegisterInterface = ({ user, devices }) => {
           // ...connectionData,
           ...clickerOperation,
           ...clickerDefault,
-          ...bindingsDefault,
+          ...clickerBindings,
         };
         if (clickerData.default) {
           delete clickerData.default;
@@ -181,7 +184,7 @@ const RegisterInterface = ({ user, devices }) => {
           ...gestureMouseOperation,
           ...mouseDefault,
           ...gestureDefault,
-          ...bindingsDefault
+          ...gestureMouseBindings,
         };
         if (gestureMouseData.default) {
           delete gestureMouseData.default;
@@ -193,7 +196,7 @@ const RegisterInterface = ({ user, devices }) => {
           ...tvRemoteOperation,
           ...tvRemoteDefault,
           ...gestureDefault,
-          ...bindingsDefault,
+          ...tvRemoteBindings,
         };
         if (tvRemoteData.default) {
           delete tvRemoteData.default;
@@ -203,7 +206,6 @@ const RegisterInterface = ({ user, devices }) => {
         pointerData = {
           ...pointerOperation,
           ...mouseDefault,
-          ...bindingsDefault,
         };
         if (pointerData.default) {
           delete pointerData.default;
@@ -214,7 +216,6 @@ const RegisterInterface = ({ user, devices }) => {
         practiceData = {
           ...practiceOperation,
           ...gestureDefault,
-          ...bindingsDefault,
           ...practiceDefault,
         }
         if (practiceData.default) {
@@ -239,7 +240,8 @@ const RegisterInterface = ({ user, devices }) => {
 
         await Promise.all([
           updateDoc(docRef, {
-            connections: arrayUnion(firebaseMap)
+            connections: arrayUnion(firebaseMap),
+            'device_info.calibrated': false,
           }),
         ]);
 
