@@ -11,6 +11,10 @@ import { fetchAndCompareConfig, overwriteConfigFile, deleteConfigFileIfExists } 
 import { toast, ToastContainer, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+import flatImage from './flatImage.png';
+import landscapeImage from './landscapeImage.png';
+import portraitImage from './portraitImage.png';
+
 
 const DarkYellowSlider = styled(Slider)(({ theme }) => ({
   color: '#B8860B',
@@ -546,6 +550,62 @@ const Devices = ({ devices }) => {
       setEditedGlobalSettings(newEditedGlobalSettings);
     }
 
+    const OrientationSection = () => {
+      const [selectedOrientation, setSelectedOrientation] = useState('');
+    
+      useEffect(() => {
+        const fetchedOrientation = editedGlobalSettings.orientation.value;
+        const orientationKey = Object.keys(orientations).find(key => 
+          JSON.stringify(orientations[key].config) === JSON.stringify(fetchedOrientation)
+        );
+        setSelectedOrientation(orientationKey);
+      }, [editedGlobalSettings.orientation.value]); 
+    
+      const orientations = {
+        flat: { config: { front: "-x", bottom: "+z", left: "+y" }, image: flatImage },
+        landscape: { config: { front: "-x", bottom: "+y", left: "-z" }, image: landscapeImage },
+        portrait: { config: { front: "+y", bottom: "+x", left: "-z" }, image: portraitImage }
+      };
+    
+      const handleOrientationSelect = (orientationKey) => {
+        setSelectedOrientation(orientationKey);
+        const orientationConfig = orientations[orientationKey].config;
+        const newEditedGlobalSettings = deepCopy(editedGlobalSettings);
+        newEditedGlobalSettings.orientation.value = orientationConfig;
+        setEditedGlobalSettings(newEditedGlobalSettings);
+      };
+    
+      const darkerYellow = '#f9da6b'; 
+    
+      return (
+        <div>
+          <h2 style={sectionHeadingDynamicStyle(isOrientationExpanded)} onClick={toggleOrientationSection}>
+            Orientation
+          </h2>
+          {isOrientationExpanded && (
+            <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+              {Object.entries(orientations).map(([key, { image }]) => (
+                <div
+                  key={key}
+                  onClick={() => handleOrientationSelect(key)}
+                  style={{ margin: '10px', cursor: 'pointer' }}
+                >
+                  <img src={image} alt={key} />
+                  <p style={{ 
+                    backgroundColor: selectedOrientation === key ? darkerYellow : 'transparent',
+                    padding: selectedOrientation === key ? '5px' : '0'
+                  }}>
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    };
+    
+
     return (
       <div>
         <div style={sliderContainerStyle}>
@@ -597,88 +657,8 @@ const Devices = ({ devices }) => {
           )}
 
           <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
-          <h2 style={sectionHeadingDynamicStyle(isOrientationExpanded)} onClick={toggleOrientationSection}>
-            Orientation
-          </h2>
-          {isOrientationExpanded && (
-            <div style={sectionStyle}>
-              <Dropdown
-                title={'Front'}
-                description={'Orientation of the device'}
-                value={editedGlobalSettings["orientation"]["value"]["front"]["value"]}
-                onChange={(e) => handleGlobalConfigChange(['orientation', 'value', 'front', 'value'])(e.target.value)}
-                options={[
-                  "+x",
-                  "-x",
-                  "+y",
-                  "-y",
-                  "+z",
-                  "-z"
-                ]}
-              />
-              <Dropdown
-                title={'Bottom'}
-                description={'Orientation of the device'}
-                value={editedGlobalSettings["orientation"]["value"]["bottom"]["value"]}
-                onChange={(e) => handleGlobalConfigChange(['orientation', 'value', 'bottom', 'value'])(e.target.value)}
-                options={[
-                  "+x",
-                  "-x",
-                  "+y",
-                  "-y",
-                  "+z",
-                  "-z"
-                ]}
-              />
-              <Dropdown
-                title={'Left'}
-                description={'Orientation of the device'}
-                value={editedGlobalSettings["orientation"]["value"]["left"]["value"]}
-                onChange={(e) => handleGlobalConfigChange(['orientation', 'value', 'left', 'value'])(e.target.value)}
-                options={[
-                  "+x",
-                  "-x",
-                  "+y",
-                  "-y",
-                  "+z",
-                  "-z"
-                ]}
-              />
-            </div>
-          )}
+          <OrientationSection />
 
-          {/* <div style={sectionStyle}>
-            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
-            <h2 style={sectionHeadingDynamicStyle(isCalibrationExpanded)} onClick={toggleCalibrationSection}>
-              Calibration
-            </h2>
-            {isCalibrationExpanded && (
-              <div>
-                <InputSlider
-                  sliderLabel={'calibrationThreshold'}
-                  value={editedGlobalSettings["calibration"]["value"]["auto_threshold"]["value"]}
-                  onChange={(e) => handleGlobalConfigChange(['calibration', 'value', 'auto_threshold', 'value'])(parseFloat(e.target.value))}
-                  min={0.2}
-                  max={1.0}
-                  step={0.01}
-                  sliderTitle={'Auto-Calibration Threshold'}
-                  unit={'x'}
-                  sliderDescription={"Movement required (as a scale of mouse>idle_threshold) to fail automatic calibration for gyro drift"}
-                ></InputSlider>
-                <InputSlider
-                  sliderLabel={'calibrationSamples'}
-                  value={editedGlobalSettings["calibration"]["value"]["auto_samples"]["value"]}
-                  onChange={(e) => handleGlobalConfigChange(['calibration', 'value', 'auto_samples', 'value'])(parseFloat(e.target.value))}
-                  min={1}
-                  max={300}
-                  step={1}
-                  sliderTitle={'Auto-Calibration Samples Taken'}
-                  unit={'samples'}
-                  sliderDescription={"Number of samples to wait (at below auto_threshold) required to trigger auto recalibratoion"}
-                ></InputSlider>
-              </div>
-            )}
-          </div> */}
         </div>
       </div>
     )
@@ -2175,7 +2155,33 @@ const Devices = ({ devices }) => {
 
 
   if (!thisDevice) {
-    return <div>Loading...</div>;
+    return (
+      <div className="ml-90">
+        <header
+          className="shrink-0 bg-transparent border-b border-gray-200"
+          onClick={toggleUniversalSettings}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className="flex h-16 max-w-7xl items-center justify-between">
+            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+              Device Settings
+            </h2>
+          </div>
+        </header>
+        <div className="mt-4 ml-4">
+          <p className="text-lg text-gray-700">
+            This device is not registered yet.
+          </p>
+          <p className="text-lg text-gray-700 mt-6">
+            Likely reasons you're here:
+            <ul className="list-disc ml-5">
+              <li>You entered the URL incorrectly</li>
+              <li>You have a bookmark to a device that has since been renamed</li>
+            </ul>
+          </p>
+        </div>
+      </div>
+    );
   }
 
   const handleDeviceDelete = async () => {
