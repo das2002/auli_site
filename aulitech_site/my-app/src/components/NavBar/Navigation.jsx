@@ -40,9 +40,18 @@ import connectionImage from '../../images/connection-svgrepo-com.svg';
 // };
 
 const UpdateRoute = () => {
-  const { classNames } = useContext(AppContext);
+  const { classNames, changeUsbDevice } = useContext(AppContext);
+
+  const location = useLocation();
+
+  const handleClick = () => {
+    // Only perform the check if the NavLink is not currently active
+    if (location.pathname !== "/updates") {
+      changeUsbDevice();
+    }
+  };
   return (
-    <div className="-mx-6 transition-all duration-300">
+    <div className="-mx-6 transition-all duration-300" >
       <NavLink
         to="/updates"
         className={({ isActive }) =>
@@ -53,6 +62,7 @@ const UpdateRoute = () => {
             "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
           )
         }
+        onClick={handleClick}
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -86,8 +96,8 @@ const UserIcon = () => {
 };
 
 // accordion menus 
-const DevicesList = React.memo(({connectedDevice, onClick}) => {
-  const { classNames, isDevicesMenuOpen, devices, savedConfig, isPracticeMode, setIsPracticeMode } = useContext(AppContext);
+const DevicesList = React.memo(({onClick}) => {
+  const { classNames, isDevicesMenuOpen, devices, savedConfig, isPracticeMode, setIsPracticeMode, usbDevice } = useContext(AppContext);
 
   // const [isDevicesMenuOpen] = useState(AppContext); 
 
@@ -98,7 +108,7 @@ const DevicesList = React.memo(({connectedDevice, onClick}) => {
   const [isPracticeModeToggleOn, setIsPracticeModeToggleOn] = useState(false);
   const [animate, setAnimate] = useState(false);
 
-  console.log(connectedDevice);
+  console.log(usbDevice);
 
 
   const togglePracticeMode = async (index) => {
@@ -145,7 +155,7 @@ const DevicesList = React.memo(({connectedDevice, onClick}) => {
         const devicePath = device.data.device_info.device_nickname;
         const isActive = isNavLinkActive(devicePath);
         const isCalibrated = device.data.device_info.calibrated;
-        const isConnected = ((connectedDevice != null) && (connectedDevice == device.data.device_info.hw_uid));
+        const isConnected = ((usbDevice != null) && (usbDevice == device.data.device_info.hw_uid));
 
         console.log(device);
         console.log(isConnected);
@@ -237,11 +247,17 @@ const DevicesList = React.memo(({connectedDevice, onClick}) => {
   );
 });
 const DevicesRoute = () => {
-  const { toggleDevicesMenu, isDevicesMenuOpen } = useContext(AppContext);
+  const { toggleDevicesMenu, isDevicesMenuOpen, usbDevice, changeUsbDevice } = useContext(AppContext);
 
   const [activeDevice, setActiveDevice] = useState(null);
 
   const checkDeviceStatus = async () => {
+
+    if (isDevicesMenuOpen) {
+      toggleDevicesMenu();
+      return;
+    }
+    /*
     console.log('Checking device status...');
     try {
       let fileHandle = await getFileHandle();
@@ -257,24 +273,13 @@ const DevicesRoute = () => {
       console.error('Error checking device status:', error);
       setActiveDevice(null);
     }
+    */
+    changeUsbDevice();
     toggleDevicesMenu();
   }
 
   const checkDeviceStatusWithoutToggle = async () => {
-    console.log('Checking device status...');
-    try {
-      let fileHandle = await getFileHandle();
-      if (!fileHandle) {
-        throw new Error('No file handle found.');
-      }
-      const file = await fileHandle.getFile();
-      const text = await file.text();
-      const config = JSON.parse(text);
-      setActiveDevice(config.global_info.HW_UID.value);
-    } catch (error) {
-      console.error('Error checking device status:', error);
-      setActiveDevice(null);
-    }
+    changeUsbDevice();
   };
 
   return (
@@ -292,7 +297,7 @@ const DevicesRoute = () => {
         </div>
         {/* {console.log(devices[0].data.device_info.device_nickname)} */}
         <div className="pl-8 pt-2 space-y-2">
-          <DevicesList connectedDevice={activeDevice} onClick={checkDeviceStatusWithoutToggle}/>
+          <DevicesList onClick={checkDeviceStatusWithoutToggle}/>
         </div>
       </div>
     </>
@@ -458,6 +463,7 @@ const Navigation = ({
   currIndex,
   classNames,
   devices,
+  connectedDevice
 }) => {
   // states for settings and devices accordions 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -466,6 +472,7 @@ const Navigation = ({
   const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
   const [savedConfig, setSavedConfig] = useState({}); // must be accessible to Practice 
   const [isPracticeMode, setIsPracticeMode] = useState(false);
+  const [usbDevice, setUsbDevice] = useState(connectedDevice);
 
   //console.log('should definitely be func', setIsPracticeMode);
   // router 
@@ -498,6 +505,26 @@ const Navigation = ({
     setIsSignOutModalOpen(!isSignOutModalOpen);
   };
 
+  const changeUsbDevice = async () => {
+    console.log('Checking device status...');
+    try {
+      let fileHandle = await getFileHandle();
+      if (!fileHandle) {
+        throw new Error('No file handle found.');
+      }
+
+
+      const file = await fileHandle.getFile();
+      const text = await file.text();
+      const config = JSON.parse(text);
+      setUsbDevice(config.global_info.HW_UID.value);
+    } catch (error) {
+      console.error('Error checking device status:', error);
+      setUsbDevice(null);
+    }
+    return;
+  }
+
   const contextValue = {
     user,
     currIndex,
@@ -514,6 +541,9 @@ const Navigation = ({
     toggleDevicesMenu,
     toggleSettingsMenu,
     toggleSignOutModal,
+    usbDevice,
+    setUsbDevice,
+    changeUsbDevice
   };
 
   return (
