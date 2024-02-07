@@ -1823,6 +1823,8 @@ const Devices = ({ devices }) => {
             <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
 
             <BindingsPanel config={editedTVRemoteConfig} mode={"tv_remote"} />
+            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+
           </div>
         );
       };

@@ -35,7 +35,7 @@ const modeDefaultGenerator = (mode) => {
       ...pointerOperationDefault,
       ...mouseDefault,
     };
-    if (pointerData.hasOwnProperty("default")){
+    if (pointerData.hasOwnProperty("default")) {
       delete pointerData.default;
     }
     return pointerData;
@@ -47,7 +47,7 @@ const modeDefaultGenerator = (mode) => {
       ...clickerDefault,
       ...clickerBindings
     };
-    if (clickerData.hasOwnProperty("default")){
+    if (clickerData.hasOwnProperty("default")) {
       delete clickerData.default;
     }
     return clickerData;
@@ -60,12 +60,12 @@ const modeDefaultGenerator = (mode) => {
       ...gestureMouseBindings,
       ...gestureDefault
     };
-    if (gestureMouseData.hasOwnProperty("default")){
+    if (gestureMouseData.hasOwnProperty("default")) {
       delete gestureMouseData.default;
     }
     return gestureMouseData;
 
-  } 
+  }
   else if (mode == "tv_remote") {
     let tvRemoteOperationDefault = deepCopy(operationDefault);
     tvRemoteOperationDefault["operation_mode"]["value"] = "tv_remote";
@@ -76,12 +76,12 @@ const modeDefaultGenerator = (mode) => {
       ...tvRemoteBindings
     };
 
-    if (tvRemoteData.hasOwnProperty("default")){
+    if (tvRemoteData.hasOwnProperty("default")) {
       delete tvRemoteData.default;
     }
 
     return tvRemoteData;
-}
+  }
 
 
   else if (mode == "practice") {
@@ -93,7 +93,7 @@ const modeDefaultGenerator = (mode) => {
       ...practiceDefault,
       ...gestureDefault,
     };
-    if (practiceData.hasOwnProperty("default")){
+    if (practiceData.hasOwnProperty("default")) {
       delete practiceData.default;
     }
     return practiceData;
@@ -157,13 +157,13 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     try {
       // check existence directories
       let directoryHandle = await get('configDirectoryHandle');
-  
+
       // request + store in indexedDB
       if (!directoryHandle) {
         directoryHandle = await window.showDirectoryPicker();
         await set('configDirectoryHandle', directoryHandle);
       }
-  
+
       // get r/w access
       const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
       console.log('Permission Status:', permissionStatus);
@@ -171,17 +171,17 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
         console.log('Permission to access directory not granted');
         return;
       }
-  
+
       // check if config.json exists
       const fileHandle = await directoryHandle.getFileHandle('config.json', { create: false });
-  
+
       //delete + create again
       const file = await fileHandle.getFile();
-  
+
       // read config.json
       const text = await file.text();
       const config = JSON.parse(text);
-  
+
       // check if there is a deviceHwUid
       if (!config || !config.global_info || !config.global_info.HW_UID || !config.global_info.HW_UID.value) {
         console.error("HW_UID is empty or not found in the JSON structure");
@@ -214,7 +214,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
       // if all checks pass return the config
       return config;
-      
+
     } catch (error) {
       console.log("Error:", error);
       return;
@@ -233,11 +233,11 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     //basically, for every field in the globalInfoDefault, check if it exists in the config
     //if it does, add it to the globalInfoData object
     //if it doesn't, add the default value to the globalInfoData object
-    
+
     let globalInfoData = deepCopy(globalInfoDefault);
     let globalInfoExists = await checkIfGlobalSectionExists(config);
     if (!globalInfoExists) {
-      if (globalInfoData.hasOwnProperty("default")){
+      if (globalInfoData.hasOwnProperty("default")) {
         delete globalInfoData.default;
       }
       return globalInfoData;
@@ -258,11 +258,11 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
     updateNestedFields(config.global_info, globalInfoData.global_info);
 
-    
-    if (globalInfoData.hasOwnProperty("default")){
+
+    if (globalInfoData.hasOwnProperty("default")) {
       delete globalInfoData.default;
     }
-    
+
 
     globalInfoData.global_info.name.value = enteredName;
     //globalInfoData.global_info.HW_UID.value = config.globalInfoData.HW_UID.value;
@@ -361,7 +361,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     }
     if (connectionsArray.length == 0) {
       let connectionConfig = deepCopy(connectionSpecificDefault);
-      if (connectionConfig.hasOwnProperty("default")){
+      if (connectionConfig.hasOwnProperty("default")) {
         delete connectionConfig.default;
       }
       connectionConfig = JSON.stringify(connectionConfig);
@@ -401,12 +401,12 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     let connectionsArray = await getConnectionsData(retrievedJson);
     console.log("connectionsArray", connectionsArray);
 
-    
+
 
     const deviceAdded = await addDeviceDoc(globalInfoData, connectionsArray);
     console.log("deviceAdded", deviceAdded);
 
-    
+
     console.log(enteredName);
     console.log(encodeURIComponent(enteredName))
 
@@ -422,11 +422,11 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     }
     deleteInitializeDoc();
     //downloadNewConfig(newConfig);
-    
-    
+
+
     navigate(`/devices/${enteredName}`);
     //window.location.reload();
-    
+
   };
 
 
@@ -524,7 +524,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
               initialize: "initializeUserCatosSubcollection",
             });
           }
-          
+
           await addDoc(collection(colRef, user.uid, "userCatos"), {
             device_info: {
               global_config: newData,
@@ -537,7 +537,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
           });
           handleRenderDevices();
           deleteInitializeDoc();
-          
+
         } catch (error) {
           console.log("store another device error: ", error);
           return false;
@@ -579,68 +579,70 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
   return (
     <div className="flex min-h-full flex-col">
-    <header className="shrink-0 bg-transparent">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between">
+      <header className="shrink-0 bg-transparent">
+        <div className="flex h-16 items-center pl-4 sm:pl-6 lg:pl-8">
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight py-1">
             Register New Device
           </h2>
         </div>
-    </header>
+      </header>
 
-    <div className="border-b border-gray-200 pb-5">
-      <p className="max-w-4xl text-lg text-gray-900">
-        To register a new Cato device, connect it to your computer via cable.
-      </p>
-    </div>
-    <div className="px-4 sm:px-6 lg:px-8">
-      <div className="bg-white shadow-lg border border-gray-200 rounded-lg p-5 mt-10">
-
-        <div className="px-4 py-5 sm:p-6 lg:px-8">
-          <div className="border-b border-gray-200 pb-10">
-            <div className="border-b border-gray-200 pb-5">
-              <h3 className="text-xl font-semibold leading-6 text-gray-900">
-                Name your Cato
-              </h3>
-            </div>
-            <div className="mt-5 max-w-xl text-lg text-gray-900">
-              <p>Enter a name for your Cato below.</p>
-            </div>
-            <div className="w-full mt-5 sm:max-w-xs">
-              <input
-                type="text"
-                value={enteredName}
-                onChange={(e) => setEnteredName(e.target.value)}
-                className="block w-full rounded-md border-0 outline-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
-                placeholder="my-cato"
-              />
-            </div>
-            <div className="mt-5 max-w-xl text-lg text-gray-900">
-              <p>
-                When you click <strong>Save</strong> your browser will ask if
-                you want to allow access to the device, allow access in order to
-                register the device.
-              </p>
-            </div>
-          </div>
-          <div className="mt-6 flex items-center justify-end">
-            <div className="mt-4 sm:mt-0">
-              <button
-                disabled={enteredName === "" ? true : false}
-                onClick={downloadSequence}
-                className="inline-flex rounded-full items-center bg-blue-500 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-300"
-              >
-                Save
-              </button>
-            </div>
-          </div>
+      <div className="border-b border-gray-200 pb-5">
+        <div className="pl-4 sm:pl-6 lg:pl-8">
+          <p className="text-lg text-gray-900">
+            To register a new Cato device, connect it to your computer via cable.
+          </p>
         </div>
-        {errMessage && (
-          <div className="text-red-500">
-            {errMessage}
-          </div>
-        )}
       </div>
-    </div>
+      <div className="px-4 sm:px-6 lg:px-8">
+        <div className="bg-white shadow-lg border border-gray-200 rounded-lg p-5 mt-10">
+
+          <div className="px-4 py-5 sm:p-6 lg:px-8">
+            <div className="border-b border-gray-200 pb-10">
+              <div className="border-b border-gray-200 pb-5">
+                <h3 className="text-xl font-semibold leading-6 text-gray-900">
+                  Name your Cato
+                </h3>
+              </div>
+              <div className="mt-5 max-w-xl text-lg text-gray-900">
+                <p>Enter a name for your Cato below.</p>
+              </div>
+              <div className="w-full mt-5 sm:max-w-xs">
+                <input
+                  type="text"
+                  value={enteredName}
+                  onChange={(e) => setEnteredName(e.target.value)}
+                  className="block w-full rounded-md border-0 outline-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
+                  placeholder="my-cato"
+                />
+              </div>
+              <div className="mt-5 max-w-xl text-lg text-gray-900">
+                <p>
+                  When you click <strong>Save</strong> your browser will ask if
+                  you want to allow access to the device, allow access in order to
+                  register the device.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex items-center justify-end">
+              <div className="mt-4 sm:mt-0">
+                <button
+                  disabled={enteredName === "" ? true : false}
+                  onClick={downloadSequence}
+                  className="inline-flex rounded-full items-center bg-blue-500 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-300"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+          {errMessage && (
+            <div className="text-red-500">
+              {errMessage}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
