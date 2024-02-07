@@ -55,7 +55,8 @@ export async function getFileHandle() {
     try {
         let fileHandle = await get('configFileHandle');
         if (!fileHandle) {
-            fileHandle = await getDirectoryHandle().getFileHandle('config.json', { create: true });
+            const directoryHandle = await getDirectoryHandle();
+            fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
             await set('configFileHandle', fileHandle);
         }
         const permission = await verifyPermission(fileHandle, true);
