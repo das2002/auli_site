@@ -23,7 +23,7 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import BindingsPanel from './components/NavBar/Bindings';
 import { getFileHandle } from './components/NavBar/ReplaceConfig';
 
-
+import chromePermissionsImage from './chromePermissions.png';
 
 function App() {
   const [user, setUser] = useState('spinner');
@@ -130,6 +130,7 @@ function App() {
         user.displayName = displayname;
         user.email = email;
         console.log("Signed up", user);
+        localStorage.setItem('newSignUp', 'true'); // local storage??
         toggleSignupPopup(); // close the signup popup once signed up 
       })
       .catch((error) => {
@@ -305,11 +306,17 @@ function App() {
     );
   }
 
+  const [showGreetingPopup, setShowGreetingPopup] = useState(false);
 
   useEffect(() => {
     async function handleUserAuth() {
       const userListener = onAuthStateChanged(auth, async (user) => {
         if (user) {
+          const isNewUser = localStorage.getItem('newSignUp') === 'true';
+          if (isNewUser) {
+            setShowGreetingPopup(true);
+            localStorage.removeItem('newSignUp'); //clear the popup
+          }
           await ensureUserDocumentExists(user);
           const configData = await fetchUserCatos(user);
           if (configData && configData.length > 0) {
@@ -326,7 +333,6 @@ function App() {
           setUser(null);
         }
       });
-
       // Cleanup function to unsubscribe from the listener
       return () => userListener();
     }
@@ -356,7 +362,11 @@ function App() {
     }
 
     handleUserAuth();
-  }, [renderDevices]);
+  }, [renderDevices, user]);
+
+  const closeGreetingPopup = () => {
+    setShowGreetingPopup(false);
+  };
 
 
   function classNames(...classes) {
@@ -606,6 +616,61 @@ function App() {
 
           <div className="email-login-content flex flex-col items-center justify-center p-0 gap-0">
             <EmailSignupForm />
+          </div>
+        </div>
+      )}
+
+      {showGreetingPopup && user && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 1000,
+          backdropFilter: 'blur(2px)' 
+        }}>
+          <div style={{
+            position: 'relative',
+            width: '80%', 
+            maxWidth: '1000px', 
+            padding: '20px',
+            background: 'white',
+            borderRadius: '10px',
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.6)',
+            zIndex: 1001,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}>
+
+            {/* <h2>Hello, {user.displayName || 'User'}!</h2> */}
+            <p style={{ marginBottom: '10px' }}>
+              Welcome to <strong>Auli Cato!</strong>
+            </p>
+            <p>
+              To get started, we need you to grant access to selected files so we can pair your cato device.
+            </p>
+            <p>
+              Please follow the steps on this <a href="https://developer.chrome.com/blog/persistent-permissions-for-the-file-system-access-api?hl=en#the_new_way_whats_changing_and_when" target="_blank" rel="noopener noreferrer" style={{ color: 'darkblue', textDecoration: 'underline', fontWeight: 'bold' }}>link</a>, and toggle the
+              two Chrome options as <strong>Enabled</strong>.
+            </p>
+            <img src={chromePermissionsImage} alt="Chrome Permissions" style={{ maxWidth: '70%', height: 'auto', marginTop: '40px', marginBottom: '20px' }} />
+            <button onClick={closeGreetingPopup} style={{
+              backgroundColor: '#ffd561',
+              color: 'black',
+              padding: '10px 20px',
+              borderRadius: '20px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: 'bold',
+              marginTop: '10px'
+            }}>
+              OK
+            </button>
           </div>
         </div>
       )}
