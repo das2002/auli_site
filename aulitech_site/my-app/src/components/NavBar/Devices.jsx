@@ -47,13 +47,14 @@ const sectionHeadingStyle = {
   padding: '5px 15px',
   display: 'inline-block',
   boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+  marginLeft: '20px'
 };
 
 const CheckboxOption = ({ checked, onChange, title, description }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', marginLeft: '40px' }}> 
       <label
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -79,9 +80,6 @@ const CheckboxOption = ({ checked, onChange, title, description }) => {
     </div>
   );
 };
-
-
-
 
 
 const HardwareUIDField = ({ hardwareUID }) => {
@@ -165,7 +163,7 @@ const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, slide
   };
 
   return (
-    <div style={{ marginBottom: '10px' }}>
+    <div style={{ marginBottom: '10px', marginLeft: '40px' }}> 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <label
           htmlFor={sliderLabel}
@@ -182,7 +180,6 @@ const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, slide
         </label>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '40%' }}>
 
-          {/* <div style={{ width: '30%' }}>  */}
           <DarkYellowSlider
             id={sliderLabel}
             value={sliderValue}
@@ -209,6 +206,7 @@ const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, slide
     </div>
   );
 };
+
 
 const hoverstyle = {
   position: 'absolute',
@@ -552,21 +550,21 @@ const Devices = ({ devices }) => {
 
     const OrientationSection = () => {
       const [selectedOrientation, setSelectedOrientation] = useState('');
-    
+
       useEffect(() => {
         const fetchedOrientation = editedGlobalSettings.orientation.value;
-        const orientationKey = Object.keys(orientations).find(key => 
+        const orientationKey = Object.keys(orientations).find(key =>
           JSON.stringify(orientations[key].config) === JSON.stringify(fetchedOrientation)
         );
         setSelectedOrientation(orientationKey);
-      }, [editedGlobalSettings.orientation.value]); 
-    
+      }, [editedGlobalSettings.orientation.value]);
+
       const orientations = {
         flat: { config: { front: "-x", bottom: "+z", left: "+y" }, image: flatImage },
         landscape: { config: { front: "-x", bottom: "+y", left: "-z" }, image: landscapeImage },
         portrait: { config: { front: "+y", bottom: "+x", left: "-z" }, image: portraitImage }
       };
-    
+
       const handleOrientationSelect = (orientationKey) => {
         setSelectedOrientation(orientationKey);
         const orientationConfig = orientations[orientationKey].config;
@@ -574,9 +572,9 @@ const Devices = ({ devices }) => {
         newEditedGlobalSettings.orientation.value = orientationConfig;
         setEditedGlobalSettings(newEditedGlobalSettings);
       };
-    
-      const darkerYellow = '#f9da6b'; 
-    
+
+      const darkerYellow = '#f9da6b';
+
       return (
         <div>
           <h2 style={sectionHeadingDynamicStyle(isOrientationExpanded)} onClick={toggleOrientationSection}>
@@ -591,7 +589,7 @@ const Devices = ({ devices }) => {
                   style={{ margin: '10px', cursor: 'pointer' }}
                 >
                   <img src={image} alt={key} />
-                  <p style={{ 
+                  <p style={{
                     backgroundColor: selectedOrientation === key ? darkerYellow : 'transparent',
                     padding: selectedOrientation === key ? '5px' : '0'
                   }}>
@@ -604,7 +602,7 @@ const Devices = ({ devices }) => {
         </div>
       );
     };
-    
+
 
     return (
       <div>
@@ -929,6 +927,7 @@ const Devices = ({ devices }) => {
                 cursor: 'pointer',
                 outline: 'none',
                 marginBottom: '10px',
+                marginLeft: '20px'
               }}
             >Screen Size</button>
             {!collapsedSections['connectionSettings'] && (
@@ -962,64 +961,6 @@ const Devices = ({ devices }) => {
         );
       };
 
-
-      /* 
-
-      const DynamicMouseOptions = (config) => {
-        const [isCollapsed, setIsCollapsed] = useState(false);
-
-        const toggleCollapse = () => {
-          setIsCollapsed(!isCollapsed);
-        };
-
-        return (
-          <div style={{maxWidth: '600px', margin: '0'}}>
-            <button
-              onClick={toggleCollapse}
-              style={{
-                backgroundColor: isCollapsed ? '#1A202C' : '#fcdc6d',
-                color: isCollapsed ? '#FFFFFF' : '#000000',
-                borderRadius: '10px',
-                padding: '5px 15px',
-                display: 'inline-block',
-                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                border: 'none',
-                cursor: 'pointer',
-                outline: 'none',
-                marginBottom: '10px',
-              }}
-            >
-              Dynamic Mouse Settings
-            </button>
-
-            {!isCollapsed && (
-              <div>
-                <InputSlider
-                  sliderLabel={'dynamicMouseSlowMovement'}
-                  value={config.config.mouse.value.dynamic_mouse.value.input.value.slow.value}
-                  onChange={(e) => handleModeConfigChange(['mouse', 'value', 'dynamic_mouse', 'value', 'input', 'value', 'slow', 'value'], activeOperationMode)(parseInt(e.target.value))}
-                  min={0}
-                  max={400}
-                  step={1}
-                  sliderTitle="Slow Movement"
-                  unit={"degrees/second"}
-                  sliderDescription="Rotation speed floor below which scale remains constant."
-                />
-              </div>
-            )}
-          </div>
-        )
-
-        
-
-
-      }
-
-      */
-
-
       const MouseOptions = (config) => {
         const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -1044,13 +985,12 @@ const Devices = ({ devices }) => {
                 cursor: 'pointer',
                 outline: 'none',
                 marginBottom: '10px',
+                marginLeft: '20px'
               }}
-            >Mouse Settings</button>
+            >
+              Mouse Settings</button>
             {!isCollapsed && (
               <div>
-                {/* <h1 style={titleStyle}>Mouse Settings</h1> */}
-                {/* <div style={sliderContainerStyle}> */}
-                {/* <p style={descriptionStyle}>Adjust your mouse settings below:</p> */}
                 <InputSlider
                   sliderLabel={'mouseIdleThreshold'}
                   value={config.config.mouse.value.idle_threshold.value}
@@ -1125,10 +1065,10 @@ const Devices = ({ devices }) => {
                 />
 
                 <div>
-                  <h3>Dynamic Mouse:</h3>
-                  <div style={{ marginLeft: '20px' }}>
+                  <h3 style={{ marginLeft: '40px' }}>Dynamic Mouse:</h3>
+                  <div style={{ marginLeft: '80px' }}>
                     <h3>User Speed:</h3>
-                    <div style={{ marginLeft: '20px' }}>
+                    <div style={{ marginLeft: '0px' }}>
                       <InputSlider
                         sliderLabel={'dynamicMouseInputSlowMovement'}
                         value={config.config.mouse.value.dynamic_mouse.value.input.value.slow.value}
@@ -1153,9 +1093,9 @@ const Devices = ({ devices }) => {
                       />
                     </div>
                   </div>
-                  <div style={{ marginLeft: '20px' }}>
+                  <div style={{ marginLeft: '80px' }}>
                     <h3>Cursor Speed:</h3>
-                    <div style={{ marginLeft: '20px' }}>
+                    <div style={{ marginLeft: '0px' }}>
                       <InputSlider
                         sliderLabel={'dynamicMouseOutputSlowMovement'}
                         value={config.config.mouse.value.dynamic_mouse.value.output.value.slow.value}
@@ -1241,6 +1181,7 @@ const Devices = ({ devices }) => {
                 cursor: 'pointer',
                 outline: 'none',
                 marginBottom: '10px',
+                marginLeft: '20px'
               }}
             >
               Clicker Settings
@@ -1325,6 +1266,8 @@ const Devices = ({ devices }) => {
                 cursor: 'pointer',
                 outline: 'none',
                 marginBottom: '10px',
+                marginLeft: '20px'
+
               }}
             >
               Gesture Settings
@@ -1420,10 +1363,10 @@ const Devices = ({ devices }) => {
               return "Freezes cursor, look up/down to scroll horizontally, look left/right to cancel.";
             case "button_action":
               return `Cato ${actionMapping(binding.args[1])} the ${actorMapping(binding.args[0])} on ${buttonMapping(binding.args[2])}.`;
-              // if (binding.args[0] && binding.args[1] && binding.args[2]) {
-              //   return `Button Action: ${actorMapping(binding.args[0])} ${actionMapping(binding.args[1])} on ${buttonMapping(binding.args[2])}.`;
-              // }
-              // return "Performs a specified action.";
+            // if (binding.args[0] && binding.args[1] && binding.args[2]) {
+            //   return `Button Action: ${actorMapping(binding.args[0])} ${actionMapping(binding.args[1])} on ${buttonMapping(binding.args[2])}.`;
+            // }
+            // return "Performs a specified action.";
             default:
               return "Unknown command.";
           }
@@ -1464,6 +1407,7 @@ const Devices = ({ devices }) => {
           outline: 'none',
           width: 'fit-content',
           marginBottom: '10px',
+          marginLeft: '20px',
         };
         const handleCommandChange = (index, value) => {
           let updatedBindings = [...config["bindings"]["value"]];
@@ -1602,8 +1546,7 @@ const Devices = ({ devices }) => {
               {mode === "clicker" ? "Taps" : "Bindings Panel"}
             </button>
             {!collapsedSections['bindingsPanel'] && (
-              <div>
-
+              <div style={{ marginLeft: '40px' }}>
                 {/* <h2 style= {sectionHeadingStyle}>Bindings Panel</h2> */}
                 <table className='table-fixed'>
                   <thead>
@@ -1942,19 +1885,21 @@ const Devices = ({ devices }) => {
               <h2 style={sectionHeadingStyle}>
                 Operation Mode
               </h2>
-              <Dropdown
-                value={operationModeConversion(activeOperationMode)}
-                onChange={(e) => handleOperationModeSelection(e.target.value)}
-                title=""
-                description="Select the operation mode"
-                options={[
-                  "Select Operation Mode",
-                  "Gesture Mouse",
-                  "TV Remote",
-                  "Pointer",
-                  "Clicker"
-                ]}
-              ></Dropdown>
+              <div style={{ marginLeft: '40px' }}>
+                <Dropdown
+                  value={operationModeConversion(activeOperationMode)}
+                  onChange={(e) => handleOperationModeSelection(e.target.value)}
+                  title=""
+                  description="Select the operation mode"
+                  options={[
+                    "Select Operation Mode",
+                    "Gesture Mouse",
+                    "TV Remote",
+                    "Pointer",
+                    "Clicker"
+                  ]}
+                ></Dropdown>
+              </div>
               {activeOperationMode == "gesture_mouse" && <GestureMouseSetting />}
               {activeOperationMode == "clicker" && <ClickerSetting />}
               {activeOperationMode == "tv_remote" && <TVRemoteSetting />}
@@ -1973,8 +1918,8 @@ const Devices = ({ devices }) => {
               <ConnectionAccordion
                 connection={item}
                 onDelete={handleConnectionDeletion} //delete connections
-                // makePrimary={makePrimary}
-                // index={index}
+              // makePrimary={makePrimary}
+              // index={index}
               >
                 {item.name}
               </ConnectionAccordion>
