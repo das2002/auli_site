@@ -86,7 +86,7 @@ const UserIcon = () => {
 };
 
 // accordion menus 
-const DevicesList = React.memo(({connectedDevice}) => {
+const DevicesList = React.memo(({connectedDevice, onClick}) => {
   const { classNames, isDevicesMenuOpen, devices, savedConfig, isPracticeMode, setIsPracticeMode } = useContext(AppContext);
 
   // const [isDevicesMenuOpen] = useState(AppContext); 
@@ -153,6 +153,7 @@ const DevicesList = React.memo(({connectedDevice}) => {
         return (
           <div
             key={devicePath}
+            onClick={onClick}
             className={`relative w-full mt-0 mr-12 space-y-1 align-center overflow-hidden cursor-pointer rounded-xl ${isActive ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
           >
             <div className={`relative w-full mt-0 mr-12 space-y-1 align-center overflow-hidden cursor-pointer rounded-xl ${isActive ? 'bg-gray-700' : 'hover:bg-gray-700'}`}>
@@ -259,6 +260,23 @@ const DevicesRoute = () => {
     toggleDevicesMenu();
   }
 
+  const checkDeviceStatusWithoutToggle = async () => {
+    console.log('Checking device status...');
+    try {
+      let fileHandle = await getFileHandle();
+      if (!fileHandle) {
+        throw new Error('No file handle found.');
+      }
+      const file = await fileHandle.getFile();
+      const text = await file.text();
+      const config = JSON.parse(text);
+      setActiveDevice(config.global_info.HW_UID.value);
+    } catch (error) {
+      console.error('Error checking device status:', error);
+      setActiveDevice(null);
+    }
+  };
+
   return (
     <>
       <div className="-mx-6 relative transition-transform duration-50 select-none mt-36">
@@ -274,7 +292,7 @@ const DevicesRoute = () => {
         </div>
         {/* {console.log(devices[0].data.device_info.device_nickname)} */}
         <div className="pl-8 pt-2 space-y-2">
-          <DevicesList connectedDevice={activeDevice}/>
+          <DevicesList connectedDevice={activeDevice} onClick={checkDeviceStatusWithoutToggle}/>
         </div>
       </div>
     </>
