@@ -2176,7 +2176,33 @@ const Devices = ({ devices }) => {
 
 
   if (!thisDevice) {
-    return <div>Loading...</div>;
+    return (
+      <div className="ml-90">
+        <header
+          className="shrink-0 bg-transparent border-b border-gray-200"
+          onClick={toggleUniversalSettings}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className="flex h-16 max-w-7xl items-center justify-between">
+            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+              Device Settings
+            </h2>
+          </div>
+        </header>
+        <div className="mt-4 ml-4">
+          <p className="text-lg text-gray-700">
+            This device is not registered yet.
+          </p>
+          <p className="text-lg text-gray-700 mt-6">
+            Likely reasons you're here:
+            <ul className="list-disc ml-5">
+              <li>You entered the URL incorrectly</li>
+              <li>You have a bookmark to a device that has since been renamed</li>
+            </ul>
+          </p>
+        </div>
+      </div>
+    );
   }
 
   const handleDeviceDelete = async () => {
