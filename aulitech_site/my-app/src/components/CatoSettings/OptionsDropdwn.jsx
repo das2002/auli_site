@@ -22,7 +22,7 @@ export default function OptionsDropdwn({classNames, current, options, handleOptS
         <>
 
           <div className="relative mx-4">
-            <Listbox.Button className="relative border-0 outline-0 w-full cursor-default rounded-md bg-white px-2.5 py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-blue-500 focus:ring-inset sm:text-base sm:leading-6">
+            <Listbox.Button className="relative border-0 outline-0 w-full cursor-default rounded-md bg-white px-2.5 py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-yellow-800 focus:ring-inset sm:text-base sm:leading-6">
               <span className="block truncate">{selected}</span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                 <ChevronUpDownIcon className="h-5 w-5 text-gray-900" aria-hidden="true" />

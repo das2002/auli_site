@@ -608,7 +608,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
                   type="text"
                   value={enteredName}
                   onChange={(e) => setEnteredName(e.target.value)}
-                  className="block w-full rounded-md border-0 outline-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
+                  className="block w-full rounded-md border-0 outline-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-800 sm:text-md sm:leading-6"
                   placeholder="my-cato"
                 />
               </div>
@@ -625,7 +625,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
                 <button
                   disabled={enteredName === "" ? true : false}
                   onClick={downloadSequence}
-                  className="inline-flex rounded-full items-center bg-blue-500 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-300"
+                  className="inline-flex rounded-full items-center bg-yellow-500 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-yellow-600"
                 >
                   Save
                 </button>
