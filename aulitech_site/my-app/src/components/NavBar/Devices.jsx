@@ -15,6 +15,9 @@ import flatImage from './flatImage.png';
 import landscapeImage from './landscapeImage.png';
 import portraitImage from './portraitImage.png';
 
+import emptystar from './emptyStar.png';
+import filledin from './filledStar.png';
+
 
 const DarkYellowSlider = styled(Slider)(({ theme }) => ({
   color: '#B8860B',
@@ -395,26 +398,27 @@ const Devices = ({ devices }) => {
   const [editedConnectionsSettings, setEditedConnectionsSettings] = useState(null);
   const [connectionsList, setConnectionsList] = useState([]);
 
-  // const makePrimary = async (primaryConnection) => {
-  //   setConnectionsList(currentList => {
-  //     return [primaryConnection, ...currentList.filter(conn => conn.name !== primaryConnection.name)];
-  //   });
+  const makePrimary = async (primaryConnection) => {
+    // update local variables
+    const updatedConnections = [primaryConnection, ...connectionsList.filter(conn => conn.name !== primaryConnection.name)];
 
-  //   try {
-  //     const userId = getCurrentUserId();
-  //     const userCatoDocRef = doc(db, "users", userId, "userCatos", thisDevice.id);
+    setConnectionsList(updatedConnections);
+    setEditedConnectionsSettings(updatedConnections);
 
-  //     await updateDoc(userCatoDocRef, {
-  //       connections: [primaryConnection, ...connectionsList.filter(conn => conn.name !== primaryConnection.name)].map(connection => ({
-  //         ...connection,
-  //         connection_config: JSON.stringify(connection)
-  //       }))
-  //     });
-  //     console.log("Connections order updated successfully in Firestore");
-  //   } catch (error) {
-  //     console.error("Error updating connections order in Firestore: ", error);
-  //   }
-  // };
+    try {
+      const userId = getCurrentUserId();
+      const userCatoDocRef = doc(db, "users", userId, "userCatos", thisDevice.id);
+
+      await updateDoc(userCatoDocRef, {
+        connections: updatedConnections.map(connection => ({
+          ...connection,
+        }))
+      });
+      console.log("Connections order updated successfully in Firestore");
+    } catch (error) {
+      console.error("Error updating connections order in Firestore: ", error);
+    }
+  };
 
 
   const handleGlobalConfigChange = (keyList) => {
@@ -581,7 +585,7 @@ const Devices = ({ devices }) => {
             Orientation
           </h2>
           {isOrientationExpanded && (
-            <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', marginLeft: '40px' }}>
               {Object.entries(orientations).map(([key, { image }]) => (
                 <div
                   key={key}
@@ -679,8 +683,8 @@ const Devices = ({ devices }) => {
       );
     }
 
-    // const ConnectionAccordion = ({ connection, onDelete, makePrimary, index }) => {
-    const ConnectionAccordion = ({ connection, onDelete }) => {
+    const ConnectionAccordion = ({ connection, onDelete, makePrimary, index }) => {
+      // const ConnectionAccordion = ({ connection, onDelete }) => {
       const [isExpanded, setIsExpanded] = useState(false);
       const [collapsedSections, setCollapsedSections] = useState({});
 
@@ -1819,6 +1823,9 @@ const Devices = ({ devices }) => {
         }
       }
 
+      const isPrimary = connection.isPrimary;
+
+
       return (
         <div style={{ marginBottom: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -1841,27 +1848,20 @@ const Devices = ({ devices }) => {
             </div>
 
             <div style={{ display: 'flex' }}>
-              {/* {index !== 0 && (
-                <button
-                  onClick={() => makePrimary(connection)}
-                  style={{
-                    backgroundColor: '#fcdc6d',
-                    //'#1A202C' : '#fcdc6d',
-                    // color: 'white',
-                    color: '#1A202C',
-                    border: 'none',
-                    borderRadius: '5px',
-                    outline: 'none',
-                    padding: '10px',
-                    fontSize: '16px',
-                    cursor: 'pointer',
-                    marginRight: '5px',
-                  }}
-                  aria-label="Make Primary"
-                >
-                  &#9733; 
-                </button>
-              )} */}
+              <button
+                onClick={() => makePrimary(connection)}
+                style={{
+                  cursor: 'pointer',
+                  marginRight: '16px',
+                }}
+                aria-label="Make Primary"
+              >
+                <img
+                  src={index === 0 ? filledin : emptystar} 
+                  alt="Star Icon"
+                  style={{ width: '20px', height: '20px' }} 
+                />
+              </button>
 
               {!isDefaultConnection && (
                 <button
@@ -1922,8 +1922,8 @@ const Devices = ({ devices }) => {
               <ConnectionAccordion
                 connection={item}
                 onDelete={handleConnectionDeletion} //delete connections
-              // makePrimary={makePrimary}
-              // index={index}
+                makePrimary={makePrimary}
+                index={index}
               >
                 {item.name}
               </ConnectionAccordion>
