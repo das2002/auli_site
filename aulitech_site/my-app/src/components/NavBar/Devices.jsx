@@ -1254,7 +1254,9 @@ const Devices = ({ devices }) => {
                       />
                     </div>
                   </div>
+                  <div style={{ marginLeft: '120px' }}>
                   <img src={dynamicMouseGraphic} alt="Dynamic Mouse Graph" style={{ width: '75%', marginTop: '20px', marginBottom: '30px' }} />
+                </div>
                 </div>
 
 
