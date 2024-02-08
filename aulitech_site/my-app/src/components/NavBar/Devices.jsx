@@ -1662,33 +1662,37 @@ const Devices = ({ devices }) => {
 
         return (
           <div className='w-16/12 flex flex-col'>
-            {/* <button
-              onClick={toggleExpanded}
-              // onClick={() => toggleSection('bindingsPanel')}
-              style={toggleStyle}
-            > */}
-            <button
-              onClick={toggleExpanded}
-              style={{
-                backgroundColor: isExpanded ? '#fcdc6d' : '#1A202C',
-                color: isExpanded ? '#000000' : '#FFFFFF',
-                borderRadius: '10px',
-                padding: '5px 15px',
-                display: 'inline-block',
-                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '16px',
-                fontWeight: 'bold',
-                border: 'none',
-                cursor: 'pointer',
-                outline: 'none',
-                width: 'fit-content',
-                marginBottom: '10px',
-                marginLeft: '20px',
-              }}
-            >
-              {mode === "clicker" ? "Taps" : "Bindings Panel"}
-            </button>
-
+            <div className='flex justify-between items-center mb-10' style={{ marginLeft: '20px', marginRight: '20px' }}>
+              <button
+                onClick={toggleExpanded}
+                style={{
+                  backgroundColor: isExpanded ? '#fcdc6d' : '#1A202C',
+                  color: isExpanded ? '#000000' : '#FFFFFF',
+                  borderRadius: '10px',
+                  padding: '5px 15px',
+                  boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  border: 'none',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                {mode === "clicker" ? "Taps" : "Bindings"}
+              </button>
+              <a
+                href="https://youtu.be/aiT06Bs-OH0"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  color: '#0000EE', 
+                }}
+              >
+                Tutorial Video
+              </a>
+            </div>
             {/* {!collapsedSections['bindingsPanel'] && ( */}
             {isExpanded && (
               <div style={{ marginLeft: '40px' }}>
