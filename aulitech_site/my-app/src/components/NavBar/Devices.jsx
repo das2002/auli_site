@@ -346,6 +346,20 @@ const Devices = ({ devices }) => {
   const [currentEditingConnection, setCurrentEditingConnection] = useState(null);
   const popupRef = useRef();
 
+  const [editingConnectionIndex, setEditingConnectionIndex] = useState(null);
+  const [temporaryConnectionName, setTemporaryConnectionName] = useState('');
+
+  const startEditing = (connection, index) => {
+    if (connection.name === "Default Connection") {
+      console.log("Editing default connection is not allowed.");
+      return;
+    }
+
+    console.log("Starting edit for:", connection.name);
+    setTemporaryConnectionName(connection.name);
+    setEditingConnectionIndex(index);
+  };
+
   const handleClickOutside = (event) => {
     if (popupRef.current && !popupRef.current.contains(event.target)) {
       closeEditPopup();
@@ -367,7 +381,7 @@ const Devices = ({ devices }) => {
 
     console.log("Opening popup for:", connection.name);
     setEditedConnectionName(connection.name);
-    setCurrentEditingConnection({ connection, index }); 
+    setCurrentEditingConnection({ connection, index });
     setIsEditPopupOpen(true);
   };
 
@@ -377,22 +391,24 @@ const Devices = ({ devices }) => {
   };
 
   const handleSaveEditedName = async () => {
-    if (!currentEditingConnection) {
+    if (editingConnectionIndex === null) {
       console.error("No connection selected for editing");
       return;
     }
 
-    const { connection, index } = currentEditingConnection;
-
-    console.log("Updating connection at index:", index);
-    console.log("Current connection name:", connectionsList[index].name);
-    console.log("New connection name:", editedConnectionName);
+    console.log("Saving edited name for index:", editingConnectionIndex);
 
     const updatedConnections = [...connectionsList];
-    updatedConnections[index] = { ...updatedConnections[index], name: editedConnectionName };
+    updatedConnections[editingConnectionIndex] = {
+      ...updatedConnections[editingConnectionIndex],
+      name: temporaryConnectionName,
+    };
 
     setConnectionsList(updatedConnections);
     setEditedConnectionsSettings(updatedConnections);
+
+    setEditingConnectionIndex(null);
+    setTemporaryConnectionName('');
 
     try {
       const userId = getCurrentUserId();
@@ -407,6 +423,7 @@ const Devices = ({ devices }) => {
     } catch (error) {
       console.error("Error updating connection name in Firestore: ", error);
     }
+
   };
 
 
@@ -1935,44 +1952,39 @@ const Devices = ({ devices }) => {
       */
 
       // }
-      const handleDelete = async () => {
-        //delete connection
-        if (connection && connection.name) {
-          await onDelete(connection.name);
-        } else {
-          console.error("Invalid connection data");
-        }
-      }
-
-      const isPrimary = connection.isPrimary;
-
 
       return (
         <div style={{ marginBottom: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <button
-                onClick={toggleIsExpanded}
-                style={{
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  textAlign: 'left',
-                  padding: '10px',
-                  fontSize: '18px',
-                  cursor: 'pointer',
-                  flex: 1
-                }}
-              >
-                <strong>{connection.name}</strong>
-              </button>
-              {connection.name !== "Default Connection" && (
-                <button onClick={() => showEditPopup(connection, index)}>
-                  <img src={PencilEditIcon} alt="Edit" style={{ width: '16px', height: '16px' }} />
-                </button>
-              )}
-
-            </div>
+            {editingConnectionIndex === index ? (
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+                <input
+                  autoFocus
+                  type="text"
+                  value={temporaryConnectionName}
+                  onChange={(e) => setTemporaryConnectionName(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSaveEditedName(index);
+                    }
+                  }}
+                  style={{
+                    fontSize: '16px',
+                    padding: '10px',
+                    marginRight: '10px',
+                  }}
+                />
+              </div>
+            ) : (
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+                <strong style={{ marginRight: '10px' }}>{connection.name}</strong>
+                {connection.name !== "Default Connection" && (
+                  <button onClick={() => startEditing(connection, index)}>
+                    <img src={PencilEditIcon} alt="Edit" style={{ width: '16px', height: '16px' }} />
+                  </button>
+                )}
+              </div>
+            )}
 
             <div style={{ display: 'flex' }}>
               <button
@@ -1980,6 +1992,7 @@ const Devices = ({ devices }) => {
                 style={{
                   cursor: 'pointer',
                   marginRight: '16px',
+                  visibility: isDefaultConnection ? 'hidden' : 'visible', 
                 }}
                 aria-label="Make Primary"
               >
@@ -1998,12 +2011,11 @@ const Devices = ({ devices }) => {
                     color: 'white',
                     border: 'none',
                     borderRadius: '5px',
-                    outline: 'none',
-                    textAlign: 'left',
                     padding: '10px',
                     fontSize: '16px',
                     cursor: 'pointer',
-                  }}>
+                  }}
+                >
                   Delete Connection
                 </button>
               )}
