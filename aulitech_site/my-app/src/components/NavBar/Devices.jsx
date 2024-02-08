@@ -636,10 +636,64 @@ const Devices = ({ devices }) => {
         setSelectedOrientation(orientationKey);
       }, [editedGlobalSettings.orientation.value]);
 
+      // const orientations = {
+      //   flat: { config: { front: "-x", bottom: "+z", left: "+y" }, image: flatImage },
+      //   landscape: { config: { front: "-x", bottom: "+y", left: "-z" }, image: landscapeImage },
+      //   portrait: { config: { front: "+y", bottom: "+x", left: "-z" }, image: portraitImage }
+      // };
       const orientations = {
-        flat: { config: { front: "-x", bottom: "+z", left: "+y" }, image: flatImage },
-        landscape: { config: { front: "-x", bottom: "+y", left: "-z" }, image: landscapeImage },
-        portrait: { config: { front: "+y", bottom: "+x", left: "-z" }, image: portraitImage }
+        flat: {
+          config: {
+            front: {
+              label: "front",
+              value: "-x"
+            },
+            bottom: {
+              label: "bottom",
+              value: "+z"
+            },
+            left: {
+              label: "left",
+              value: "+y"
+            }
+          },
+          image: flatImage
+        },
+        landscape: {
+          config: {
+            front: {
+              label: "front",
+              value: "-x"
+            },
+            bottom: {
+              label: "bottom",
+              value: "+y"
+            },
+            left: {
+              label: "left",
+              value: "-z"
+            }
+          },
+          image: landscapeImage
+        },
+        portrait: {
+          config: {
+            front: {
+              label: "front",
+              value: "+y"
+            },
+            bottom: {
+              label: "bottom",
+              value: "+x"
+            },
+            left: {
+              label: "left",
+              value: "-z"
+            }
+          },
+          image: portraitImage
+        },
+
       };
 
       const handleOrientationSelect = (orientationKey) => {
