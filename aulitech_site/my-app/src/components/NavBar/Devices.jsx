@@ -89,24 +89,24 @@ const CheckboxOption = ({ checked, onChange, title, description }) => {
 
 const HardwareUIDField = ({ hardwareUID }) => {
   return (
-    <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
+    <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'left' }}>
       <h2 style={{ fontSize: '16px', marginRight: '10px' }}><strong>Serial Number:</strong></h2>
-      <input
-        value={hardwareUID}
+      <span
         style={{
-          borderColor: 'black',
-          borderWidth: 1,
-          padding: '5px 10px',
-          borderRadius: '5px',
-          fontSize: '14px',
+          // display: 'inline-block',
+          // padding: '5px 10px',
+          // fontSize: '14px',
+          // background: '#f2f2f2', 
+          // borderRadius: '5px',
+          marginRight: '20px'
         }}
-        type="text"
-        placeholder="Serial Number"
-        readOnly={true}
-      />
+      >
+        {hardwareUID}
+      </span>
     </div>
   );
 };
+
 
 const getCurrentUserId = () => {
   const currentUser = auth.currentUser;
