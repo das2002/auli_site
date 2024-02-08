@@ -341,6 +341,11 @@ const DashedLine = () => {
 
 
 const Devices = ({ devices }) => {
+  const editButtonRef = useRef(null);
+  const inputRef = useRef(null);
+
+  const [originalConnectionName, setOriginalConnectionName] = useState('');
+
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [editedConnectionName, setEditedConnectionName] = useState('');
   const [currentEditingConnection, setCurrentEditingConnection] = useState(null);
@@ -354,36 +359,24 @@ const Devices = ({ devices }) => {
       console.log("Editing default connection is not allowed.");
       return;
     }
-
-    console.log("Starting edit for:", connection.name);
+    setOriginalConnectionName(connection.name);
     setTemporaryConnectionName(connection.name);
     setEditingConnectionIndex(index);
   };
 
   const handleClickOutside = (event) => {
-    if (popupRef.current && !popupRef.current.contains(event.target)) {
-      closeEditPopup();
+    if (inputRef.current && !inputRef.current.contains(event.target) &&
+      editButtonRef.current && !editButtonRef.current.contains(event.target)) {
+      setTemporaryConnectionName(originalConnectionName);
+      setEditingConnectionIndex(null);
     }
   };
-
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
-
-  const showEditPopup = (connection, index) => {
-    if (connection.name === "Default Connection") {
-      console.log("Editing default connection is not allowed.");
-      return;
-    }
-
-    console.log("Opening popup for:", connection.name);
-    setEditedConnectionName(connection.name);
-    setCurrentEditingConnection({ connection, index });
-    setIsEditPopupOpen(true);
-  };
+  }, [originalConnectionName]);
 
 
   const closeEditPopup = () => {
@@ -1959,6 +1952,7 @@ const Devices = ({ devices }) => {
             {editingConnectionIndex === index ? (
               <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
                 <input
+                  ref={inputRef}
                   autoFocus
                   type="text"
                   value={temporaryConnectionName}
@@ -1977,16 +1971,26 @@ const Devices = ({ devices }) => {
               </div>
             ) : (
               <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-                <strong style={{ marginRight: '10px' }}>{connection.name}</strong>
+                {/* <strong style={{ marginRight: '10px' }}>
+                  {connection.name}
+                </strong> */}
+                <button
+                  onClick={toggleIsExpanded}
+                  style={{
+                    marginRight: '10px'
+                  }}
+                >
+                  <strong>{connection.name}</strong>
+                </button>
                 {connection.name !== "Default Connection" && (
-                  <button onClick={() => startEditing(connection, index)}>
+                  <button ref={editButtonRef} onClick={() => startEditing(connection, index)}>
                     <img src={PencilEditIcon} alt="Edit" style={{ width: '16px', height: '16px' }} />
                   </button>
                 )}
               </div>
             )}
 
-<div style={{ display: 'flex' }}>
+            <div style={{ display: 'flex' }}>
               <button
                 onClick={() => makePrimary(connection)}
                 style={{
@@ -2052,6 +2056,7 @@ const Devices = ({ devices }) => {
         </div>
       )
     }
+
     return (
       <div style={sliderContainerStyle}>
         <div style={accordionListStyle}>
