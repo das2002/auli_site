@@ -1977,6 +1977,9 @@ const Devices = ({ devices }) => {
                 <button
                   onClick={toggleIsExpanded}
                   style={{
+                    padding: '10px',
+                    fontSize: '16px',
+                    cursor: 'pointer',
                     marginRight: '10px'
                   }}
                 >
