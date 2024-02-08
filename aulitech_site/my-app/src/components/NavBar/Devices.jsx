@@ -1687,7 +1687,7 @@ const Devices = ({ devices }) => {
                 style={{
                   fontSize: '16px',
                   fontWeight: 'bold',
-                  color: '#0000EE', 
+                  color: '#0000EE',
                 }}
               >
                 Tutorial Video
@@ -2357,14 +2357,17 @@ const Devices = ({ devices }) => {
           onClick={toggleUniversalSettings}
           style={{ cursor: 'pointer' }}
         >
-          <div className="flex h-16 max-w-7xl items-center justify-between">
+          <div className="flex h-16 items-center justify-between">
             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
               Universal Settings
             </h2>
-            {/* delete device */}
-            <button onClick={handleDeviceDelete} style={{ backgroundColor: '#8B0000', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}>
-              Delete Device
-            </button>
+            <div className="flex-grow">
+              <div className="flex justify-end">
+                <button onClick={handleDeviceDelete} style={{ backgroundColor: '#8B0000', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}>
+                  Delete Device
+                </button>
+              </div>
+            </div>
           </div>
         </header>
         {isUniversalSettingsExpanded && <GlobalInfoSection />}
