@@ -1986,13 +1986,12 @@ const Devices = ({ devices }) => {
               </div>
             )}
 
-            <div style={{ display: 'flex' }}>
+<div style={{ display: 'flex' }}>
               <button
                 onClick={() => makePrimary(connection)}
                 style={{
                   cursor: 'pointer',
                   marginRight: '16px',
-                  visibility: isDefaultConnection ? 'hidden' : 'visible', 
                 }}
                 aria-label="Make Primary"
               >
