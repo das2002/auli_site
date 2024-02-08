@@ -631,13 +631,13 @@ function App() {
           justifyContent: 'center',
           alignItems: 'center',
           zIndex: 1000,
-          backdropFilter: 'blur(2px)' 
+          backdropFilter: 'blur(2px)'
         }}>
           <div style={{
             position: 'relative',
-            width: '80%', 
-            maxWidth: '1000px', 
-            padding: '20px',
+            width: '80%',
+            maxWidth: '1000px',
+            padding: '60px',
             background: 'white',
             borderRadius: '10px',
             boxShadow: '0 4px 8px rgba(0, 0, 0, 0.6)',
@@ -648,15 +648,17 @@ function App() {
           }}>
 
             {/* <h2>Hello, {user.displayName || 'User'}!</h2> */}
-            <p style={{ marginBottom: '10px' }}>
+            <p style={{ marginBottom: '20px' }}>
               Welcome to <strong>Auli Cato!</strong>
             </p>
-            <p>
-              To get started, we need you to grant access to selected files so we can pair your cato device.
+            <p style={{ marginBottom: '10px' }}>
+              To get started, we need access to selected files so we can pair your cato device.
             </p>
             <p>
-              Please follow the steps on this <a href="https://developer.chrome.com/blog/persistent-permissions-for-the-file-system-access-api?hl=en#the_new_way_whats_changing_and_when" target="_blank" rel="noopener noreferrer" style={{ color: 'darkblue', textDecoration: 'underline', fontWeight: 'bold' }}>link</a>, and toggle the
-              two Chrome options as <strong>Enabled</strong>.
+              Chrome is launching a new behavior to let users optionally grant permanent access to their files and folders, avoiding the need to re-prompt the user constantly.
+              The <a href="https://developer.chrome.com/blog/persistent-permissions-for-the-file-system-access-api?hl=en#the_new_way_whats_changing_and_when" target="_blank" rel="noopener noreferrer" style={{ color: 'darkblue', fontWeight: 'bold' }}>new behavior</a> can be observed as of Chrome 122.
+              To test it earlier, starting from Chrome 120, toggle the two
+              flags <a href="chrome://flags/#file-system-access-persistent-permission" target="_blank" rel="noopener noreferrer" style={{ color: 'darkblue', fontWeight: 'bold' }}>chrome://flags/#file-system-access-persistent-permission</a> and <a href="chrome://flags/#one-time-permission" target="_blank" rel="noopener noreferrer" style={{ color: 'darkblue', fontWeight: 'bold' }}>chrome://flags/#one-time-permission</a> to <strong>Enabled.</strong>
             </p>
             <img src={chromePermissionsImage} alt="Chrome Permissions" style={{ maxWidth: '70%', height: 'auto', marginTop: '40px', marginBottom: '20px' }} />
             <button onClick={closeGreetingPopup} style={{
