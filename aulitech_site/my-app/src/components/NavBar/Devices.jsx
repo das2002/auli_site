@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { db, auth } from '../../firebase';
 import debounce from 'lodash.debounce';
 import { collection, getDocs, query, where, updateDoc, doc, deleteDoc } from 'firebase/firestore';
@@ -19,6 +19,7 @@ import portraitImage from './portraitImage.png';
 import emptystar from './emptyStar.png';
 import filledin from './filledStar.png';
 
+import PencilEditIcon from './pencil-edit.svg';
 
 const DarkYellowSlider = styled(Slider)(({ theme }) => ({
   color: '#B8860B',
@@ -340,6 +341,77 @@ const DashedLine = () => {
 
 
 const Devices = ({ devices }) => {
+  const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
+  const [editedConnectionName, setEditedConnectionName] = useState('');
+  const [currentEditingConnection, setCurrentEditingConnection] = useState(null);
+  const popupRef = useRef();
+
+  const handleClickOutside = (event) => {
+    if (popupRef.current && !popupRef.current.contains(event.target)) {
+      closeEditPopup();
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const showEditPopup = (connection, index) => {
+    if (connection.name === "Default Connection") {
+      console.log("Editing default connection is not allowed.");
+      return;
+    }
+
+    console.log("Opening popup for:", connection.name);
+    setEditedConnectionName(connection.name);
+    setCurrentEditingConnection({ connection, index }); 
+    setIsEditPopupOpen(true);
+  };
+
+
+  const closeEditPopup = () => {
+    setIsEditPopupOpen(false);
+  };
+
+  const handleSaveEditedName = async () => {
+    if (!currentEditingConnection) {
+      console.error("No connection selected for editing");
+      return;
+    }
+
+    const { connection, index } = currentEditingConnection;
+
+    console.log("Updating connection at index:", index);
+    console.log("Current connection name:", connectionsList[index].name);
+    console.log("New connection name:", editedConnectionName);
+
+    const updatedConnections = [...connectionsList];
+    updatedConnections[index] = { ...updatedConnections[index], name: editedConnectionName };
+
+    setConnectionsList(updatedConnections);
+    setEditedConnectionsSettings(updatedConnections);
+
+    try {
+      const userId = getCurrentUserId();
+      const userCatoDocRef = doc(db, "users", userId, "userCatos", thisDevice.id);
+
+      await updateDoc(userCatoDocRef, {
+        connections: updatedConnections
+      });
+
+      console.log("Connection name updated successfully in Firestore");
+      closeEditPopup();
+    } catch (error) {
+      console.error("Error updating connection name in Firestore: ", error);
+    }
+  };
+
+
+
+
   const { deviceName } = useParams();
   const navigate = useNavigate();
 
@@ -1894,6 +1966,12 @@ const Devices = ({ devices }) => {
               >
                 <strong>{connection.name}</strong>
               </button>
+              {connection.name !== "Default Connection" && (
+                <button onClick={() => showEditPopup(connection, index)}>
+                  <img src={PencilEditIcon} alt="Edit" style={{ width: '16px', height: '16px' }} />
+                </button>
+              )}
+
             </div>
 
             <div style={{ display: 'flex' }}>
@@ -2224,6 +2302,31 @@ const Devices = ({ devices }) => {
 
   return (
     <div>
+      {isEditPopupOpen && (
+        <div
+          ref={popupRef}
+
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 1000,
+            backgroundColor: 'white',
+            padding: '20px',
+            border: '1px solid black',
+            borderRadius: '10px',
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+          }}>
+          <input
+            type="text"
+            value={editedConnectionName}
+            onChange={(e) => setEditedConnectionName(e.target.value)}
+          />
+          <button onClick={handleSaveEditedName}>Save</button>
+          {/* <button onClick={closeEditPopup}>Cancel</button> */}
+        </div>
+      )}
 
       <div className="ml-90">
         <header
