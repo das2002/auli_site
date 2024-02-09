@@ -153,15 +153,16 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
     try {
 
-      /*
-
       let directoryHandle = await get('configDirectoryHandle');
+
 
       // request + store in indexedDB
       if (!directoryHandle) {
         let directoryHandle = await window.showDirectoryPicker();
         await set('configDirectoryHandle', directoryHandle);
       }
+
+      console.log("directoryHandle", directoryHandle);
 
       // get r/w access
       const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
@@ -170,11 +171,11 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
         console.log('Permission to access directory not granted');
         return;
       }
-      */
+      
 
       // check if config.json exists
       console.log("Fetching and comparing config.json...");
-      const fileHandle = await getFileHandle();
+      const fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
 
       console.log("fileHandle", fileHandle);
 
@@ -223,10 +224,93 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       return config;
 
     } catch (error) {
+      
+      if (error instanceof DOMException && error.name == "NotFoundError") {
+        console.log("not found error")
+        console.error(error)
+        try {
+          let directoryHandle = await window.showDirectoryPicker();
+
+          if (directoryHandle) {
+            const permission = await verifyPermission(directoryHandle, true);
+            if (permission) {
+              console.log("Permission to read the directory was granted");
+              await set('configDirectoryHandle', directoryHandle);
+              let fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+              const filePermission = await verifyPermission(fileHandle, true);
+              if (!filePermission) {
+                throw new Error('Permission to read the file was not granted.');
+              }
+              await set('configFileHandle', fileHandle);
+              const file = await fileHandle.getFile();
+              const text = await file.text();
+              const config = JSON.parse(text);
+              // check if there is a deviceHwUid
+              if (!config || !config.global_info || !config.global_info.HW_UID || !config.global_info.HW_UID.value) {
+                console.error("HW_UID is empty or not found in the JSON structure");
+                return;
+              }
+              const deviceHwUid = config.global_info.HW_UID.value;
+
+              // check if hw_uid is taken
+              const hwUidTaken = await checkIfHardwareUidTaken(deviceHwUid);
+              if (hwUidTaken) {
+                setErrMessage("A device with this HW_UID already exists");
+                return;
+              }
+
+              setHwUid(deviceHwUid);
+
+              // check if name is taken
+              const nameTaken = await checkIfNameTaken();
+              if (nameTaken) {
+                setErrMessage("Name already taken");
+                return;
+              }
+
+              // check if name is valid
+              const nameValid = await checkIfNameValid();
+              if (!nameValid) {
+                setErrMessage("Invalid name");
+                return;
+              }
+
+              // if all checks pass return the config
+              return config;
+            } else {
+              throw new Error('Permission to read the directory was not granted.');
+            }
+          } 
+        } catch (error) {
+          console.log("error within the not found error");
+          console.log("Error getting directory handle:", error);
+          return;
+        }
+      }
       console.log("Error:", error);
+      console.log(error.message);
+      console.log(error.name);
       return;
     }
   }
+
+  async function verifyPermission(fileHandle, readWrite) {
+    const options = {};
+    if (readWrite) {
+        options.mode = 'readwrite';
+    }
+    // alredy permission granted?
+    const permission = await fileHandle.queryPermission(options);
+    // permission granted --> true
+    if (permission === 'granted') {
+        return true;
+    }
+    // permission not there --> request permission
+    if (permission === 'denied' || permission === 'prompt') {
+        return (await fileHandle.requestPermission(options)) === 'granted';
+    }
+    return false;
+}
 
   async function getGlobalInfoData(config) {
     async function checkIfGlobalSectionExists(config) {
