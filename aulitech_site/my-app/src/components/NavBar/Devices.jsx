@@ -355,10 +355,6 @@ const Devices = ({ devices }) => {
   const [temporaryConnectionName, setTemporaryConnectionName] = useState('');
 
   const startEditing = (connection, index) => {
-    if (connection.name === "Default Connection") {
-      console.log("Editing default connection is not allowed.");
-      return;
-    }
     setOriginalConnectionName(connection.name);
     setTemporaryConnectionName(connection.name);
     setEditingConnectionIndex(index);
@@ -814,8 +810,28 @@ const Devices = ({ devices }) => {
 
     if (data.length === 0) { //no connections display
       return (
-        <div style={noConnectionsStyle}>
-          No connections yet. Add a connection to begin.
+        <div style={sliderContainerStyle}>
+          <div style={noConnectionsStyle}>
+            No connections yet. Add a connection to begin.
+          </div>
+          <div style={{ marginBottom: '10px' }}>
+            <button onClick={handleRegisterInterface}
+              style={{
+                backgroundColor: '#8B0000',
+                color: 'white',
+                padding: '10px',
+                fontSize: '16px',
+                borderRadius: '5px',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'inline-block',
+                margin: '10px auto',
+                maxWidth: '200px',
+              }}>
+              Add Connection
+            </button>
+
+          </div>
         </div>
       );
     }
@@ -824,9 +840,6 @@ const Devices = ({ devices }) => {
       // const ConnectionAccordion = ({ connection, onDelete }) => {
       const [isExpanded, setIsExpanded] = useState(false);
       const [collapsedSections, setCollapsedSections] = useState({});
-
-      const isDefaultConnection = connection.name === "Default Connection";
-
       const toggleSection = (sectionKey) => {
         setCollapsedSections((prevSections) => ({
           ...prevSections,
@@ -1991,7 +2004,7 @@ const Devices = ({ devices }) => {
                 >
                   <strong>{connection.name}</strong>
                 </button>
-                {connection.name !== "Default Connection" && (
+                {(
                   <button ref={editButtonRef} onClick={() => startEditing(connection, index)}>
                     <img src={PencilEditIcon} alt="Edit" style={{ width: '16px', height: '16px' }} />
                   </button>
@@ -2015,7 +2028,7 @@ const Devices = ({ devices }) => {
                 />
               </button>
 
-              {!isDefaultConnection && (
+              {(
                 <button
                   onClick={() => onDelete(connection.name)}
                   style={{
@@ -2123,6 +2136,23 @@ const Devices = ({ devices }) => {
   };
 
   const handleSave = async () => {
+
+    // if the connections array is empty, return
+    if (editedConnectionsSettings.length === 0) {
+      console.error("No connections to save");
+      toast.error("Must add at least one connection to save.", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+      return;
+    }
 
     const webAppHwUid = editedGlobalSettings["HW_UID"]["value"];
 

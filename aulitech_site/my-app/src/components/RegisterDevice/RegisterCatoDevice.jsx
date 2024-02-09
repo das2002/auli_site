@@ -361,14 +361,14 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
         delete connectionConfig.default;
       }
       connectionConfig = JSON.stringify(connectionConfig);
-      let current_mode = "practice";
+      let current_mode = "pointer";
       let modeMap = {
         pointer: JSON.stringify(modeDefaultGenerator("pointer")),
         clicker: JSON.stringify(modeDefaultGenerator("clicker")),
         gesture_mouse: JSON.stringify(modeDefaultGenerator("gesture_mouse")),
         tv_remote: JSON.stringify(modeDefaultGenerator("tv_remote"))
       };
-      let connectionName = "Default Connection";
+      let connectionName = "Default";
       let firebaseConnectionConfig = {
         connection_config: connectionConfig,
         mode: modeMap,
