@@ -165,28 +165,25 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       try {
         fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
       } catch (error) {
-        if (error instanceof DOMException && error.name === 'NotFoundError') {
+        if (error instanceof DOMException) {
           // If getFileHandle fails, re-request the directory picker
           directoryHandle = await window.showDirectoryPicker();
           await set('configDirectoryHandle', directoryHandle);
           const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
           console.log('Permission Status:', permissionStatus);
-          if (permissionStatus !== 'granted') {
+          if (permissionStatus != 'granted') {
             console.log('Permission to access directory not granted');
             return;
           }
           fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
-          const filePermission = await verifyPermission(fileHandle, true);
-          if (!filePermission) {
-            console.log('Permission to access file not granted');
-            return;
-          }
+          
 
         } else {
           // Handle other errors normally
           console.error('Error:', error);
         }
       }
+
       //delete + create again
       if (!fileHandle) {
         console.error('File handle not found');
@@ -194,6 +191,13 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       }
 
       await set('configFileHandle', fileHandle);
+      const filePermission = await verifyPermission(fileHandle, true);
+      if (!filePermission) {
+        console.log('Permission to access file not granted');
+        return;
+      }
+
+      
 
       const file = await fileHandle.getFile();
       const text = await file.text();

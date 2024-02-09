@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { Dialog, Portal, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link, NavLink } from "react-router-dom";
+import { get, set } from 'idb-keyval';
 import Logo from "../Elements/Logo"
 import SignOutAccount from "../GoogleAuth/SignOutAccount";
 import { useNavigate, useRoutes, useLocation, BrowserRouter as Router, Route, Routes, Outlet } from 'react-router-dom';
@@ -257,23 +258,7 @@ const DevicesRoute = () => {
       toggleDevicesMenu();
       return;
     }
-    /*
-    console.log('Checking device status...');
-    try {
-      let fileHandle = await getFileHandle();
-      if (!fileHandle) {
-        throw new Error('No file handle found.');
-      }
 
-      const file = await fileHandle.getFile();
-      const text = await file.text();
-      const config = JSON.parse(text);
-      setActiveDevice(config.global_info.HW_UID.value);
-    } catch (error) {
-      console.error('Error checking device status:', error);
-      setActiveDevice(null);
-    }
-    */
     changeUsbDevice();
     toggleDevicesMenu();
   }
@@ -506,23 +491,34 @@ const Navigation = ({
   };
 
   const changeUsbDevice = async () => {
-    console.log('Checking device status...');
     try {
-      let fileHandle = await getFileHandle();
+      let fileHandle = await get('configFileHandle');
       if (!fileHandle) {
+        console.log("idb doesn't have file handle");
         throw new Error('No file handle found.');
       }
 
+      const permission = await fileHandle.queryPermission({ mode: 'readwrite' });
+      console.log(permission);
+      if (permission != 'granted') {
+        throw new Error('Permission to read the file was not granted.');
+      }
 
       const file = await fileHandle.getFile();
       const text = await file.text();
       const config = JSON.parse(text);
+
+      if (!config || !config.global_info || !config.global_info.HW_UID || !config.global_info.HW_UID.value) {
+        throw new Error('No HW_UID found in config.');
+      }
+
       setUsbDevice(config.global_info.HW_UID.value);
+      return;
     } catch (error) {
       console.error('Error checking device status:', error);
-      setUsbDevice(null);
+      //setUsbDevice(null);
+      return;
     }
-    return;
   }
 
   const contextValue = {

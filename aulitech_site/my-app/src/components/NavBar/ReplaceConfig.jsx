@@ -31,19 +31,27 @@ export async function fetchAndCompareConfig(webAppHwUid) {
     try {
         // Try to get the file handle from IndexedDB
         const fileHandle = await getFileHandle();
+        if (!fileHandle) {
+            throw new Error('No file handle found.');
+        }
         
         // If there's no handle in IndexedDB, use the directory picker
-        
-        const file = await fileHandle.getFile();
-        const text = await file.text();
-        const config = JSON.parse(text);
-        const deviceHwUid = config.global_info.HW_UID.value;
-        if (deviceHwUid == webAppHwUid) {
-            console.log('HW_UID matches.');
-            return deviceHwUid;
-        } else {
-            console.log('HW_UID does not match.');
-            return null;
+
+        try {
+            const file = await fileHandle.getFile();
+            const text = await file.text();
+            const config = JSON.parse(text);
+            const deviceHwUid = config.global_info.HW_UID.value;
+            if (deviceHwUid == webAppHwUid) {
+                console.log('HW_UID matches.');
+                return deviceHwUid;
+            } else {
+                console.log('HW_UID does not match.');
+                return null;
+            }
+        } catch (error) {
+            console.error('Error reading file handle file:', error);
+            return false;
         }
 
     } catch (error) {
@@ -60,9 +68,25 @@ export async function getFileHandle() {
         let fileHandle = await get('configFileHandle');
         if (!fileHandle) {
             console.log("have to request file handle");
-            const directoryHandle = await getDirectoryHandle();
-            fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
-            await set('configFileHandle', fileHandle);
+            let directoryHandle = await getDirectoryHandle();
+            try {
+                fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+                await set('configFileHandle', fileHandle);
+            } catch (error) {
+                console.error('Error getting file handle:', error);
+                if (error instanceof DOMException) {
+                    directoryHandle = await window.showDirectoryPicker();
+                    await set('configDirectoryHandle', directoryHandle);
+                    const permissionStatus = await verifyPermission(directoryHandle, true);
+                    if (!permissionStatus) {
+                        throw new Error('Permission to read the directory was not granted.');
+                    }
+                    fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+                    await set('configFileHandle', fileHandle);
+                } else {                   
+                    return false;
+                }            
+            }
         }
         const permission = await verifyPermission(fileHandle, true);
         if (permission) {

@@ -18,7 +18,7 @@ import Updates from './components/UpdatePage/Updates';
 import Devices from './components/NavBar/Devices';
 import Practice from './components/NavBar/Practice';
 import RegisterInterface from './components/NavBar/RegisterInterface';
-
+import { get, set } from 'idb-keyval';
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import BindingsPanel from './components/NavBar/Bindings';
 import { getFileHandle } from './components/NavBar/ReplaceConfig';
@@ -448,19 +448,31 @@ function App() {
       } else {
 
         const checkDeviceStatusWithoutToggle = async () => {
-          console.log('Checking device status...');
           try {
-            let fileHandle = await getFileHandle();
+            let fileHandle = await get('configFileHandle');
             if (!fileHandle) {
               throw new Error('No file handle found.');
             }
+
+            const permission = await fileHandle.queryPermission({ mode: 'readwrite' });
+            if (permission != 'granted') {
+              throw new Error('Permission to read the file was not granted.');
+            }
+
             const file = await fileHandle.getFile();
             const text = await file.text();
             const config = JSON.parse(text);
+
+            if (!config || !config.global_info || !config.global_info.HW_UID || !config.global_info.HW_UID.value) {
+              throw new Error('No HW_UID found in config.');
+            }
+
             setUsbDevice(config.global_info.HW_UID.value);
+            return;
           } catch (error) {
             console.error('Error checking device status:', error);
-            setUsbDevice(null);
+            //setUsbDevice(null);
+            return;
           }
         }
 
