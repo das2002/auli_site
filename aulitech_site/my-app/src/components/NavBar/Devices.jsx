@@ -2198,20 +2198,8 @@ const Devices = ({ devices }) => {
           'device_info.calibrated': calibratedWithFirebase,
         });
       }
-
       console.log("Web settings updated successfully");
-
-      toast.success('Web settings updated successfully', {
-        position: "bottom-right",
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "light",
-        transition: Bounce,
-      });
+      
     } catch (error) {
       console.error("Error updating web settings: ", error);
       toast.error("Error updating web settings. Aborting save operation.", {
