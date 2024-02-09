@@ -173,14 +173,21 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       */
 
       // check if config.json exists
+      console.log("Fetching and comparing config.json...");
       const fileHandle = await getFileHandle();
+
+      console.log("fileHandle", fileHandle);
 
       //delete + create again
       const file = await fileHandle.getFile();
 
+      console.log("file", file);
+
       // read config.json
       const text = await file.text();
       const config = JSON.parse(text);
+
+      console.log("config", config);
 
       // check if there is a deviceHwUid
       if (!config || !config.global_info || !config.global_info.HW_UID || !config.global_info.HW_UID.value) {
