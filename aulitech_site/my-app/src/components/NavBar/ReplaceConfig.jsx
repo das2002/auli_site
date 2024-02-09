@@ -3,6 +3,8 @@ import { get, set, entries } from 'idb-keyval';
 
 export async function getDirectoryHandle() {
 
+    console.log("Getting directory handle...");
+
     try {
         let directoryHandle = await get('configDirectoryHandle');
         if (!directoryHandle) {
@@ -52,9 +54,12 @@ export async function fetchAndCompareConfig(webAppHwUid) {
 
 export async function getFileHandle() {
 
+    console.log("Getting file handle...");
+
     try {
         let fileHandle = await get('configFileHandle');
         if (!fileHandle) {
+            console.log("have to request file handle");
             const directoryHandle = await getDirectoryHandle();
             fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
             await set('configFileHandle', fileHandle);
