@@ -24,6 +24,7 @@ import * as practiceDefault from '../NavBar/cato_schemas/practice.json';
 import * as connectionSpecificDefault from '../NavBar/cato_schemas/connection_specific.json';
 import * as operationDefault from '../NavBar/cato_schemas/operation.json';
 import * as globalInfoDefault from '../../resources/templates/global_info_default.json';
+import { getDirectoryHandle, getFileHandle } from "../NavBar/ReplaceConfig";
 
 
 
@@ -151,12 +152,14 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     }
 
     try {
-      // check existence directories
+
+      /*
+
       let directoryHandle = await get('configDirectoryHandle');
 
       // request + store in indexedDB
       if (!directoryHandle) {
-        directoryHandle = await window.showDirectoryPicker();
+        let directoryHandle = await window.showDirectoryPicker();
         await set('configDirectoryHandle', directoryHandle);
       }
 
@@ -167,9 +170,10 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
         console.log('Permission to access directory not granted');
         return;
       }
+      */
 
       // check if config.json exists
-      const fileHandle = await directoryHandle.getFileHandle('config.json', { create: false });
+      const fileHandle = await getFileHandle();
 
       //delete + create again
       const file = await fileHandle.getFile();
