@@ -181,6 +181,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
             console.log('Permission to access file not granted');
             return;
           }
+
         } else {
           // Handle other errors normally
           console.error('Error:', error);
@@ -191,7 +192,9 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
         console.error('File handle not found');
         return;
       }
-      
+
+      await set('configFileHandle', fileHandle);
+
       const file = await fileHandle.getFile();
       const text = await file.text();
       const config = JSON.parse(text);
