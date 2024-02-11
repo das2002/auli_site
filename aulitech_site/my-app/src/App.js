@@ -471,7 +471,7 @@ function App() {
             return;
           } catch (error) {
             console.error('Error checking device status:', error);
-            //setUsbDevice(null);
+            setUsbDevice(null);
             return;
           }
         }

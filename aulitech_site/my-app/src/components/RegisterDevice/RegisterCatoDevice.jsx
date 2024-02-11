@@ -165,7 +165,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       try {
         fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
       } catch (error) {
-        if (error instanceof DOMException) {
+        if (error instanceof DOMException || error instanceof TypeError) {
           // If getFileHandle fails, re-request the directory picker
           directoryHandle = await window.showDirectoryPicker();
           await set('configDirectoryHandle', directoryHandle);
@@ -460,12 +460,11 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     if (!deviceAdded) {
       return;
     }
-    deleteInitializeDoc();
+    await deleteInitializeDoc();
     //downloadNewConfig(newConfig);
 
-
     navigate(`/devices/${enteredName}`);
-    //window.location.reload();
+    window.location.reload();
 
   };
 
@@ -576,14 +575,14 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
             connections: connectionsArray,
           });
           handleRenderDevices();
-          deleteInitializeDoc();
+          await deleteInitializeDoc();
 
         } catch (error) {
           console.log("store another device error: ", error);
           return false;
         }
       };
-      storeDevice();
+      await storeDevice();
       return true;
     } catch (error) {
       console.log("add device doc to usersCato error: ", error);
