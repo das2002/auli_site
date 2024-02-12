@@ -1,19 +1,35 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import semver from 'semver';
+import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import ReactDOM from 'react-dom'
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import './Updates.css';
 
-// sanitises markdown 
+
 const createMarkup = (markdown) => {
-  const rawMarkup = marked.parse(markdown);
-  return { __html: DOMPurify.sanitize(rawMarkup) };
+  const converted = markdown.replace(/\r?\n/g, '\n');
+  const html = marked(converted);
+  //const rawMarkup = marked.parse(markdown);
+  //return { __html: DOMPurify.sanitize(html) };
+  return { __html: html };
 };
+
+
+
+const releasesMetadata = [
+  {version: '0.0.8', createdAt: '2024-02-07T01:21:35Z' , markdownPath: 'releases/v0.0.8/description' , zipPath: 'releases/v0.0.8/release.zip'},
+  //{version: '0.0.7', createdAt: '2024-01-24T02:04:21Z' , markdownPath: 'releases/v0.0.7/description' , zipPath: 'releases/v0.0.7/release.zip'},
+  //{version: '0.0.6', createdAt: "2024-01-07T06:05:39Z" , markdownPath: 'releases/v0.0.6/description' , zipPath: 'releases/v0.0.6/release.zip'},
+  //{version: '0.0.5', createdAt: "2023-09-20T01:08:02Z", markdownPath: 'releases/v0.0.5/description' , zipPath: 'releases/v0.0.5/release.zip'},
+];
 
 const FormattedUpdate = ({ release, index, id }) => {
   const isLatest = index === 0; 
-  const tagName = isLatest ? `${release.tag_name}` : release.tag_name;
-  const releaseZipUrl = release.assets?.find(asset => asset.name === 'release.zip')?.browser_download_url;
+  const tagName = release.version;
+  const releaseZipUrl = release.zipUrl;
+  //const tagName = isLatest ? `${release.tag_name}` : release.tag_name;
+  //const releaseZipUrl = release.assets?.find(asset => asset.name === 'release.zip')?.browser_download_url;
   //only release.zip
 
   return (
@@ -41,19 +57,29 @@ const FormattedUpdate = ({ release, index, id }) => {
 const Updates = () => {
   // download releases from github 
   const [releases, setReleases] = useState([]);
+
   useEffect(() => {
     const fetchReleases = async () => {
       try {
-        const response = await fetch('https://api.github.com/repos/aulitech/Cato/releases');
-        const data = await response.json();
+        const sortedReleases = releasesMetadata.sort((a, b) => compareVersions(b.version, a.version));
+        const storage = getStorage();
 
-        // don't fetch files older than 0.0.5
-        const filteredReleases = data.filter(release => {
-          const releaseVersion = release.tag_name.startsWith('v') ? release.tag_name.substring(1) : release.tag_name;
-          return compareVersions(releaseVersion, '0.0.5') > 0;
-        });
+        for (const release of sortedReleases) {
+          const markdownUrl = await getDownloadURL(ref(storage, release.markdownPath));
+          const zipUrl = await getDownloadURL(ref(storage, release.zipPath));
 
-        setReleases(filteredReleases);
+          release.markdownUrl = markdownUrl;
+          release.zipUrl = zipUrl;
+
+
+          // store the markdown content in the release object
+          const response = await fetch(markdownUrl);
+
+          const markdown = await response.text();
+          release.body = markdown;
+        }
+
+        setReleases(sortedReleases);
       } catch (error) {
         console.error('Error fetching releases:', error);
       }
