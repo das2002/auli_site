@@ -176,8 +176,6 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
             return;
           }
           fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
-          
-
         } else {
           // Handle other errors normally
           console.error('Error:', error);
@@ -191,15 +189,40 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       }
 
       await set('configFileHandle', fileHandle);
+
       const filePermission = await verifyPermission(fileHandle, true);
       if (!filePermission) {
         console.log('Permission to access file not granted');
         return;
       }
 
-      
 
-      const file = await fileHandle.getFile();
+      // we need to surround the getFile() call with a try/catch block
+        // if fileHandle.getFile() fails, we need to re-request the directory picker
+        
+      let file = null;
+      try {
+        file = await fileHandle.getFile();
+      } catch (error) {
+        if (error instanceof DOMException || error instanceof TypeError) {
+          let directoryHandle = await window.showDirectoryPicker();
+
+          if (!directoryHandle) {
+            console.log('No directory handle found');
+            return;
+          }
+
+          await set('configDirectoryHandle', directoryHandle);
+          const permissionStatus = await verifyPermission(directoryHandle, true);
+          if (!permissionStatus) {
+            console.log('Permission to read the directory was not granted.');
+            return;
+          }
+          fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+          await set('configFileHandle', fileHandle);
+          file = await fileHandle.getFile();
+        }
+      }
       const text = await file.text();
       const config = JSON.parse(text);
 

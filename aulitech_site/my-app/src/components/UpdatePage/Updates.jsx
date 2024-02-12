@@ -79,6 +79,8 @@ const Updates = () => {
           release.body = markdown;
         }
 
+        console.log("sortedReleases", sortedReleases);
+
         setReleases(sortedReleases);
       } catch (error) {
         console.error('Error fetching releases:', error);

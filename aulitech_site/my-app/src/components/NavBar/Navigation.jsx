@@ -109,16 +109,12 @@ const DevicesList = React.memo(({onClick}) => {
   const [isPracticeModeToggleOn, setIsPracticeModeToggleOn] = useState(false);
   const [animate, setAnimate] = useState(false);
 
-  console.log(usbDevice);
-
-
   const togglePracticeMode = async (index) => {
     const devicePath = devices[index].data.device_info.device_nickname;
 
     if (!window.location.pathname.includes('practice')) {
       // Navigate to the practice mode page for this device
-      console.log("device -> practice", window.location.pathname)
-      console.log("opractice", setIsPracticeMode)
+      
       navigate(`/devices/${devicePath}/practice`);
 
     } else {
@@ -157,9 +153,6 @@ const DevicesList = React.memo(({onClick}) => {
         const isActive = isNavLinkActive(devicePath);
         const isCalibrated = device.data.device_info.calibrated;
         const isConnected = ((usbDevice != null) && (usbDevice == device.data.device_info.hw_uid));
-
-        console.log(device);
-        console.log(isConnected);
 
         return (
           <div
@@ -499,7 +492,6 @@ const Navigation = ({
       }
 
       const permission = await fileHandle.queryPermission({ mode: 'readwrite' });
-      console.log(permission);
       if (permission != 'granted') {
         throw new Error('Permission to read the file was not granted.');
       }

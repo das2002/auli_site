@@ -36,22 +36,39 @@ export async function fetchAndCompareConfig(webAppHwUid) {
         }
         
         // If there's no handle in IndexedDB, use the directory picker
-
+        let file = null;
         try {
-            const file = await fileHandle.getFile();
-            const text = await file.text();
-            const config = JSON.parse(text);
-            const deviceHwUid = config.global_info.HW_UID.value;
-            if (deviceHwUid == webAppHwUid) {
-                console.log('HW_UID matches.');
-                return deviceHwUid;
-            } else {
-                console.log('HW_UID does not match.');
-                return null;
-            }
+            file = await fileHandle.getFile();    
         } catch (error) {
-            console.error('Error reading file handle file:', error);
-            return false;
+            if (error instanceof DOMException || error instanceof TypeError) {
+                let directoryHandle = await window.showDirectoryPicker();
+
+                if (!directoryHandle) {
+                    throw new Error('No directory handle found.');
+                }
+
+                await set('configDirectoryHandle', directoryHandle);
+                const permissionStatus = await verifyPermission(directoryHandle, true);
+                if (!permissionStatus) {
+                    throw new Error('Permission to read the directory was not granted.');
+                }
+                fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+                await set('configFileHandle', fileHandle);
+                file = await fileHandle.getFile();
+            } else {
+                throw error;
+            }
+        }
+
+        const text = await file.text();
+        const config = JSON.parse(text);
+        const deviceHwUid = config.global_info.HW_UID.value;
+        if (deviceHwUid == webAppHwUid) {
+            console.log('HW_UID matches.');
+            return deviceHwUid;
+        } else {
+            console.log('HW_UID does not match.');
+            return null;
         }
 
     } catch (error) {
