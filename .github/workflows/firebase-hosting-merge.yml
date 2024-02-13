@@ -12,6 +12,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Change directory
+        run: cd aulitech_site/my-app
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: aulitech_site/my-app
+
       - name: Build
         run: npm run build
         working-directory: aulitech_site/my-app
