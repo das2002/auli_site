@@ -3,45 +3,29 @@ import ReactDOM from 'react-dom';
 import { Dialog, Portal, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link, NavLink } from "react-router-dom";
-import Logo from "../Elements/Logo"
+import { get, set } from 'idb-keyval';
+import Logo from "./images/Logo"
 import SignOutAccount from "../GoogleAuth/SignOutAccount";
 import { useNavigate, useRoutes, useLocation, BrowserRouter as Router, Route, Routes, Outlet } from 'react-router-dom';
-import RegisterInterface from './RegisterInterface';
-import PracticeModeToggle from "./PracticeModeToggle/PracticeModeToggle";
-import Practice from "./Practice";
-import { overwriteConfigFile } from '../NavBar/ReplaceConfig';
-
-// static nav buttons in navbar
-// const RecordGesturesRoute = () => {
-//   const { classNames } = useContext(AppContext);
-//   return (
-//     <div className="-mx-6 transition-all duration-300">
-//       <NavLink
-//         to="/record-gestures"
-//         className={({ isActive }) =>
-//           classNames(
-//             isActive
-//               ? "bg-gray-700 text-white"
-//               : "text-gray-400 hover:text-white hover:bg-gray-700",
-//             "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
-//           )
-//         }
-//       >
-//         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
-//           <circle cx="12" cy="12" r="8" strokeWidth="2" />
-//           <circle cx="12" cy="12" r="4" fill="currentColor" />
-//           <rect x="2" y="2" width="20" height="20" rx="10" strokeWidth="2" />
-//         </svg>
-//         <p>Record Gestures</p>
-//       </NavLink>
-//     </div>
-//   );
-// };
+import RegisterInterface from './RegisterDevices/RegisterInterface';
+import PracticeModeToggle from "./PracticeMode/PracticeModeToggle";
+import Practice from "./PracticeMode/Practice";
+import { overwriteConfigFile, getFileHandle } from './RegisterDevices/ReplaceConfig';
+import connectionImage from '../../images/connection-svgrepo-com.svg';
 
 const UpdateRoute = () => {
-  const { classNames } = useContext(AppContext);
+  const { classNames, changeUsbDevice } = useContext(AppContext);
+
+  const location = useLocation();
+
+  const handleClick = () => {
+    // Only perform the check if the NavLink is not currently active
+    if (location.pathname !== "/updates") {
+      changeUsbDevice();
+    }
+  };
   return (
-    <div className="-mx-6 transition-all duration-300">
+    <div className="-mx-6 transition-all duration-300" >
       <NavLink
         to="/updates"
         className={({ isActive }) =>
@@ -52,6 +36,7 @@ const UpdateRoute = () => {
             "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
           )
         }
+        onClick={handleClick}
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -61,7 +46,6 @@ const UpdateRoute = () => {
     </div>
   );
 };
-
 
 const UserIcon = () => {
   return (
@@ -85,10 +69,8 @@ const UserIcon = () => {
 };
 
 // accordion menus 
-const DevicesList = React.memo(() => {
-  const { classNames, isDevicesMenuOpen, devices, savedConfig, isPracticeMode, setIsPracticeMode } = useContext(AppContext);
-
-  // const [isDevicesMenuOpen] = useState(AppContext); 
+const DevicesList = React.memo(({ onClick }) => {
+  const { classNames, isDevicesMenuOpen, devices, savedConfig, isPracticeMode, setIsPracticeMode, usbDevice } = useContext(AppContext);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -97,14 +79,12 @@ const DevicesList = React.memo(() => {
   const [isPracticeModeToggleOn, setIsPracticeModeToggleOn] = useState(false);
   const [animate, setAnimate] = useState(false);
 
-
   const togglePracticeMode = async (index) => {
     const devicePath = devices[index].data.device_info.device_nickname;
 
     if (!window.location.pathname.includes('practice')) {
       // Navigate to the practice mode page for this device
-      console.log("device -> practice", window.location.pathname)
-      console.log("opractice", setIsPracticeMode)
+      
       navigate(`/devices/${devicePath}/practice`);
 
     } else {
@@ -114,10 +94,8 @@ const DevicesList = React.memo(() => {
         console.log(isPracticeMode, savedConfig)
         overwriteConfigFile(savedConfig);
       }
-
       navigate(`/devices/${devicePath}`);
     }
-
     setIsPracticeModeToggleOn(!isPracticeModeToggleOn);
   };
 
@@ -141,10 +119,13 @@ const DevicesList = React.memo(() => {
       {devices.map((device, index) => {
         const devicePath = device.data.device_info.device_nickname;
         const isActive = isNavLinkActive(devicePath);
+        const isCalibrated = device.data.device_info.calibrated;
+        const isConnected = ((usbDevice != null) && (usbDevice == device.data.device_info.hw_uid));
 
         return (
           <div
             key={devicePath}
+            onClick={onClick}
             className={`relative w-full mt-0 mr-12 space-y-1 align-center overflow-hidden cursor-pointer rounded-xl ${isActive ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
           >
             <div className={`relative w-full mt-0 mr-12 space-y-1 align-center overflow-hidden cursor-pointer rounded-xl ${isActive ? 'bg-gray-700' : 'hover:bg-gray-700'}`}>
@@ -163,7 +144,29 @@ const DevicesList = React.memo(() => {
                   }}
                 >
                   {devicePath}
+
+                  {isConnected && (
+                    <div title="Device connected to computer via USB." style={{ marginRight: '10px' }}>
+                      <img src={connectionImage} alt="Connected" className="w-6 h-6 ml-2" />
+                    </div>
+                  )}
+
+
+
+                  {!isCalibrated && (
+                    <div title="Device not calibrated to web settings. Connect device and save settings to sync.">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        className="w-6 h-6 ml-2"
+                      >
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 102 0V6zm-1 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                      </svg>
+                    </div>
+                  )}
                 </NavLink>
+
                 {isActive && <PracticeModeToggle deviceName={devicePath} onToggle={() => togglePracticeMode(index)} />}
               </div>
             </div>
@@ -206,14 +209,31 @@ const DevicesList = React.memo(() => {
   );
 });
 const DevicesRoute = () => {
-  const { toggleDevicesMenu, isDevicesMenuOpen } = useContext(AppContext);
+  const { toggleDevicesMenu, isDevicesMenuOpen, usbDevice, changeUsbDevice } = useContext(AppContext);
+
+  const [activeDevice, setActiveDevice] = useState(null);
+
+  const checkDeviceStatus = async () => {
+
+    if (isDevicesMenuOpen) {
+      toggleDevicesMenu();
+      return;
+    }
+
+    changeUsbDevice();
+    toggleDevicesMenu();
+  }
+
+  const checkDeviceStatusWithoutToggle = async () => {
+    changeUsbDevice();
+  };
 
   return (
     <>
       <div className="-mx-6 relative transition-transform duration-50 select-none mt-36">
         <div
           className="group flex items-center transition-all duration-200 overflow-x-hidden gap-x-4 px-6 py-3 text-lg leading-6 font-semibold text-gray-400 hover:text-white hover:bg-gray-800"
-          onClick={toggleDevicesMenu}
+          onClick={checkDeviceStatus}
         >
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
             className={"w-6 h-6 transition-transform duration-300 transform " + (isDevicesMenuOpen ? "rotate-90" : "")}>
@@ -223,7 +243,7 @@ const DevicesRoute = () => {
         </div>
         {/* {console.log(devices[0].data.device_info.device_nickname)} */}
         <div className="pl-8 pt-2 space-y-2">
-          <DevicesList />
+          <DevicesList onClick={checkDeviceStatusWithoutToggle} />
         </div>
       </div>
     </>
@@ -389,6 +409,7 @@ const Navigation = ({
   currIndex,
   classNames,
   devices,
+  connectedDevice
 }) => {
   // states for settings and devices accordions 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -397,9 +418,7 @@ const Navigation = ({
   const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
   const [savedConfig, setSavedConfig] = useState({}); // must be accessible to Practice 
   const [isPracticeMode, setIsPracticeMode] = useState(false);
-
-  console.log('should definitely be func', setIsPracticeMode);
-  // router 
+  const [usbDevice, setUsbDevice] = useState(connectedDevice);
   <Router>
     <Routes>
       <Route path="/register-interface" element={<RegisterInterface />} />
@@ -414,9 +433,6 @@ const Navigation = ({
     </Routes>
   </Router>
 
-
-
-
   const toggleDevicesMenu = () => {
     setIsDevicesMenuOpen(!isDevicesMenuOpen);
   };
@@ -428,6 +444,36 @@ const Navigation = ({
   const toggleSignOutModal = () => {
     setIsSignOutModalOpen(!isSignOutModalOpen);
   };
+
+  const changeUsbDevice = async () => {
+    try {
+      let fileHandle = await get('configFileHandle');
+      if (!fileHandle) {
+        console.log("idb doesn't have file handle");
+        throw new Error('No file handle found.');
+      }
+
+      const permission = await fileHandle.queryPermission({ mode: 'readwrite' });
+      if (permission != 'granted') {
+        throw new Error('Permission to read the file was not granted.');
+      }
+
+      const file = await fileHandle.getFile();
+      const text = await file.text();
+      const config = JSON.parse(text);
+
+      if (!config || !config.global_info || !config.global_info.HW_UID || !config.global_info.HW_UID.value) {
+        throw new Error('No HW_UID found in config.');
+      }
+
+      setUsbDevice(config.global_info.HW_UID.value);
+      return;
+    } catch (error) {
+      console.error('Error checking device status:', error);
+      setUsbDevice(null);
+      return;
+    }
+  }
 
   const contextValue = {
     user,
@@ -445,6 +491,9 @@ const Navigation = ({
     toggleDevicesMenu,
     toggleSettingsMenu,
     toggleSignOutModal,
+    usbDevice,
+    setUsbDevice,
+    changeUsbDevice
   };
 
   return (
@@ -511,15 +560,9 @@ const Navigation = ({
                         <div role="list" className="flex align-top flex-col gap-y-7">
                           <div role="list" className="flex align-top flex-col gap-y-0">
                             <DevicesRoute />
-
-                            {/* Extra space with transition */}
-
                             <div className={`transition-all duration-300`} style={{ height: isDevicesMenuOpen ? (devices.length + 1) * 52 : 0 }}></div>
-
                           </div>
-                          {/* Routes that will move */}
                           <UpdateRoute />
-                          {/* <RecordGesturesRoute /> */}
                         </div>
                         <ProfileRoute />
                       </nav>
@@ -532,30 +575,19 @@ const Navigation = ({
 
           {/* Static sidebar for desktop */}
           <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-            {/* Sidebar component, swap this element with another sidebar if you like */}
             <div className="navbar">
               <Logo height={16} marginY={5} marginX={10} />
               <nav className="flex flex-1 flex-col gap-y-7">
                 <div role="list" className="flex align-top flex-col gap-y-0">
                   <DevicesRoute />
-
-                  {/* Extra space with transition */}
-
-                  {/* <div className={`transition-all duration-300`} style={{ height: isDevicesMenuOpen ? (devices.length + 1) * 52 : 0 }}></div> */}
-
                 </div>
                 <div role="list" className="flex align-top flex-col gap-y-7 transition-all duration-300">
-                  {/* Routes that will move */}
                   <UpdateRoute />
-                  {/* <RecordGesturesRoute /> */}
                 </div>
                 <ProfileRoute />
               </nav>
             </div>
-
-
           </div>
-
 
           <div className="sticky top-0 z-40 flex items-center gap-x-6 bg-gray-900 px-4 py-4 shadow-sm sm:px-6 lg:hidden">
             <button

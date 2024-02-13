@@ -4,7 +4,7 @@
     min-height:90vh; 
     flex-wrap: wrap;
     overflow: hidden;
-    flex-grow: 1; /* This will make it expand to fill the available space */
+    flex-grow: 1;
 }
   
 .release-container {
@@ -12,7 +12,7 @@
     flex-direction: column;
     flex-wrap: wrap;
     overflow: hidden;
-    flex-grow: 1; /* This will make it expand to fill the available space */
+    flex-grow: 1;
 }
 
 .hidden-release-container {

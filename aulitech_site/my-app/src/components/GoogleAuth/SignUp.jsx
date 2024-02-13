@@ -13,7 +13,6 @@ export default function SignUp() {
 
   const navigate = useNavigate();
 
-  /* Create a user account and document in firebase auth and cloud firestore Users DB*/
   const signUp = (e) => {
     e.preventDefault();
     setErr(false);
@@ -36,9 +35,6 @@ export default function SignUp() {
     }
   };
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------
-
-  /* Display title for form */
   const DisplayTitle = () => {
     return (
       <div className="sm:mx-auto sm:w-full sm:max-w-sm">
@@ -49,7 +45,6 @@ export default function SignUp() {
     );
   };
 
-  /* Display email input box */
   const DisplayEmailInput = () => {
     return (
       <div>
@@ -72,7 +67,6 @@ export default function SignUp() {
     );
   };
 
-  /* If the passwords do not match and the user trys to create an account show error message */
   const DisplayPasswordErr = () => {
     return (
       <p className="font-semibold text-sm text-yellow-500">
@@ -81,7 +75,6 @@ export default function SignUp() {
     );
   };
 
-  /* Display password and cinfrm password inputs */
   const DisplayPasswordInputs = () => {
     return (
       <>
@@ -123,7 +116,6 @@ export default function SignUp() {
     );
   };
 
-  /* Display all inputs and button to create account */
   const DisplayForm = () => {
     return (
       <form className="space-y-6" onSubmit={signUp}>
@@ -143,7 +135,6 @@ export default function SignUp() {
     );
   };
 
-  /* Display link to sign in pg for if user already has an account*/
   const DisplayGoSignIn = () => {
     <p className="mt-10 text-center text-sm text-gray-500">
       Already have an accoount?{" "}

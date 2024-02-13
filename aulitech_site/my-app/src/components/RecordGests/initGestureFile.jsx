@@ -40,11 +40,11 @@ export async function checkForFlagFile(callback) {
         if (!directoryHandle) {
             throw new Error('Directory handle not initialized');
         }
-        //polling :(
+
         const checkFileExistence = async () => {
             try {
                 await directoryHandle.getFileHandle('flag.txt');
-                callback(true); //flagFileFound=true
+                callback(true);
             } catch {
                 setTimeout(checkFileExistence, 1000);
             }
@@ -57,13 +57,11 @@ export async function checkForFlagFile(callback) {
 }
 
 export async function uploadLogToFirebase(gestureId, logText) {
-    // Assuming gestureId is the ID of the Firestore document you want to update
     const gestureRef = doc(db, "gesture-data", gestureId);
 
     try {
         await updateDoc(gestureRef, {
-            log: logText, // logText is the content from log.txt
-            // You can add more fields to update if necessary
+            log: logText,
         });
         console.log("Log updated successfully");
     } catch (error) {

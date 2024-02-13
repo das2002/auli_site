@@ -183,7 +183,7 @@ export default function FlattenJson({ classNames, devices, curr }) {
           id={pthInfo.valPath}
           onInput={handleInput}
           placeholder={get(deviceJson, pthInfo.valPath)}
-          className="relative w-full cursor-default border-0 outline-0 placeholder:text-gray-900 rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-inset sm:text-base sm:leading-6"
+          className="relative w-full cursor-default border-0 outline-0 placeholder:text-gray-900 rounded-md bg-white py-1.5 pl-3 pr-10 text-left text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-yellow-800 focus:ring-inset sm:text-base sm:leading-6"
         />
       </div>
     );

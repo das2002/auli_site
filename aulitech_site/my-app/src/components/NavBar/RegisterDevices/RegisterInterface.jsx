@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from 'react-router-dom';
 import { collection, doc, getDoc, setDoc, getDocs, setDocs, Firestore, FieldValue, arrayUnion, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase";
-import * as clickerDefault from './cato_schemas/clicker.json';
-import * as mouseDefault from './cato_schemas/mouse.json';
-import * as gestureDefault from './cato_schemas/gesture.json';
-import * as tvRemoteDefault from './cato_schemas/tv_remote.json';
-import * as bindingsDefault from './cato_schemas/bindings.json';
-import * as practiceDefault from './cato_schemas/practice.json';
-import * as connectionSpecificDefault from './cato_schemas/connection_specific.json';
-import * as operationDefault from './cato_schemas/operation.json';
+import { db } from "../../../firebase";
+import * as clickerDefault from '../cato_schemas/clicker.json';
+import * as mouseDefault from '../cato_schemas/mouse.json';
+import * as gestureDefault from '../cato_schemas/gesture.json';
+import * as tvRemoteDefault from '../cato_schemas/tv_remote.json';
+import * as clickerBindings from '../cato_schemas/bindings/clicker_bindings.json';
+import * as tvRemoteBindings from '../cato_schemas/bindings/tv_remote_bindings.json';
+import * as gestureMouseBindings from '../cato_schemas/bindings/gesture_mouse_bindings.json';
+
+import * as practiceDefault from '../cato_schemas/practice.json';
+import * as connectionSpecificDefault from '../cato_schemas/connection_specific.json';
+import * as operationDefault from '../cato_schemas/operation.json';
 
 const deepCopy = (obj) => {
   return JSON.parse(JSON.stringify(obj));
@@ -28,9 +31,7 @@ const RegisterInterface = ({ user, devices }) => {
   console.log('thisDevice', thisDevice);
 
   const [interfaceName, setInterfaceName] = useState("");
-  //const [bluetoothId, setBluetoothId] = useState("");
   const [isInterfaceFocused, setIsInterfaceFocused] = useState(false);
-  //const [isBluetoothFocused, setIsBluetoothFocused] = useState(false);
   const [isOpModeFocused, setIsOpModeFocused] = useState(false);
   const [operationMode, setOperationMode] = useState("");
   const [userCatosList, setUserCatosList] = useState([]); // this is the list of all the nicknames of userCatos
@@ -48,8 +49,6 @@ const RegisterInterface = ({ user, devices }) => {
   if (!userId) {
     console.log("No user ID available");
   }
-
-
 
   const getDocID = async (userId, index) => {
     try {
@@ -101,14 +100,13 @@ const RegisterInterface = ({ user, devices }) => {
     }
   }, [userDeviceData]);
 
-
   const focusStyle = {
     borderColor: '#AA9358',
     boxShadow: '0 0 0 2px #AA9358',
   };
 
   const handleSave = async () => {
-    console.log("Save button clicked"); //debug
+    console.log("Save button clicked"); 
 
     if (interfaceName.trim() === "" || operationMode.trim() === "") {
       alert("Please fill out all fields before saving.");
@@ -120,7 +118,7 @@ const RegisterInterface = ({ user, devices }) => {
     try {
 
       const getConnections = async () => {
-        //parse thru and check if int name already exists TODO 
+        // parse thru and check if int name already exists TODO 
         // get the list of the current connection names for thisDevice
         let currentConnections = [];
         for (let i = 0; i < thisDevice.data.connections.length; i++) {
@@ -153,7 +151,6 @@ const RegisterInterface = ({ user, devices }) => {
         let gestureMouseData = {}
         let practiceData = {}
 
-
         //iterate through connectionSpecificDefault and add the fields to combinedData
         for (const [key, value] of Object.entries(connectionSpecificDefault)) {
           connectionData[key] = value;
@@ -166,10 +163,9 @@ const RegisterInterface = ({ user, devices }) => {
         let clickerOperation = deepCopy(operationDefault);
         clickerOperation.operation_mode.value = 'clicker';
         clickerData = {
-          // ...connectionData,
           ...clickerOperation,
           ...clickerDefault,
-          ...bindingsDefault,
+          ...clickerBindings,
         };
         if (clickerData.default) {
           delete clickerData.default;
@@ -181,7 +177,7 @@ const RegisterInterface = ({ user, devices }) => {
           ...gestureMouseOperation,
           ...mouseDefault,
           ...gestureDefault,
-          ...bindingsDefault
+          ...gestureMouseBindings,
         };
         if (gestureMouseData.default) {
           delete gestureMouseData.default;
@@ -189,11 +185,10 @@ const RegisterInterface = ({ user, devices }) => {
         let tvRemoteOperation = deepCopy(operationDefault);
         tvRemoteOperation.operation_mode.value = 'tv_remote';
         tvRemoteData = {
-          // ...connectionData,
           ...tvRemoteOperation,
           ...tvRemoteDefault,
           ...gestureDefault,
-          ...bindingsDefault,
+          ...tvRemoteBindings,
         };
         if (tvRemoteData.default) {
           delete tvRemoteData.default;
@@ -203,7 +198,6 @@ const RegisterInterface = ({ user, devices }) => {
         pointerData = {
           ...pointerOperation,
           ...mouseDefault,
-          ...bindingsDefault,
         };
         if (pointerData.default) {
           delete pointerData.default;
@@ -214,7 +208,6 @@ const RegisterInterface = ({ user, devices }) => {
         practiceData = {
           ...practiceOperation,
           ...gestureDefault,
-          ...bindingsDefault,
           ...practiceDefault,
         }
         if (practiceData.default) {
@@ -239,13 +232,12 @@ const RegisterInterface = ({ user, devices }) => {
 
         await Promise.all([
           updateDoc(docRef, {
-            connections: arrayUnion(firebaseMap)
+            connections: arrayUnion(firebaseMap),
+            'device_info.calibrated': false,
           }),
         ]);
 
         console.log("Connection registered successfully");
-
-
       };
       await getConnections();
       navigate(`/devices/${deviceName}`);
@@ -299,7 +291,6 @@ const RegisterInterface = ({ user, devices }) => {
               />
             </div>
 
-
             <div className="mt-5">
               <label htmlFor="op-mode" className="block text-lg text-gray-900">
                 Select your operation mode below:
@@ -338,7 +329,7 @@ const RegisterInterface = ({ user, devices }) => {
               <button
                 type="button"
                 onClick={handleSave}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
               >
                 Save
               </button>

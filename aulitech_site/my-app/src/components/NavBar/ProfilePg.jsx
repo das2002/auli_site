@@ -32,8 +32,6 @@ const ProfilePg = ({ user }) => {
     /* [save] makes this useEffect trigger when value changed so when the user saves the changes the new info is displayed right afterwards */
   }, [save]);
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------
-
   /* Cancel button resets local variables holding user input */
   const handleCancel = () => {
     setName("");
@@ -47,12 +45,12 @@ const ProfilePg = ({ user }) => {
       if (displayname) {
         await StoreProfileData(user, displayname);
       }
-  
+
       /* Check if email is provided and update it */
       if (email) {
         await StoreProfileData(user, '', email);
       }
-  
+
       /* Retrigger useEffect and reset local variables */
       setSave(!save);
       setName("");
@@ -61,9 +59,6 @@ const ProfilePg = ({ user }) => {
       console.log("Error updating profile data: ", err);
     }
   };
-  
-
-// --------------------------------------------------------------------------------------------------------------------------------------------------
 
   return (
     <>
@@ -106,7 +101,7 @@ const ProfilePg = ({ user }) => {
                             onChange={(e) => setName(e.target.value)}
                             value={displayname}
                             placeholder={data === null ? null : data.displayname}
-                            className="block w-full rounded-md outline-0 border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
+                            className="block w-full rounded-md outline-0 border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-800 sm:text-md sm:leading-6"
                           />
                         </div>
                       </div>
@@ -128,7 +123,7 @@ const ProfilePg = ({ user }) => {
                             onChange={(e) => setEmail(e.target.value)}
                             value={email}
                             placeholder={data === null ? null : data.email}
-                            className="block w-full outline-0 border-0 rounded-md border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
+                            className="block w-full outline-0 border-0 rounded-md border-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-800 sm:text-md sm:leading-6"
                           />
                         </div>
                       </div>

@@ -1,14 +1,25 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
-import { db, auth } from '../../firebase';
+import React, { useState, useEffect, useRef } from 'react';
+import { db, auth } from '../../../firebase';
 import debounce from 'lodash.debounce';
 import { collection, getDocs, query, where, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { set } from 'lodash';
 import Slider from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
 import { KeyOptions, getKeyOption } from './KeyOptions';
-import { fetchAndCompareConfig, overwriteConfigFile, deleteConfigFileIfExists } from './ReplaceConfig';
+import { fetchAndCompareConfig, overwriteConfigFile, deleteConfigFileIfExists } from '../RegisterDevices/ReplaceConfig';
+import { toast, ToastContainer, Bounce } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import dynamicMouseGraphic from '../../../images/dynamic_mouse_graphic.png';
 
+import flatImage from '../images/flatImage.png';
+import landscapeImage from '../images/landscapeImage.png';
+import portraitImage from '../images/portraitImage.png';
+
+import emptystar from '../images/emptyStar.png';
+import filledin from '../images/filledStar.png';
+
+import PencilEditIcon from '../images/pencil-edit.svg';
 
 const DarkYellowSlider = styled(Slider)(({ theme }) => ({
   color: '#B8860B',
@@ -25,13 +36,6 @@ const DarkYellowSlider = styled(Slider)(({ theme }) => ({
   },
 }));
 
-// change it back if needed:
-// const sectionHeadingStyle = {
-//   fontSize: '20px',
-//   marginBottom: '10px',
-//   fontWeight: 'bold', 
-// };
-
 const sectionHeadingStyle = {
   fontSize: '16px',
   marginBottom: '10px',
@@ -41,13 +45,14 @@ const sectionHeadingStyle = {
   padding: '5px 15px',
   display: 'inline-block',
   boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+  marginLeft: '20px'
 };
 
 const CheckboxOption = ({ checked, onChange, title, description }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', marginLeft: '40px' }}>
       <label
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -75,26 +80,17 @@ const CheckboxOption = ({ checked, onChange, title, description }) => {
 };
 
 
-
-
-
 const HardwareUIDField = ({ hardwareUID }) => {
   return (
-    <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'left', justifyContent: 'left' }}>
+    <div style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'left' }}>
       <h2 style={{ fontSize: '16px', marginRight: '10px' }}><strong>Serial Number:</strong></h2>
-      <input
-        value={hardwareUID}
+      <span
         style={{
-          borderColor: 'black',
-          borderWidth: 1,
-          padding: '5px 10px',
-          borderRadius: '5px',
-          fontSize: '14px',
+          marginRight: '20px'
         }}
-        type="text"
-        placeholder="Serial Number"
-        readOnly={true}
-      />
+      >
+        {hardwareUID}
+      </span>
     </div>
   );
 };
@@ -108,18 +104,6 @@ const getCurrentUserId = () => {
     return null;
   }
 };
-
-function parseBool(value) {
-  if (typeof value === 'string') {
-    value = value.toLowerCase().trim();
-    if (value === 'true' || value === 'on') {
-      return 'true';
-    } else if (value === 'false' || value === 'off') {
-      return 'false';
-    }
-  }
-  return Boolean(value);
-}
 
 const deepCopy = (obj) => {
   return JSON.parse(JSON.stringify(obj));
@@ -159,7 +143,7 @@ const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, slide
   };
 
   return (
-    <div style={{ marginBottom: '10px' }}>
+    <div style={{ marginBottom: '10px', marginLeft: '40px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <label
           htmlFor={sliderLabel}
@@ -176,7 +160,6 @@ const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, slide
         </label>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '40%' }}>
 
-          {/* <div style={{ width: '30%' }}>  */}
           <DarkYellowSlider
             id={sliderLabel}
             value={sliderValue}
@@ -276,21 +259,6 @@ const Dropdown = ({ value, onChange, title, description, options }) => {
   );
 };
 
-
-const titleStyle = {
-  color: '#333', // Darker text for better readability
-  textAlign: 'left',
-  marginBottom: '20px',
-  fontWeight: 'bold',
-  fontSize: '24px'
-};
-
-const descriptionStyle = {
-  fontSize: '14px',
-  color: '#666', // Lighter text for the description
-  marginBottom: '10px'
-};
-
 const styles = {
   dropdownContainer: {
     marginBottom: '20px',
@@ -316,22 +284,24 @@ const styles = {
 };
 
 const DashedLine = () => {
-  // const lineStyle = {
-  //   border: '1px dashed #000', 
-  //   width: '100%', 
-  //   height: 0,
-  //   marginTop: '10px', 
-  // };
-
   return (
     <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
-    // <div style={lineStyle}>
-    // </div>
   );
 };
 
-
 const Devices = ({ devices }) => {
+  const editButtonRef = useRef(null);
+  const inputRef = useRef(null);
+
+  const [originalConnectionName, setOriginalConnectionName] = useState('');
+
+  const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
+  const [editedConnectionName, setEditedConnectionName] = useState('');
+  const popupRef = useRef();
+
+  const [editingConnectionIndex, setEditingConnectionIndex] = useState(null);
+  const [temporaryConnectionName, setTemporaryConnectionName] = useState('');
+
   const { deviceName } = useParams();
   const navigate = useNavigate();
 
@@ -346,13 +316,72 @@ const Devices = ({ devices }) => {
     setIsConnectionsExpanded(!isConnectionsExpanded);
   };
 
-
-  // Find the specific device
   const thisDevice = devices.find(device => device.data.device_info.device_nickname === deviceName);
-  // Check if the device was found
 
   const handleRegisterInterface = () => {
     navigate(`/devices/${deviceName}/register-interface`);
+  };
+
+  const startEditing = (connection, index) => {
+    setOriginalConnectionName(connection.name);
+    setTemporaryConnectionName(connection.name);
+    setEditingConnectionIndex(index);
+  };
+
+  const handleClickOutside = (event) => {
+    if (inputRef.current && !inputRef.current.contains(event.target) &&
+      editButtonRef.current && !editButtonRef.current.contains(event.target)) {
+      setTemporaryConnectionName(originalConnectionName);
+      setEditingConnectionIndex(null);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [originalConnectionName]);
+
+
+  const closeEditPopup = () => {
+    setIsEditPopupOpen(false);
+  };
+
+  const handleSaveEditedName = async () => {
+    if (editingConnectionIndex === null) {
+      console.error("No connection selected for editing");
+      return;
+    }
+
+    console.log("Saving edited name for index:", editingConnectionIndex);
+
+    const updatedConnections = [...connectionsList];
+    updatedConnections[editingConnectionIndex] = {
+      ...updatedConnections[editingConnectionIndex],
+      name: temporaryConnectionName,
+    };
+
+    setConnectionsList(updatedConnections);
+    setEditedConnectionsSettings(updatedConnections);
+
+    setEditingConnectionIndex(null);
+    setTemporaryConnectionName('');
+
+    try {
+      const userId = getCurrentUserId();
+      const userCatoDocRef = doc(db, "users", userId, "userCatos", thisDevice.id);
+
+      await updateDoc(userCatoDocRef, {
+        connections: updatedConnections
+      });
+
+      console.log("Connection name updated successfully in Firestore");
+      closeEditPopup();
+    } catch (error) {
+      console.error("Error updating connection name in Firestore: ", error);
+    }
+
   };
 
   const DeviceNameField = ({ intialDeviceName, onNameChange }) => {
@@ -390,6 +419,28 @@ const Devices = ({ devices }) => {
   const [editedGlobalSettings, setEditedGlobalSettings] = useState(null);
   const [editedConnectionsSettings, setEditedConnectionsSettings] = useState(null);
   const [connectionsList, setConnectionsList] = useState([]);
+
+  const makePrimary = async (primaryConnection) => {
+    const updatedConnections = [primaryConnection, ...connectionsList.filter(conn => conn.name !== primaryConnection.name)];
+
+    setConnectionsList(updatedConnections);
+    setEditedConnectionsSettings(updatedConnections);
+
+    try {
+      const userId = getCurrentUserId();
+      const userCatoDocRef = doc(db, "users", userId, "userCatos", thisDevice.id);
+
+      await updateDoc(userCatoDocRef, {
+        connections: updatedConnections.map(connection => ({
+          ...connection,
+        }))
+      });
+      console.log("Connections order updated successfully in Firestore");
+    } catch (error) {
+      console.error("Error updating connections order in Firestore: ", error);
+    }
+  };
+
 
   const handleGlobalConfigChange = (keyList) => {
     return debounce((value) => {
@@ -429,6 +480,7 @@ const Devices = ({ devices }) => {
       //firebase
       await updateDoc(userCatoDocRef, {
         'connections': updatedConnections
+
       });
 
       //local states
@@ -440,11 +492,6 @@ const Devices = ({ devices }) => {
       console.error("Error deleting connection: ", error);
     }
   };
-
-
-
-
-
 
   // what should happen as soon as we get thisDevice
   useEffect(() => {
@@ -480,8 +527,6 @@ const Devices = ({ devices }) => {
     };
   }, [editedConnectionsSettings]);
 
-
-
   const GlobalInfoSection = () => {
     const [isSleepExpanded, setIsSleepExpanded] = useState(true);
     const [isOrientationExpanded, setIsOrientationExpanded] = useState(true);
@@ -509,10 +554,6 @@ const Devices = ({ devices }) => {
     }
 
     const sectionStyle = {
-      // marginBottom: '10px',
-      // padding: '10px',
-      // border: '1px solid #ccc',
-      // borderRadius: '5px',
     };
 
     const handleDeviceNameChange = (value) => {
@@ -520,6 +561,111 @@ const Devices = ({ devices }) => {
       newEditedGlobalSettings["name"]["value"] = value;
       setEditedGlobalSettings(newEditedGlobalSettings);
     }
+
+    const OrientationSection = () => {
+      const [selectedOrientation, setSelectedOrientation] = useState('');
+
+      useEffect(() => {
+        const fetchedOrientation = editedGlobalSettings.orientation.value;
+        const orientationKey = Object.keys(orientations).find(key =>
+          JSON.stringify(orientations[key].config) === JSON.stringify(fetchedOrientation)
+        );
+        setSelectedOrientation(orientationKey);
+      }, [editedGlobalSettings.orientation.value]);
+
+      const orientations = {
+        flat: {
+          config: {
+            front: {
+              label: "front",
+              value: "-x"
+            },
+            bottom: {
+              label: "bottom",
+              value: "+z"
+            },
+            left: {
+              label: "left",
+              value: "+y"
+            }
+          },
+          image: flatImage
+        },
+        landscape: {
+          config: {
+            front: {
+              label: "front",
+              value: "-x"
+            },
+            bottom: {
+              label: "bottom",
+              value: "+y"
+            },
+            left: {
+              label: "left",
+              value: "-z"
+            }
+          },
+          image: landscapeImage
+        },
+        portrait: {
+          config: {
+            front: {
+              label: "front",
+              value: "+y"
+            },
+            bottom: {
+              label: "bottom",
+              value: "+x"
+            },
+            left: {
+              label: "left",
+              value: "-z"
+            }
+          },
+          image: portraitImage
+        },
+
+      };
+
+      const handleOrientationSelect = (orientationKey) => {
+        setSelectedOrientation(orientationKey);
+        const orientationConfig = orientations[orientationKey].config;
+        const newEditedGlobalSettings = deepCopy(editedGlobalSettings);
+        newEditedGlobalSettings.orientation.value = orientationConfig;
+        setEditedGlobalSettings(newEditedGlobalSettings);
+      };
+
+      const darkerYellow = '#f9da6b';
+
+      return (
+        <div>
+          <h2 style={sectionHeadingDynamicStyle(isOrientationExpanded)} onClick={toggleOrientationSection}>
+            Orientation
+          </h2>
+          {isOrientationExpanded && (
+            <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', marginLeft: '40px' }}>
+              {Object.entries(orientations).map(([key, { image }]) => (
+                <div
+                  key={key}
+                  onClick={() => handleOrientationSelect(key)}
+                  style={{ margin: '10px', cursor: 'pointer' }}
+                >
+                  <img src={image} alt={key} />
+                  <p style={{
+                    backgroundColor: selectedOrientation === key ? darkerYellow : 'transparent',
+                    padding: selectedOrientation === key ? '5px' : '0'
+                  }}>
+                    {key.charAt(0).toUpperCase() + key.slice(1)}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    };
+
 
     return (
       <div>
@@ -531,11 +677,6 @@ const Devices = ({ devices }) => {
             <div>
               <HardwareUIDField hardwareUID={editedGlobalSettings["HW_UID"]["value"]} />
             </div>
-            {/* <div>
-              <button onClick={handleDeviceDelete} style={{ backgroundColor: '#8B0000', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}>
-                Delete Device
-              </button>
-            </div> */}
           </div>
           <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
 
@@ -568,97 +709,14 @@ const Devices = ({ devices }) => {
                 sliderDescription={'Movement level below which Cato starts counting towards sleep'}
               />
             </div>
-            // </div>
           )}
 
           <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
-          <h2 style={sectionHeadingDynamicStyle(isOrientationExpanded)} onClick={toggleOrientationSection}>
-            Orientation
-          </h2>
-          {isOrientationExpanded && (
-            <div style={sectionStyle}>
-              <Dropdown
-                title={'Front'}
-                description={'Orientation of the device'}
-                value={editedGlobalSettings["orientation"]["value"]["front"]["value"]}
-                onChange={(e) => handleGlobalConfigChange(['orientation', 'value', 'front', 'value'])(e.target.value)}
-                options={[
-                  "+x",
-                  "-x",
-                  "+y",
-                  "-y",
-                  "+z",
-                  "-z"
-                ]}
-              />
-              <Dropdown
-                title={'Bottom'}
-                description={'Orientation of the device'}
-                value={editedGlobalSettings["orientation"]["value"]["bottom"]["value"]}
-                onChange={(e) => handleGlobalConfigChange(['orientation', 'value', 'bottom', 'value'])(e.target.value)}
-                options={[
-                  "+x",
-                  "-x",
-                  "+y",
-                  "-y",
-                  "+z",
-                  "-z"
-                ]}
-              />
-              <Dropdown
-                title={'Left'}
-                description={'Orientation of the device'}
-                value={editedGlobalSettings["orientation"]["value"]["left"]["value"]}
-                onChange={(e) => handleGlobalConfigChange(['orientation', 'value', 'left', 'value'])(e.target.value)}
-                options={[
-                  "+x",
-                  "-x",
-                  "+y",
-                  "-y",
-                  "+z",
-                  "-z"
-                ]}
-              />
-            </div>
-          )}
-
-          {/* <div style={sectionStyle}>
-            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
-            <h2 style={sectionHeadingDynamicStyle(isCalibrationExpanded)} onClick={toggleCalibrationSection}>
-              Calibration
-            </h2>
-            {isCalibrationExpanded && (
-              <div>
-                <InputSlider
-                  sliderLabel={'calibrationThreshold'}
-                  value={editedGlobalSettings["calibration"]["value"]["auto_threshold"]["value"]}
-                  onChange={(e) => handleGlobalConfigChange(['calibration', 'value', 'auto_threshold', 'value'])(parseFloat(e.target.value))}
-                  min={0.2}
-                  max={1.0}
-                  step={0.01}
-                  sliderTitle={'Auto-Calibration Threshold'}
-                  unit={'x'}
-                  sliderDescription={"Movement required (as a scale of mouse>idle_threshold) to fail automatic calibration for gyro drift"}
-                ></InputSlider>
-                <InputSlider
-                  sliderLabel={'calibrationSamples'}
-                  value={editedGlobalSettings["calibration"]["value"]["auto_samples"]["value"]}
-                  onChange={(e) => handleGlobalConfigChange(['calibration', 'value', 'auto_samples', 'value'])(parseFloat(e.target.value))}
-                  min={1}
-                  max={300}
-                  step={1}
-                  sliderTitle={'Auto-Calibration Samples Taken'}
-                  unit={'samples'}
-                  sliderDescription={"Number of samples to wait (at below auto_threshold) required to trigger auto recalibratoion"}
-                ></InputSlider>
-              </div>
-            )}
-          </div> */}
+          <OrientationSection />
         </div>
       </div>
     )
   };
-
 
   const AccordionList = ({ data }) => {
     const noConnectionsStyle = {
@@ -670,42 +728,35 @@ const Devices = ({ devices }) => {
 
     if (data.length === 0) { //no connections display
       return (
-        <div style={noConnectionsStyle}>
-          No connections yet. Add a connection to begin.
+        <div style={sliderContainerStyle}>
+          <div style={noConnectionsStyle}>
+            No connections yet. Add a connection to begin.
+          </div>
+          <div style={{ marginBottom: '10px' }}>
+            <button onClick={handleRegisterInterface}
+              style={{
+                backgroundColor: '#8B0000',
+                color: 'white',
+                padding: '10px',
+                fontSize: '16px',
+                borderRadius: '5px',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'inline-block',
+                margin: '10px auto',
+                maxWidth: '200px',
+              }}>
+              Add Connection
+            </button>
+
+          </div>
         </div>
       );
     }
 
-    const ConnectionAccordion = ({ connection, onDelete }) => {
+    const ConnectionAccordion = ({ connection, onDelete, makePrimary, index }) => {
       const [isExpanded, setIsExpanded] = useState(false);
       const [collapsedSections, setCollapsedSections] = useState({});
-
-      const isDefaultConnection = connection.name === "Default Connection";
-
-      const toggleSection = (sectionKey) => {
-        setCollapsedSections((prevSections) => ({
-          ...prevSections,
-          [sectionKey]: !prevSections[sectionKey],
-        }));
-      };
-
-
-
-      // const [collapsedSections, setCollapsedSections] = useState({
-      //   connectionSettings: false,
-      //   mouseSettings: false,
-      //   clickerSettings: false,
-      //   gestureSettings: false,
-      //   tvRemoteOptions: false,
-      // });
-
-      // const toggleSection = (sectionKey) => {
-      //   setCollapsedSections((prevSections) => ({
-      //     ...prevSections,
-      //     [sectionKey]: !prevSections[sectionKey],
-      //   }));
-      // };
-
 
       const [fetchedConnectionConfig, setFetchedConnectionConfig] = useState(null);
       const [editedConnectionConfig, setEditedConnectionConfig] = useState(null);
@@ -722,8 +773,6 @@ const Devices = ({ devices }) => {
 
       const [fetchedClickerConfig, setFetchedClickerConfig] = useState(null);
       const [editedClickerConfig, setEditedClickerConfig] = useState(null);
-
-
 
       useEffect(() => {
         if (connection) {
@@ -776,29 +825,29 @@ const Devices = ({ devices }) => {
       };
 
       const handleOperationModeSelection = (value) => {
-        if (value === "Gesture Mouse") {
+        if (value == "Gesture Mouse") {
           setActiveOperationMode("gesture_mouse");
-        } else if (value === "TV Remote") {
+        } else if (value == "TV Remote") {
           setActiveOperationMode("tv_remote");
-        } else if (value === "Pointer") {
+        } else if (value == "Pointer") {
           setActiveOperationMode("pointer");
-        } else if (value === "Clicker") {
+        } else if (value == "Clicker") {
           setActiveOperationMode("clicker");
-        } else if (value === "Select Operation Mode") {
+        } else if (value == "Select Operation Mode") {
           setActiveOperationMode("practice");
         }
       }
 
       const operationModeConversion = (mode) => {
-        if (mode === "gesture_mouse") {
+        if (mode == "gesture_mouse") {
           return "Gesture Mouse";
-        } else if (mode === "tv_remote") {
+        } else if (mode == "tv_remote") {
           return "TV Remote";
-        } else if (mode === "pointer") {
+        } else if (mode == "pointer") {
           return "Pointer";
-        } else if (mode === "clicker") {
+        } else if (mode == "clicker") {
           return "Clicker";
-        } else if (mode === "practice") {
+        } else if (mode == "practice") {
           return "Select Operation Mode";
         }
       };
@@ -817,7 +866,7 @@ const Devices = ({ devices }) => {
 
       const handleModeConfigChange = (keyList, mode) => {
         return debounce((value) => {
-          if (mode === "gesture_mouse") {
+          if (mode == "gesture_mouse") {
             const newEditedGestureMouseConfig = deepCopy(editedGestureMouseConfig);
             let currentConfig = newEditedGestureMouseConfig;
             for (let i = 0; i < keyList.length - 1; i++) {
@@ -825,7 +874,7 @@ const Devices = ({ devices }) => {
             }
             currentConfig[keyList[keyList.length - 1]] = value;
             setEditedGestureMouseConfig(newEditedGestureMouseConfig);
-          } else if (mode === "tv_remote") {
+          } else if (mode == "tv_remote") {
             const newEditedTVRemoteConfig = deepCopy(editedTVRemoteConfig);
             let currentConfig = newEditedTVRemoteConfig;
             for (let i = 0; i < keyList.length - 1; i++) {
@@ -833,7 +882,7 @@ const Devices = ({ devices }) => {
             }
             currentConfig[keyList[keyList.length - 1]] = value;
             setEditedTVRemoteConfig(newEditedTVRemoteConfig);
-          } else if (mode === "pointer") {
+          } else if (mode == "pointer") {
             const newEditedPointerConfig = deepCopy(editedPointerConfig);
             let currentConfig = newEditedPointerConfig;
             for (let i = 0; i < keyList.length - 1; i++) {
@@ -841,7 +890,7 @@ const Devices = ({ devices }) => {
             }
             currentConfig[keyList[keyList.length - 1]] = value;
             setEditedPointerConfig(newEditedPointerConfig);
-          } else if (mode === "clicker") {
+          } else if (mode == "clicker") {
             const newEditedClickerConfig = deepCopy(editedClickerConfig);
             let currentConfig = newEditedClickerConfig;
             for (let i = 0; i < keyList.length - 1; i++) {
@@ -858,37 +907,30 @@ const Devices = ({ devices }) => {
       }, [activeOperationMode]);
 
       useEffect(() => {
-        console.log('editedConnectionConfig: ' + editedConnectionConfig)
         if (editedConnectionConfig) {
           connection["connection_config"] = JSON.stringify(editedConnectionConfig);
         }
       }, [editedConnectionConfig]);
 
       useEffect(() => {
-        console.log('editedGestureMouseConfig: ' + editedGestureMouseConfig)
         if (editedGestureMouseConfig) {
           connection["mode"]["gesture_mouse"] = JSON.stringify(editedGestureMouseConfig);
         }
       }, [editedGestureMouseConfig]);
 
       useEffect(() => {
-        console.log('editedTVRemoteConfig: ' + editedTVRemoteConfig)
         if (editedTVRemoteConfig) {
-          console.log('editedTVRemoteConfig: ' + JSON.stringify(editedTVRemoteConfig))
           connection["mode"]["tv_remote"] = JSON.stringify(editedTVRemoteConfig);
         }
       }, [editedTVRemoteConfig]);
 
       useEffect(() => {
-        console.log('editedPointerConfig: ' + editedPointerConfig)
-        console.log(editedPointerConfig);
         if (editedPointerConfig) {
           connection["mode"]["pointer"] = JSON.stringify(editedPointerConfig);
         }
       }, [editedPointerConfig]);
 
       useEffect(() => {
-        console.log('editedClickerConfig: ' + editedClickerConfig)
         if (editedClickerConfig) {
           connection["mode"]["clicker"] = JSON.stringify(editedClickerConfig);
 
@@ -923,6 +965,7 @@ const Devices = ({ devices }) => {
                 cursor: 'pointer',
                 outline: 'none',
                 marginBottom: '10px',
+                marginLeft: '20px'
               }}
             >Screen Size</button>
             {!collapsedSections['connectionSettings'] && (
@@ -980,13 +1023,12 @@ const Devices = ({ devices }) => {
                 cursor: 'pointer',
                 outline: 'none',
                 marginBottom: '10px',
+                marginLeft: '20px'
               }}
-            >Mouse Settings</button>
+            >
+              Mouse Settings</button>
             {!isCollapsed && (
               <div>
-                {/* <h1 style={titleStyle}>Mouse Settings</h1> */}
-                {/* <div style={sliderContainerStyle}> */}
-                {/* <p style={descriptionStyle}>Adjust your mouse settings below:</p> */}
                 <InputSlider
                   sliderLabel={'mouseIdleThreshold'}
                   value={config.config.mouse.value.idle_threshold.value}
@@ -1059,6 +1101,72 @@ const Devices = ({ devices }) => {
                   sliderTitle="Vertical Movement Scale Factor"
                   sliderDescription="Mouse sensitivity to vertical movement"
                 />
+
+                <div>
+                  <h3 style={{ marginLeft: '40px' }}>Dynamic Mouse:</h3>
+                  <div style={{ marginLeft: '80px' }}>
+                    <h3>User Speed:</h3>
+                    <div style={{ marginLeft: '0px' }}>
+                      <InputSlider
+                        sliderLabel={'dynamicMouseInputSlowMovement'}
+                        value={config.config.mouse.value.dynamic_mouse.value.input.value.slow.value}
+                        onChange={(e) => handleModeConfigChange(['mouse', 'value', 'dynamic_mouse', 'value', 'input', 'value', 'slow', 'value'], activeOperationMode)(parseInt(e.target.value))}
+                        min={0}
+                        max={400}
+                        step={1}
+                        sliderTitle="Slow Movement"
+                        unit={"degrees/second"}
+                        sliderDescription="Rotation speed floor below which scale remains constant."
+                      />
+                      <InputSlider
+                        sliderLabel={'dynamicMouseInputFastMovement'}
+                        value={config.config.mouse.value.dynamic_mouse.value.input.value.fast.value}
+                        onChange={(e) => handleModeConfigChange(['mouse', 'value', 'dynamic_mouse', 'value', 'input', 'value', 'fast', 'value'], activeOperationMode)(parseInt(e.target.value))}
+                        min={0}
+                        max={500}
+                        step={1}
+                        sliderTitle="Fast Movement"
+                        unit={"degrees/second"}
+                        sliderDescription="Rotation speed ceiling above which scale remains constant."
+                      />
+                    </div>
+                  </div>
+                  <div style={{ marginLeft: '80px' }}>
+                    <h3>Cursor Speed:</h3>
+                    <div style={{ marginLeft: '0px' }}>
+                      <InputSlider
+                        sliderLabel={'dynamicMouseOutputSlowMovement'}
+                        value={config.config.mouse.value.dynamic_mouse.value.output.value.slow.value}
+                        onChange={(e) => handleModeConfigChange(['mouse', 'value', 'dynamic_mouse', 'value', 'output', 'value', 'slow', 'value'], activeOperationMode)(parseFloat(e.target.value))}
+                        min={0.1}
+                        max={2.0}
+                        step={0.1}
+                        sliderTitle="Slow Movement"
+                        unit={""}
+                        sliderDescription="Scale factor at (and below) slowest input speed."
+                      />
+                      <InputSlider
+                        sliderLabel={'dynamicMouseOutputFastMovement'}
+                        value={config.config.mouse.value.dynamic_mouse.value.output.value.fast.value}
+                        onChange={(e) => handleModeConfigChange(['mouse', 'value', 'dynamic_mouse', 'value', 'output', 'value', 'fast', 'value'], activeOperationMode)(parseFloat(e.target.value))}
+                        min={1.0}
+                        max={6.0}
+                        step={0.1}
+                        sliderTitle="Fast Movement"
+                        unit={""}
+                        sliderDescription="Scale factor at (and above) fastest input speed."
+                      />
+                    </div>
+                  </div>
+                  <div style={{ marginLeft: '120px' }}>
+                    <img src={dynamicMouseGraphic} alt="Dynamic Mouse Graph" style={{ width: '75%', marginTop: '20px', marginBottom: '30px' }} />
+                  </div>
+                </div>
+
+
+
+
+
                 <InputSlider
                   sliderLabel={'mouseShakeSize'}
                   value={config.config.mouse.value.shake_size.value}
@@ -1114,6 +1222,7 @@ const Devices = ({ devices }) => {
                 cursor: 'pointer',
                 outline: 'none',
                 marginBottom: '10px',
+                marginLeft: '20px'
               }}
             >
               Clicker Settings
@@ -1198,6 +1307,8 @@ const Devices = ({ devices }) => {
                 cursor: 'pointer',
                 outline: 'none',
                 marginBottom: '10px',
+                marginLeft: '20px'
+
               }}
             >
               Gesture Settings
@@ -1265,35 +1376,15 @@ const Devices = ({ devices }) => {
         );
       };
 
-      const BindingsPanel = ({ config }) => {
-        const [isBindingsExpanded, setIsBindingsExpanded] = useState(true);
-        const toggleBindings = () => {
-          setIsBindingsExpanded(!isBindingsExpanded);
+      const BindingsPanel = ({ config, mode }) => {
+        // const [isBindingsExpanded, setIsBindingsExpanded] = useState(true);
+        // const toggleBindings = () => {
+        //   setIsBindingsExpanded(!isBindingsExpanded);
+        // };
+        const [isExpanded, setIsExpanded] = useState(true);
+        const toggleExpanded = () => {
+          setIsExpanded(!isExpanded);
         };
-
-
-        console.log(config);
-
-        const getInitialBindingsForMode = (config) => {
-          console.log(config);
-          const defaultConfig = [
-            { gesture: 'None', command: 'noop', setting1: '', setting2: '', setting3: '' },
-            { gesture: 'Nod Up', command: 'noop', setting1: '', setting2: '', setting3: '' },
-            { gesture: 'Nod Down', command: 'noop', setting1: '', setting2: '', setting3: '' },
-            { gesture: 'Nod Right', command: 'noop', setting1: '', setting2: '', setting3: '' },
-            { gesture: 'Nod Left', command: 'noop', setting1: '', setting2: '', setting3: '' },
-            { gesture: 'Tilt Right', command: 'noop', setting1: '', setting2: '', setting3: '' },
-            { gesture: 'Tilt Left', command: 'noop', setting1: '', setting2: '', setting3: '' },
-          ];
-          if (config) {
-            if (config.bindings.value) {
-              return config.bindings.value;
-            }
-          }
-
-          return defaultConfig;
-        };
-
         function generateDescription(binding) {
           switch (binding.command) {
             case "noop":
@@ -1305,8 +1396,8 @@ const Devices = ({ devices }) => {
             case "quick_calibrate":
               return "Runs quick calibration for drift removal.";
             case "dwell_click":
-              if (binding.setting1 && binding.setting2) {
-                return `Moves cursor and taps ${buttonMapping(binding.setting1)} on dwell, tilts at speed ${binding.setting2} to cancel.`;
+              if (binding.args[0] && binding.args[1]) {
+                return `Moves cursor and taps ${buttonMapping(binding.args[0])} on dwell, tilts at speed ${binding.args[1]} to cancel.`;
               }
               return "Moves cursor and taps on dwell, tilt to cancel.";
             case "_scroll":
@@ -1314,16 +1405,13 @@ const Devices = ({ devices }) => {
             case "_scroll_lr":
               return "Freezes cursor, look up/down to scroll horizontally, look left/right to cancel.";
             case "button_action":
-              if (binding.setting1 && binding.setting2 && binding.setting3) {
-                return `Button Action: ${actorMapping(binding.setting1)} ${actionMapping(binding.setting2)} on ${buttonMapping(binding.setting3)}.`;
-              }
-              return "Performs a specified action.";
+              return `Cato ${actionMapping(binding.args[1])} the ${actorMapping(binding.args[0])} on ${buttonMapping(binding.args[2])}.`;
             default:
               return "Unknown command.";
           }
         }
         function actorMapping(actor) {
-          return actor === "0" ? "Mouse" : "Keyboard";
+          return actor == "0" ? "Mouse" : "Keyboard";
         }
         function actionMapping(action) {
           const actionMappings = {
@@ -1338,8 +1426,8 @@ const Devices = ({ devices }) => {
           return actionMappings[action] || "Unknown action";
         }
         function buttonMapping(button) {
-          if (button === "1") return "Left Click";
-          if (button === "2") return "Right Click";
+          if (button == "1") return "Left Click";
+          if (button == "2") return "Right Click";
           else {
             return getKeyOption(button);
           }
@@ -1358,6 +1446,7 @@ const Devices = ({ devices }) => {
           outline: 'none',
           width: 'fit-content',
           marginBottom: '10px',
+          marginLeft: '20px',
         };
         const handleCommandChange = (index, value) => {
           let updatedBindings = [...config["bindings"]["value"]];
@@ -1367,25 +1456,24 @@ const Devices = ({ devices }) => {
           if (currentBinding.command !== value) {
             switch (value) {
               case 'dwell_click':
-                updatedBindings[index].setting1 = "1";
-                updatedBindings[index].setting2 = "2";
-                updatedBindings[index].setting3 = '';
+                updatedBindings[index]["args"][0] = "1";
+                updatedBindings[index]["args"][1] = "2";
+                updatedBindings[index]["args"][2] = '';
                 break;
               case 'button_action':
-                updatedBindings[index].setting1 = "0";
-                updatedBindings[index].setting2 = 'tap';
-                updatedBindings[index].setting3 = "1";
+                updatedBindings[index]["args"][0] = "0";
+                updatedBindings[index]["args"][1] = 'tap';
+                updatedBindings[index]["args"][2] = "1";
                 break;
               default:
                 // Reset settings for other commands, if necessary
-                updatedBindings[index].setting1 = '';
-                updatedBindings[index].setting2 = '';
-                updatedBindings[index].setting3 = '';
+                updatedBindings[index]["args"][0] = '';
+                updatedBindings[index]["args"][1] = '';
+                updatedBindings[index]["args"][2] = '';
                 break;
             }
           }
           updatedBindings[index].command = value;
-
 
           switch (activeOperationMode) {
             case "gesture_mouse":
@@ -1417,17 +1505,14 @@ const Devices = ({ devices }) => {
           let updatedBindings = [...config["bindings"]["value"]];
           let currentBinding = updatedBindings[index];
 
-          if (currentBinding.command === 'button_action') {
-            if (settingNumber === 1) {  // If the actor is being changed
+          if (currentBinding.command == 'button_action') {
+            if (settingNumber == 0) {  // If the actor is being changed
               // Set defaults based on the new actor value
-              currentBinding.setting2 = 'tap'; // Default action remains the same
-              currentBinding.setting3 = (value === '0') ? '1' : '4'; // Default button based on actor
+              currentBinding.args[1] = 'tap'; // Default action remains the same
+              currentBinding.args[2] = (value == '0') ? '1' : '4'; // Default button based on actor
             }
           }
-
-          // Update the setting that has been changed
-          currentBinding[`setting${settingNumber}`] = value;
-          //setEditedBindings(updatedBindings);
+          currentBinding["args"][settingNumber] = value;
 
           switch (activeOperationMode) {
             case "gesture_mouse":
@@ -1452,16 +1537,23 @@ const Devices = ({ devices }) => {
               break;
           }
         };
-
-        const gesturesList = [
-          'None',
-          'Nod Up',
-          'Nod Down',
-          'Nod Right',
-          'Nod Left',
-          'Tilt Right',
-          'Tilt Left'
-        ]
+        let gesturesList;
+        let bindingsSettings;
+        if (mode === "clicker") {
+          gesturesList = ['None', 'Single', 'Double', 'Triple'];
+          bindingsSettings = config.bindings.value; 
+        } else {
+          gesturesList = [
+            'None',
+            'Nod Up',
+            'Nod Down',
+            'Nod Right',
+            'Nod Left',
+            'Tilt Right',
+            'Tilt Left'
+          ];
+          bindingsSettings = config.bindings.value;
+        }
 
         const toggleSection = (sectionKey) => {
           setCollapsedSections((prevSections) => ({
@@ -1472,14 +1564,39 @@ const Devices = ({ devices }) => {
 
         return (
           <div className='w-16/12 flex flex-col'>
-            <button
-              onClick={() => toggleSection('bindingsPanel')}
-              style={toggleStyle}
-            >Bindings Panel</button>
-            {!collapsedSections['bindingsPanel'] && (
-              <div>
-
-                {/* <h2 style= {sectionHeadingStyle}>Bindings Panel</h2> */}
+            <div className='flex justify-between items-center mb-10' style={{ marginLeft: '20px', marginRight: '20px' }}>
+              <button
+                onClick={toggleExpanded}
+                style={{
+                  backgroundColor: isExpanded ? '#fcdc6d' : '#1A202C',
+                  color: isExpanded ? '#000000' : '#FFFFFF',
+                  borderRadius: '10px',
+                  padding: '5px 15px',
+                  boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  border: 'none',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                {mode === "clicker" ? "Taps" : "Bindings"}
+              </button>
+              <a
+                href="https://youtu.be/aiT06Bs-OH0"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  fontSize: '16px',
+                  fontWeight: 'bold',
+                  color: '#0000EE',
+                }}
+              >
+                Tutorial Video
+              </a>
+            </div>
+            {isExpanded && (
+              <div style={{ marginLeft: '40px' }}>
                 <table className='table-fixed'>
                   <thead>
                     <tr>
@@ -1490,137 +1607,139 @@ const Devices = ({ devices }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    {config.bindings.value.map((binding, index) => (
+                    {bindingsSettings.map((binding, index) => {
+                      console.log(binding);
+                      console.log(index);
+                      if (gesturesList[index] && index != 0) { //temporary solution for the first item being ignored
+                        return (
+                          <tr key={index} className="max-h-16 h-16">
 
-                      <tr key={index} className="max-h-16 h-16">
+                            <td className="bg-white px-3 py-4 border border-gray-200 text-gray-800 text-md">
+                              {gesturesList[index]}
+                            </td>
 
-                        {/* Gesture */}
-                        <td className="bg-white px-3 py-4 border border-gray-200 text-gray-800 text-md">
-                          {gesturesList[index]}
-                        </td>
+                            <td className="bg-white px-3 py-4 border border-gray-200 text-gray-800 text-md">
+                              <select
+                                value={binding.command}
+                                onChange={(e) => handleCommandChange(index, e.target.value)}
+                              >
+                                <option value="noop">None (noop)</option>
+                                <option value="quick_sleep">Quick Sleep</option>
+                                <option value="pointer_sleep">Pointer Sleep</option>
+                                <option value="quick_calibrate">Quick Calibrate</option>
+                                <option value="dwell_click">Dwell Click</option>
+                                <option value="_scroll">Vertical Scroll</option>
+                                <option value="_scroll_lr">Horizontal Scroll</option>
+                                <option value="button_action">Button Action</option>
+                              </select>
+                            </td>
 
-                        {/* Command */}
-                        <td className="bg-white px-3 py-4 border border-gray-200 text-gray-800 text-md">
-                          <select
-                            value={binding.command}
-                            onChange={(e) => handleCommandChange(index, e.target.value)}
-                          >
-                            <option value="noop">None (noop)</option>
-                            <option value="quick_sleep">Quick Sleep</option>
-                            <option value="pointer_sleep">Pointer Sleep</option>
-                            <option value="quick_calibrate">Quick Calibrate</option>
-                            <option value="dwell_click">Dwell Click</option>
-                            <option value="_scroll">Vertical Scroll</option>
-                            <option value="_scroll_lr">Horizontal Scroll</option>
-                            <option value="button_action">Button Action</option>
-                          </select>
-                        </td>
+                            <td className={
+                              'bg-grey-200 px-3 text-gray-800 text-md ' +
+                              (binding.command === 'dwell_click' || binding.command === 'button_action'
+                                ? 'border border-gray-200'
+                                : 'border-x border-gray-200')
+                            }>
+                              {binding.command === 'dwell_click' ? (
+                                <div className="w-full h-full flex flex-row ">
+                                  <div className='w-full flex-0 flex flex-col items-center'>
+                                    <th className="w-full px-4 text-center text-sm">Button</th>
+                                    <select className='w-full py-1 text-sm'
+                                      value={binding.args[0]}
+                                      onChange={(e) => handleSettingsChange(index, 0, e.target.value)}
+                                    >
+                                      <option value={1}>Left Mouse Click</option>
+                                      <option value={2}>Right Mouse Click</option>
+                                    </select>
+                                  </div>
 
-                        {/* Settings */}
-                        <td className={
-                          'bg-grey-200 px-3 text-gray-800 text-md ' +
-                          (binding.command === 'dwell_click' || binding.command === 'button_action'
-                            ? 'border border-gray-200'
-                            : 'border-x border-gray-200')
-                        }>
-                          {binding.command === 'dwell_click' ? (
-                            <div className="w-full h-full flex flex-row ">
-                              {/* BUTTON */}
-                              <div className='w-full flex-0 flex flex-col items-center'>
-                                <th className="w-full px-4 text-center text-sm">Button</th>
-                                <select className='w-full py-1 text-sm'
-                                  value={binding.setting1}
-                                  onChange={(e) => handleSettingsChange(index, 1, e.target.value)}
-                                >
-                                  <option value={1}>Left Mouse Click</option>
-                                  <option value={2}>Right Mouse Click</option>
-                                </select>
-                              </div>
-
-                              {/* CANCEL_THS */}
-                              <div className='w-full flex-0 flex flex-col items-center'>
-                                <th className="w-full px-4 text-center text-sm">Cancel Speed</th>
-                                <select className='w-5/6 py-1 text-sm'
-                                  value={binding.setting2}
-                                  onChange={(e) => handleSettingsChange(index, 2, e.target.value)}
-                                >
-                                  <option value={1}>1</option>
-                                  <option value={2}>2</option>
-                                  <option value={3}>3</option>
-                                  <option value={4}>4</option>
-                                  <option value={5}>5</option>
-                                  <option value={6}>6</option>
-                                  <option value={7}>7</option>
-                                  <option value={8}>8</option>
-                                  <option value={9}>9</option>
-                                  <option value={10}>10</option>
-                                </select>
-                              </div>
-                            </div>
-                          ) : <div className="w-full h-full" />}
-                          {binding.command === 'button_action' ? (
-                            <div className="w-full h-full flex flex-row">
-                              {/* ACTOR */}
-                              <div className='w-full px-3 flex-0 flex flex-col items-center'>
-                                <th className="w-full px-1 text-center text-sm">Actor</th>
-                                <select className='w-5/6 py-1 text-sm'
-                                  value={binding.setting1}
-                                  onChange={(e) => handleSettingsChange(index, 1, e.target.value)}
-                                >
-                                  <option selected="selected" value={0}>Mouse</option>
-                                  <option value={1}>Keyboard</option>
-                                </select>
-                              </div>
-
-                              {/* ACTION */}
-                              <div className='w-full px-3 flex-0 flex flex-col items-center'>
-                                <th className="w-full px-1 text-center text-sm">Action</th>
-                                <select className='w-5/6 py-1 text-sm'
-                                  value={binding.setting2}
-                                  onChange={(e) => handleSettingsChange(index, 2, e.target.value)}
-                                >
-                                  <option value={'tap'}>Tap</option>
-                                  <option value={'double_tap'}>Double Tap</option>
-                                  <option value={'press'}>Press and Hold</option>
-                                  <option value={'release'}>Release</option>
-                                  <option value={'toggle'}>Toggle</option>
-                                  <option value={'hold_until_idle'}>Hold Until Idle</option>
-                                  <option value={'hold_until_sig_motion'}>Hold Until Significant Motion</option>=
-                                </select>
-                              </div>
-                              {/* BUTTON */}
-                              {binding.setting1 === "1" ? (
-                                <div className='px-3 w-full flex-0 flex flex-col items-center'>
-                                  <th className="w-full px-1 text-center text-sm">Button</th>
-                                  <select className='w-5/6 py-1 text-sm'
-                                    value={binding.setting3}
-                                    onChange={(e) => handleSettingsChange(index, 3, e.target.value)}>
-                                    <KeyOptions />
-                                  </select>
+                                  <div className='w-full flex-0 flex flex-col items-center'>
+                                    <th className="w-full px-4 text-center text-sm">Cancel Speed</th>
+                                    <select className='w-5/6 py-1 text-sm'
+                                      value={binding.args[1]}
+                                      onChange={(e) => handleSettingsChange(index, 1, e.target.value)}
+                                    >
+                                      <option value={1}>1</option>
+                                      <option value={2}>2</option>
+                                      <option value={3}>3</option>
+                                      <option value={4}>4</option>
+                                      <option value={5}>5</option>
+                                      <option value={6}>6</option>
+                                      <option value={7}>7</option>
+                                      <option value={8}>8</option>
+                                      <option value={9}>9</option>
+                                      <option value={10}>10</option>
+                                    </select>
+                                  </div>
                                 </div>
-                              ) : (
-                                <div className='px-3 w-full flex-0 flex flex-col items-center'>
-                                  <th className="w-full px-1 text-center text-sm">Button</th>
-                                  <select className='w-5/6 py-1 text-sm'
-                                    value={binding.setting3}
-                                    onChange={(e) => handleSettingsChange(index, 3, e.target.value)}>
-                                    <option value={1}>Left Mouse Click</option>
-                                    <option value={2}>Right Mouse Click</option>
-                                  </select>
-                                </div>
-                              )}
-                            </div>
-                          ) : <div className="w-full h-full" />}
-                        </td>
+                              ) : <div className="w-full h-full" />}
+                              {binding.command === 'button_action' ? (
+                                <div className="w-full h-full flex flex-row">
+                                  {/* ACTOR */}
+                                  <div className='w-full px-3 flex-0 flex flex-col items-center'>
+                                    <th className="w-full px-1 text-center text-sm">Actor</th>
+                                    <select className='w-5/6 py-1 text-sm'
+                                      value={binding.args[0]}
+                                      onChange={(e) => handleSettingsChange(index, 0, e.target.value)}
+                                    >
+                                      <option selected="selected" value={0}>Mouse</option>
+                                      <option value={1}>Keyboard</option>
+                                    </select>
+                                  </div>
 
-                        {/* Description Cell */}
-                        <td className="bg-white px-3 py-2 border border-gray-200 text-gray-800 text-sm overflow-hidden">
-                          <div className="max-h-16">
-                            {generateDescription(binding)}
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
+                                  {/* ACTION */}
+                                  <div className='w-full px-3 flex-0 flex flex-col items-center'>
+                                    <th className="w-full px-1 text-center text-sm">Action</th>
+                                    <select className='w-5/6 py-1 text-sm'
+                                      value={binding.args[1]}
+                                      onChange={(e) => handleSettingsChange(index, 1, e.target.value)}
+                                    >
+                                      <option value={'tap'}>Tap</option>
+                                      <option value={'double_tap'}>Double Tap</option>
+                                      <option value={'press'}>Press and Hold</option>
+                                      <option value={'release'}>Release</option>
+                                      <option value={'toggle'}>Toggle</option>
+                                      <option value={'hold_until_idle'}>Hold Until Idle</option>
+                                      <option value={'hold_until_sig_motion'}>Hold Until Significant Motion</option>=
+                                    </select>
+                                  </div>
+                                  {/* BUTTON */}
+                                  {binding.args[0] == "1" ? (
+                                    <div className='px-3 w-full flex-0 flex flex-col items-center'>
+                                      <th className="w-full px-1 text-center text-sm">Button</th>
+                                      <select className='w-5/6 py-1 text-sm'
+                                        value={binding.args[2]}
+                                        onChange={(e) => handleSettingsChange(index, 2, e.target.value)}>
+                                        <KeyOptions />
+                                      </select>
+                                    </div>
+                                  ) : (
+                                    <div className='px-3 w-full flex-0 flex flex-col items-center'>
+                                      <th className="w-full px-1 text-center text-sm">Button</th>
+                                      <select className='w-5/6 py-1 text-sm'
+                                        value={binding.args[2]}
+                                        onChange={(e) => handleSettingsChange(index, 2, e.target.value)}>
+                                        <option value={1}>Left Mouse Click</option>
+                                        <option value={2}>Right Mouse Click</option>
+                                      </select>
+                                    </div>
+                                  )}
+                                </div>
+                              ) : <div className="w-full h-full" />}
+                            </td>
+
+                            {/* Description Cell */}
+                            <td className="bg-white px-3 py-2 border border-gray-200 text-gray-800 text-sm overflow-hidden">
+                              <div className="max-h-16">
+                                {generateDescription(binding)}
+                              </div>
+                            </td>
+                          </tr>
+
+                        );
+                      }
+                      return null;
+                    })}
                   </tbody>
                 </table>
 
@@ -1630,11 +1749,7 @@ const Devices = ({ devices }) => {
             )}
           </div>
         );
-
-
       }
-
-
 
       const GestureMouseSetting = () => {
         if (!fetchedGestureMouseConfig) {
@@ -1666,7 +1781,6 @@ const Devices = ({ devices }) => {
         return (
           <div>
             <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
-            {/* <ClickerOptions config={editedClickerConfig} /> */}
             <ClickerOptions
               config={editedClickerConfig}
               collapsedSections={collapsedSections}
@@ -1694,13 +1808,14 @@ const Devices = ({ devices }) => {
             <GestureOptions config={editedTVRemoteConfig} />
             <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
 
-            <BindingsPanel config={editedGestureMouseConfig} mode={"tv_remote"} />
+            <BindingsPanel config={editedTVRemoteConfig} mode={"tv_remote"} />
+            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
+
           </div>
         );
       };
 
       const PointerSetting = () => {
-        //pointer setting
         if (!fetchedPointerConfig) {
           return <div>Loading...</div>;
         }
@@ -1710,63 +1825,71 @@ const Devices = ({ devices }) => {
 
             <MouseOptions config={editedPointerConfig} />
             <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
-
-            {/* <BindingsPanel config={editedPointerConfig} mode={"pointer"} />
-            <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} /> */}
-
-
           </div>
         );
-      }
-
-      // const handleConnectionDeletion = async () => {
-      /*
-      const userId = getCurrentUserId();
-      const userCatoDocId = thisDevice.id;
-      const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
-
-      try {
-        await updateDoc(userCatoDocRef, {
-          'connections': arrayRemove(editedConnectionConfig),
-        });
-        console.log("Connection deleted successfully");
-      } catch (error) {
-        console.error("Error deleting connection: ", error);
-      }
-      */
-
-      // }
-      const handleDelete = async () => {
-        //delete connection
-        if (connection && connection.name) {
-          await onDelete(connection.name);
-        } else {
-          console.error("Invalid connection data");
-        }
       }
 
       return (
         <div style={{ marginBottom: '1rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
+            {editingConnectionIndex === index ? (
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+                <input
+                  ref={inputRef}
+                  autoFocus
+                  type="text"
+                  value={temporaryConnectionName}
+                  onChange={(e) => setTemporaryConnectionName(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSaveEditedName(index);
+                    }
+                  }}
+                  style={{
+                    fontSize: '16px',
+                    padding: '10px',
+                    marginRight: '10px',
+                  }}
+                />
+              </div>
+            ) : (
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
+                <button
+                  onClick={toggleIsExpanded}
+                  style={{
+                    padding: '10px',
+                    fontSize: '16px',
+                    cursor: 'pointer',
+                    marginRight: '10px'
+                  }}
+                >
+                  <strong>{connection.name}</strong>
+                </button>
+                {(
+                  <button ref={editButtonRef} onClick={() => startEditing(connection, index)}>
+                    <img src={PencilEditIcon} alt="Edit" style={{ width: '16px', height: '16px' }} />
+                  </button>
+                )}
+              </div>
+            )}
+
+            <div style={{ display: 'flex' }}>
               <button
-                onClick={toggleIsExpanded}
+                onClick={() => makePrimary(connection)}
                 style={{
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  textAlign: 'left',
-                  width: '100%',
-                  padding: '10px',
-                  fontSize: '18px',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  marginRight: '16px',
                 }}
+                aria-label="Make Primary"
               >
-                <strong>{connection.name}</strong>
+                <img
+                  src={index === 0 ? filledin : emptystar}
+                  alt="Star Icon"
+                  style={{ width: '20px', height: '20px' }}
+                />
               </button>
-            </div>
-            {!isDefaultConnection && (
-              <div>
+
+              {(
                 <button
                   onClick={() => onDelete(connection.name)}
                   style={{
@@ -1774,17 +1897,15 @@ const Devices = ({ devices }) => {
                     color: 'white',
                     border: 'none',
                     borderRadius: '5px',
-                    outline: 'none',
-                    textAlign: 'left',
-                    width: '100%',
                     padding: '10px',
                     fontSize: '16px',
-                    cursor: 'pointer'
-                  }}>
+                    cursor: 'pointer',
+                  }}
+                >
                   Delete Connection
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
 
@@ -1793,19 +1914,21 @@ const Devices = ({ devices }) => {
               <h2 style={sectionHeadingStyle}>
                 Operation Mode
               </h2>
-              <Dropdown
-                value={operationModeConversion(activeOperationMode)}
-                onChange={(e) => handleOperationModeSelection(e.target.value)}
-                title=""
-                description="Select the operation mode"
-                options={[
-                  "Select Operation Mode",
-                  "Gesture Mouse",
-                  "TV Remote",
-                  "Pointer",
-                  "Clicker"
-                ]}
-              ></Dropdown>
+              <div style={{ marginLeft: '40px' }}>
+                <Dropdown
+                  value={operationModeConversion(activeOperationMode)}
+                  onChange={(e) => handleOperationModeSelection(e.target.value)}
+                  title=""
+                  description="Select the operation mode"
+                  options={[
+                    "Select Operation Mode",
+                    "Gesture Mouse",
+                    "TV Remote",
+                    "Pointer",
+                    "Clicker"
+                  ]}
+                ></Dropdown>
+              </div>
               {activeOperationMode == "gesture_mouse" && <GestureMouseSetting />}
               {activeOperationMode == "clicker" && <ClickerSetting />}
               {activeOperationMode == "tv_remote" && <TVRemoteSetting />}
@@ -1816,6 +1939,7 @@ const Devices = ({ devices }) => {
         </div>
       )
     }
+
     return (
       <div style={sliderContainerStyle}>
         <div style={accordionListStyle}>
@@ -1824,6 +1948,8 @@ const Devices = ({ devices }) => {
               <ConnectionAccordion
                 connection={item}
                 onDelete={handleConnectionDeletion} //delete connections
+                makePrimary={makePrimary}
+                index={index}
               >
                 {item.name}
               </ConnectionAccordion>
@@ -1831,35 +1957,34 @@ const Devices = ({ devices }) => {
             </div>
           ))}
           <DashedLine />
-          <div style={{ marginBottom: '10px' }}> {/* Center button container */}
+          <div style={{ marginBottom: '10px' }}>
             <button onClick={handleRegisterInterface}
               style={{
-                backgroundColor: '#8B0000', // Red color
+                backgroundColor: '#8B0000',
                 color: 'white',
                 padding: '10px',
                 fontSize: '16px',
                 borderRadius: '5px',
                 border: 'none',
                 cursor: 'pointer',
-                display: 'inline-block', // Changed to inline-block for a narrower button
-                margin: '10px auto', // Center button
-                maxWidth: '200px', // Maximum width of the button
+                display: 'inline-block',
+                margin: '10px auto',
+                maxWidth: '200px',
               }}>
               Add Connection
             </button>
+
           </div>
         </div>
       </div>
-    );    
+    );
   };
 
 
   const accordionListStyle = {
     display: 'grid',
-    // gap: '0 rem',
     borderBottom: '1px solid #ccc',
     borderRadius: '4px',
-    // padding: '1rem',
   };
 
   const sliderContainerStyle = {
@@ -1870,15 +1995,27 @@ const Devices = ({ devices }) => {
   };
 
   const handleSave = async () => {
-    console.log(editedGlobalSettings);
-    console.log(editedConnectionsSettings);
+    // if the connections array is empty, return
+    if (editedConnectionsSettings.length === 0) {
+      console.error("No connections to save");
+      toast.error("Must add at least one connection to save.", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+      return;
+    }
 
     const webAppHwUid = editedGlobalSettings["HW_UID"]["value"];
-
-    // const directoryHandle = await getDirectoryHandle();
-    let webSave = false;
-
+    let calibratedWithFirebase = false;
     const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
+
     if (!hwUidMatch) {
       console.error("HW_UID does not match with the connected device.");
       // create a prompt to inform the user that the HW_UID does not match and that if they press continue, they will only be editing the web settings
@@ -1886,43 +2023,57 @@ const Devices = ({ devices }) => {
       if (!confirmed) {
         return;
       } else {
-        webSave = true;
+        calibratedWithFirebase = false;
       }
     }
 
-    if (webSave) {
-      const userId = getCurrentUserId();
-      const userCatoDocId = thisDevice.id;
-      const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
+    const userId = getCurrentUserId();
+    const userCatoDocId = thisDevice.id;
+    const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
 
-      try {
-        const globalConfigUpdate = {
-          "global_info": editedGlobalSettings,
-        };
+    try {
+      const globalConfigUpdate = {
+        "global_info": editedGlobalSettings,
+      };
 
-
+      if (hwUidMatch) {
         await updateDoc(userCatoDocRef, {
           'device_info.device_nickname': editedGlobalSettings["name"]["value"],
           'device_info.global_config': JSON.stringify(globalConfigUpdate),
           'connections': editedConnectionsSettings,
         });
-        console.log("Settings updated successfully");
-      } catch (error) {
-        console.error("Error updating settings: ", error);
+      } else {
+        await updateDoc(userCatoDocRef, {
+          'device_info.device_nickname': editedGlobalSettings["name"]["value"],
+          'device_info.global_config': JSON.stringify(globalConfigUpdate),
+          'connections': editedConnectionsSettings,
+          'device_info.calibrated': calibratedWithFirebase,
+        });
       }
+      console.log("Web settings updated successfully");
 
-      const newDeviceName = editedGlobalSettings["name"]["value"];
-
-      navigate(`/devices/${newDeviceName}`);
-      window.location.reload(); //TODO: change later for permission?
+    } catch (error) {
+      console.error("Error updating web settings: ", error);
+      toast.error("Error updating web settings. Aborting save operation.", {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Bounce,
+      });
+      return;
     }
 
-    const deviceConfig = {
-      "connections": [],
-      "global_info": editedGlobalSettings,
-    };
-
     if (hwUidMatch) {
+      const deviceConfig = {
+        "connections": [],
+        "global_info": editedGlobalSettings,
+      };
+
       for (let i = 0; i < editedConnectionsSettings.length; i++) {
         let connection = editedConnectionsSettings[i];
         let connectionConfig = JSON.parse(connection["connection_config"]);
@@ -1932,9 +2083,9 @@ const Devices = ({ devices }) => {
         } else {
           currentModeConfig = JSON.parse(connection["mode"][connection["current_mode"]]);
         }
-  
+
         connectionConfig["connection_name"]["value"] = connection.name;
-  
+
         let pushedConnection = {
           ...connectionConfig,
           ...currentModeConfig,
@@ -1942,22 +2093,74 @@ const Devices = ({ devices }) => {
         deviceConfig["connections"].push(pushedConnection);
       };
       const overwriteSuccess = await overwriteConfigFile(deviceConfig);
-  
+
       if (overwriteSuccess) {
-        alert("Settings saved successfully");
+        toast.success('Device settings updated successfully', {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+        calibratedWithFirebase = true;
       } else {
-        alert("Settings failed to saved");
+        toast.error("Error updating device settings. Device not in sync with web.", {
+          position: "bottom-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "light",
+          transition: Bounce,
+        });
+        calibratedWithFirebase = false;
       };
+      await updateDoc(userCatoDocRef, {
+        'device_info.calibrated': calibratedWithFirebase,
+      });
+    };
+    const newDeviceName = editedGlobalSettings["name"]["value"];
 
-    }
+    navigate(`/devices/${newDeviceName}`);
+    window.location.reload(); //TODO: change later for permission?
 
-    
 
   };
 
-
   if (!thisDevice) {
-    return <div>Loading...</div>;
+    return (
+      <div className="ml-90">
+        <header
+          className="shrink-0 bg-transparent border-b border-gray-200"
+          onClick={toggleUniversalSettings}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className="flex h-16 max-w-7xl items-center justify-between">
+            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+              Device Settings
+            </h2>
+          </div>
+        </header>
+        <div className="mt-4 ml-4">
+          <p className="text-lg text-gray-700">
+            This device is not registered yet.
+          </p>
+          <p className="text-lg text-gray-700 mt-6">
+            Likely reasons you're here:
+            <ul className="list-disc ml-5">
+              <li>You entered the URL incorrectly</li>
+              <li>You have a bookmark to a device that has since been renamed</li>
+            </ul>
+          </p>
+        </div>
+      </div>
+    );
   }
 
   const handleDeviceDelete = async () => {
@@ -1966,7 +2169,6 @@ const Devices = ({ devices }) => {
       return;
     }
 
-    // delete the device from the database
     if (thisDevice) {
       const deviceRef = doc(db, 'users', getCurrentUserId(), 'userCatos', thisDevice.id);
       try {
@@ -1987,27 +2189,54 @@ const Devices = ({ devices }) => {
 
     setTimeout(() => {
       navigate('/devices');
-      //refresh the page
       window.location.reload();
     }, 2000);
   }
 
   return (
     <div>
+      {isEditPopupOpen && (
+        <div
+          ref={popupRef}
+
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 1000,
+            backgroundColor: 'white',
+            padding: '20px',
+            border: '1px solid black',
+            borderRadius: '10px',
+            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)'
+          }}>
+          <input
+            type="text"
+            value={editedConnectionName}
+            onChange={(e) => setEditedConnectionName(e.target.value)}
+          />
+          <button onClick={handleSaveEditedName}>Save</button>
+        </div>
+      )}
+
       <div className="ml-90">
         <header
           className="shrink-0 bg-transparent border-b border-gray-200"
           onClick={toggleUniversalSettings}
           style={{ cursor: 'pointer' }}
         >
-          <div className="flex h-16 max-w-7xl items-center justify-between">
+          <div className="flex h-16 items-center justify-between">
             <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
               Universal Settings
             </h2>
-            {/* delete device */}
-            <button onClick={handleDeviceDelete} style={{ backgroundColor: '#8B0000', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}>
-              Delete Device
-            </button>
+            <div className="flex-grow">
+              <div className="flex justify-end">
+                <button onClick={handleDeviceDelete} style={{ backgroundColor: '#8B0000', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}>
+                  Delete Device
+                </button>
+              </div>
+            </div>
           </div>
         </header>
         {isUniversalSettingsExpanded && <GlobalInfoSection />}
@@ -2031,8 +2260,6 @@ const Devices = ({ devices }) => {
         {isConnectionsExpanded && (
           <>
             <AccordionList data={connectionsList} />
-            {/* Add Connection button should be here, inside the same conditional rendering block */}
-
           </>
         )}
 
@@ -2052,6 +2279,7 @@ const Devices = ({ devices }) => {
         }}>
         Save
       </button>
+      <ToastContainer />
     </div>
   );
 

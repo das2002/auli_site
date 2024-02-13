@@ -10,17 +10,21 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-import { db, auth } from "../../firebase";
-import * as newDeviceConfig from '../../resources/templates/new_device_config.json';
-import * as clickerDefault from '../NavBar/cato_schemas/clicker.json';
-import * as mouseDefault from '../NavBar/cato_schemas/mouse.json';
-import * as gestureDefault from '../NavBar/cato_schemas/gesture.json';
-import * as tvRemoteDefault from '../NavBar/cato_schemas/tv_remote.json';
-import * as bindingsDefault from '../NavBar/cato_schemas/bindings.json';
-import * as practiceDefault from '../NavBar/cato_schemas/practice.json';
-import * as connectionSpecificDefault from '../NavBar/cato_schemas/connection_specific.json';
-import * as operationDefault from '../NavBar/cato_schemas/operation.json';
-import * as globalInfoDefault from '../../resources/templates/global_info_default.json';
+import { db, auth } from "../../../firebase";
+import * as newDeviceConfig from '../../../resources/templates/new_device_config.json';
+import * as clickerDefault from '../cato_schemas/clicker.json';
+import * as mouseDefault from '../cato_schemas/mouse.json';
+import * as gestureDefault from '../cato_schemas/gesture.json';
+import * as tvRemoteDefault from '../cato_schemas/tv_remote.json';
+import * as bindingsDefault from '../cato_schemas/bindings.json';
+import * as clickerBindings from '../cato_schemas/bindings/clicker_bindings.json';
+import * as tvRemoteBindings from '../cato_schemas/bindings/tv_remote_bindings.json';
+import * as gestureMouseBindings from '../cato_schemas/bindings/gesture_mouse_bindings.json';
+import * as practiceDefault from '../cato_schemas/practice.json';
+import * as connectionSpecificDefault from '../cato_schemas/connection_specific.json';
+import * as operationDefault from '../cato_schemas/operation.json';
+import * as globalInfoDefault from '../../../resources/templates/global_info_default.json';
+import { getDirectoryHandle, getFileHandle } from "./ReplaceConfig";
 
 
 
@@ -31,9 +35,8 @@ const modeDefaultGenerator = (mode) => {
     let pointerData = {
       ...pointerOperationDefault,
       ...mouseDefault,
-      ...bindingsDefault
     };
-    if (pointerData.hasOwnProperty("default")){
+    if (pointerData.hasOwnProperty("default")) {
       delete pointerData.default;
     }
     return pointerData;
@@ -43,9 +46,9 @@ const modeDefaultGenerator = (mode) => {
     let clickerData = {
       ...clickerOperationDefault,
       ...clickerDefault,
-      ...bindingsDefault
+      ...clickerBindings
     };
-    if (clickerData.hasOwnProperty("default")){
+    if (clickerData.hasOwnProperty("default")) {
       delete clickerData.default;
     }
     return clickerData;
@@ -55,29 +58,34 @@ const modeDefaultGenerator = (mode) => {
     let gestureMouseData = {
       ...gestureMouseOperationDefault,
       ...mouseDefault,
-      ...bindingsDefault,
+      ...gestureMouseBindings,
       ...gestureDefault
     };
-    if (gestureMouseData.hasOwnProperty("default")){
+    if (gestureMouseData.hasOwnProperty("default")) {
       delete gestureMouseData.default;
     }
     return gestureMouseData;
 
-  } else if (mode == "tv_remote") {
+  }
+  else if (mode == "tv_remote") {
     let tvRemoteOperationDefault = deepCopy(operationDefault);
     tvRemoteOperationDefault["operation_mode"]["value"] = "tv_remote";
     let tvRemoteData = {
       ...tvRemoteOperationDefault,
       ...tvRemoteDefault,
-      ...bindingsDefault,
-      ...gestureDefault
+      ...gestureDefault,
+      ...tvRemoteBindings
     };
-    if (tvRemoteData.hasOwnProperty("default")){
+
+    if (tvRemoteData.hasOwnProperty("default")) {
       delete tvRemoteData.default;
     }
-    return tvRemoteData;
 
-  } else if (mode == "practice") {
+    return tvRemoteData;
+  }
+
+
+  else if (mode == "practice") {
     let practiceOperationDefault = deepCopy(operationDefault);
     practiceOperationDefault["operation_mode"]["value"] = "practice";
     let practiceData = {
@@ -85,9 +93,8 @@ const modeDefaultGenerator = (mode) => {
       ...practiceOperationDefault,
       ...practiceDefault,
       ...gestureDefault,
-      ...bindingsDefault
     };
-    if (practiceData.hasOwnProperty("default")){
+    if (practiceData.hasOwnProperty("default")) {
       delete practiceData.default;
     }
     return practiceData;
@@ -116,9 +123,6 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
   const [errMessage, setErrMessage] = useState(false);
   const [hwUid, setHwUid] = useState('');
 
-  console.log('user', user);
-  console.log('devices', devices);
-
   async function fetchAndCompareConfig() {
     async function checkIfHardwareUidTaken(hwUidToCheck) {
       try {
@@ -141,7 +145,6 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     }
 
     async function checkIfNameValid() {
-      console.log("enteredName", enteredName);
       if (enteredName === "") {
         return false;
       }
@@ -149,33 +152,82 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     }
 
     try {
-      // check existence directories
+
       let directoryHandle = await get('configDirectoryHandle');
-  
+
       // request + store in indexedDB
       if (!directoryHandle) {
-        directoryHandle = await window.showDirectoryPicker();
+        let directoryHandle = await window.showDirectoryPicker();
         await set('configDirectoryHandle', directoryHandle);
       }
-  
-      // get r/w access
-      const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
-      console.log('Permission Status:', permissionStatus);
-      if (permissionStatus !== 'granted') {
-        console.log('Permission to access directory not granted');
+
+      let fileHandle = null;
+      try {
+        fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+      } catch (error) {
+        if (error instanceof DOMException || error instanceof TypeError) {
+          // If getFileHandle fails, re-request the directory picker
+          directoryHandle = await window.showDirectoryPicker();
+          await set('configDirectoryHandle', directoryHandle);
+          const permissionStatus = await directoryHandle.requestPermission({ mode: 'readwrite' });
+          console.log('Permission Status:', permissionStatus);
+          if (permissionStatus != 'granted') {
+            console.log('Permission to access directory not granted');
+            return;
+          }
+          fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+        } else {
+          // Handle other errors normally
+          console.error('Error:', error);
+        }
+      }
+
+      //delete + create again
+      if (!fileHandle) {
+        console.error('File handle not found');
         return;
       }
-  
-      // check if config.json exists
-      const fileHandle = await directoryHandle.getFileHandle('config.json', { create: false });
-  
-      //delete + create again
-      const file = await fileHandle.getFile();
-  
-      // read config.json
+
+      await set('configFileHandle', fileHandle);
+
+      const filePermission = await verifyPermission(fileHandle, true);
+      if (!filePermission) {
+        console.log('Permission to access file not granted');
+        return;
+      }
+
+
+      // we need to surround the getFile() call with a try/catch block
+      // if fileHandle.getFile() fails, we need to re-request the directory picker
+
+      let file = null;
+      try {
+        file = await fileHandle.getFile();
+      } catch (error) {
+        if (error instanceof DOMException || error instanceof TypeError) {
+          let directoryHandle = await window.showDirectoryPicker();
+
+          if (!directoryHandle) {
+            console.log('No directory handle found');
+            return;
+          }
+
+          await set('configDirectoryHandle', directoryHandle);
+          const permissionStatus = await verifyPermission(directoryHandle, true);
+          if (!permissionStatus) {
+            console.log('Permission to read the directory was not granted.');
+            return;
+          }
+          fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
+          await set('configFileHandle', fileHandle);
+          file = await fileHandle.getFile();
+        }
+      }
       const text = await file.text();
       const config = JSON.parse(text);
-  
+
+      console.log("config", config);
+
       // check if there is a deviceHwUid
       if (!config || !config.global_info || !config.global_info.HW_UID || !config.global_info.HW_UID.value) {
         console.error("HW_UID is empty or not found in the JSON structure");
@@ -208,11 +260,28 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
       // if all checks pass return the config
       return config;
-      
     } catch (error) {
-      console.log("Error:", error);
+      console.log(error);
       return;
     }
+  }
+
+  async function verifyPermission(fileHandle, readWrite) {
+    const options = {};
+    if (readWrite) {
+      options.mode = 'readwrite';
+    }
+    // alredy permission granted?
+    const permission = await fileHandle.queryPermission(options);
+    // permission granted --> true
+    if (permission === 'granted') {
+      return true;
+    }
+    // permission not there --> request permission
+    if (permission === 'denied' || permission === 'prompt') {
+      return (await fileHandle.requestPermission(options)) === 'granted';
+    }
+    return false;
   }
 
   async function getGlobalInfoData(config) {
@@ -227,10 +296,13 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     //basically, for every field in the globalInfoDefault, check if it exists in the config
     //if it does, add it to the globalInfoData object
     //if it doesn't, add the default value to the globalInfoData object
-    
+
     let globalInfoData = deepCopy(globalInfoDefault);
     let globalInfoExists = await checkIfGlobalSectionExists(config);
     if (!globalInfoExists) {
+      if (globalInfoData.hasOwnProperty("default")) {
+        delete globalInfoData.default;
+      }
       return globalInfoData;
     }
 
@@ -249,11 +321,11 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
     updateNestedFields(config.global_info, globalInfoData.global_info);
 
-    
-    if (globalInfoData.hasOwnProperty("default")){
+
+    if (globalInfoData.hasOwnProperty("default")) {
       delete globalInfoData.default;
     }
-    
+
 
     globalInfoData.global_info.name.value = enteredName;
     //globalInfoData.global_info.HW_UID.value = config.globalInfoData.HW_UID.value;
@@ -294,7 +366,6 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
             currentModeConfig = {
               operation_mode: { ...connection["operation_mode"] },
               mouse: { ...connection["mouse"] },
-              bindings: { ...connection["bindings"] }
             }
             modeMap = {
               pointer: JSON.stringify(currentModeConfig),
@@ -353,18 +424,18 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     }
     if (connectionsArray.length == 0) {
       let connectionConfig = deepCopy(connectionSpecificDefault);
-      if (connectionConfig.hasOwnProperty("default")){
+      if (connectionConfig.hasOwnProperty("default")) {
         delete connectionConfig.default;
       }
       connectionConfig = JSON.stringify(connectionConfig);
-      let current_mode = "practice";
+      let current_mode = "pointer";
       let modeMap = {
         pointer: JSON.stringify(modeDefaultGenerator("pointer")),
         clicker: JSON.stringify(modeDefaultGenerator("clicker")),
         gesture_mouse: JSON.stringify(modeDefaultGenerator("gesture_mouse")),
         tv_remote: JSON.stringify(modeDefaultGenerator("tv_remote"))
       };
-      let connectionName = "Default Connection";
+      let connectionName = "Default";
       let firebaseConnectionConfig = {
         connection_config: connectionConfig,
         mode: modeMap,
@@ -378,22 +449,27 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
   const downloadSequence = async () => {
     setDeviceName(enteredName);
+
+    //retrieve the JSON
     let retrievedJson = await fetchAndCompareConfig();
-    console.log("retrievedJson", retrievedJson);
+
     if (retrievedJson == null) {
       return;
     }
+
+    // get the global info section of the JSON
     let globalInfoData = await getGlobalInfoData(retrievedJson);
-    console.log("globalInfoData", globalInfoData);
+
+
     let connectionsArray = await getConnectionsData(retrievedJson);
     console.log("connectionsArray", connectionsArray);
 
-    
+
 
     const deviceAdded = await addDeviceDoc(globalInfoData, connectionsArray);
     console.log("deviceAdded", deviceAdded);
 
-    
+
     console.log(enteredName);
     console.log(encodeURIComponent(enteredName))
 
@@ -407,13 +483,12 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
     if (!deviceAdded) {
       return;
     }
-    deleteInitializeDoc();
+    await deleteInitializeDoc();
     //downloadNewConfig(newConfig);
-    
-    
+
     navigate(`/devices/${enteredName}`);
-    //window.location.reload();
-    
+    window.location.reload();
+
   };
 
 
@@ -511,25 +586,26 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
               initialize: "initializeUserCatosSubcollection",
             });
           }
-          
+
           await addDoc(collection(colRef, user.uid, "userCatos"), {
             device_info: {
               global_config: newData,
               device_nickname: enteredName,
               hw_uid: globalInfoData.global_info.HW_UID.value,
               practice_config: practiceDataString,
+              calibrated: false,
             },
             connections: connectionsArray,
           });
           handleRenderDevices();
-          deleteInitializeDoc();
-          
+          await deleteInitializeDoc();
+
         } catch (error) {
           console.log("store another device error: ", error);
           return false;
         }
       };
-      storeDevice();
+      await storeDevice();
       return true;
     } catch (error) {
       console.log("add device doc to usersCato error: ", error);
@@ -566,7 +642,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
   return (
     <div className="flex min-h-full flex-col">
       <header className="shrink-0 bg-transparent">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between">
+        <div className="flex h-16 items-center pl-4 sm:pl-6 lg:pl-8">
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight py-1">
             Register New Device
           </h2>
@@ -574,9 +650,11 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       </header>
 
       <div className="border-b border-gray-200 pb-5">
-        <p className="max-w-4xl text-lg text-gray-900">
-          To register a new Cato device, connect it to your computer via cable.
-        </p>
+        <div className="pl-4 sm:pl-6 lg:pl-8">
+          <p className="text-lg text-gray-900">
+            To register a new Cato device, connect it to your computer via cable.
+          </p>
+        </div>
       </div>
       <div className="px-4 sm:px-6 lg:px-8">
         <div className="bg-white shadow-lg border border-gray-200 rounded-lg p-5 mt-10">
@@ -596,7 +674,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
                   type="text"
                   value={enteredName}
                   onChange={(e) => setEnteredName(e.target.value)}
-                  className="block w-full rounded-md border-0 outline-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-md sm:leading-6"
+                  className="block w-full rounded-md border-0 outline-0 px-2.5 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-yellow-800 sm:text-md sm:leading-6"
                   placeholder="my-cato"
                 />
               </div>
@@ -613,7 +691,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
                 <button
                   disabled={enteredName === "" ? true : false}
                   onClick={downloadSequence}
-                  className="inline-flex rounded-full items-center bg-blue-500 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-blue-300"
+                  className="inline-flex rounded-full items-center bg-yellow-500 px-2.5 py-1 text-lg font-semibold text-white disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-yellow-600"
                 >
                   Save
                 </button>

@@ -1,14 +1,14 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { overwriteConfigFile } from './ReplaceConfig';
+import { overwriteConfigFile } from '../RegisterDevices/ReplaceConfig';
 import { get, set } from 'idb-keyval';
 import { styled } from '@mui/material/styles';
 import Slider from '@mui/material/Slider';
 import debounce from 'lodash.debounce';
-import { db, auth } from '../../firebase';
+import { db, auth } from '../../../firebase';
 import { doc, updateDoc } from "firebase/firestore";
 import { use } from 'marked';
-import {getDirectoryHandle, getFileHandle} from './ReplaceConfig'
+import { getDirectoryHandle, getFileHandle } from '../RegisterDevices/ReplaceConfig'
 
 const deepCopy = (obj) => {
     return JSON.parse(JSON.stringify(obj));
@@ -169,7 +169,6 @@ const Dropdown = ({ value, onChange, title, description, options }) => {
         setIsHovered(false);
     };
 
-
     return (
         <div style={{ marginBottom: '0px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -275,8 +274,6 @@ const Practice = ({ user, devices }) => {
         try {
 
             const fileHandle = await getFileHandle();
-
-            //check if config.json exists
             const file = await fileHandle.getFile();
             const text = await file.text();
             const config = JSON.parse(text);
@@ -304,19 +301,16 @@ const Practice = ({ user, devices }) => {
     async function practiceModeConfigChange(config) {
 
         console.log("practiceConfig", config);
-
         let practiceConfig = deepCopy(config);
 
-        
         // if the first connection in the array is already in practice mode, we want to update the settings accordingly to the updated settings
         if (practiceConfig['connections'][0]['operation_mode']['value'] === 'practice') {
             practiceConfig['connections'][0]['practice'] = lastFirebaseConfig['practice'];
             return practiceConfig;
         } else {
             // we have to push the practice mode config to the device
-            //let connectionObject = JSON.parse(thisDevice['data']['device_info']['practice_config']);
             let connectionObject = deepCopy(lastFirebaseConfig);
-            //push the connectionObject to the front of the connections array
+            // push the connectionObject to the front of the connections array
             practiceConfig['connections'].unshift(connectionObject);
             return practiceConfig;
         }
@@ -325,15 +319,10 @@ const Practice = ({ user, devices }) => {
     const togglePractice = async () => {
         if (isPracticing) { // turning off current practice
             textareaRef.current.blur();
-            // download the original config.json file
             overwriteConfigFile(originalJson);
             setIsPracticing(false);
-            // setIsPracticeMode(false);
-            //navigate(`/devices/${deviceName}`)
         } else { // turning on current practice 
-            // fetch the config.json file from catos
-
-
+            // fetch the config.json file from cato
             const config = await fetchAndCompareConfig();
             if (!config) {
                 // make sure that the device is not in practice mode
@@ -347,10 +336,6 @@ const Practice = ({ user, devices }) => {
                 console.log("Error creating practice mode config");
                 return;
             }
-
-
-            //console.log("practiceConfig", practiceConfig);
-            // write the practice mode config to the device
             const success = await overwriteConfigFile(practiceConfig);
             console.log(success);
             if (success) { // file picked 
@@ -378,7 +363,6 @@ const Practice = ({ user, devices }) => {
     }
 
     const PracticeOptions = (config) => {
-
         const [isCollapsed, setIsCollapsed] = useState(false);
 
         const toggleCollapse = () => {
@@ -397,6 +381,7 @@ const Practice = ({ user, devices }) => {
         }, [isPracticing]);
 
         console.log("config", config);
+
         return (
             <div style={sliderContainerStyle}>
                 <div style={{ maxWidth: '600px', margin: '0' }}>
@@ -470,9 +455,6 @@ const Practice = ({ user, devices }) => {
                     }
                 </div>
             </div>
-
-
-
         )
     }
 
@@ -495,54 +477,47 @@ const Practice = ({ user, devices }) => {
 
     const styles = {
         container: {
-            backgroundColor: '#f7f7f7', // Light grey background
-            border: '1px solid #ddd',   // Light border
-            borderRadius: '8px',        // Rounded corners
-            padding: '20px',            // Padding around the content
-            maxWidth: '600px',          // Maximum width of the container
-            margin: '20px auto',        // Center the container
-            boxShadow: '0 4px 8px rgba(0,0,0,0.1)'  // Subtle shadow
+            backgroundColor: '#f7f7f7',
+            border: '1px solid #ddd',
+            borderRadius: '8px',
+            padding: '20px',
+            maxWidth: '600px',
+            margin: '20px auto',
+            boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
         },
         heading: {
-            color: '#333',              // Dark grey color for the heading
-            marginBottom: '10px',       // Space below the heading
+            color: '#333',
+            marginBottom: '10px',
         },
-
         button: {
-            backgroundColor: '#0056b3', // Blue background color
-            color: 'white',             // White text
-            padding: '10px 15px',       // Padding inside the button
-            border: 'none',             // No border
-            borderRadius: '5px',        // Rounded corners
-            cursor: 'pointer',          // Pointer cursor on hover
-            marginTop: '15px',          // Space above the button
-            fontSize: '16px'            // Larger font size
+            backgroundColor: '#0056b3',
+            color: 'white',
+            padding: '10px 15px',
+            border: 'none',
+            borderRadius: '5px',
+            cursor: 'pointer',
+            marginTop: '15px',
+            fontSize: '16px'
         },
-
         list: {
-            lineHeight: '1.6',            // Space between lines
-            color: '#555',                // Dark grey color for the text
-            paddingLeft: '20px',          // Add padding to the left of the list for the numbers
-            listStyleType: 'decimal',     // Ensure decimal numbers are used
-            listStylePosition: 'inside'   // Position the numbers inside the list item content
+            lineHeight: '1.6',
+            color: '#555',
+            paddingLeft: '20px',
+            listStyleType: 'decimal',
+            listStylePosition: 'inside'
         },
     };
-
-
 
     const handleTextChange = (event) => {
         setPracticeText(event.target.value);
     };
+
     const headerStyle = {
-        marginBottom: '5 px', // Adjust this value as needed
-        // Other styles...
+        marginBottom: '5 px',
     };
 
     return (
-
-
         <div>
-
             <div className="ml-90" style={headerStyle}>
                 <header className="shrink-0 bg-transparent border-b border-gray-200">
                     <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
@@ -561,21 +536,6 @@ const Practice = ({ user, devices }) => {
                     <li>Once you are done practicing, click on <strong>"Finish Practice"</strong> to save your practice session.</li>
                 </ol>
             </div>
-            { /*
-            <div className="ml-90">
-                <header className="shrink-0 bg-transparent border-b border-gray-200">
-                    <div className="ml-0 flex h-16 max-w-7xl items-center justify-between ">
-                        <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-                            Practice Settings
-                        </h2>
-                    </div>
-                </header>
-    </div> */}
-
-
-
-
-            {/* <div className="flex flex-start h-screen items-start p-5 bg-[#f0f0f0] gap-2.5 overflow-auto"> */}
             <div className="flex items-center justify-center p-5 bg-[#f0f0f0] gap-2.5 overflow-auto">
                 <button
                     onClick={togglePractice}
@@ -591,12 +551,9 @@ const Practice = ({ user, devices }) => {
                     className="flex-1 h-[300px] bg-black text-white border border-gray-300 rounded p-2.5 text-base resize-none"
                 />
             </div>
-
             {firebaseConfig && PracticeOptions(firebaseConfig)}
-
         </div>
     );
-
 }
 
 export default Practice;

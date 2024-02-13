@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 import './PracticeModeToggle.css';
@@ -20,9 +20,9 @@ const PracticeModeToggle = ({ deviceName, onToggle }) => {
   };
 
   return (
-    <div className={`box mr-1${isToggled ? 'active-device' : ''}`}> 
+    <div className={`box mr-1${isToggled ? 'active-device' : ''}`}>
       <div>
-        <label className={`flex flex-col switch ${isToggled ? 'active' : ''}`}> 
+        <label className={`flex flex-col switch ${isToggled ? 'active' : ''}`}>
           <input type="checkbox" checked={isToggled} onChange={handleToggle} />
           <span className="slider round"></span>
           <div className='text-white font-medium text-xs'>Practice</div>

@@ -8,6 +8,7 @@
     "lodash.debounce": "^4.0.8",
     "marked": "^11.1.1",
     "react-rangeslider": "^2.2.0",
-    "react-toastify": "^10.0.4"
+    "react-toastify": "^10.0.4",
+    "semver": "^7.6.0"
   }
 }

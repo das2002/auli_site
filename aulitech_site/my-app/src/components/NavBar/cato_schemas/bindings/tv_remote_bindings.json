@@ -1,0 +1,58 @@
+{
+    "bindings": {
+        "value": [
+            {
+                "command": "noop",
+                "args": []
+            },
+            {
+                "command": "button_action",
+                "args": [
+                    1,
+                    "tap",
+                    82
+                ]
+            },
+            {
+                "command": "button_action",
+                "args": [
+                    1,
+                    "tap",
+                    81
+                ]
+            },
+            {
+                "command": "button_action",
+                "args": [
+                    1,
+                    "tap",
+                    79
+                ]
+            },
+            {
+                "command": "button_action",
+                "args": [
+                    1,
+                    "tap",
+                    80
+                ]
+            },
+            {
+                "command": "button_action",
+                "args": [
+                    1,
+                    "tap",
+                    40
+                ]
+            },
+            {
+                "command": "button_action",
+                "args": [
+                    1,
+                    "tap",
+                    41
+                ]
+            }
+        ]
+    }
+}
