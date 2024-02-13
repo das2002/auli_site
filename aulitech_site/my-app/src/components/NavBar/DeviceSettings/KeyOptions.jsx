@@ -1,4 +1,3 @@
-
 // these are keycodes taken from adafruit 
 const keyOptionsMapping = {
     "4": "A",
@@ -144,4 +143,4 @@ const KeyOptions = () => {
     );
 }
 
-export {getKeyOption, KeyOptions}
+export { getKeyOption, KeyOptions }

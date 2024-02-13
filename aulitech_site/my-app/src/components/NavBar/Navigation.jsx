@@ -4,41 +4,14 @@ import { Dialog, Portal, Transition } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Link, NavLink } from "react-router-dom";
 import { get, set } from 'idb-keyval';
-import Logo from "../Elements/Logo"
+import Logo from "./images/Logo"
 import SignOutAccount from "../GoogleAuth/SignOutAccount";
 import { useNavigate, useRoutes, useLocation, BrowserRouter as Router, Route, Routes, Outlet } from 'react-router-dom';
-import RegisterInterface from './RegisterInterface';
-import PracticeModeToggle from "./PracticeModeToggle/PracticeModeToggle";
-import Practice from "./Practice";
-import { overwriteConfigFile, getFileHandle } from '../NavBar/ReplaceConfig';
+import RegisterInterface from './RegisterDevices/RegisterInterface';
+import PracticeModeToggle from "./PracticeMode/PracticeModeToggle";
+import Practice from "./PracticeMode/Practice";
+import { overwriteConfigFile, getFileHandle } from './RegisterDevices/ReplaceConfig';
 import connectionImage from '../../images/connection-svgrepo-com.svg';
-
-// static nav buttons in navbar
-// const RecordGesturesRoute = () => {
-//   const { classNames } = useContext(AppContext);
-//   return (
-//     <div className="-mx-6 transition-all duration-300">
-//       <NavLink
-//         to="/record-gestures"
-//         className={({ isActive }) =>
-//           classNames(
-//             isActive
-//               ? "bg-gray-700 text-white"
-//               : "text-gray-400 hover:text-white hover:bg-gray-700",
-//             "group flex gap-x-4 px-6 py-3 text-lg leading-6 font-semibold"
-//           )
-//         }
-//       >
-//         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-6 h-6">
-//           <circle cx="12" cy="12" r="8" strokeWidth="2" />
-//           <circle cx="12" cy="12" r="4" fill="currentColor" />
-//           <rect x="2" y="2" width="20" height="20" rx="10" strokeWidth="2" />
-//         </svg>
-//         <p>Record Gestures</p>
-//       </NavLink>
-//     </div>
-//   );
-// };
 
 const UpdateRoute = () => {
   const { classNames, changeUsbDevice } = useContext(AppContext);
@@ -74,7 +47,6 @@ const UpdateRoute = () => {
   );
 };
 
-
 const UserIcon = () => {
   return (
     <div className="fixed">
@@ -97,15 +69,13 @@ const UserIcon = () => {
 };
 
 // accordion menus 
-const DevicesList = React.memo(({onClick}) => {
+const DevicesList = React.memo(({ onClick }) => {
   const { classNames, isDevicesMenuOpen, devices, savedConfig, isPracticeMode, setIsPracticeMode, usbDevice } = useContext(AppContext);
-
-  // const [isDevicesMenuOpen] = useState(AppContext); 
 
   const location = useLocation();
   const navigate = useNavigate();
 
-  
+
   const [isPracticeModeToggleOn, setIsPracticeModeToggleOn] = useState(false);
   const [animate, setAnimate] = useState(false);
 
@@ -124,10 +94,8 @@ const DevicesList = React.memo(({onClick}) => {
         console.log(isPracticeMode, savedConfig)
         overwriteConfigFile(savedConfig);
       }
-
       navigate(`/devices/${devicePath}`);
     }
-
     setIsPracticeModeToggleOn(!isPracticeModeToggleOn);
   };
 
@@ -178,8 +146,8 @@ const DevicesList = React.memo(({onClick}) => {
                   {devicePath}
 
                   {isConnected && (
-                    <div title="Device connected to computer via USB." style={{marginRight: '10px'}}>
-                      <img src={connectionImage} alt="Connected" className="w-6 h-6 ml-2"/>
+                    <div title="Device connected to computer via USB." style={{ marginRight: '10px' }}>
+                      <img src={connectionImage} alt="Connected" className="w-6 h-6 ml-2" />
                     </div>
                   )}
 
@@ -198,7 +166,7 @@ const DevicesList = React.memo(({onClick}) => {
                     </div>
                   )}
                 </NavLink>
-                
+
                 {isActive && <PracticeModeToggle deviceName={devicePath} onToggle={() => togglePracticeMode(index)} />}
               </div>
             </div>
@@ -275,7 +243,7 @@ const DevicesRoute = () => {
         </div>
         {/* {console.log(devices[0].data.device_info.device_nickname)} */}
         <div className="pl-8 pt-2 space-y-2">
-          <DevicesList onClick={checkDeviceStatusWithoutToggle}/>
+          <DevicesList onClick={checkDeviceStatusWithoutToggle} />
         </div>
       </div>
     </>
@@ -451,9 +419,6 @@ const Navigation = ({
   const [savedConfig, setSavedConfig] = useState({}); // must be accessible to Practice 
   const [isPracticeMode, setIsPracticeMode] = useState(false);
   const [usbDevice, setUsbDevice] = useState(connectedDevice);
-
-  //console.log('should definitely be func', setIsPracticeMode);
-  // router 
   <Router>
     <Routes>
       <Route path="/register-interface" element={<RegisterInterface />} />
@@ -467,9 +432,6 @@ const Navigation = ({
       />
     </Routes>
   </Router>
-
-
-
 
   const toggleDevicesMenu = () => {
     setIsDevicesMenuOpen(!isDevicesMenuOpen);
@@ -598,15 +560,9 @@ const Navigation = ({
                         <div role="list" className="flex align-top flex-col gap-y-7">
                           <div role="list" className="flex align-top flex-col gap-y-0">
                             <DevicesRoute />
-
-                            {/* Extra space with transition */}
-
                             <div className={`transition-all duration-300`} style={{ height: isDevicesMenuOpen ? (devices.length + 1) * 52 : 0 }}></div>
-
                           </div>
-                          {/* Routes that will move */}
                           <UpdateRoute />
-                          {/* <RecordGesturesRoute /> */}
                         </div>
                         <ProfileRoute />
                       </nav>
@@ -619,30 +575,19 @@ const Navigation = ({
 
           {/* Static sidebar for desktop */}
           <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-            {/* Sidebar component, swap this element with another sidebar if you like */}
             <div className="navbar">
               <Logo height={16} marginY={5} marginX={10} />
               <nav className="flex flex-1 flex-col gap-y-7">
                 <div role="list" className="flex align-top flex-col gap-y-0">
                   <DevicesRoute />
-
-                  {/* Extra space with transition */}
-
-                  {/* <div className={`transition-all duration-300`} style={{ height: isDevicesMenuOpen ? (devices.length + 1) * 52 : 0 }}></div> */}
-
                 </div>
                 <div role="list" className="flex align-top flex-col gap-y-7 transition-all duration-300">
-                  {/* Routes that will move */}
                   <UpdateRoute />
-                  {/* <RecordGesturesRoute /> */}
                 </div>
                 <ProfileRoute />
               </nav>
             </div>
-
-
           </div>
-
 
           <div className="sticky top-0 z-40 flex items-center gap-x-6 bg-gray-900 px-4 py-4 shadow-sm sm:px-6 lg:hidden">
             <button

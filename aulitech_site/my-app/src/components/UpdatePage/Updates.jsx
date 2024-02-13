@@ -6,7 +6,6 @@ import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import './Updates.css';
 
-
 const createMarkup = (markdown) => {
   const converted = markdown.replace(/\r?\n/g, '\n');
   const html = marked(converted);
@@ -15,17 +14,15 @@ const createMarkup = (markdown) => {
   return { __html: html };
 };
 
-
-
 const releasesMetadata = [
-  {version: '0.0.8', createdAt: '2024-02-07T01:21:35Z' , markdownPath: 'releases/v0.0.8/description' , zipPath: 'releases/v0.0.8/release.zip'},
+  { version: '0.0.8', createdAt: '2024-02-07T01:21:35Z', markdownPath: 'releases/v0.0.8/description', zipPath: 'releases/v0.0.8/release.zip' },
   //{version: '0.0.7', createdAt: '2024-01-24T02:04:21Z' , markdownPath: 'releases/v0.0.7/description' , zipPath: 'releases/v0.0.7/release.zip'},
   //{version: '0.0.6', createdAt: "2024-01-07T06:05:39Z" , markdownPath: 'releases/v0.0.6/description' , zipPath: 'releases/v0.0.6/release.zip'},
   //{version: '0.0.5', createdAt: "2023-09-20T01:08:02Z", markdownPath: 'releases/v0.0.5/description' , zipPath: 'releases/v0.0.5/release.zip'},
 ];
 
 const FormattedUpdate = ({ release, index, id }) => {
-  const isLatest = index === 0; 
+  const isLatest = index === 0;
   const tagName = release.version;
   const releaseZipUrl = release.zipUrl;
   //const tagName = isLatest ? `${release.tag_name}` : release.tag_name;
@@ -55,7 +52,6 @@ const FormattedUpdate = ({ release, index, id }) => {
 };
 
 const Updates = () => {
-  // download releases from github 
   const [releases, setReleases] = useState([]);
 
   useEffect(() => {
@@ -71,7 +67,6 @@ const Updates = () => {
           release.markdownUrl = markdownUrl;
           release.zipUrl = zipUrl;
 
-
           // store the markdown content in the release object
           const response = await fetch(markdownUrl);
 
@@ -81,6 +76,7 @@ const Updates = () => {
 
         console.log("sortedReleases", sortedReleases);
 
+        setReleases(sortedReleases);
         setReleases(sortedReleases);
       } catch (error) {
         console.error('Error fetching releases:', error);
@@ -98,7 +94,6 @@ const Updates = () => {
       if (v2parts.length === i) {
         return 1;
       }
-
       if (v1parts[i] === v2parts[i]) {
         continue;
       } else if (v1parts[i] > v2parts[i]) {
@@ -111,7 +106,6 @@ const Updates = () => {
     if (v1parts.length !== v2parts.length) {
       return -1;
     }
-
     return 0;
   };
 
@@ -153,12 +147,11 @@ const Updates = () => {
   const [buttonState, setButtonState] = useState('fixed');
   const [displayedReleaseCount, setDisplayedReleaseCount] = useState(3);
   const loadMoreReleases = () => {
-    // Calculate the new count, ensuring it doesn't exceed the total number of releases
     const newCount = Math.min(displayedReleaseCount + 3, releases.length);
     setDisplayedReleaseCount(newCount);
     setButtonState('float');
     if (newCount === releases.length) {
-      setButtonState('hidden'); // Hide the button if all releases are displayed
+      setButtonState('hidden');
     }
   };
 
@@ -239,7 +232,7 @@ const Updates = () => {
       <div style={{
         position: 'fixed',
         left: '-9999px',
-        width: '1000px', 
+        width: '1000px',
         overflow: 'hidden'
       }}
         className='release-container'

@@ -10,21 +10,21 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-import { db, auth } from "../../firebase";
-import * as newDeviceConfig from '../../resources/templates/new_device_config.json';
-import * as clickerDefault from '../NavBar/cato_schemas/clicker.json';
-import * as mouseDefault from '../NavBar/cato_schemas/mouse.json';
-import * as gestureDefault from '../NavBar/cato_schemas/gesture.json';
-import * as tvRemoteDefault from '../NavBar/cato_schemas/tv_remote.json';
-import * as bindingsDefault from '../NavBar/cato_schemas/bindings.json';
-import * as clickerBindings from '../NavBar/cato_schemas/bindings/clicker_bindings.json';
-import * as tvRemoteBindings from '../NavBar/cato_schemas/bindings/tv_remote_bindings.json';
-import * as gestureMouseBindings from '../NavBar/cato_schemas/bindings/gesture_mouse_bindings.json';
-import * as practiceDefault from '../NavBar/cato_schemas/practice.json';
-import * as connectionSpecificDefault from '../NavBar/cato_schemas/connection_specific.json';
-import * as operationDefault from '../NavBar/cato_schemas/operation.json';
-import * as globalInfoDefault from '../../resources/templates/global_info_default.json';
-import { getDirectoryHandle, getFileHandle } from "../NavBar/ReplaceConfig";
+import { db, auth } from "../../../firebase";
+import * as newDeviceConfig from '../../../resources/templates/new_device_config.json';
+import * as clickerDefault from '../cato_schemas/clicker.json';
+import * as mouseDefault from '../cato_schemas/mouse.json';
+import * as gestureDefault from '../cato_schemas/gesture.json';
+import * as tvRemoteDefault from '../cato_schemas/tv_remote.json';
+import * as bindingsDefault from '../cato_schemas/bindings.json';
+import * as clickerBindings from '../cato_schemas/bindings/clicker_bindings.json';
+import * as tvRemoteBindings from '../cato_schemas/bindings/tv_remote_bindings.json';
+import * as gestureMouseBindings from '../cato_schemas/bindings/gesture_mouse_bindings.json';
+import * as practiceDefault from '../cato_schemas/practice.json';
+import * as connectionSpecificDefault from '../cato_schemas/connection_specific.json';
+import * as operationDefault from '../cato_schemas/operation.json';
+import * as globalInfoDefault from '../../../resources/templates/global_info_default.json';
+import { getDirectoryHandle, getFileHandle } from "./ReplaceConfig";
 
 
 
@@ -198,8 +198,8 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
 
 
       // we need to surround the getFile() call with a try/catch block
-        // if fileHandle.getFile() fails, we need to re-request the directory picker
-        
+      // if fileHandle.getFile() fails, we need to re-request the directory picker
+
       let file = null;
       try {
         file = await fileHandle.getFile();
@@ -261,7 +261,7 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
       // if all checks pass return the config
       return config;
     } catch (error) {
-      console.log(error);   
+      console.log(error);
       return;
     }
   }
@@ -269,20 +269,20 @@ const RegisterCatoDevice = ({ user, devices, handleRenderDevices }) => {
   async function verifyPermission(fileHandle, readWrite) {
     const options = {};
     if (readWrite) {
-        options.mode = 'readwrite';
+      options.mode = 'readwrite';
     }
     // alredy permission granted?
     const permission = await fileHandle.queryPermission(options);
     // permission granted --> true
     if (permission === 'granted') {
-        return true;
+      return true;
     }
     // permission not there --> request permission
     if (permission === 'denied' || permission === 'prompt') {
-        return (await fileHandle.requestPermission(options)) === 'granted';
+      return (await fileHandle.requestPermission(options)) === 'granted';
     }
     return false;
-}
+  }
 
   async function getGlobalInfoData(config) {
     async function checkIfGlobalSectionExists(config) {

@@ -1,25 +1,25 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import React, { useState, useEffect, useRef } from 'react';
-import { db, auth } from '../../firebase';
+import { db, auth } from '../../../firebase';
 import debounce from 'lodash.debounce';
 import { collection, getDocs, query, where, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { set } from 'lodash';
 import Slider from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
 import { KeyOptions, getKeyOption } from './KeyOptions';
-import { fetchAndCompareConfig, overwriteConfigFile, deleteConfigFileIfExists } from './ReplaceConfig';
+import { fetchAndCompareConfig, overwriteConfigFile, deleteConfigFileIfExists } from '../RegisterDevices/ReplaceConfig';
 import { toast, ToastContainer, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import dynamicMouseGraphic from '../../images/dynamic_mouse_graphic.png';
+import dynamicMouseGraphic from '../../../images/dynamic_mouse_graphic.png';
 
-import flatImage from './flatImage.png';
-import landscapeImage from './landscapeImage.png';
-import portraitImage from './portraitImage.png';
+import flatImage from '../images/flatImage.png';
+import landscapeImage from '../images/landscapeImage.png';
+import portraitImage from '../images/portraitImage.png';
 
-import emptystar from './emptyStar.png';
-import filledin from './filledStar.png';
+import emptystar from '../images/emptyStar.png';
+import filledin from '../images/filledStar.png';
 
-import PencilEditIcon from './pencil-edit.svg';
+import PencilEditIcon from '../images/pencil-edit.svg';
 
 const DarkYellowSlider = styled(Slider)(({ theme }) => ({
   color: '#B8860B',
@@ -35,13 +35,6 @@ const DarkYellowSlider = styled(Slider)(({ theme }) => ({
     opacity: 0.28,
   },
 }));
-
-// change it back if needed:
-// const sectionHeadingStyle = {
-//   fontSize: '20px',
-//   marginBottom: '10px',
-//   fontWeight: 'bold', 
-// };
 
 const sectionHeadingStyle = {
   fontSize: '16px',
@@ -93,11 +86,6 @@ const HardwareUIDField = ({ hardwareUID }) => {
       <h2 style={{ fontSize: '16px', marginRight: '10px' }}><strong>Serial Number:</strong></h2>
       <span
         style={{
-          // display: 'inline-block',
-          // padding: '5px 10px',
-          // fontSize: '14px',
-          // background: '#f2f2f2', 
-          // borderRadius: '5px',
           marginRight: '20px'
         }}
       >
@@ -106,7 +94,6 @@ const HardwareUIDField = ({ hardwareUID }) => {
     </div>
   );
 };
-
 
 const getCurrentUserId = () => {
   const currentUser = auth.currentUser;
@@ -117,18 +104,6 @@ const getCurrentUserId = () => {
     return null;
   }
 };
-
-function parseBool(value) {
-  if (typeof value === 'string') {
-    value = value.toLowerCase().trim();
-    if (value === 'true' || value === 'on') {
-      return 'true';
-    } else if (value === 'false' || value === 'off') {
-      return 'false';
-    }
-  }
-  return Boolean(value);
-}
 
 const deepCopy = (obj) => {
   return JSON.parse(JSON.stringify(obj));
@@ -212,7 +187,6 @@ const InputSlider = ({ value, onChange, min, max, step, sliderTitle, unit, slide
   );
 };
 
-
 const hoverstyle = {
   position: 'absolute',
   backgroundColor: '#333',
@@ -285,21 +259,6 @@ const Dropdown = ({ value, onChange, title, description, options }) => {
   );
 };
 
-
-const titleStyle = {
-  color: '#333', // Darker text for better readability
-  textAlign: 'left',
-  marginBottom: '20px',
-  fontWeight: 'bold',
-  fontSize: '24px'
-};
-
-const descriptionStyle = {
-  fontSize: '14px',
-  color: '#666', // Lighter text for the description
-  marginBottom: '10px'
-};
-
 const styles = {
   dropdownContainer: {
     marginBottom: '20px',
@@ -325,20 +284,10 @@ const styles = {
 };
 
 const DashedLine = () => {
-  // const lineStyle = {
-  //   border: '1px dashed #000', 
-  //   width: '100%', 
-  //   height: 0,
-  //   marginTop: '10px', 
-  // };
-
   return (
     <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
-    // <div style={lineStyle}>
-    // </div>
   );
 };
-
 
 const Devices = ({ devices }) => {
   const editButtonRef = useRef(null);
@@ -348,11 +297,30 @@ const Devices = ({ devices }) => {
 
   const [isEditPopupOpen, setIsEditPopupOpen] = useState(false);
   const [editedConnectionName, setEditedConnectionName] = useState('');
-  const [currentEditingConnection, setCurrentEditingConnection] = useState(null);
   const popupRef = useRef();
 
   const [editingConnectionIndex, setEditingConnectionIndex] = useState(null);
   const [temporaryConnectionName, setTemporaryConnectionName] = useState('');
+
+  const { deviceName } = useParams();
+  const navigate = useNavigate();
+
+  const [isUniversalSettingsExpanded, setIsUniversalSettingsExpanded] = useState(true);
+  const [isConnectionsExpanded, setIsConnectionsExpanded] = useState(true);
+
+  const toggleUniversalSettings = () => {
+    setIsUniversalSettingsExpanded(!isUniversalSettingsExpanded);
+  };
+
+  const toggleConnections = () => {
+    setIsConnectionsExpanded(!isConnectionsExpanded);
+  };
+
+  const thisDevice = devices.find(device => device.data.device_info.device_nickname === deviceName);
+
+  const handleRegisterInterface = () => {
+    navigate(`/devices/${deviceName}/register-interface`);
+  };
 
   const startEditing = (connection, index) => {
     setOriginalConnectionName(connection.name);
@@ -367,6 +335,7 @@ const Devices = ({ devices }) => {
       setEditingConnectionIndex(null);
     }
   };
+
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
@@ -415,32 +384,6 @@ const Devices = ({ devices }) => {
 
   };
 
-
-
-
-  const { deviceName } = useParams();
-  const navigate = useNavigate();
-
-  const [isUniversalSettingsExpanded, setIsUniversalSettingsExpanded] = useState(true);
-  const [isConnectionsExpanded, setIsConnectionsExpanded] = useState(true);
-
-  const toggleUniversalSettings = () => {
-    setIsUniversalSettingsExpanded(!isUniversalSettingsExpanded);
-  };
-
-  const toggleConnections = () => {
-    setIsConnectionsExpanded(!isConnectionsExpanded);
-  };
-
-
-  // Find the specific device
-  const thisDevice = devices.find(device => device.data.device_info.device_nickname === deviceName);
-  // Check if the device was found
-
-  const handleRegisterInterface = () => {
-    navigate(`/devices/${deviceName}/register-interface`);
-  };
-
   const DeviceNameField = ({ intialDeviceName, onNameChange }) => {
     const [editedDeviceName, setEditedDeviceName] = useState(intialDeviceName);
 
@@ -478,7 +421,6 @@ const Devices = ({ devices }) => {
   const [connectionsList, setConnectionsList] = useState([]);
 
   const makePrimary = async (primaryConnection) => {
-    // update local variables
     const updatedConnections = [primaryConnection, ...connectionsList.filter(conn => conn.name !== primaryConnection.name)];
 
     setConnectionsList(updatedConnections);
@@ -551,11 +493,6 @@ const Devices = ({ devices }) => {
     }
   };
 
-
-
-
-
-
   // what should happen as soon as we get thisDevice
   useEffect(() => {
     if (thisDevice) {
@@ -590,8 +527,6 @@ const Devices = ({ devices }) => {
     };
   }, [editedConnectionsSettings]);
 
-
-
   const GlobalInfoSection = () => {
     const [isSleepExpanded, setIsSleepExpanded] = useState(true);
     const [isOrientationExpanded, setIsOrientationExpanded] = useState(true);
@@ -619,10 +554,6 @@ const Devices = ({ devices }) => {
     }
 
     const sectionStyle = {
-      // marginBottom: '10px',
-      // padding: '10px',
-      // border: '1px solid #ccc',
-      // borderRadius: '5px',
     };
 
     const handleDeviceNameChange = (value) => {
@@ -642,11 +573,6 @@ const Devices = ({ devices }) => {
         setSelectedOrientation(orientationKey);
       }, [editedGlobalSettings.orientation.value]);
 
-      // const orientations = {
-      //   flat: { config: { front: "-x", bottom: "+z", left: "+y" }, image: flatImage },
-      //   landscape: { config: { front: "-x", bottom: "+y", left: "-z" }, image: landscapeImage },
-      //   portrait: { config: { front: "+y", bottom: "+x", left: "-z" }, image: portraitImage }
-      // };
       const orientations = {
         flat: {
           config: {
@@ -751,11 +677,6 @@ const Devices = ({ devices }) => {
             <div>
               <HardwareUIDField hardwareUID={editedGlobalSettings["HW_UID"]["value"]} />
             </div>
-            {/* <div>
-              <button onClick={handleDeviceDelete} style={{ backgroundColor: '#8B0000', color: 'white', border: 'none', padding: '10px', borderRadius: '5px', cursor: 'pointer' }}>
-                Delete Device
-              </button>
-            </div> */}
           </div>
           <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
 
@@ -788,17 +709,14 @@ const Devices = ({ devices }) => {
                 sliderDescription={'Movement level below which Cato starts counting towards sleep'}
               />
             </div>
-            // </div>
           )}
 
           <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
           <OrientationSection />
-
         </div>
       </div>
     )
   };
-
 
   const AccordionList = ({ data }) => {
     const noConnectionsStyle = {
@@ -837,33 +755,8 @@ const Devices = ({ devices }) => {
     }
 
     const ConnectionAccordion = ({ connection, onDelete, makePrimary, index }) => {
-      // const ConnectionAccordion = ({ connection, onDelete }) => {
       const [isExpanded, setIsExpanded] = useState(false);
       const [collapsedSections, setCollapsedSections] = useState({});
-      const toggleSection = (sectionKey) => {
-        setCollapsedSections((prevSections) => ({
-          ...prevSections,
-          [sectionKey]: !prevSections[sectionKey],
-        }));
-      };
-
-
-
-      // const [collapsedSections, setCollapsedSections] = useState({
-      //   connectionSettings: false,
-      //   mouseSettings: false,
-      //   clickerSettings: false,
-      //   gestureSettings: false,
-      //   tvRemoteOptions: false,
-      // });
-
-      // const toggleSection = (sectionKey) => {
-      //   setCollapsedSections((prevSections) => ({
-      //     ...prevSections,
-      //     [sectionKey]: !prevSections[sectionKey],
-      //   }));
-      // };
-
 
       const [fetchedConnectionConfig, setFetchedConnectionConfig] = useState(null);
       const [editedConnectionConfig, setEditedConnectionConfig] = useState(null);
@@ -880,8 +773,6 @@ const Devices = ({ devices }) => {
 
       const [fetchedClickerConfig, setFetchedClickerConfig] = useState(null);
       const [editedClickerConfig, setEditedClickerConfig] = useState(null);
-
-
 
       useEffect(() => {
         if (connection) {
@@ -1268,8 +1159,8 @@ const Devices = ({ devices }) => {
                     </div>
                   </div>
                   <div style={{ marginLeft: '120px' }}>
-                  <img src={dynamicMouseGraphic} alt="Dynamic Mouse Graph" style={{ width: '75%', marginTop: '20px', marginBottom: '30px' }} />
-                </div>
+                    <img src={dynamicMouseGraphic} alt="Dynamic Mouse Graph" style={{ width: '75%', marginTop: '20px', marginBottom: '30px' }} />
+                  </div>
                 </div>
 
 
@@ -1515,10 +1406,6 @@ const Devices = ({ devices }) => {
               return "Freezes cursor, look up/down to scroll horizontally, look left/right to cancel.";
             case "button_action":
               return `Cato ${actionMapping(binding.args[1])} the ${actorMapping(binding.args[0])} on ${buttonMapping(binding.args[2])}.`;
-            // if (binding.args[0] && binding.args[1] && binding.args[2]) {
-            //   return `Button Action: ${actorMapping(binding.args[0])} ${actionMapping(binding.args[1])} on ${buttonMapping(binding.args[2])}.`;
-            // }
-            // return "Performs a specified action.";
             default:
               return "Unknown command.";
           }
@@ -1654,7 +1541,7 @@ const Devices = ({ devices }) => {
         let bindingsSettings;
         if (mode === "clicker") {
           gesturesList = ['None', 'Single', 'Double', 'Triple'];
-          bindingsSettings = config.bindings.value; //correct way to do this?
+          bindingsSettings = config.bindings.value; 
         } else {
           gesturesList = [
             'None',
@@ -1708,10 +1595,8 @@ const Devices = ({ devices }) => {
                 Tutorial Video
               </a>
             </div>
-            {/* {!collapsedSections['bindingsPanel'] && ( */}
             {isExpanded && (
               <div style={{ marginLeft: '40px' }}>
-                {/* <h2 style= {sectionHeadingStyle}>Bindings Panel</h2> */}
                 <table className='table-fixed'>
                   <thead>
                     <tr>
@@ -1725,7 +1610,6 @@ const Devices = ({ devices }) => {
                     {bindingsSettings.map((binding, index) => {
                       console.log(binding);
                       console.log(index);
-                      //if row isn't empty (for clicker):
                       if (gesturesList[index] && index != 0) { //temporary solution for the first item being ignored
                         return (
                           <tr key={index} className="max-h-16 h-16">
@@ -1854,7 +1738,7 @@ const Devices = ({ devices }) => {
 
                         );
                       }
-                      return null; // Do not render anything for empty gestures
+                      return null;
                     })}
                   </tbody>
                 </table>
@@ -1897,7 +1781,6 @@ const Devices = ({ devices }) => {
         return (
           <div>
             <hr style={{ borderColor: '#ccc', borderWidth: '1px', margin: '10px 0' }} />
-            {/* <ClickerOptions config={editedClickerConfig} /> */}
             <ClickerOptions
               config={editedClickerConfig}
               collapsedSections={collapsedSections}
@@ -1933,7 +1816,6 @@ const Devices = ({ devices }) => {
       };
 
       const PointerSetting = () => {
-        //pointer setting
         if (!fetchedPointerConfig) {
           return <div>Loading...</div>;
         }
@@ -1946,24 +1828,6 @@ const Devices = ({ devices }) => {
           </div>
         );
       }
-
-      // const handleConnectionDeletion = async () => {
-      /*
-      const userId = getCurrentUserId();
-      const userCatoDocId = thisDevice.id;
-      const userCatoDocRef = doc(db, "users", userId, "userCatos", userCatoDocId);
-
-      try {
-        await updateDoc(userCatoDocRef, {
-          'connections': arrayRemove(editedConnectionConfig),
-        });
-        console.log("Connection deleted successfully");
-      } catch (error) {
-        console.error("Error deleting connection: ", error);
-      }
-      */
-
-      // }
 
       return (
         <div style={{ marginBottom: '1rem' }}>
@@ -1990,9 +1854,6 @@ const Devices = ({ devices }) => {
               </div>
             ) : (
               <div style={{ flex: 1, display: 'flex', alignItems: 'center' }}>
-                {/* <strong style={{ marginRight: '10px' }}>
-                  {connection.name}
-                </strong> */}
                 <button
                   onClick={toggleIsExpanded}
                   style={{
@@ -2122,10 +1983,8 @@ const Devices = ({ devices }) => {
 
   const accordionListStyle = {
     display: 'grid',
-    // gap: '0 rem',
     borderBottom: '1px solid #ccc',
     borderRadius: '4px',
-    // padding: '1rem',
   };
 
   const sliderContainerStyle = {
@@ -2136,7 +1995,6 @@ const Devices = ({ devices }) => {
   };
 
   const handleSave = async () => {
-
     // if the connections array is empty, return
     if (editedConnectionsSettings.length === 0) {
       console.error("No connections to save");
@@ -2155,13 +2013,9 @@ const Devices = ({ devices }) => {
     }
 
     const webAppHwUid = editedGlobalSettings["HW_UID"]["value"];
-
-    // const directoryHandle = await getDirectoryHandle();
-
     let calibratedWithFirebase = false;
-
-
     const hwUidMatch = await fetchAndCompareConfig(webAppHwUid);
+
     if (!hwUidMatch) {
       console.error("HW_UID does not match with the connected device.");
       // create a prompt to inform the user that the HW_UID does not match and that if they press continue, they will only be editing the web settings
@@ -2172,8 +2026,6 @@ const Devices = ({ devices }) => {
         calibratedWithFirebase = false;
       }
     }
-
-
 
     const userId = getCurrentUserId();
     const userCatoDocId = thisDevice.id;
@@ -2199,7 +2051,7 @@ const Devices = ({ devices }) => {
         });
       }
       console.log("Web settings updated successfully");
-      
+
     } catch (error) {
       console.error("Error updating web settings: ", error);
       toast.error("Error updating web settings. Aborting save operation.", {
@@ -2275,7 +2127,7 @@ const Devices = ({ devices }) => {
     };
     const newDeviceName = editedGlobalSettings["name"]["value"];
 
-    navigate(`/devices/${newDeviceName}`); // is this the correct order?
+    navigate(`/devices/${newDeviceName}`);
     window.location.reload(); //TODO: change later for permission?
 
 
@@ -2317,7 +2169,6 @@ const Devices = ({ devices }) => {
       return;
     }
 
-    // delete the device from the database
     if (thisDevice) {
       const deviceRef = doc(db, 'users', getCurrentUserId(), 'userCatos', thisDevice.id);
       try {
@@ -2338,7 +2189,6 @@ const Devices = ({ devices }) => {
 
     setTimeout(() => {
       navigate('/devices');
-      //refresh the page
       window.location.reload();
     }, 2000);
   }
@@ -2367,7 +2217,6 @@ const Devices = ({ devices }) => {
             onChange={(e) => setEditedConnectionName(e.target.value)}
           />
           <button onClick={handleSaveEditedName}>Save</button>
-          {/* <button onClick={closeEditPopup}>Cancel</button> */}
         </div>
       )}
 
@@ -2411,8 +2260,6 @@ const Devices = ({ devices }) => {
         {isConnectionsExpanded && (
           <>
             <AccordionList data={connectionsList} />
-            {/* Add Connection button should be here, inside the same conditional rendering block */}
-
           </>
         )}
 

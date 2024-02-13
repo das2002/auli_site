@@ -1,6 +1,5 @@
 import { get, set, entries } from 'idb-keyval';
 
-
 export async function getDirectoryHandle() {
 
     console.log("Getting directory handle...");
@@ -29,7 +28,6 @@ export async function fetchAndCompareConfig(webAppHwUid) {
     entries().then((entries) => console.log(entries));
 
     try {
-        // Try to get the file handle from IndexedDB
         const fileHandle = await getFileHandle();
         if (!fileHandle) {
             throw new Error('No file handle found.');
@@ -100,9 +98,9 @@ export async function getFileHandle() {
                     }
                     fileHandle = await directoryHandle.getFileHandle('config.json', { create: true });
                     await set('configFileHandle', fileHandle);
-                } else {                   
+                } else {
                     return false;
-                }            
+                }
             }
         }
         const permission = await verifyPermission(fileHandle, true);
@@ -115,7 +113,7 @@ export async function getFileHandle() {
         console.error('Error getting file handle:', error);
         return false;
     }
- 
+
 }
 
 export async function overwriteConfigFile(newConfig) {
@@ -149,16 +147,16 @@ export async function checkDeviceConnection(webAppHwUid) {
 
 async function verifyPermission(fileHandle, readWrite) {
     const options = {};
+
     if (readWrite) {
         options.mode = 'readwrite';
     }
-    // alredy permission granted?
+
     const permission = await fileHandle.queryPermission(options);
-    // permission granted --> true
+
     if (permission === 'granted') {
         return true;
     }
-    // permission not there --> request permission
     if (permission === 'denied' || permission === 'prompt') {
         return (await fileHandle.requestPermission(options)) === 'granted';
     }

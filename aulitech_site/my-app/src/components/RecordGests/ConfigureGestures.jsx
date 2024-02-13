@@ -4,34 +4,12 @@ import SelectGesture from "./SelectGesture";
 import RecordGestures from "./RecordGestures";
 import DoneCard from './record/DoneCard'
 
-// import ConnectDevice from "./ConnectDevice";
-// import ConnectDirectory from "./ConnectDirectory";
-
 export const styles = { ACTIVE_RING: "ring-1 ring-blue-500" };
 
 const ConfigureGestures = ({ classNames, user }) => {
-  // const [catoConnected, setCatoConnected] = useState(false);
-  // const [configSuccess, setConfigSuccess] = useState(false);
   const [goToRecord, setGoToRecord] = useState(false);
   const [gestName, setGestName] = useState("");
   const [doneMsg, setDoneMsg] = useState(false);
-
-  // const handleCatoConnected = (connectState) => {
-  //   setCatoConnected(connectState);
-  //   console.log(catoConnected);
-  // };
-
-  // const handleConfigSuccess = (writeState) => {
-  //   setConfigSuccess(writeState);
-  //   console.log(configSuccess);
-  // };
-
-  const reset = () => {
-    clear();
-    entries().then((entries) => console.log(entries));
-    // setCatoConnected(false);
-    // setConfigSuccess(false);
-  };
 
   const handleGestName = (name) => {
     setGestName(name);
@@ -58,12 +36,6 @@ const ConfigureGestures = ({ classNames, user }) => {
             Record Gestures
           </h2>
         </div>
-        {/* <button
-          type={"button"}
-          onClick={reset}
-        >
-          Reset Connection
-        </button> */}
       </header>
 
       <div className="mx-auto w-full max-w-7xl grow lg:flex xl:px-2 h-full mt-10 px-4 sm:px-6 lg:px-8">

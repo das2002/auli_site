@@ -30,8 +30,6 @@ const CatoSettings = ({classNames, user, devices, currIndex}) => {
     WriteNewConfig(devices, currIndex);
   };
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------
-
   /* Retrieve the current device opened on accordian and display the devicename */
   const DisplayDevicename = () => {
     try {
@@ -85,8 +83,6 @@ const CatoSettings = ({classNames, user, devices, currIndex}) => {
       </div>
     )
   }
-
-// --------------------------------------------------------------------------------------------------------------------------------------------------
 
   return (
     <div>

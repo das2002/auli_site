@@ -15,7 +15,7 @@ import { writeBatch } from "firebase/firestore";
 import { initGestureFile, checkForFlagFile } from './initGestureFile';
 import { uploadLogToFirebase } from './initGestureFile';
 import { get, set } from 'idb-keyval';
-import { checkDeviceConnection } from '../NavBar/ReplaceConfig';
+import { checkDeviceConnection } from '../NavBar/RegisterDevices/ReplaceConfig';
 
 import { getStorage, ref, uploadBytes } from "firebase/storage";
 
@@ -605,12 +605,7 @@ const SelectGesture = ({ user }) => {
     });
   };
 
-  const addGestureData = (newData) => {
-    setGestureData(prevData => [...prevData, newData]);
-  };
-
   const startRecording = async (gesture) => {
-
     setShowPopup(true);
 
     // Reset form fields to empty when opening the form
@@ -620,8 +615,6 @@ const SelectGesture = ({ user }) => {
     setTimeBetween('');
     setTimeToSituate('');
     setTimeForUnplugging('');
-
-
   };
 
 

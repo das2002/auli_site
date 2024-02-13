@@ -9,11 +9,6 @@ export default function AccordianElement({
   currIndex,
 }) {
 
-  const devicePages = [
-    { text: "Record Gestures", pageRoute: "/record-gestures" },
-    { text: "Device Settings", pageRoute: "/cato-settings" },
-  ];
-
   const AccordionItem = ({ header, ...rest }) => {
     return (
       <Item
@@ -27,9 +22,8 @@ export default function AccordianElement({
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className={`w-6 text-white h-6 ml-auto transition-transform duration-200 ease-out ${
-                isEnter && "rotate-180"
-              }`}
+              className={`w-6 text-white h-6 ml-auto transition-transform duration-200 ease-out ${isEnter && "rotate-180"
+                }`}
             >
               <path
                 strokeLinecap="round"
@@ -47,8 +41,7 @@ export default function AccordianElement({
         }
         buttonProps={{
           className: ({ isEnter }) =>
-            `flex w-full p-4 text-left text-lg hover:bg-transparent${
-              isEnter && "bg-transparent"
+            `flex w-full p-4 text-left text-lg hover:bg-transparent${isEnter && "bg-transparent"
             }`,
         }}
         contentProps={{
@@ -77,7 +70,6 @@ export default function AccordianElement({
               d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"
             />
           </svg>
-
           <p>Devices</p>
         </div>
       </div>

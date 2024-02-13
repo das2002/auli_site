@@ -32,8 +32,6 @@ const ProfilePg = ({ user }) => {
     /* [save] makes this useEffect trigger when value changed so when the user saves the changes the new info is displayed right afterwards */
   }, [save]);
 
-// --------------------------------------------------------------------------------------------------------------------------------------------------
-
   /* Cancel button resets local variables holding user input */
   const handleCancel = () => {
     setName("");
@@ -47,12 +45,12 @@ const ProfilePg = ({ user }) => {
       if (displayname) {
         await StoreProfileData(user, displayname);
       }
-  
+
       /* Check if email is provided and update it */
       if (email) {
         await StoreProfileData(user, '', email);
       }
-  
+
       /* Retrigger useEffect and reset local variables */
       setSave(!save);
       setName("");
@@ -61,9 +59,6 @@ const ProfilePg = ({ user }) => {
       console.log("Error updating profile data: ", err);
     }
   };
-  
-
-// --------------------------------------------------------------------------------------------------------------------------------------------------
 
   return (
     <>

@@ -8,7 +8,6 @@ async function handleFileSelection(event) {
         if (!file) {
             throw new Error('No file selected');
         }
-
         const zipBlob = await file.arrayBuffer();
         const zip = await JSZip.loadAsync(zipBlob);
 
@@ -25,7 +24,6 @@ async function handleFileSelection(event) {
                 // Skip config.json
                 continue;
             }
-
             const fileData = await zip.files[fileName].async('blob');
 
             // overwrite existing files
@@ -34,7 +32,6 @@ async function handleFileSelection(event) {
             await writable.write(fileData);
             await writable.close();
         }
-
         console.log('Update applied successfully, except config.json');
     } catch (error) {
         console.error('Error applying update:', error);
@@ -78,4 +75,3 @@ export async function applyUpdate(zipArrayBuffer) {
         console.error('Error applying update:', error);
     }
 }
-

@@ -5,23 +5,23 @@ import { auth } from "./firebase";
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import { FcGoogle } from "react-icons/fc";
 
-import ProfilePg from './components/ProfilePage/ProfilePg';
+import ProfilePg from './components/NavBar/ProfilePg';
 import Navigation from './components/NavBar/Navigation';
 import SignOutAccount from './components/GoogleAuth/SignOutAccount';
 import ConfigureGestures from './components/RecordGests/ConfigureGestures';
 import CatoSettings from './components/CatoSettings/CatoSettings';
-import RegisterCatoDevice from './components/RegisterDevice/RegisterCatoDevice';
+import RegisterCatoDevice from './components/NavBar/RegisterDevices/RegisterCatoDevice';
 import { db } from "./firebase";
 import { collection, query, getDocs, where, doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import RecordGestures from './components/RecordGests/RecordGestures';
 import Updates from './components/UpdatePage/Updates';
-import Devices from './components/NavBar/Devices';
-import Practice from './components/NavBar/Practice';
-import RegisterInterface from './components/NavBar/RegisterInterface';
+import Devices from './components/NavBar/DeviceSettings/Devices';
+import Practice from './components/NavBar/PracticeMode/Practice';
+import RegisterInterface from './components/NavBar/RegisterDevices/RegisterInterface';
 import { get, set } from 'idb-keyval';
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import BindingsPanel from './components/NavBar/Bindings';
-import { getFileHandle } from './components/NavBar/ReplaceConfig';
+import BindingsPanel from './components/NavBar/DeviceSettings/Bindings';
+import { getFileHandle } from './components/NavBar/RegisterDevices/ReplaceConfig';
 
 import chromePermissionsImage from './chromePermissions.png';
 
@@ -102,20 +102,17 @@ function App() {
         // Signed in 
         const user = userCredential.user;
         console.log("Logged in", user);
-        toggleLoginPopup(); // close the login popup
+        toggleLoginPopup(); 
       })
       .catch((error) => {
         console.log("Error during account login:", error.message);
-        setErrorMessage("Incorrect email or password. Please try again."); // Set custom error message
+        setErrorMessage("Incorrect email or password. Please try again."); 
       });
   };
 
 
   const createEmailAccount = async (email, displayname, password, setErrorMessage) => {
     const auth = getAuth();
-
-    // Regex for password validation
-    // const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{12,24}$/;
     const passwordRegex = /^.{8,}$/;
 
     if (!passwordRegex.test(password)) {
@@ -138,7 +135,6 @@ function App() {
         setErrorMessage(error.message); // Set Firebase error message
       });
   };
-
 
   // email and password flow login/signup
   const EmailLoginForm = () => {
