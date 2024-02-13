@@ -16,7 +16,7 @@ jobs:
         run: cd aulitech_site/my-app
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --force
         working-directory: aulitech_site/my-app
 
       - name: Build
