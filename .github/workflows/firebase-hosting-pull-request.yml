@@ -9,8 +9,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
+      - name: Change directory
+        run: cd aulitech_site/my-app
+
+      - name: Install dependencies
+        run: npm install --force
+        working-directory: aulitech_site/my-app
+
+      - name: Build
+        run: DISABLE_ESLINT_PLUGIN=true npm run build
+        working-directory: aulitech_site/my-app
+        
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_MY_CATO }}'
           projectId: my-cato
+          entrypoint: ./aulitech_site/my-app
