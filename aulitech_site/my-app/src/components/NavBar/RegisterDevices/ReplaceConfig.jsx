@@ -28,7 +28,7 @@ export async function fetchAndCompareConfig(webAppHwUid) {
     entries().then((entries) => console.log(entries));
 
     try {
-        const fileHandle = await getFileHandle();
+        let fileHandle = await getFileHandle();
         if (!fileHandle) {
             throw new Error('No file handle found.');
         }

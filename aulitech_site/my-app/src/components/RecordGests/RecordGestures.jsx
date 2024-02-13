@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState } from "react";
 import ProgBar from "./record/ProgBar";
 import RcrdCard from "./record/RcrdCard";
 
