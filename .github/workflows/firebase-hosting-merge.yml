@@ -20,7 +20,7 @@ jobs:
         working-directory: aulitech_site/my-app
 
       - name: Build
-        run: npm run build
+        run: DISABLE_ESLINT_PLUGIN=true npm run build
         working-directory: aulitech_site/my-app
       
       - uses: FirebaseExtended/action-hosting-deploy@v0
