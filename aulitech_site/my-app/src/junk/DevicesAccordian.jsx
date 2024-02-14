@@ -1,6 +1,6 @@
 import React from "react";
 import { Accordion, AccordionItem as Item } from "@szhsin/react-accordion";
-import AccordianElement from "../components/NavBar/Accordian";
+import AccordianElement from "./Accordian";
 
 export default function DevicesAccordian({
   devices,
