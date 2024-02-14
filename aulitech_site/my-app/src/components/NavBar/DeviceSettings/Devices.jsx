@@ -4,6 +4,8 @@ import { db, auth } from '../../../firebase';
 import debounce from 'lodash.debounce';
 import { collection, getDocs, query, where, updateDoc, doc, deleteDoc } from 'firebase/firestore';
 import { set } from 'lodash';
+
+// styles
 import Slider from '@mui/material/Slider';
 import { styled } from '@mui/material/styles';
 import { KeyOptions, getKeyOption } from './KeyOptions';
@@ -12,14 +14,16 @@ import { toast, ToastContainer, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import dynamicMouseGraphic from '../../../images/dynamic_mouse_graphic.png';
 
+// images
 import flatImage from '../images/flatImage.png';
 import landscapeImage from '../images/landscapeImage.png';
 import portraitImage from '../images/portraitImage.png';
-
 import emptystar from '../images/emptyStar.png';
 import filledin from '../images/filledStar.png';
-
 import PencilEditIcon from '../images/pencil-edit.svg';
+
+// classes
+
 
 const DarkYellowSlider = styled(Slider)(({ theme }) => ({
   color: '#B8860B',
@@ -37,14 +41,14 @@ const DarkYellowSlider = styled(Slider)(({ theme }) => ({
 }));
 
 const sectionHeadingStyle = {
-  fontSize: '16px',
+  fontSize: '18px',
   marginBottom: '10px',
   fontWeight: 'bold',
-  backgroundColor: '#fcdc6d',
-  borderRadius: '10px',
-  padding: '5px 15px',
+  // backgroundColor: '#fcdc6d',
+  // borderRadius: '10px',
+  // padding: '5px 15px',
   display: 'inline-block',
-  boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+  // boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
   marginLeft: '20px'
 };
 
@@ -308,6 +312,10 @@ const Devices = ({ devices }) => {
   const [isUniversalSettingsExpanded, setIsUniversalSettingsExpanded] = useState(true);
   const [isConnectionsExpanded, setIsConnectionsExpanded] = useState(true);
 
+  const [editedGlobalSettings, setEditedGlobalSettings] = useState(null);
+  const [editedConnectionsSettings, setEditedConnectionsSettings] = useState(null);
+  const [connectionsList, setConnectionsList] = useState([]);
+
   const toggleUniversalSettings = () => {
     setIsUniversalSettingsExpanded(!isUniversalSettingsExpanded);
   };
@@ -415,10 +423,6 @@ const Devices = ({ devices }) => {
       </div>
     );
   };
-
-  const [editedGlobalSettings, setEditedGlobalSettings] = useState(null);
-  const [editedConnectionsSettings, setEditedConnectionsSettings] = useState(null);
-  const [connectionsList, setConnectionsList] = useState([]);
 
   const makePrimary = async (primaryConnection) => {
     const updatedConnections = [primaryConnection, ...connectionsList.filter(conn => conn.name !== primaryConnection.name)];
@@ -544,17 +548,14 @@ const Devices = ({ devices }) => {
 
     const sectionHeadingDynamicStyle = (isExpanded) => ({
       ...sectionHeadingStyle,
-      backgroundColor: isExpanded ? '#fcdc6d' : '#1A202C',
-      color: isExpanded ? 'black' : 'white',
+      // backgroundColor: isExpanded ? '#fcdc6d' : '#1A202C',
+      // color: isExpanded ? 'black' : 'white',
       cursor: 'pointer',
     });
 
     if (!editedGlobalSettings) {
       return <div>Loading...</div>;
     }
-
-    const sectionStyle = {
-    };
 
     const handleDeviceNameChange = (value) => {
       const newEditedGlobalSettings = deepCopy(editedGlobalSettings);
@@ -625,18 +626,17 @@ const Devices = ({ devices }) => {
           },
           image: portraitImage
         },
-
       };
 
       const handleOrientationSelect = (orientationKey) => {
         setSelectedOrientation(orientationKey);
+
         const orientationConfig = orientations[orientationKey].config;
         const newEditedGlobalSettings = deepCopy(editedGlobalSettings);
+
         newEditedGlobalSettings.orientation.value = orientationConfig;
         setEditedGlobalSettings(newEditedGlobalSettings);
       };
-
-      const darkerYellow = '#f9da6b';
 
       return (
         <div>
@@ -653,7 +653,7 @@ const Devices = ({ devices }) => {
                 >
                   <img src={image} alt={key} />
                   <p style={{
-                    backgroundColor: selectedOrientation === key ? darkerYellow : 'transparent',
+                    backgroundColor: selectedOrientation === key ? '#f9da6b' : 'transparent', 
                     padding: selectedOrientation === key ? '5px' : '0'
                   }}>
                     {key.charAt(0).toUpperCase() + key.slice(1)}
@@ -665,7 +665,6 @@ const Devices = ({ devices }) => {
         </div>
       );
     };
-
 
     return (
       <div>
@@ -735,7 +734,8 @@ const Devices = ({ devices }) => {
           <div style={{ marginBottom: '10px' }}>
             <button onClick={handleRegisterInterface}
               style={{
-                backgroundColor: '#8B0000',
+                // backgroundColor: '#8B0000',
+                backgroundColor: '#bc840c',
                 color: 'white',
                 padding: '10px',
                 fontSize: '16px',
@@ -953,13 +953,13 @@ const Devices = ({ devices }) => {
               onClick={() => toggleSection('connectionSettings')}
               style={{
 
-                backgroundColor: collapsedSections['connectionSettings'] ? '#1A202C' : '#fcdc6d',
-                color: collapsedSections['connectionSettings'] ? '#FFFFFF' : '#000000',
-                borderRadius: '10px',
-                padding: '5px 15px',
+                // backgroundColor: collapsedSections['connectionSettings'] ? '#1A202C' : '#fcdc6d',
+                // color: collapsedSections['connectionSettings'] ? '#FFFFFF' : '#000000',
+                // borderRadius: '10px',
+                // padding: '5px 15px',
                 display: 'inline-block',
-                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '16px',
+                // boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+                fontSize: '18px',
                 fontWeight: 'bold',
                 border: 'none',
                 cursor: 'pointer',
@@ -1011,13 +1011,13 @@ const Devices = ({ devices }) => {
             <button
               onClick={toggleCollapse}
               style={{
-                backgroundColor: isCollapsed ? '#1A202C' : '#fcdc6d',
-                color: isCollapsed ? '#FFFFFF' : '#000000',
-                borderRadius: '10px',
-                padding: '5px 15px',
+                // backgroundColor: isCollapsed ? '#1A202C' : '#fcdc6d',
+                // color: isCollapsed ? '#FFFFFF' : '#000000',
+                // borderRadius: '10px',
+                // padding: '5px 15px',
                 display: 'inline-block',
-                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '16px',
+                // boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+                fontSize: '18px',
                 fontWeight: 'bold',
                 border: 'none',
                 cursor: 'pointer',
@@ -1210,13 +1210,13 @@ const Devices = ({ devices }) => {
             <button
               onClick={() => toggleSection('clickerSettings')}
               style={{
-                backgroundColor: collapsedSections['clickerSettings'] ? '#1A202C' : '#fcdc6d',
-                color: collapsedSections['clickerSettings'] ? '#FFFFFF' : '#000000',
-                borderRadius: '10px',
-                padding: '5px 15px',
+                // backgroundColor: collapsedSections['clickerSettings'] ? '#1A202C' : '#fcdc6d',
+                // color: collapsedSections['clickerSettings'] ? '#FFFFFF' : '#000000',
+                // borderRadius: '10px',
+                // padding: '5px 15px',
                 display: 'inline-block',
-                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '16px',
+                // boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+                fontSize: '18px',
                 fontWeight: 'bold',
                 border: 'none',
                 cursor: 'pointer',
@@ -1295,20 +1295,19 @@ const Devices = ({ devices }) => {
             <button
               onClick={toggleCollapse}
               style={{
-                backgroundColor: isCollapsed ? '#1A202C' : '#fcdc6d',
-                color: isCollapsed ? '#FFFFFF' : '#000000',
-                borderRadius: '10px',
-                padding: '5px 15px',
+                // backgroundColor: isCollapsed ? '#1A202C' : '#fcdc6d',
+                // color: isCollapsed ? '#FFFFFF' : '#000000',
+                // borderRadius: '10px',
+                // padding: '5px 15px',
                 display: 'inline-block',
-                boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                fontSize: '16px',
+                // boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+                fontSize: '18px',
                 fontWeight: 'bold',
                 border: 'none',
                 cursor: 'pointer',
                 outline: 'none',
                 marginBottom: '10px',
                 marginLeft: '20px'
-
               }}
             >
               Gesture Settings
@@ -1359,11 +1358,8 @@ const Devices = ({ devices }) => {
 
       const TVRemoteOptions = (config) => {
         return (
-          // give a title for the TV Remote Options
           <div style={{ maxWidth: '600px', margin: '0' }}>
             <h2 style={sectionHeadingStyle}>TV Remote Options</h2>
-            {/* <h1 style={titleStyle}> TV Remote Options </h1> */}
-            {/* <div style={sliderContainerStyle}> */}
             <CheckboxOption
               checked={config.config.tv_remote.value.await_actions.value}
               onChange={(e) => handleModeConfigChange(['tv_remote', 'value', 'await_actions', 'value'], activeOperationMode)((e.target.checked))}
@@ -1371,8 +1367,6 @@ const Devices = ({ devices }) => {
               description="Wait for previous action to end before reading a new gesture"
             />
           </div>
-          // </div>
-
         );
       };
 
@@ -1433,13 +1427,13 @@ const Devices = ({ devices }) => {
           }
         }
         const toggleStyle = {
-          backgroundColor: collapsedSections['bindingsPanel'] ? '#1A202C' : '#fcdc6d',
-          color: collapsedSections['bindingsPanel'] ? '#FFFFFF' : '#000000',
-          borderRadius: '10px',
-          padding: '5px 15px',
+          // backgroundColor: collapsedSections['bindingsPanel'] ? '#1A202C' : '#fcdc6d',
+          // color: collapsedSections['bindingsPanel'] ? '#FFFFFF' : '#000000',
+          // borderRadius: '10px',
+          // padding: '5px 15px',
           display: 'inline-block',
-          boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-          fontSize: '16px',
+          // boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+          fontSize: '18px',
           fontWeight: 'bold',
           border: 'none',
           cursor: 'pointer',
@@ -1541,7 +1535,7 @@ const Devices = ({ devices }) => {
         let bindingsSettings;
         if (mode === "clicker") {
           gesturesList = ['None', 'Single', 'Double', 'Triple'];
-          bindingsSettings = config.bindings.value; 
+          bindingsSettings = config.bindings.value;
         } else {
           gesturesList = [
             'None',
@@ -1568,12 +1562,12 @@ const Devices = ({ devices }) => {
               <button
                 onClick={toggleExpanded}
                 style={{
-                  backgroundColor: isExpanded ? '#fcdc6d' : '#1A202C',
-                  color: isExpanded ? '#000000' : '#FFFFFF',
-                  borderRadius: '10px',
-                  padding: '5px 15px',
-                  boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
-                  fontSize: '16px',
+                  // backgroundColor: isExpanded ? '#fcdc6d' : '#1A202C',
+                  // color: isExpanded ? '#000000' : '#FFFFFF',
+                  // borderRadius: '10px',
+                  // padding: '5px 15px',
+                  // boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
+                  fontSize: '18px',
                   fontWeight: 'bold',
                   border: 'none',
                   cursor: 'pointer',
@@ -1858,7 +1852,7 @@ const Devices = ({ devices }) => {
                   onClick={toggleIsExpanded}
                   style={{
                     padding: '10px',
-                    fontSize: '16px',
+                    fontSize: '21px',
                     cursor: 'pointer',
                     marginRight: '10px'
                   }}
@@ -1960,7 +1954,8 @@ const Devices = ({ devices }) => {
           <div style={{ marginBottom: '10px' }}>
             <button onClick={handleRegisterInterface}
               style={{
-                backgroundColor: '#8B0000',
+                // backgroundColor: '#8B0000',
+                backgroundColor: '#bc840c',
                 color: 'white',
                 padding: '10px',
                 fontSize: '16px',
@@ -2268,7 +2263,7 @@ const Devices = ({ devices }) => {
 
       <button onClick={handleSave}
         style={{
-          backgroundColor: '#B8860B', //B8860B
+          backgroundColor: '#8c6209', //B8860B
           color: 'white',
           padding: '10px 20px',
           fontSize: '16px',
